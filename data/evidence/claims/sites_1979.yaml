@@ -1,12 +1,15 @@
 # Claims behind the 1979 site register (content/slice/sites_1979.yaml, phase1-slice.md §3.1).
 # Two claims per placed site:
-#   site.<id>.exists_1979  lead from general knowledge: the site existed at the start of 1979. Needs a period source.
+#   site.<id>.exists_1979  the named place or feature existed in 1979. See the locator for the scope of each source.
 #   site.<id>.location     lead: a present-day OSM point used as a proxy. Needs placing on 1979 imagery (Landsat 1979-10-19,
 #                          USGS 1977 aerial, KH-9), then a person checks it.
 - id: site.shenzhen_market_town.exists_1979
-  origin: general_knowledge
-  summary: The Shenzhen market town (深圳墟), around today's Dongmen streets, was the main built-up place in the slice in 1979.
-  status: lead
+  source: phase1_sham_chun_historical_geography
+  locator: "§05, opening paragraph"
+  quote: "20世纪50年代的东门老街正处于深圳镇的中心位置"
+  summary: The Shenzhen market town (深圳墟), centred on present-day Dongmen, was an established settlement by 1979.
+  status: sourced
+  extracted_by: ai:phase1-map-research
 - id: site.shenzhen_market_town.location
   source: osm_shenzhen_places
   locator: "name=东门老街"
@@ -15,15 +18,21 @@
   notes: Present-day position; the 1979 extent is unknown.
 
 - id: site.county_offices.exists_1979
-  origin: general_knowledge
-  summary: The county's offices and state units stood in or beside the market town in 1979.
-  status: lead
-  notes: Which units, where and how many staff are all open. Not placed.
+  source: phase1_sham_chun_historical_geography
+  locator: "§05, final sentence of the opening paragraph, and §06, opening paragraph"
+  quote: "于1953年由南头迁至深圳镇（今蔡屋围一带）"
+  summary: Bao'an County moved its government seat to Shenzhen town, in the Caiwuwei area, before the 1979 conversion to Shenzhen municipality.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: A building roster, individual sites and the transition of offices to the municipality remain open.
 
 - id: site.luohu_crossing.exists_1979
-  origin: general_knowledge
+  source: phase1_sz_first_protected_names
+  locator: "p. 29, entry 63 罗湖桥, final sentence"
+  quote: "往返两地都要徒步行走过罗湖桥"
   summary: The Luohu bridge over the Shenzhen River was a passenger border crossing to Hong Kong in 1979.
-  status: lead
+  status: sourced
+  extracted_by: ai:phase1-map-research
 - id: site.luohu_crossing.location
   source: osm_shenzhen_places
   locator: "name=罗湖桥"
@@ -31,9 +40,12 @@
   status: lead
 
 - id: site.shenzhen_station.exists_1979
-  origin: general_knowledge
-  summary: The Kowloon–Canton railway ran to a Shenzhen station by the Luohu crossing in 1979.
-  status: lead
+  source: phase1_luohu_rail_station
+  locator: "Main text, station chronology"
+  quote: "1950年迁至罗湖口岸，时称罗湖站"
+  summary: The mainland railway station now known as Shenzhen Station operated by the Luohu crossing in 1979 under the name Luohu Station (罗湖站).
+  status: sourced
+  extracted_by: ai:phase1-map-research
 - id: site.shenzhen_station.location
   source: osm_shenzhen_places
   locator: "name=深圳站"
@@ -41,10 +53,13 @@
   status: lead
 
 - id: site.wenjindu_crossing.exists_1979
-  origin: general_knowledge
+  source: phase1_wenjindu_port_history
+  locator: "口岸介绍, opening paragraph"
+  quote: "以供港鲜活产品过境为特点"
   summary: Wenjindu was a crossing used for freight to Hong Kong in 1979.
-  status: lead
-  notes: phase1.map.luohu_gate_roles gives the freight role in the 1985 yearbook, not yet for 1979.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: The mainland source describes 1978 approval. The freight crossing, its road bridge and the later Hong Kong control point have separate chronologies.
 - id: site.wenjindu_crossing.location
   source: osm_shenzhen_places
   locator: "name=文锦渡口岸"
@@ -52,9 +67,12 @@
   status: lead
 
 - id: site.caiwuwei.exists_1979
-  origin: general_knowledge
-  summary: Caiwuwei (蔡屋围) was a village beside the market town in 1979.
-  status: lead
+  source: phase1_sz_first_protected_names
+  locator: "p. 41, entry 91 蔡屋围"
+  quote: "发展建成老围和新围两村落"
+  summary: Caiwuwei (蔡屋围) was an established village settlement by 1979.
+  status: sourced
+  extracted_by: ai:phase1-map-research
 - id: site.caiwuwei.location
   source: osm_shenzhen_places
   locator: "name=蔡屋围 (neighbourhood)"
@@ -62,10 +80,13 @@
   status: lead
 
 - id: site.yumin.exists_1979
-  origin: general_knowledge
+  source: phase1_sz_first_protected_names
+  locator: "p. 42, entry 92 渔民村"
+  quote: "渔民们上岸盖草棚、辟鱼塘，就此定居"
   summary: Yumin village (渔民村) was a fishing village near the Luohu crossing in 1979.
-  status: lead
-  notes: Verification log V18.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: The entry dates settlement to the 1950s and describes the village again in 1981. See verification log V18 for the river-location lead.
 - id: site.yumin.location
   source: osm_shenzhen_places
   locator: "name=渔民村 (residential)"
@@ -73,9 +94,13 @@
   status: lead
 
 - id: site.huangbeiling.exists_1979
-  origin: general_knowledge
-  summary: Huangbeiling (黄贝岭) was a village east of the market town in 1979.
-  status: lead
+  source: phase1_huangbeiling_cnr
+  locator: "Opening paragraph"
+  quote: "是罗湖区乃至深圳较为古老的村庄之一"
+  summary: Huangbeiling (黄贝岭) was an established village by 1979.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: Retrospective report. A period village label and an identifiable old village core would strengthen the evidence.
 - id: site.huangbeiling.location
   source: osm_shenzhen_places
   locator: "name=黄贝岭 (community)"
@@ -83,9 +108,12 @@
   status: lead
 
 - id: site.hubei.exists_1979
-  origin: general_knowledge
-  summary: Hubei (湖贝) was a village on the east side of the market town in 1979.
-  status: lead
+  source: phase1_sz_first_protected_names
+  locator: "pp. 10–11, entry 20 湖贝"
+  quote: "湖贝村于明成化二年（1466）开基立村"
+  summary: Hubei (湖贝) was an established village by 1979.
+  status: sourced
+  extracted_by: ai:phase1-map-research
 - id: site.hubei.location
   source: osm_shenzhen_places
   locator: "name=湖贝新村"
@@ -93,9 +121,13 @@
   status: lead
 
 - id: site.xiangxi.exists_1979
-  origin: general_knowledge
-  summary: Xiangxi (向西) was a village beside the market town in 1979.
-  status: lead
+  source: phase1_xiangxi_village_history
+  locator: "深圳首个洗脚上田的行政村落, paragraphs on the village in 1979 and early land acquisition"
+  quote: "向西村是深圳首个被征地的行政村"
+  summary: Xiangxi (向西) existed as a village at the beginning of Shenzhen's early redevelopment.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: Retrospective village account. The 1979 land footprint remains open.
 - id: site.xiangxi.location
   source: osm_shenzhen_places
   locator: "name=向西村"
@@ -103,9 +135,13 @@
   status: lead
 
 - id: site.sungang.exists_1979
-  origin: general_knowledge
-  summary: Sungang (笋岗) was a village with farmland north of the market town in 1979.
-  status: lead
+  source: phase1_sungang_village_history
+  locator: "行政沿革, 1979 entry"
+  quote: "1979年，属深圳市罗湖区附城公社"
+  summary: Sungang (笋岗) existed as a village in 1979.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: Farmland and pond extent remain open.
 - id: site.sungang.location
   source: osm_shenzhen_places
   locator: "name=笋岗村"
@@ -113,9 +149,12 @@
   status: lead
 
 - id: site.shenzhen_reservoir.exists_1979
-  origin: general_knowledge
+  source: phase1_archive_reservoir
+  locator: "Paragraph beginning 历经4个多月的奋战"
+  quote: "1961年2月1日，深圳水库正式向香港供水"
   summary: The Shenzhen Reservoir (深圳水库) existed in 1979 and supplied water, including to Hong Kong.
-  status: lead
+  status: sourced
+  extracted_by: ai:phase1-map-research
   notes: Capacity and supply commitments are open.
 - id: site.shenzhen_reservoir.location
   source: osm_shenzhen_places
@@ -125,10 +164,13 @@
   notes: The 1979 Landsat scene shows its water surface; check the outline against it.
 
 - id: site.shangbu_land.exists_1979
-  origin: general_knowledge
-  summary: Before the industrial zone, Shangbu (上步) was mostly farmland and villages in 1979.
-  status: lead
-  notes: Land use in 1979 is open. phase1.shangbu.reported_pop is for the later management district.
+  source: phase1_shangbu_huaqiang_history
+  locator: "p. 9, opening paragraphs and 深圳电子工业肇启"
+  quote: "华强北片区只有稻田和茅草屋"
+  summary: Paddy fields and thatched housing were present in the Shangbu brigade area where Huaqiangbei subsequently developed.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: This account describes the prospective industrial site. Land-use shares and village boundaries for the wider district remain open.
 - id: site.shangbu_land.location
   source: osm_shenzhen_places
   locator: "name=上步工业区"
@@ -136,9 +178,13 @@
   status: lead
 
 - id: site.nantou_old_town.exists_1979
-  origin: general_knowledge
-  summary: The old county town of Nantou (南头古城), with its walls and streets, existed in 1979.
-  status: lead
+  source: phase1_sz_first_protected_names
+  locator: "p. 20, entry 44 南头古城"
+  quote: "南头古城旧称城子冈（岗）、新安故城或南头城"
+  summary: Nantou old town (南头古城) was an established former county seat by 1979.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: Wall survival and street geometry in 1979 remain open.
 - id: site.nantou_old_town.location
   source: osm_shenzhen_places
   locator: "way 219961346 (南头古城), centroid"
@@ -158,9 +204,12 @@
   notes: The present-day harbour may stand on reclaimed land; see the Landsat check in sites.json.
 
 - id: site.chiwan.exists_1979
-  origin: general_knowledge
-  summary: Chiwan (赤湾) was a coastal village west of Shekou in 1979.
-  status: lead
+  source: phase1_sz_first_protected_names
+  locator: "p. 9, entry 16 赤湾"
+  quote: "居民点（村）名。原赤湾村始建于宋代"
+  summary: Chiwan (赤湾) was an established settlement by 1979.
+  status: sourced
+  extracted_by: ai:phase1-map-research
 - id: site.chiwan.location
   source: osm_shenzhen_places
   locator: "name=赤湾"
@@ -168,15 +217,21 @@
   status: lead
 
 - id: site.kcr_line.exists_1979
-  origin: general_knowledge
-  summary: The Kowloon–Canton railway line crossed the slice from the north to the Luohu crossing in 1979.
-  status: lead
-  notes: Not placed. Trace it on the 1979 imagery.
+  source: phase1_kcrc_history
+  locator: "Post-war service history, paragraph beginning 戰爭結束後"
+  quote: "往廣州的直通車客運服務則於1979年重開"
+  summary: The Kowloon–Canton railway operated across the border via Luohu in 1979.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: The 1979 alignment awaits a trace from period material.
 - id: site.guangshen_road.exists_1979
-  origin: general_knowledge
-  summary: A road from Guangzhou reached the Shenzhen market town in 1979.
-  status: lead
-  notes: Route and condition are open. Not placed.
+  source: phase1_shennan_road_construction
+  locator: "深南大道南山段 opening paragraph and later paragraph beginning 建市后"
+  quote: "这条路避开原有的广深公路"
+  summary: The Guangzhou–Shenzhen road already existed when the separate Shennan works began in 1980.
+  status: sourced
+  extracted_by: ai:phase1-map-research
+  notes: The historical terminus, route into the market town and surface condition along the whole alignment remain open.
 - id: site.border_fence.exists_1979
   origin: general_knowledge
   summary: A border fence and patrol road ran along the Shenzhen River in 1979.

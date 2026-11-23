@@ -1,0 +1,17 @@
+id: kh9_1980_09_11_f047
+title: KH-9 Hexagon Declass 3 frame D3C1216-300662F047
+issuer: U.S. Geological Survey Earth Resources Observation and Science Center
+doc_date: 1980-09-11
+url: https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-3
+retrieved: 2026-11-23
+local_copy:
+  path: data/raw/sources/kh9_1980_09_11_f047/D3C1216-300662F047.tgz
+  sha256: 4d151e5a4288aa973f158158ff1245201f5aee08b4a751e386730de9e206db99
+tier: B
+reuse: unknown
+notes: >-
+  EarthExplorer Standard Format. The 2,062,167,797-byte download passed gzip
+  integrity verification and contains four TIFF segments. EarthExplorer lists
+  nominal 2–4 ft camera resolution and corner coordinates covering the Luohu,
+  Shangbu and Nantou reference points. Scan alignment, actual ground detail
+  and cloud coverage are pending inspection.

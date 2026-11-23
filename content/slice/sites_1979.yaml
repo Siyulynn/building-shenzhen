@@ -1,5 +1,5 @@
 # The 1979 site register (docs/design/systems/phase1-slice.md §3.1, milestone M1b).
-# Every site is a lead until a period source says it existed and a person places it on 1979 imagery.
+# Existence and placement have separate claims. See docs/research/phase1-map-sources.md.
 # geometry.kind: point (a present-day OSM proxy, low confidence) | unplaced (known to exist, not yet located).
 # evidence_status is not stored here: pipeline/m1b_sites.py computes it from the cited claims for the map.
 - id: site.shenzhen_market_town

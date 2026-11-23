@@ -1,6 +1,6 @@
 # M1b: the 1979 site register and the 1979 Landsat baseline
 
-**Status:** first pass done (2026-11-23). Every flag is red (`lead`). Nothing here is fit for Historical mode until a person checks it.
+**Status:** first pass done (2026-11-23). See [Phase 1 map sources](../research/phase1-map-sources.md) for imagery, gauge and site research. Placed flags still depend on lead geometry.
 
 ## How to rebuild
 1. `npm run spike:grid` (Spike A grid, `docs/spikes/spike-a-map.md`).
@@ -22,7 +22,7 @@
 
   Most of the reclamation runs along Shenzhen Bay and around Shekou.
 - **Caveats:**
-  - The tide when the image was taken is unknown, so mudflats may read as land, or as sea.
+  - The overpass tide is pending the Tsim Bei Tsui gauge record. Mudflats may read as land or sea.
   - The threshold is automatic.
   - Today's water comes from a DEM threshold (≤ 0.5 m), so inland water that is still water today can show as "inland water in 1979" too. The Shenzhen Reservoir is an example.
   - About 22% of the "inland water in 1979" cells lie above 50 m (median 28 m). Those are hill shadow in the morning image, not water, so trust that class only on the plains.
@@ -31,7 +31,7 @@
 
 ## The site register (`content/slice/sites_1979.yaml`)
 - **Coverage:** 20 sites. 15 have present-day OSM proxy points (`osm_shenzhen_places`, tier D). Five are unplaced: the county offices, the KCR line, the Guangzhou road, the border fence and military land.
-- **Claims:** each site cites `site.<id>.exists_1979` (lead, general knowledge, use `encyclopedia`). Each placed site also cites `site.<id>.location` (lead, use `geometry`). Sourced Phase 1 claims are attached as context, and most are `design_note`. One is `geometry`: `phase1.map.yumin_river_location`.
+- **Claims:** each site cites `site.<id>.exists_1979` (use `encyclopedia`). The follow-up sources 17 of those claims. Each placed site also cites `site.<id>.location` (lead, use `geometry`). Sourced Phase 1 claims are attached as context, and most are `design_note`. One is `geometry`: `phase1.map.yumin_river_location`.
 - **Flag colour:** the weakest of the site's own encyclopedia and geometry claims.
 - **What Landsat shows at each proxy point (hints, not findings):**
 

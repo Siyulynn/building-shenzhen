@@ -1,0 +1,17 @@
+id: kh9_1980_09_11_f048
+title: KH-9 Hexagon Declass 3 frame D3C1216-300662F048
+issuer: U.S. Geological Survey Earth Resources Observation and Science Center
+doc_date: 1980-09-11
+url: https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-3
+retrieved: 2026-11-23
+local_copy:
+  path: data/raw/sources/kh9_1980_09_11_f048/D3C1216-300662F048.tgz
+  sha256: a9234b3e554f8f946349c0f826a00251f2c9261d1b4e12b2ce9943c5c89f9086
+tier: B
+reuse: unknown
+notes: >-
+  EarthExplorer Standard Format. The 1,617,866,382-byte archive passed gzip
+  integrity verification and contains four TIFF segments. EarthExplorer
+  lists nominal 2–4 ft camera resolution and corner coordinates covering
+  the Shekou and Nantou reference points. Scan alignment, actual ground
+  detail and cloud coverage are pending inspection.

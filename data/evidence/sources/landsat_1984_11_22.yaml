@@ -1,0 +1,18 @@
+id: landsat_1984_11_22
+title: Landsat 5 MSS Collection 2 Level-1 scene LM05_L1TP_121044_19841122_20200902_02_T2
+issuer: U.S. Geological Survey Earth Resources Observation and Science Center
+doc_date: 1984-11-22
+url: https://doi.org/10.5066/P9AF14YV
+retrieved: 2026-11-23
+local_copy:
+  path: data/raw/sources/landsat_1984_11_22/LM05_L1TP_121044_19841122_20200902_02_T2.tar
+  sha256: f84294c98dfbbcee93231acebef52788124106205d44570cfa86cc1ba6b5942b
+tier: B
+reuse: public_domain
+notes: >-
+  Entity LM51210441984327FFF03, WRS-2 path 121 / row 044. The Level-1 archive
+  contains four MSS bands and both QA GeoTIFFs on a 3895 by 3456 grid.
+  MTL records 60 m pixels, WGS 84 / UTM 50N, scene centre time
+  02:15:49.031 UTC, 0% scene and land cloud, and geometric model RMSE
+  18.450 m. QA_PIXEL samples confirm useful coverage in eastern Shenzhen
+  and fill or absence for the four western and central reference points.
