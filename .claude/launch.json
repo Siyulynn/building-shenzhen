@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "map-spike", "runtimeExecutable": "npm", "runtimeArgs": ["run", "spike:map"], "port": 5173 }
+  ]
+}

@@ -1,0 +1,11 @@
+id: osm_shenzhen_admin
+title: OpenStreetMap administrative boundaries of Shenzhen (districts and subdistricts), Overpass export
+issuer: OpenStreetMap contributors
+url: https://www.openstreetmap.org/relation/3464353
+retrieved: 2026-11-23
+local_copy:
+  path: data/raw/sources/osm_shenzhen_admin/admin.json
+  sha256: 0226c98ce0f0a872a930824535dbed3f7d796772500ec0c71b7e72e0b129333e
+tier: D
+reuse: open_share_alike
+notes: Present-day boundaries (ODbL). District polygons include sea areas. Not evidence for any historical boundary.

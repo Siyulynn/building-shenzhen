@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "test": "vitest run",
@@ -12,12 +13,15 @@
     "evidence:status": "tsx packages/evidence/src/cli.ts status",
     "evidence:compile": "tsx packages/evidence/src/cli.ts compile --draft",
     "evidence:compile:strict": "tsx packages/evidence/src/cli.ts compile --strict",
-    "check": "npm run typecheck && npm test && npm run evidence:validate"
+    "check": "npm run typecheck && npm test && npm run evidence:validate",
+    "spike:grid": "pipeline/.venv/Scripts/python -I pipeline/spike_a_grid.py",
+    "spike:map": "vite apps/map-spike --port 5173 --strictPort"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
+    "vite": "^6.4.6",
     "vitest": "^5.1.1",
     "yaml": "^2.9.1",
     "zod": "^3.25.76"

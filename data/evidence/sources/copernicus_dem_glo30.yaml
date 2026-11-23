@@ -1,0 +1,15 @@
+id: copernicus_dem_glo30
+title: Copernicus DEM GLO-30, tiles N22 E113 and N22 E114 (Cloud Optimized GeoTIFF)
+issuer: European Space Agency / Copernicus Programme
+url: https://copernicus-dem-30m.s3.amazonaws.com/
+retrieved: 2026-11-23
+local_copy:
+  path: data/raw/sources/copernicus_dem_glo30/Copernicus_DSM_COG_10_N22_00_E113_00_DEM.tif
+  sha256: 074e13244e6da6745bcf76150fdc6e06f774140a7aac796785922fce962eacbb
+tier: B
+reuse: open_attribution
+notes: >-
+  Second tile: Copernicus_DSM_COG_10_N22_00_E114_00_DEM.tif,
+  sha256 b950ab75642d6684fe08c82b6aa3bb087c1d35acd229ef0e6e6586e1b0868fa3.
+  Surface model from 2011-2015 acquisitions, so it shows present-day reclamation, not 1979.
+  Credit line to confirm against the licence: "© DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018, provided under COPERNICUS by the European Union and ESA".

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spike A: 100 m grid</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0e1a24; color: #e8e4d8; font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
+    canvas { display: block; width: 100vw; height: 100vh; cursor: grab; }
+    canvas.dragging { cursor: grabbing; }
+    #panel { position: fixed; top: 12px; left: 12px; background: rgba(14,26,36,.88); padding: 10px 12px; border-radius: 6px; max-width: 300px; }
+    #panel h1 { font-size: 14px; margin: 0 0 6px; }
+    #panel label { display: block; }
+    #hover { position: fixed; bottom: 12px; left: 12px; background: rgba(14,26,36,.88); padding: 6px 10px; border-radius: 6px; font-variant-numeric: tabular-nums; }
+    #caveat { color: #d9b26f; margin-top: 6px; font-size: 12px; }
+    #perf { color: #8fa3b3; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <canvas id="map"></canvas>
+  <div id="panel">
+    <h1>Shenzhen, 100 m grid (Spike A)</h1>
+    <label><input type="checkbox" id="hill" checked /> Hillshade</label>
+    <label><input type="checkbox" id="dist" checked /> District boundaries</label>
+    <label><input type="checkbox" id="sub" /> Subdistrict boundaries and labels</label>
+    <label><input type="checkbox" id="slice" /> Phase 1 slice (Luohu + Shekou)</label>
+    <div id="caveat">Present-day coastline and boundaries. The 1979 coastline is not traced yet.</div>
+    <div id="perf"></div>
+  </div>
+  <div id="hover">Drag to pan, wheel to zoom</div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

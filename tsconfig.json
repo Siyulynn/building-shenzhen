@@ -7,7 +7,17 @@
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
   },
-  "include": ["packages/*/src", "packages/*/test"]
+  "include": [
+    "packages/*/src",
+    "packages/*/test",
+    "apps/*/src"
+  ]
 }

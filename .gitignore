@@ -5,3 +5,5 @@ data/raw/
 *.log
 .DS_Store
 .claude/settings.local.json
+pipeline/.venv/
+apps/*/public/grid/
