@@ -7,17 +7,27 @@ import { labour } from './systems/labour.js';
 import { migration } from './systems/migration.js';
 import { production } from './systems/industry.js';
 import { statistics } from './systems/statistics.js';
+import { offers, type Buildable, type InvestorArchetype } from './investors.js';
 import { zoning, type Precedent } from './zones.js';
 
 /**
  * Content the tick reads, never stored in state (§5.3, §5.5). Without precedents no zone takes a historical name;
  * without investor archetypes no offer is raised.
  */
-export interface TickContent { precedents?: readonly Precedent[] }
+export interface TickContent {
+  precedents?: readonly Precedent[]; investors?: readonly InvestorArchetype[]; buildable?: Buildable;
+}
+
+/** Tick step 3: zone names settle, then investors look for sites (§5.3, §5.5). */
+function investment(params: SliceParams, content: TickContent) {
+  const names = zoning(params, content.precedents ?? []);
+  const offered = offers(params, content);
+  return (ctx: TickContext): void => { names(ctx); offered(ctx); };
+}
 
 export function createTickSteps(params: SliceParams, content: TickContent = {}): readonly TickStep[] {
   const impl: Record<string, (ctx: TickContext) => void> = {
-    investment: zoning(params, content.precedents ?? []),
+    investment: investment(params, content),
     construction: construction(params),
     labour: labour(params),
     housing: housing(params),

@@ -9,7 +9,10 @@ import type { YM } from './ym.js';
 export const SAVE_VERSION = 1;
 
 /** The content a save was made with (§5.1, §5.3). */
-export interface SaveContent { areas_sha256: string; params_sha256: string; precedents_sha256: string }
+export interface SaveContent {
+  areas_sha256: string; params_sha256: string; precedents_sha256: string;
+  investors_sha256: string; buildable_sha256: string;   // M3b, §5.5
+}
 export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed: number; content: SaveContent }
 export interface Save { header: SaveHeader; body: { state: unknown; rng: RngState }; arrays: Record<string, Uint32Array> }
 

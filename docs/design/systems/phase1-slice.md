@@ -636,7 +636,8 @@ interface Cohort { /* buildings §2.2, M2 */ workDone?: number; workTotal?: numb
   - Households draw nothing from them in M3b.
 
 **The preview** (fiscal §7.2). `previewOffer(state, card, params, content)` is a pure function. For each site option it gives:
-- jobs, the months to build, beds needed (jobs − dormitory beds), and floor and capacity used;
+- jobs, the months until it opens (`build_months − 1` for a new factory, 1 in existing premises), the floor and dormitory built, and the zone's free floor or the area's free premises jobs;
+- beds needed: jobs − dormitory beds, which is every job in existing premises;
 - power and water needed, against what is free in the area;
 - per year at full ramp: gross output, exports and value added.
 
