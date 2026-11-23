@@ -220,8 +220,21 @@ export function loanSchedule(principal: number, rate: number, first: YM, grace: 
 // ---- money for projects ----
 
 const last = (a: readonly number[]) => (a.length ? a[a.length - 1]! : 0);
-/** general is drawn for projects only down to reserve_months × last month's obligations due (§5.6). */
-export const reserveFloor = (s: GameState, p: SliceParams) => Math.round(p.fiscal.reserve_months * last(s.history.obligationsDue));
+/** The baselines due this month (fiscal §6.1, §5.6): the county's own spending, per head and per m² of completed floor. */
+export function baselineDue(s: GameState, p: SliceParams): number {
+  const F = p.fiscal;
+  let resident = 0, present = 0, floor = 0;
+  for (const g of s.pops) { resident += g.stayedSixMonths; present += g.present; }
+  for (const b of s.blocks) for (const c of b.cohorts) if (c.stage === 'completed') floor += c.m2;
+  return Math.round(F.county_base_obligations_per_month + F.admin_per_resident_month * resident
+    + F.police_per_present_month * present + F.sanitation_per_m2_month * floor);
+}
+/**
+ * general is drawn for projects only down to reserve_months × last month's obligations due (§5.6); in the first
+ * month, with no month closed yet, × this month's baselines.
+ */
+export const reserveFloor = (s: GameState, p: SliceParams) => Math.round(p.fiscal.reserve_months
+  * (s.history.obligationsDue.length ? last(s.history.obligationsDue) : baselineDue(s, p)));
 export const liveProject = (x: Project) => x.stage !== 'done' && x.stage !== 'cancelled';
 /** What a project may draw this month, by account in drawing order. */
 export function projectFunds(s: GameState, p: SliceParams): { debt: number; land: number; general: number } {

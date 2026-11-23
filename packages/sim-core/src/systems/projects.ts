@@ -104,7 +104,8 @@ export function allocatePool(ctx: TickContext, p: SliceParams): Map<Cohort, numb
   }
   for (const x of s.fiscal.projects) {
     if (!liveProject(x)) continue;
-    delete x.waiting;
+    delete x.waiting;                                     // why it waits, and whether it is stalled, is this month's
+    if (x.stage === 'stalled') x.stage = x.workDone > 0 || x.crewBank > 0 ? 'building' : 'committed';
     if (x.contract !== undefined) {                       // a dedicated contract: outside the pool
       const k = s.fiscal.contracts.find((c) => c.id === x.contract)!;
       if (s.date < k.starts) { x.waiting = 'mobilization'; continue; }

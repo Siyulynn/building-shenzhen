@@ -4,30 +4,19 @@
  * The month always closes with a balanced ledger before any card is answered.
  */
 import {
-  DEFICIT_CARD, DEFICIT_OPTIONS, LOAN_CARD, addObligation, borrowingCapacity, debtServiceAt, grantFactor, isLive,
+  DEFICIT_CARD, DEFICIT_OPTIONS, LOAN_CARD, addObligation, baselineDue, borrowingCapacity, debtServiceAt, grantFactor, isLive,
   landFeeRate, loanSchedule, obligationDue, post, regimeOf, type AccountId, type DeficitOption, type FiscalContent,
   type ObligationKind,
 } from '../fiscal.js';
 import type { SliceParams } from '../params.js';
 import type { GameState } from '../state.js';
 import type { TickContext } from '../step.js';
-import { completedM2 } from './common.js';
 
 type LineKind = ObligationKind | 'baseline' | 'debt_service';
 interface Line { ref: string; kind: LineKind; amount: number }
 /** Paying order: debt service, arrears and payroll first, so unpaid payroll is the last resort. */
 const ORDER: readonly LineKind[] = ['debt_service', 'arrears', 'payroll', 'baseline', 'service', 'maintenance', 'transfer'];
 const CUTTABLE: readonly LineKind[] = ['baseline', 'payroll', 'service'];
-
-/** The baselines due this month (fiscal §6.1). */
-export function baselineDue(s: GameState, p: SliceParams): number {
-  const F = p.fiscal;
-  let resident = 0, present = 0;
-  for (const g of s.pops) { resident += g.stayedSixMonths; present += g.present; }
-  const floor = s.blocks.reduce((a, b) => a + completedM2(b), 0);
-  return Math.round(F.county_base_obligations_per_month + F.admin_per_resident_month * resident
-    + F.police_per_present_month * present + F.sanitation_per_m2_month * floor);
-}
 
 function takeLoan(s: GameState, kind: 'project' | 'short', principal: number, p: SliceParams): void {
   const F = s.fiscal;

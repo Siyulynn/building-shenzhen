@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ACCOUNTS, DEFICIT_CARD, LOAN_CARD, Rng, createFirm, createTickSteps, debtServiceAt, fiscalViews, firstOption,
-  loadGame, parseYM, previewOffer, principalOutstanding, replay, runMonths, saveFromJson, saveGame, saveToJson,
+  isLive, loadGame, obligationDue, parseYM, previewOffer, principalOutstanding, replay, runMonths, saveFromJson, saveGame, saveToJson,
   sizeOffer, step, validateParams, type DecisionPolicy, type GameState, type PlayerAction, type SimEvent, type SliceParams,
   type TickStep,
 } from '../src/index.js';
@@ -36,6 +36,14 @@ function checkLedger(before: GameState, after: GameState): void {
   }
   for (const e of added) expect(Number.isInteger(e.amount) && e.amount !== 0).toBe(true);
   for (const l of after.fiscal.loans) expect(principalOutstanding(l, after.date)).toBeGreaterThanOrEqual(0);
+  // obligations due = baselines + live obligations (arrears among them) + debt service
+  const d = before.date, h = after.history, n = h.obligationsDue.length - 1;
+  let lines = 0;
+  for (const o of after.fiscal.obligations) if (isLive(o, d)) lines += obligationDue(o, after);
+  for (const l of after.fiscal.loans) lines += debtServiceAt(l, d);
+  expect(h.obligationsDue[n]).toBe(h.baselineDue[n]! + lines);
+  // a project is stalled only while it waits for money
+  for (const x of after.fiscal.projects) if (x.stage === 'stalled') expect(x.waiting).toBe('finance');
 }
 
 interface Run { state: GameState; events: SimEvent[][] }
@@ -203,6 +211,32 @@ describe('M4: the project loan', () => {
     expect(raised(dec, LOAN_CARD)).toEqual([0, 6]);
     expect(dec.state.fiscal.projects.some((x) => x.waiting === 'finance' && x.stage === 'stalled')).toBe(true);
     expect(dec.state.fiscal.loans).toHaveLength(0);
+  });
+
+  it('lowers recurring money after its grace period, against the same run without the loan, by the debt service', () => {
+    // the same roads, built by the Engineering Corps from month 2 in both runs (no local crew): from the loan, or from land money
+    const L = params.fiscal.loan;
+    const script = { 0: [...FIVE, { type: 'contract_team', team: 'team.engineering_corps', mode: 'pool' } as PlayerAction] };
+    const months = 2 + L.grace_months + 2;
+    // a reserve deep enough that neither run falls into arrears, which would roll into the next month and blur the difference
+    const general = 2_000_000, B = params.fiscal.start_balances;
+    const Q = withFiscal({ start_balances: { ...B, general } }, { capacity: { ...params.capacity, local_crew: 0 } });
+    const loan = go(start(Q), months, { steps: stepsFor(Q), script, answers: { [LOAN_CARD]: 'take' } });
+    const P = withFiscal({ start_balances: { ...B, general, land: L.principal } },
+      { capacity: { ...params.capacity, local_crew: 0 } });
+    const none = go(start(P), months, { steps: stepsFor(P), script });
+    expect(raised(none, LOAN_CARD)).toEqual([]);
+    const l = loan.state.fiscal.loans[0]!;
+    const ha = loan.state.history, hb = none.state.history;
+    expect(ha.revenue).toEqual(hb.revenue);
+    for (let m = 0; m < months; m++) {
+      expect(ha.obligationsDue[m]! - hb.obligationsDue[m]!).toBe(debtServiceAt(l, start().date + m));
+    }
+    const g = l.taken + 1 + L.grace_months - start().date;
+    expect(debtServiceAt(l, start().date + g)).toBe(Math.floor(L.principal / L.term_months) + Math.round(L.principal * L.rate_month));
+    expect(loan.state.fiscal.projects.every((x) => x.stage === 'done')).toBe(true);
+    expect(fiscalViews(loan.state, Q).recurring.available)
+      .toBe(fiscalViews(none.state, P).recurring.available - debtServiceAt(l, loan.state.date - 1));
   });
 
   it('lets a stalled project resume when the money comes', () => {
