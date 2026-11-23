@@ -784,7 +784,7 @@ The renderer works at three scales:
 ### 6.6 Repository layout
 
 ```
-CLAUDE.md                      conventions & commands for AI agents (keep short, keep current)
+AGENTS.md                      conventions & commands for AI agents (keep short, keep current)
 docs/design/                   pillars.md, systems/*.md, content-style-guide.md, sensitive-content.md
 docs/research/                 evidence-protocol.md, verification-log-*.md, notes/; bibliography.yaml and timeline.yaml are generated views
 packages/sim-core/             deterministic simulation (TS, no DOM)
@@ -841,7 +841,7 @@ This is how you know the simulation is *about Shenzhen* and not a generic city b
   - 2009 resident population ≈ 9.95 million in the census-revised vintage (see the vintage note above).
 - **Test bots:** besides the autopilot, run a random player, a "GDP-maximiser" and a "never take risks" player. They find exploits and dominant strategies long before human playtesters do.
 
-> **Guardrail against overfitting:** AI agents asked to "make the calibration pass" will happily write `if (year === 1992) growth *= 1.4`. Forbid this in `CLAUDE.md`. Tuning means changing **named parameters in data files**, and every change goes into a tuning log that explains why.
+> **Guardrail against overfitting:** AI agents asked to "make the calibration pass" will happily write `if (year === 1992) growth *= 1.4`. Forbid this in `AGENTS.md`. Tuning means changing **named parameters in data files**, and every change goes into a tuning log that explains why.
 
 ---
 
@@ -859,7 +859,7 @@ This is how you know the simulation is *about Shenzhen* and not a generic city b
    - **You** check the claims and sign them off as `verified` (evidence protocol §4). AI can extract claims and mark them `sourced`, but never `verified`.
 4. **Play → screenshot → fix.** The agent runs the game in the browser, clicks through flows, screenshots the map and 3D views, and fixes the UI and rendering problems it finds.
 
-### 8.2 What goes in `CLAUDE.md`
+### 8.2 What goes in `AGENTS.md`
 - Commands for testing, the quick calibration run, the dev server and the content validator.
 - The architecture rules from §6.2, stated as hard rules.
 - "Every sim change keeps the tests and the quick calibration run passing, or explains why the golden numbers changed."

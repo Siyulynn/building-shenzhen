@@ -545,7 +545,7 @@ content/slice/events/*.yaml       # about 15 events
 content/slice/targets.yaml        # annual review targets
 params/slice.yaml                 # all tunable numbers
 ```
-Every historical statement cites claim IDs (CLAUDE.md). Claims that don't exist yet are created as `lead` in the same change.
+Every historical statement cites claim IDs (AGENTS.md). Claims that don't exist yet are created as `lead` in the same change.
 
 **The events** (about 15). *Anchor* dates are fixed in Historical mode; *milestones* are timed by the player; *emergent* events fire from sim conditions. Anchors need `verified` claims (protocol §4). The `phase1.*` claims below are `sourced` from the Phase 1 research (`docs/research/phase1-1979-1984.md`) and wait for a person's check. They replace the earlier `event.*` leads, which stay in the store with a note until a person marks them superseded.
 

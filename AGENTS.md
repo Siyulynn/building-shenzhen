@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 A historical city-builder: Shenzhen, 1979–2009. Master plan: `PLAN.md`. Pillars: `docs/design/pillars.md`. System specs: `docs/design/systems/*.md`. Research rules: `docs/research/evidence-protocol.md`.
 
