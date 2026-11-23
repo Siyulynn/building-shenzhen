@@ -564,7 +564,7 @@ interface Firm {
   jobs: number;                   // at full ramp
   floorM2: number; dormM2: number;     // built in its area's block stock as standard_factory and dormitory
   powerKw: number; waterM3Day: number; // needs at full ramp
-  accepted: YM; opens: YM;        // opens when its factory completes; the month after acceptance in existing premises
+  accepted: YM; opens?: YM;       // set when its factory cohort completes; the month after acceptance in existing premises
   posted: number; staffed: number;     // this month's factory jobs posted and filled (tick step 5)
   output: number;                 // this month's gross output, yuan (tick step 6)
 }
@@ -610,7 +610,13 @@ interface AnsweredCard { card: CardInstance; option: string }   // answered, awa
   - **It is a placeholder layer:** its inputs are git-ignored, the 1979 water mask is an automatic threshold (`lead`), and the DEM is present-day.
   - **Zoning unbuildable cells stays legal** (§5.3). They add no capacity.
 
-**Building.** An accepted firm in a new factory starts its `standard_factory` floor and its `dormitory` floor under construction in its area's block, permitted, due after `build_months`. M2 does the rest: construction jobs while it rises, dormitory beds once it is complete.
+**Building.** An accepted firm in a new factory starts its `standard_factory` floor and its `dormitory` floor under construction in its area's block, permitted. M2 does the rest: construction jobs while it rises, dormitory beds once it is complete.
+- **Work, not dates.** Every cohort under construction carries `workDone` and `workTotal` (months of work, integers), and the firm's cohorts carry `firm`. The construction step adds a month of work to each, and completes a cohort when its work is done. `due` stays as the estimate shown to the player.
+- **Work begins in the month of acceptance**, so a firm's factory completes `build_months − 1` months later. A village rental cohort starts after that month's work, so its timing is M2's.
+- **The firm opens when its factory cohort completes**, not on the estimate. So when M4 makes a month's work depend on construction capacity, or stalls a cohort, a late factory opens late with no change to the firm code.
+```ts
+interface Cohort { /* buildings §2.2, M2 */ workDone?: number; workTotal?: number; firm?: number }   // M3b, while under construction
+```
 
 **Jobs and production** (fiscal §8.1: `output = min(orders, staffed, floor, utilities)`).
 - **Posting (tick step 5, beside the base jobs).** Each month, an open firm posts the smallest of four counts (each rounded down) as factory jobs in its area:
@@ -618,7 +624,7 @@ interface AnsweredCard { card: CardInstance; option: string }   // answered, awa
   - **floor:** jobs, since only an open firm posts and its floor is complete;
   - **utilities:** jobs × the area's utility share, min(1, capacity ÷ the open firms' needs), for power and for water;
   - **orders:** jobs × `industry.order_index` (1 until M5's Hong Kong demand series).
-- **Staffing.** An area's filled factory jobs are shared between its base jobs and its firms by largest remainder over their posts.
+- **Staffing.** An area's filled factory jobs are shared between its base jobs and its firms by largest remainder over their posts. People who leave later in the month (the crowding cap, migration) take their jobs out of the rows, and each trimmed row is shared out again, so a firm's staffing never exceeds its row's.
 - **Production (tick step 6).**
   - output = staffed × `output_per_job_month[ownership]`, × `premises_output_factor` in existing premises;
   - exports = output × `export_share[ownership]` (for processing, the gross shipment counts in trade statistics);
@@ -635,7 +641,10 @@ interface AnsweredCard { card: CardInstance; option: string }   // answered, awa
 - per year at full ramp: gross output, exports and value added.
 
 **Deferred.**
-- **To M4:** the preview's cash this quarter, retained tax and new obligations. They need the fiscal regime.
+- **To M4:**
+  - the preview's cash this quarter, retained tax and new obligations. They need the fiscal regime.
+  - **Serviced land (三通一平):** a zone's capacity gains a serviced share, 1 until M4's site-preparation projects exist: road access, water, power, and cleared, level ground. A connected site stays distinct from one with spare water and power to operate.
+  - **Construction capacity:** factories, roads, utilities and site preparation draw on one monthly pool of work, supplied by local labour and by teams that join it (contracted county crews, the Engineering Corps, outside state companies). A dedicated contract waives a project's draw on the pool but not its cost or time. Village self-build stays outside the pool.
 - **To M5:**
   - the guaranteed first contract in 1979-Q2, and the post-SEZ origins with their incentives;
   - readiness and the first wave;

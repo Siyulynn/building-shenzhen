@@ -81,5 +81,5 @@ industry:                                # M3b (§5.5): firms, production and va
 investors:                               # M3b (§5.5): offers by archetype (content/slice/investors.yaml). Placeholders
   offer_months: 6                        # an offer outlives a quarter: runQuarter does not stop between months
   archetypes:
-    investor.hk_processing:     { rate_per_quarter: 0.4, jobs: [60, 200], dorm_beds_per_job: 0.8, build_months: 9, ramp_months: 3 }
+    investor.hk_processing:     { rate_per_quarter: 0.4, jobs: [60, 200], dorm_beds_per_job: 0.3, build_months: 9, ramp_months: 3 }
     investor.inland_state_unit: { rate_per_quarter: 0.1, jobs: [100, 400], dorm_beds_per_job: 0.5, build_months: 12, ramp_months: 6 }

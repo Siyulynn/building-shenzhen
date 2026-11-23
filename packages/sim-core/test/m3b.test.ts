@@ -4,14 +4,16 @@ import {
   Rng, createTickSteps, loadGame, replay, runMonths, saveFromJson, saveGame, saveToJson, step, validateParams,
   type GameState, type TickStep,
 } from '../src/index.js';
+import { leave } from '../src/systems/common.js';
 import { createFirm, sizeOffer, type FirmSite } from '../src/systems/industry.js';
 import { content, initial, params, precedents } from './fixtures.js';
-import { checkInvariants, walk } from './invariants.js';
+import { checkFirms, checkInvariants, walk } from './invariants.js';
 
 const STEPS = createTickSteps(params, { precedents });
 const HK = 'investor.hk_processing';
 const BUILD = params.investors.archetypes[HK]!.build_months;
 const RAMP = params.investors.archetypes[HK]!.ramp_months;
+const OPEN = BUILD - 1;                          // work begins in the month of acceptance (month 0)
 
 /** The initial state with one Hong Kong processing firm of `jobs` jobs sited in month 0. */
 function withFirm(jobs = 200, site: FirmSite = { premises: 'new_factory', area: 7, zone: 1 }, mut?: (s: GameState) => void) {
@@ -41,21 +43,24 @@ describe('M3b params', () => {
 describe('M3b firms: the loop', () => {
   it('builds a factory and dormitory, then hires, ramps up and produces', () => {
     const s0 = withFirm();
-    expect(s0.firms[0]).toMatchObject({ id: 1, area: 7, zone: 1, jobs: 200, floorM2: 2000, dormM2: 800, opens: s0.date + BUILD });
+    // 200 jobs: 2,000 m² of factory, and 0.3 dormitory beds a job at 5 m² a bed
+    expect(s0.firms[0]).toMatchObject({ id: 1, area: 7, zone: 1, jobs: 200, floorM2: 2000, dormM2: 300 });
+    expect(s0.firms[0]!.opens).toBeUndefined();
     expect(s0.nextFirmId).toBe(2);
-    const bare = series(initial(), 24), h = series(s0, 24);
+    const bare = series(initial(), 24), end = run(s0, 24), h = end.history;
+    expect(end.firms[0]!.opens).toBe(s0.date + OPEN);
 
-    // under construction: 2,800 m² for the build months, then none
-    expect(h.underConstructionM2[0]! - bare.underConstructionM2[0]!).toBe(2800);
-    expect(h.underConstructionM2[BUILD]! - bare.underConstructionM2[BUILD]!).toBe(0);
+    // under construction: 2,300 m² while the work lasts, then none
+    expect(h.underConstructionM2[0]! - bare.underConstructionM2[0]!).toBe(2300);
+    expect(h.underConstructionM2[OPEN - 1]! - bare.underConstructionM2[OPEN - 1]!).toBe(2300);
+    expect(h.underConstructionM2[OPEN]! - bare.underConstructionM2[OPEN]!).toBe(0);
     const cons = (x: typeof h, m: number) => x.jobs.construction[m]!;
-    expect(cons(h, 0) - cons(bare, 0)).toBe(Math.floor(2800 * params.labour.construction_jobs_per_m2));
+    expect(cons(h, 0) - cons(bare, 0)).toBe(Math.floor(2300 * params.labour.construction_jobs_per_m2));
 
     // no factory jobs before it opens; then the ramp: a third, two thirds, all of them
-    expect(h.firmJobs.slice(0, BUILD).every((n) => n === 0)).toBe(true);
-    expect(h.firmJobs.slice(BUILD, BUILD + RAMP + 1)).toEqual([66, 133, 200, 200]);
-    // dormitory beds: 800 m² at 5 m² a bed
-    expect(h.rentalBeds[BUILD]! - bare.rentalBeds[BUILD]!).toBe(800 / params.housing.m2_per_bed.dormitory);
+    expect(h.firmJobs.slice(0, OPEN).every((n) => n === 0)).toBe(true);
+    expect(h.firmJobs.slice(OPEN, OPEN + RAMP + 1)).toEqual([66, 133, 200, 200]);
+    expect(h.rentalBeds[OPEN]! - bare.rentalBeds[OPEN]!).toBe(300 / params.housing.m2_per_bed.dormitory);
 
     // output at 400 a job-month, all exported, a fifth of it value added; none without the firm
     expect(h.firmStaffed[23]).toBe(200);                         // the start's idle locals staff a small firm
@@ -65,24 +70,42 @@ describe('M3b firms: the loop', () => {
     expect(bare.output.every((x) => x === 0)).toBe(true);
   });
 
+  it('opens on completion, not on the estimate: a cohort with more work left opens later', () => {
+    const s0 = withFirm();
+    for (const c of s0.blocks.find((b) => b.area === 7)!.cohorts) if (c.firm === 1) c.workTotal = BUILD + 4;
+    const end = run(s0, BUILD + 6);
+    expect(end.firms[0]!.opens).toBe(s0.date + BUILD + 3);
+    expect(end.history.firmJobs.slice(0, BUILD + 3).every((n) => n === 0)).toBe(true);
+  });
+
   it('draws migrants and fills beds once a firm outgrows the local slack', () => {
     const big = (s: GameState) => { s.areas.find((a) => a.id === 7)!.utilities = { waterCap: 1000, powerCap: 1000 }; };
-    const bare = series(initial(), 36), h = series(withFirm(1000, undefined, big), 36);
-    expect(h.firmJobs[BUILD + RAMP]).toBe(1000);
-    expect(h.migrants[35]!).toBeGreaterThan(bare.migrants[35]! + 300);
+    const bare = run(initial(), 36), end = run(withFirm(1000, undefined, big), 36), h = end.history;
+    expect(h.firmJobs[OPEN + RAMP]).toBe(1000);
+    expect(h.migrants[35]!).toBeGreaterThan(bare.history.migrants[35]! + 300);
     expect(h.firmStaffed[35]!).toBeGreaterThan(900);
-    // housing demand: the newcomers sleep in rental beds, here the dormitory's 4,000 m² (800 beds)
-    expect(h.rentalBeds[35]! - bare.rentalBeds[35]!).toBe(4000 / params.housing.m2_per_bed.dormitory);
+    // housing demand: the dormitory's 300 beds, then village rental floor for the rest
+    expect(h.rentalBeds[35]! - bare.history.rentalBeds[35]!).toBeGreaterThan(300);
     const rentalOccupants = (s: GameState) => s.housing.reduce((a, m) => a + m.occupants.rental, 0);
-    expect(rentalOccupants(run(withFirm(1000, undefined, big), 36)) - rentalOccupants(run(initial(), 36))).toBeGreaterThan(300);
+    expect(rentalOccupants(end) - rentalOccupants(bare)).toBeGreaterThan(300);
+  });
+
+  it('keeps firm staffing within its row when people leave after matching', () => {
+    const big = (s: GameState) => { s.areas.find((a) => a.id === 7)!.utilities = { waterCap: 1000, powerCap: 1000 }; };
+    const s = run(withFirm(1000, undefined, big), OPEN + 6);
+    const g = s.pops.find((x) => x.area === 7 && x.kind === 'migrant_factory')!;
+    leave(s, g, g.size, params);                                   // every factory migrant in area 7 goes
+    const r = row(s, 7, 'factory');
+    expect(s.firms[0]!.staffed).toBeLessThanOrEqual(r.filled);
+    checkFirms(s);
   });
 
   it('caps posts at the area utility share: a small power cap binds output', () => {
     // 200 jobs need 100 kW; 50 kW gives half
     const h = series(withFirm(200, undefined, (s) => { s.areas.find((a) => a.id === 7)!.utilities.powerCap = 50; }), BUILD + 6);
-    expect(h.firmJobs[BUILD + 5]).toBe(100);
+    expect(h.firmJobs[OPEN + 5]).toBe(100);
     const full = series(withFirm(), BUILD + 6);
-    expect(full.output[BUILD + 5]!).toBeGreaterThan(h.output[BUILD + 5]!);
+    expect(full.output[OPEN + 5]!).toBeGreaterThan(h.output[OPEN + 5]!);
     // two firms share the area's capacity
     const two = withFirm(200, undefined, (s) => { s.areas.find((a) => a.id === 7)!.utilities.powerCap = 150; });
     createFirm(two, params, sizeOffer(params, HK, 'hk_processing', 200), { premises: 'new_factory', area: 7, zone: 1 });

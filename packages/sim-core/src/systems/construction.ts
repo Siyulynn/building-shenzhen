@@ -24,11 +24,18 @@ export function construction(p: SliceParams) {
     const s = ctx.state;
     const vb = p.village_build;
     for (const b of s.blocks) {
-      // 1. completions due this month
+      // 1. a month of work on every cohort under construction; completions when the work is done (§5.5).
+      //    M4 will make the month's work depend on construction capacity, and stall cohorts.
       for (const c of b.cohorts) {
-        if (c.stage === 'under_construction' && c.due !== undefined && c.due <= s.date) {
+        if (c.stage !== 'under_construction') continue;
+        c.workDone = (c.workDone ?? 0) + 1;
+        if (c.workDone >= (c.workTotal ?? 0)) {
           c.stage = 'completed';
-          delete c.due;
+          if (c.firm !== undefined && c.archetype === 'standard_factory') {
+            const f = s.firms.find((x) => x.id === c.firm);
+            if (f) f.opens = s.date;
+          }
+          delete c.due; delete c.workDone; delete c.workTotal; delete c.firm;
           b.events.push({ date: s.date, kind: 'complete', use: c.use, m2: c.m2, builder: BUILDER_OF[c.archetype] });
         }
       }
@@ -57,7 +64,8 @@ export function construction(p: SliceParams) {
             const due = s.date + vb.duration_months;
             for (const [m2, legality] of [[permitted, 'permitted'], [start - permitted, 'unpermitted_tolerated']] as const) {
               if (m2 <= 0) continue;
-              b.cohorts.push({ era, use: USE_OF.village_rental, stage: 'under_construction', legality, m2, archetype: 'village_rental', due });
+              b.cohorts.push({ era, use: USE_OF.village_rental, stage: 'under_construction', legality, m2, archetype: 'village_rental', due,
+                workDone: 0, workTotal: vb.duration_months });
               b.events.push({ date: s.date, kind: 'start', use: USE_OF.village_rental, m2, builder: BUILDER });
             }
           }

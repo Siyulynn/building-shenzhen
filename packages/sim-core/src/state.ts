@@ -29,7 +29,7 @@ export interface PopGroup {
   employed: Record<Sector, number>; wage: number; savings: number; mood: number;
 }
 
-// buildings §2.2, with the cohort's archetype and due month (M2)
+// buildings §2.2, with the cohort's archetype and due month (M2), and its work counters and firm (M3b, §5.5)
 export type FloorUse = 'residential_rental' | 'residential_owner' | 'dormitory' | 'shop' | 'workshop' | 'factory'
   | 'office' | 'warehouse' | 'public' | 'vacant';
 export type Stage = 'planned' | 'under_construction' | 'stalled' | 'completed' | 'demolished';
@@ -37,7 +37,9 @@ export type Legality = 'permitted' | 'unpermitted_tolerated' | 'marked_illegal' 
 export type BlockEventKind = 'start' | 'complete' | 'add_floors' | 'change_use' | 'stall' | 'resume' | 'demolish'
   | 'legalise' | 'mark_illegal';
 export interface Cohort { era: number; use: FloorUse; stage: Stage; legality: Legality; m2: number;
-  archetype: BuildingArchetype; due?: YM }
+  archetype: BuildingArchetype; due?: YM;
+  workDone?: number; workTotal?: number;   // months of work done and needed, while under construction
+  firm?: number }                         // the firm whose factory or dormitory this is, until completion
 export interface BlockEvent { date: YM; kind: BlockEventKind; use?: FloorUse; m2: number; builder: string }
 export interface BlockStock {
   blockId: number; cell: number; area: number; village?: number;
@@ -80,7 +82,7 @@ export interface Firm {
   archetype: string; ownership: Ownership; sector: 'factory';
   area: number; zone?: number; premises: 'new_factory' | 'existing';
   jobs: number; floorM2: number; dormM2: number; powerKw: number; waterM3Day: number;
-  accepted: YM; opens: YM;
+  accepted: YM; opens?: YM;        // set when its factory completes (the month after acceptance in existing premises)
   posted: number; staffed: number; output: number;   // this month's: jobs posted, jobs filled, gross output (yuan)
 }
 

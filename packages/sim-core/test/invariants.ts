@@ -69,7 +69,8 @@ export function checkFirms(s: GameState): void {
     for (const n of [f.posted, f.staffed]) expect(Number.isInteger(n) && n >= 0).toBe(true);
     expect(f.staffed).toBeLessThanOrEqual(f.posted);
     expect(f.posted).toBeLessThanOrEqual(f.jobs);
-    if (s.date < f.opens) expect(f.posted).toBe(0);
+    // step() has moved the date on: the month that just ran is s.date - 1
+    if (f.opens === undefined || f.opens > s.date - 1) expect(f.posted).toBe(0);
   }
   for (const r of s.labour.jobs) {
     const firms = s.firms.filter((f) => f.area === r.area && f.sector === r.sector);

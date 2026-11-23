@@ -36,7 +36,8 @@ export function sizeOffer(p: SliceParams, archetype: string, ownership: Ownershi
 
 /**
  * Create a firm at a site (§5.5). In a new factory it starts its factory and dormitory floor under construction in
- * its area's block, due after build_months; in existing premises it builds nothing and opens the next month.
+ * its area's block, needing build_months of work; work begins this month, and the firm opens when its factory
+ * completes (construction.ts). In existing premises it builds nothing and opens the next month.
  */
 export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site: FirmSite): Firm {
   const a = archetypeParams(p, offer.archetype);
@@ -46,7 +47,7 @@ export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site:
     area: site.area, ...(site.premises === 'new_factory' ? { zone: site.zone } : {}), premises: site.premises,
     jobs: offer.jobs, floorM2: existing ? 0 : offer.floorM2, dormM2: existing ? 0 : offer.dormM2,
     powerKw: offer.powerKw, waterM3Day: offer.waterM3Day,
-    accepted: s.date, opens: s.date + (existing ? 1 : a.build_months),
+    accepted: s.date, ...(existing ? { opens: s.date + 1 } : {}),
     posted: 0, staffed: 0, output: 0,
   };
   if (!existing) {
@@ -55,7 +56,8 @@ export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site:
     const era = b.cohorts[0]?.era ?? 0;
     for (const [archetype, m2] of [['standard_factory', f.floorM2], ['dormitory', f.dormM2]] as const) {
       if (m2 <= 0) continue;
-      b.cohorts.push({ era, use: USE_OF[archetype], stage: 'under_construction', legality: 'permitted', m2, archetype, due: f.opens });
+      b.cohorts.push({ era, use: USE_OF[archetype], stage: 'under_construction', legality: 'permitted', m2, archetype,
+        due: s.date + a.build_months - 1, workDone: 0, workTotal: a.build_months, firm: f.id });
       b.events.push({ date: s.date, kind: 'start', use: USE_OF[archetype], m2, builder: BUILDER_OF[archetype] });
     }
   }
@@ -64,7 +66,7 @@ export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site:
   return f;
 }
 
-export const isOpen = (f: Firm, date: number) => date >= f.opens;
+export const isOpen = (f: Firm, date: number) => f.opens !== undefined && date >= f.opens;
 
 /** The area's utility share for its open firms: min(1, capacity ÷ needs), the lower of power and water. */
 export function utilityShare(s: GameState, area: number): number {
@@ -82,7 +84,7 @@ export function postFirmJobs(s: GameState, p: SliceParams): void {
     f.staffed = 0;
     if (!isOpen(f, s.date)) { f.posted = 0; continue; }
     if (!shares.has(f.area)) shares.set(f.area, utilityShare(s, f.area));
-    const monthsOpen = s.date - f.opens + 1;
+    const monthsOpen = s.date - f.opens! + 1;
     const ramp = Math.floor(f.jobs * Math.min(1, monthsOpen / archetypeParams(p, f.archetype).ramp_months));
     const floor = f.jobs;                                    // an open firm's floor is complete (or existing)
     const utilities = Math.floor(f.jobs * shares.get(f.area)!);
@@ -100,6 +102,7 @@ export function staffFirms(s: GameState, rows: readonly JobRow[]): void {
   for (const r of rows) {
     const firms = s.firms.filter((f) => f.area === r.area && f.sector === r.sector && f.posted > 0);
     if (!firms.length) continue;
+    // also called after people leave (trimEmployed): the row's filled jobs are shared out again
     const base = r.jobs - firms.reduce((a, f) => a + f.posted, 0);
     const split = largestRemainder(r.filled, [base, ...firms.map((f) => f.posted)]);
     firms.forEach((f, i) => { f.staffed = split[i + 1]!; });

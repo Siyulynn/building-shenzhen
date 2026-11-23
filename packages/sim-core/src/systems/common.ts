@@ -3,6 +3,7 @@ import {
   BUILDING_ARCHETYPES, HOUSING_ARCHETYPES, POOL, POP_KINDS, SECTORS, VILLAGE_ARCHETYPES, type BuildingArchetype, type PopKind,
 } from '../enums.js';
 import { largestRemainder } from '../round.js';
+import { staffFirms } from './industry.js';
 import type { SliceParams } from '../params.js';
 import { REGISTRATION } from '../enums.js';
 import type { BlockStock, GameState, PopGroup, Queue6, Stage } from '../state.js';
@@ -75,6 +76,7 @@ export function trimEmployed(s: GameState, g: PopGroup, p: SliceParams): void {
     for (const r of [...rows.filter((r) => r.area === g.area), ...rows.filter((r) => r.area !== g.area)]) {
       const t = Math.min(left, r.filled);
       r.filled -= t; left -= t;
+      if (t > 0) staffFirms(s, [r]);          // the firms' share of the row shrinks with it (§5.5)
       if (left <= 0) break;
     }
   });
