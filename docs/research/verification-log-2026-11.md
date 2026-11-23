@@ -31,7 +31,7 @@ Under the protocol, everything below is at most **`sourced`**. A person still ha
 | 19 | Housing stock, end-2009 and end-2010 | Same housing plan as V1 | **Supports.** End-2009: "常住人口人均住房建筑面积27平方米"; 住房成套率84.2%; 住房自有率40%. End-2010: "全市住房总建筑面积4.09亿平方米，约810万套"; commodity housing 1.02亿 m², about 110万 units; affordable housing about 0.27亿 m² (6.6% of the total), about 27万 units | sourced |
 
 ## Imported into `data/evidence/` (2026-11-23)
-These rows are now claim records. Under the protocol, `sourced` needs a locator **and a verbatim quote**. Six figures the agents reported in their own words, without a verbatim sentence, were therefore imported as `lead`, pending a quote at intake:
+These rows are now claim records. Under the protocol, `sourced` needs a locator **and a verbatim quote**. Eight claims the agents reported in their own words, without a verbatim sentence, were therefore imported as `lead`, pending a quote at intake:
 - the registered population (V1);
 - 2009 GDP (V4);
 - the maintenance figures (V6);
