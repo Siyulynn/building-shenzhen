@@ -210,6 +210,63 @@ interface Sweep { active: boolean; monthsLeft: number }  // the visible vs real 
 - **The five pop kinds** are fixed combinations of PLAN §3.2's attributes. Villagers hold local rural hukou and village membership. Urban residents hold local hukou (state units, the town). Factory and construction migrants hold non-local hukou. Hong Kong managers are `hmt`. The three population counts (registered, resident, present) are filtered sums, as in PLAN §3.2.
 - **Six building archetypes:** village house, village rental block, standard factory (标准厂房), dormitory, state-unit flats, shop or market. Public facilities are tracked as facility capacity on the area.
 
+### 5.1 The sim-core contract (M1)
+This section owns the shared types that no other spec defines yet. Each later milestone adds its own state module from its owning spec. M1 adds no fiscal, physical, leadership or pop state.
+
+**Content.**
+- **`content/slice/areas.yaml`:** one record per area, with `id`, `key`, `name: { zh, en }`, `access: playable | card_only`, an optional `flag`, and `proxy_subdistricts`, a list of whole present-day subdistrict names without 街道. The areas' roles stay in this spec. They are not stored there.
+- **`content/slice/scenario.yaml`:** `start` (a `YYYY-MM` month), `turns`, `months_per_turn`, and `claims` for the dates. The sim reads the start month and the turn count from here, so no year appears in code.
+- **`data/starts/slice_areas.json`:** compiled by `pipeline/m1_areas.py` (generated, versioned, PLAN §6.6). It holds:
+  - the grid's `width`, `height`, `cell_m`, `origin_top_left` and `crs`;
+  - the sha256 of `areas.yaml`;
+  - per area, the `areas.yaml` fields plus its cells as row runs `[y, x0, x1]` (inclusive).
+
+  sim-core takes this file's parsed content as input and does no file IO. So `npm run check` runs without the git-ignored grid.
+
+**Types.**
+```ts
+type YM = number;            // absolute month index: year * 12 + (month - 1). Formatting helpers exist for display only
+interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM }
+type PlayerAction = { type: 'answer_card'; instance: string; option: string };   // later milestones add kinds
+interface ActionLogEntry { date: YM; subStep: 0 | 1 | 2; action: PlayerAction }
+interface GameState {
+  date: YM;                  // the month the next step() simulates
+  turn: number;              // 0-based quarter index; subStep 0..2 within it
+  subStep: 0 | 1 | 2;
+  scenario: { start: YM; turns: number; monthsPerTurn: number };
+  areas: SliceArea[];        // §5, utilities, facilities and the summaries start at zero
+  pendingCards: CardInstance[];
+  actionLog: ActionLogEntry[];
+  history: { months: YM[] }; // statistics series join here as systems arrive
+}
+```
+
+**`step(state, actions, rng, steps?)`** (PLAN §6.2):
+1. It applies `actions` first. Each answer must name a pending instance and one of its options, or `step()` throws. The answer is logged and the card removed.
+2. If an interrupting card is still pending, it returns `{ status: 'paused', state, pendingCards }` without advancing the month.
+3. Otherwise it runs the 14 tick steps of §6 in order: named functions, all no-ops in M1. Then it advances `date`, `subStep` and `turn`, and returns `{ status: 'advanced', state, events, stats }`.
+4. Past the last turn it throws.
+
+The optional `steps` argument replaces the tick pipeline. Tests use it to raise fixture cards and draw randomness.
+
+**RNG:** sfc32, one named stream per tick step, each seeded by splitmix32 from the run's seed and the step's name. A system added later gets its own stream, so it never shifts another system's draws in a golden run. The streams' state is plain numbers and goes in the save.
+
+**Save** (PLAN §6.7):
+- sim-core produces `{ header, body, arrays }`:
+  - `header`: `{ format: 'sz-save', version, date, seed, content: { areas_sha256 } }`;
+  - `body`: the state as JSON, with each typed array replaced by a reference;
+  - `arrays`: the named typed arrays.
+- `saveToJson` gives a canonical text form, with the arrays as base64.
+- Compression and the file container belong to the caller, because no synchronous deflate exists without DOM or Node.
+- Loading runs the migration table from the saved `version` up to the current one. Version 1 is the first.
+
+**M1's tests:**
+- save at month k, load, continue, and match an uninterrupted run byte for byte;
+- replay from the seed plus the action log;
+- the pause contract with a fixture card;
+- a known-answer test for the RNG;
+- a source scan of sim-core: no `Math.random`, no `Date`, no `node:` imports and no imports from `apps` or `render`.
+
 ---
 
 ## 6. Systems and the monthly tick
@@ -495,7 +552,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 ## 12. Build order (small commits, one system at a time)
 | Milestone | Contents | Done when |
 |---|---|---|
-| M1 | `sim-core` package: state, seeded RNG, `step()`, the action log, save and load. Also: `content/slice/areas.yaml` from whole proxy subdistricts, with the area invariant checked by `m1b_sites.py`; the map viewer's slice overlay synced to it (playable vs card-only, replacing the hard-coded Luohu + Shekou sets in `apps/map-spike/src/main.ts`) | A run of 63 empty months is deterministic; the area invariant passes |
+| M1 | `sim-core` package: state, seeded RNG, `step()`, the action log, save and load. Also: `content/slice/areas.yaml` from whole proxy subdistricts, with the area invariant checked by `m1b_sites.py`; the map viewer's slice overlay synced to it (playable vs card-only, replacing the hard-coded Luohu + Shekou sets in `apps/map-spike/src/main.ts`) | The §5.1 tests pass (save, load and continue matches an uninterrupted 63-month run; replay from the log; the pause contract); the area invariant passes |
 | M1b | The 1979 site register: candidate sites with claims, rough geometry, site flags on the map; start state compiled from it | Every site in the start state has a flag and a claim. *Status:* register and flags done; the start state is not compiled yet |
 | M2 | Pops, labour, migration, housing (block stocks), village building | The town fills with migrants and rental floors on its own |
 | M3 | Industry blocks, production, investors and the preview | Accepted investors create jobs, orders and housing demand |
