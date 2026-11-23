@@ -233,7 +233,10 @@ This section owns the shared types that no other spec defines yet. Each later mi
 ```ts
 type YM = number;            // absolute month index: year * 12 + (month - 1). Formatting helpers exist for display only
 interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM }
-type PlayerAction = { type: 'answer_card'; instance: string; option: string };   // later milestones add kinds
+type PlayerAction =
+  | { type: 'answer_card'; instance: string; option: string }
+  | { type: 'set_enforcement'; level: 'low' | 'medium' | 'high' }           // M2, §4
+  | { type: 'set_permit_regime'; regime: 'loose' | 'standard' | 'strict' }  // M2, §4; later milestones add kinds
 interface ActionLogEntry { date: YM; subStep: 0 | 1 | 2; action: PlayerAction }
 interface GameState {
   date: YM;                  // the month the next step() simulates
@@ -260,7 +263,7 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
   - Interrupting cards pause *between* monthly sub-steps, never mid-tick. The month that raised a card still completes.
   - The answer applies at the top of the next call, before the next month runs, and is logged there. Example: a deficit card raised by `finance` in month t (fiscal §7.1) is answered before month t+1.
   - Non-interrupting cards wait without pausing.
-- **Turn actions while paused:** when M2 adds actions other than `answer_card` (zoning, building, enforcement), `step()` must apply none of them while an interrupting card is still unanswered after the answers in the same call.
+- **Turn actions while paused:** `step()` applies the answers in a call first. If an interrupting card is still unanswered after them, it applies none of the other actions (`set_enforcement`, `set_permit_regime`, and later zoning and building), logs none, and returns `paused`; the caller sends them again. Applied turn actions are logged like answers, after them, so replay feeds them back in the same order.
 - **Inputs:** `step()` never changes the state it is given.
   - Each state module added later must be copied in `cloneState`.
   - Append-only logs (the action log, the ledger's entries) copy the array and share entries, which are never changed after they are written.
@@ -333,7 +336,7 @@ interface HousingMarket { area: number;
   crowding: number;                                 // rental occupants ÷ max(1, rental beds), may exceed 1
   rent: number }                                    // yuan / m² / month, rental pool
 interface MigrationState { stockLag: Record<'migrant_factory' | 'migrant_construction', number[]> }  // slice stock, last network_lag_months months
-interface PolicyLevers { permitRegime: 'loose' | 'standard' | 'strict'; enforcement: 'low' | 'medium' | 'high' }  // §4; set by actions from M5
+interface PolicyLevers { permitRegime: 'loose' | 'standard' | 'strict'; enforcement: 'low' | 'medium' | 'high' }  // §4; set by the M2 actions above (the prologue's unlocks gate them in M5)
 // GameState gains: pops: PopGroup[]; blocks: BlockStock[] (buildings §2.2); villagePlots: { area; footprintM2 }[];
 //                  labour; housing: HousingMarket[]; migration; policy; history gains the series under "Statistics"
 ```
@@ -356,11 +359,12 @@ interface PolicyLevers { permitRegime: 'loose' | 'standard' | 'strict'; enforcem
   - construction jobs, from m² under construction × `construction_jobs_per_m2`;
   - in M3, industry.
 - **Who works where:** each sector is filled from the kinds in `fill_order[sector]`, in that order. A kind not listed never works in that sector.
-- **Matching:** each month from scratch. Jobs are filled within the area first, in `AREA_ORDER` and `SECTORS` order. Leftover vacancies then take unemployed workers from the other playable areas. A cross-area worker counts as employed in their home group.
+- **Matching:** each month from scratch. Jobs are filled within the area first, in `AREA_ORDER` and `SECTORS` order. Leftover vacancies then take unemployed workers from the other playable areas: per sector and kind (in `fill_order`), the slice's idle workers are split across the areas' remaining vacancies by largest remainder, so no area is staffed first because of its id. A cross-area worker counts as employed in their home group.
+- **`employed` stays whole after outflows:** when people leave a group later in the month (housing cap, migration), the unemployed leave first. If `Σ employed` then exceeds the group's labour force, employment is trimmed (by largest remainder over sectors) and the job rows' `filled` with it, the home area's row first. So `Σ employed ≤ labour force ≤ size`, and `Σ employed = Σ filled` per sector, at the end of every step.
 - **Wages:** each sector's wage moves toward clearing, `wage += wage_speed × wage × (vacancy_rate − unemployment_rate)`, and never falls below `wage_floor[sector]`.
 
 **Housing market (step 7).**
-- Occupants are each pool's usual residents. `crowding = rental occupants ÷ max(1, rental beds)`.
+- Occupants are each pool's usual residents. `crowding = rental occupants ÷ max(1, rental beds)`. Migration refreshes occupants and crowding at the end of step 8 (rent is not recomputed), so the market and the series show the end-of-month stock.
 - **Rent moves gradually**, so there is no cobweb:
   - `target = base_rent × max(crowding, crowding_floor)^rent_elasticity`;
   - `rent += rent_speed × (target − rent)`.
@@ -373,15 +377,16 @@ interface PolicyLevers { permitRegime: 'loose' | 'standard' | 'strict'; enforcem
   - `pull = vacancies ÷ (vacancies + K_vac)`, which saturates;
   - `network = 1 + network_alpha × ln(1 + lagged slice stock ÷ K_net)`, which is concave and at least 1, so an empty slice can still attract migrants;
   - `inflow = base[k] × gap × pull × network × permit_factor[regime]`.
-- **Allocation:** weights are the area's vacancies in sector(k) plus its free rental beds under `crowding_max`, counted after this month's outflow. No area takes more than its free beds. Whoever finds no bed does not come: that inflow is lost, not stored, and so is the whole inflow when every weight is zero.
+- **Allocation:** weights are the area's vacancies in sector(k) plus its free rental beds under `crowding_max`, counted after this month's outflow. No area takes more than its free beds; an area's overflow is shared again among the areas that still have free beds (by the same weights), until everyone is placed or no bed is left. Whoever finds no bed in the slice does not come: that inflow is lost, not stored, and so is the whole inflow when every weight is zero. An area with no rental beds at all (area 6 at the start) takes no migrants, so its villagers never see rental demand: intended for the rural north until content seeds it.
 - **Arrivals** enter `underSix[0]` and are present at once.
 - **Outflow per group:**
   - `size × (base_exit + unemployment_push × unemployment_rate + housing_push × max(0, crowding − 1))`;
   - taken from the newest cohort first, then from `stayedSixMonths`; `present` falls in proportion.
-- **Order within the step:** outflow, then ageing, then arrivals, then the Spring Festival. Ageing shifts each queue: `underSix[5]` moves into `stayedSixMonths`, so a newcomer counts as resident only after six months.
+- **Order within the step:** outflow, then ageing, then arrivals. Ageing shifts each queue: `underSix[5]` moves into `stayedSixMonths`, so a newcomer counts as resident only after six months.
 - **Spring Festival** (`spring.away_months` are months of the year, `date % 12`):
-  - At the end of the month before the first away month, migrants' `present = size − away`, with `away` the seasonal share `spring.away_share` of `size`, stochastically rounded.
-  - At the end of the last away month, `away × (nonreturn + nonreturn_unemployment × unemployment_rate)`, stochastically rounded, leave as a real outflow, and the rest come back.
+  - It runs at the start of step 5, before matching, so production, needs and the month's statistics all see the same people present.
+  - In the first away month (this month away, last month not), migrants' `present = size − away`, with `away` the share `spring.away_share` of `size`, stochastically rounded. It stays low through the away months (January and February with the start params, January 1979 included).
+  - In the first month after them, `away × (nonreturn + nonreturn_unemployment × unemployment_rate)`, stochastically rounded, leave as a real outflow, and the rest come back. The unemployment rate is last month's matching, so the jobless are the ones who stay home.
   - Usual residence (`size`) does not change while people are away.
 - **Rest:** the start params set `base_exit` and `nonreturn` to 0, so exits come only from unemployment and crowding, and the start is a fixed point. A churn with replacement inflow needs a vacancy mechanism that M2 does not have (matching backfills vacated jobs with locals).
 - **Births and deaths** are explicit zero flows in M2.
