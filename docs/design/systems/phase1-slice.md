@@ -724,6 +724,7 @@ interface FiscalState {
   obligations: Obligation[]; loans: Loan[]; projects: Project[]; contracts: TeamContract[];
   nextId: { obligation: number; loan: number; project: number; contract: number };
   projectLoan: 'not_offered' | 'offered' | 'declined' | 'taken';
+  loanWanted: boolean;                                      // a commit this month left money for projects below zero
   deficit?: { turn: number; option?: DeficitOption };     // this quarter's card and its answer
   austerity: number;                                        // this month's cut share of the cuttable obligations
 }
@@ -731,7 +732,7 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
 // GameState gains: fiscal: FiscalState; servicedLand: CellRuns (serviced cells, sorted runs)
 // SliceArea gains: roadKm (completed city roads in the area)
 // Cohort gains: crewBank?: number (pool work banked toward the next month of work)
-// History gains, per month: gdp, revenue, obligationsDue, obligationsPaid, projectSpend, reserve, debtOutstanding, austerity
+// History gains, per month: gdp, revenue, obligationsDue, baselineDue, obligationsPaid, projectSpend, reserve, debtOutstanding, austerity
 ```
 - **Integer money.** Every ledger amount is a whole yuan, rounded once when the entry is written. So "Σ entries = Δ balance" holds exactly, per account.
 - **The ledger is append-only.** `cloneState` copies the array and shares the entries. There is no compaction in Phase 1: 63 months write about a thousand entries.
@@ -772,7 +773,7 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
 - **Borrowing capacity** (fiscal §7, simplified): `short_loan.revenue_multiple` × the last 12 months' recurring revenue − short-term principal outstanding, never below 0. The full debt-service-cover and collateral rule waits for a later phase.
 
 **The state-bank project loan** (fiscal §11: one in the slice).
-- **When it is offered:** when a project commit leaves *money for projects* below zero, and the loan is neither taken nor pending. M5 adds the offer at the 1980-Q1 budget briefing (§2.1). The card is non-interrupting, with options `take` then `decline`, and expires after `loan.offer_months`. A declined or lapsed loan is offered again at the next such commit, until it is taken.
+- **When it is offered:** when a project commit leaves *money for projects* below zero, and the loan is neither taken nor pending. The commit sets `loanWanted`, and step 11 raises the card at the end of the month. M5 adds the offer at the 1980-Q1 budget briefing (§2.1). The card is non-interrupting, with options `take` then `decline`, and expires after `loan.offer_months`. A declined or lapsed loan is offered again at the next such commit, until it is taken.
 - **Its terms** are placeholders: `principal`, a monthly `rate`, interest only for `grace_months`, then equal principal over `term_months`. The proceeds go to `debt` and pay only for projects. Debt service comes due from `general`. So a loan taken early squeezes the years after its grace period, not the year it is taken. Cumulative guaranteed bank lending of the period (`phase1.fiscal.guaranteed_infrastructure_loans`) is context, not this loan's size.
 
 **Projects** (fiscal §6.2).
@@ -842,7 +843,7 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
 - **retained tax per year** at full ramp: its yearly value added × the current regime's rate × collection × retained share. A scheduled regime change is a note, not computed;
 - **new obligations per year:** for the people it brings (its jobs, counted as residents and present) × the admin and police baselines, plus sanitation on the floor it builds, ×12.
 
-**Params** (`params/slice.yaml`, placeholders): `fiscal` (`start_regime`, `start_balances`, `provincial_base_grant_per_year`, `county_base_revenue_per_month`, `county_base_obligations_per_month`, the per-head baselines, `collection_efficiency`, `reserve_months`, `forex`, `short_loan`, `austerity_max_cut`, `loan`, `cancel_penalty`), `capacity` (`local_crew`, `crew_per_m2`), `construction.cost_per_m2`, `projects` and `teams` by id, and `gdp`.
+**Params** (`params/slice.yaml`, placeholders): `fiscal` (`start_regime`, `start_balances` (`general`, `land`, `debt`, `forex_usd`), `provincial_base_grant_per_year`, `county_base_revenue_per_month`, `county_base_obligations_per_month`, the per-head baselines, `collection_efficiency`, `reserve_months`, `forex`, `short_loan`, `austerity_max_cut`, `loan`, `cancel_penalty`), `capacity` (`local_crew`, `crew_per_m2`), `construction.cost_per_m2`, `projects` and `teams` by id, and `gdp`.
 - **The grant's base** is tuned so that, at the start, revenue plus the grant covers the baselines with a small surplus. That is a balance choice, recorded in the params file, not a historical figure (fiscal §4.2).
 
 **Deferred.**
@@ -1164,7 +1165,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 | M3a | Zones, the historical template and historical names (§5.3) | The §5.3 tests pass: free zoning, the template applies, names attach by location, purpose and scale, and M2 runs are unchanged. *Status:* done. Names are labels only; the footprints are placeholder squares on present-day proxies. Code: `packages/sim-core/src/zones.ts`; tests: `packages/sim-core/test/zones.test.ts` |
 | M3b | Industry, production, investors and the preview; investors locate in zones (§5.5) | Accepted investors create jobs, orders and housing demand. The §5.5 tests pass. *Status:* done, with placeholder numbers (`params/slice.yaml` `industry` and `investors`, the area utilities in `content/slice/start_1979.yaml`) and a placeholder buildable layer (rebuild with `pipeline/m3b_buildable.py`). Code: `packages/sim-core/src/investors.ts`, `src/systems/industry.ts`; tests: `test/m3b.test.ts`, `test/offers.test.ts` |
 | M3c | Named emergence (§5.4) | Held until an in-window precedent is sourced. Then: a cluster emerges where conditions hold, takes its historical name only near its real place, and can emerge elsewhere under a generic name |
-| M4 | Fiscal: ledger, obligations, projects, the loan, the deficit rule; nominal GDP | Overbuilding forces a deficit card; the loan squeezes later years |
+| M4 | Fiscal: ledger, obligations, projects, the loan, the deficit rule; nominal GDP; serviced land and the construction-capacity pool (§5.6) | Overbuilding forces a deficit card; the loan squeezes later years. The §5.6 tests pass. *Status:* done, with placeholder numbers (`params/slice.yaml` `fiscal`, `capacity`, `projects`, `teams`, `gdp`). M2 and M3 runs are unchanged without the fiscal content. Code: `packages/sim-core/src/fiscal.ts`, `src/systems/finance.ts`, `src/systems/projects.ts`; tests: `test/m4.test.ts` |
 | M5 | Leaders, the shortcut, the annual review and the sweep, the climate value, the events, the prologue beats, the SEZ chain, the grant cliff and the closing visit | Each year's review forces a trade-off; readiness visibly changes the first wave; the prologue tests pass; the 1980-Q2 snapshot is generated and passes its bands |
 | M6 | The CLI, golden runs, the plausibility report; the 2D UI on the Spike A canvas | All five exit criteria can be checked |
 | Playtest | Several full playthroughs; notes in `docs/playtests/` | You want to play it again |
