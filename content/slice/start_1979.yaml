@@ -1,0 +1,51 @@
+# The slice's start state, 1979-01 (docs/design/systems/phase1-slice.md §5.2). PLACEHOLDER.
+# Every number below is a design guess, sized so that the start economy is at rest: base jobs roughly match the
+# local labour force, and housing has a little slack. None is a historical figure. The research targets are in §9.
+# The claims are upper bounds the totals must respect (§9.1), cited as design_note: the playable areas are a subset
+# of the SEZ and of the city. Slice totals here: 18,000 urban residents, 12,000 villagers, 320 migrants, 20 Hong Kong
+# managers.
+placeholder: true
+claims:
+  - { id: phase1.pop.sez.period_resident.1979, use: design_note }
+  - { id: phase1.pop.sez.period_agricultural.1979, use: design_note }
+  - { id: phase1.pop.sez.period_nonagricultural.1979, use: design_note }
+  - { id: phase1.pop.city.resident_nonregistered.1979, use: design_note }
+policy: { permit_regime: standard, enforcement: medium }
+era: slice_early
+rights: [{ title: collective, share: 0.7 }, { title: state, share: 0.3 }]
+areas:
+  - area: 1
+    pops: { urban_resident: 12000, villager: 1000, migrant_factory: 100, migrant_construction: 50, hk_manager: 10 }
+    base_jobs: { state: 3600, farming_fishing: 385, factory: 870, construction: 266, services: 1565 }
+    housing_m2: { village_house: 16800, state_flats: 176500, village_rental: 1360, dormitory: 0 }
+    village_footprint_m2: 11200
+  - area: 2
+    pops: { urban_resident: 2500, villager: 1500, migrant_factory: 30, migrant_construction: 30, hk_manager: 10 }
+    base_jobs: { state: 750, farming_fishing: 578, factory: 261, construction: 124, services: 405 }
+    housing_m2: { village_house: 25200, state_flats: 36900, village_rental: 550, dormitory: 0 }
+    village_footprint_m2: 16800
+  - area: 3
+    pops: { urban_resident: 1500, villager: 2000, migrant_factory: 20, migrant_construction: 10, hk_manager: 0 }
+    base_jobs: { state: 450, farming_fishing: 770, factory: 219, construction: 109, services: 298 }
+    housing_m2: { village_house: 33600, state_flats: 22000, village_rental: 270, dormitory: 0 }
+    village_footprint_m2: 22400
+  - area: 4
+    pops: { urban_resident: 300, villager: 2500, migrant_factory: 10, migrant_construction: 10, hk_manager: 0 }
+    base_jobs: { state: 90, farming_fishing: 962, factory: 165, construction: 110, services: 175 }
+    housing_m2: { village_house: 42000, state_flats: 4400, village_rental: 180, dormitory: 0 }
+    village_footprint_m2: 28000
+  - area: 5
+    pops: { urban_resident: 800, villager: 2000, migrant_factory: 10, migrant_construction: 10, hk_manager: 0 }
+    base_jobs: { state: 240, farming_fishing: 770, factory: 168, construction: 99, services: 210 }
+    housing_m2: { village_house: 33600, state_flats: 11800, village_rental: 180, dormitory: 0 }
+    village_footprint_m2: 22400
+  - area: 6
+    pops: { urban_resident: 500, villager: 2000, migrant_factory: 0, migrant_construction: 0, hk_manager: 0 }
+    base_jobs: { state: 150, farming_fishing: 770, factory: 140, construction: 85, services: 172 }
+    housing_m2: { village_house: 33600, state_flats: 7400, village_rental: 0, dormitory: 0 }
+    village_footprint_m2: 22400
+  - area: 7
+    pops: { urban_resident: 400, villager: 1000, migrant_factory: 20, migrant_construction: 20, hk_manager: 0 }
+    base_jobs: { state: 120, farming_fishing: 385, factory: 98, construction: 64, services: 105 }
+    housing_m2: { village_house: 16800, state_flats: 5900, village_rental: 360, dormitory: 0 }
+    village_footprint_m2: 11200

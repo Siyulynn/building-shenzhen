@@ -1,0 +1,61 @@
+# Balance parameters for the Phase 1 slice (docs/design/systems/phase1-slice.md §5.2, §8).
+# Every value here is a placeholder design guess (placeholder: true), chosen so the M2 loop behaves sensibly.
+# None is a historical figure: wages, rents, m² per bed and build costs are open research targets (§9).
+# Units: money in nominal yuan; wages per worker-month; rents per m² per month; floor in m².
+# Sections for later milestones (production, climate, review, investors, readiness, sweep, corps) arrive with them.
+# Keys are never years: seasonality uses month-of-year indices (0 = January), eras use ids.
+placeholder: true
+
+eras:
+  - { id: slice_early, structural_max_floors: 4 }
+
+labour:
+  participation: { villager: 0.55, urban_resident: 0.5, migrant_factory: 0.95, migrant_construction: 0.95, hk_manager: 1.0 }
+  # fill order per sector: who may take these jobs, in the order they are offered
+  fill_order:
+    state: [urban_resident]
+    farming_fishing: [villager]
+    factory: [migrant_factory, villager, urban_resident, hk_manager]
+    construction: [migrant_construction, villager, urban_resident]
+    services: [hk_manager, urban_resident, villager, migrant_factory]
+  wage_start: { farming_fishing: 40, factory: 60, construction: 70, services: 50, state: 55 }
+  wage_floor: { farming_fishing: 40, factory: 60, construction: 70, services: 50, state: 55 }
+  wage_speed: 0.02                       # share of the wage per month, times (vacancy rate - unemployment rate)
+  construction_jobs_per_m2: 0.02         # workers per m² under construction
+
+migration:
+  inland_wage: 45                        # the reference wage migrants compare with
+  base: { migrant_factory: 600, migrant_construction: 300 }   # people per month at gap 1, full pull, network 1
+  sector: { migrant_factory: factory, migrant_construction: construction }
+  K_vac: 500                             # vacancies at which the pull is one half
+  network_alpha: 0.5
+  K_net: 1000
+  network_lag_months: 6
+  permit_factor: { loose: 1.3, standard: 1.0, strict: 0.6 }
+  base_exit: 0                           # per month. 0 so the start is a fixed point: exits come from unemployment and crowding
+  unemployment_push: 0.2                 # per month, times the group's unemployment rate
+  housing_push: 0.1                      # per month, times (crowding - 1) when above 1
+  spring:
+    away_months: [0, 1]                  # January and February
+    away_share: 0.6
+    nonreturn: 0                         # 0 for the same reason; only the unemployed stay home
+    nonreturn_unemployment: 0.5          # added to the non-return share, times the unemployment rate
+
+housing:
+  m2_per_bed: { village_house: 16, state_flats: 14, village_rental: 7, dormitory: 5 }
+  base_rent: 2.5                         # yuan per m² per month at crowding 1
+  rent_elasticity: 2
+  crowding_floor: 0.5                    # below this, crowding no longer lowers the target rent
+  rent_speed: 0.15                       # share of the gap to the target closed each month
+  crowding_max: 1.6                      # above this, the excess migrants leave
+
+village_build:
+  build_cost_per_m2: 150
+  horizon_months: 60
+  hurdle: 0.2                            # share of cost the margin must beat
+  p_enforce: { low: 0.02, medium: 0.1, high: 0.3 }
+  response: 0.5                          # share of the unmet rental beds started per month
+  max_start_m2_per_villager_month: 0.5
+  duration_months: 4
+  legal_floors: 2
+  enforcement_max_floors: { low: 4, medium: 3, high: 2 }
