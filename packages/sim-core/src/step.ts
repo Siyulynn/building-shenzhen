@@ -19,7 +19,20 @@ export interface TickStep { name: string; run(ctx: TickContext): void }
 
 export type StepResult =
   | { status: 'advanced'; state: GameState; events: SimEvent[]; stats: MonthStats }
-  | { status: 'paused'; state: GameState; pendingCards: CardInstance[] };
+  | { status: 'paused'; state: GameState; pendingCards: CardInstance[] }
+  | { status: 'finished'; state: GameState };
+
+/**
+ * One quarterly turn (PLAN §2): up to three sub-steps. `actions` apply before the first one.
+ * - paused: a sub-step left an interrupting card mid-quarter; answer it and call again to finish the quarter.
+ * - turn_end: the quarter is over. Interrupting cards from its last month are in `pendingCards`; they are
+ *   answered in the next turn's planning, with that turn's actions.
+ * - finished: the scenario is over and nothing is left to answer.
+ */
+export type QuarterResult =
+  | { status: 'paused'; state: GameState; pendingCards: CardInstance[] }
+  | { status: 'turn_end'; state: GameState; pendingCards: CardInstance[] }
+  | { status: 'finished'; state: GameState };
 
 const noop = () => {};
 
@@ -51,14 +64,20 @@ function applyAction(s: GameState, action: PlayerAction): void {
   s.actionLog.push({ date: s.date, subStep: s.subStep, action: { ...action } });
 }
 
+const blockingCards = (s: GameState) => s.pendingCards.filter((c) => c.interrupting);
+
 export function step(state: GameState, actions: readonly PlayerAction[], rng: Rng,
   steps: readonly TickStep[] = TICK_STEPS): StepResult {
-  if (isFinished(state)) throw new Error('the scenario has ended: no turns left');
+  // After the last month, cards raised by it (the closing event) can still be answered; no month runs.
+  if (isFinished(state) && !actions.length && !blockingCards(state).length) {
+    throw new Error('the scenario has ended: no turns left');
+  }
   const s = cloneState(state);
   for (const a of actions) applyAction(s, a);
 
-  const blocking = s.pendingCards.filter((c) => c.interrupting);
+  const blocking = blockingCards(s);
   if (blocking.length) return { status: 'paused', state: s, pendingCards: blocking };
+  if (isFinished(s)) return { status: 'finished', state: s };
 
   const events: SimEvent[] = [];
   let raised = 0;
@@ -81,6 +100,23 @@ export function step(state: GameState, actions: readonly PlayerAction[], rng: Rn
   s.date += 1;
   if (s.subStep === 2) { s.subStep = 0; s.turn += 1; } else s.subStep = (s.subStep + 1) as SubStep;
   return { status: 'advanced', state: s, events, stats };
+}
+
+export function runQuarter(state: GameState, actions: readonly PlayerAction[], rng: Rng,
+  steps: readonly TickStep[] = TICK_STEPS): QuarterResult {
+  if (isFinished(state) && !actions.length && !blockingCards(state).length) return { status: 'finished', state };
+  const turn = state.turn;
+  let s = state;
+  let acts = actions;
+  for (;;) {
+    const r = step(s, acts, rng, steps);
+    acts = [];
+    if (r.status !== 'advanced') return r;
+    s = r.state;
+    const blocking = blockingCards(s);
+    if (s.turn !== turn) return { status: 'turn_end', state: s, pendingCards: blocking };
+    if (blocking.length) return { status: 'paused', state: s, pendingCards: blocking };
+  }
 }
 
 /** Answers the pending cards for a headless run (PLAN §6.2). Must answer every interrupting card. */

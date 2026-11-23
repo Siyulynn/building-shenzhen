@@ -14,6 +14,12 @@ export interface Save { header: SaveHeader; body: { state: unknown; rng: RngStat
 /** Migration from version v to v + 1, keyed by v. Version 1 is the first: none yet. */
 const MIGRATIONS: Record<number, (s: Save) => Save> = {};
 
+/** JSON turns NaN and Infinity into null without a word: a save must fail instead. */
+function finiteOnly(key: string, value: unknown): unknown {
+  if (typeof value === 'number' && !Number.isFinite(value)) throw new Error(`cannot save a non-finite number at "${key}": ${value}`);
+  return value;
+}
+
 interface ArrayRef { $array: string }
 const isRef = (v: unknown): v is ArrayRef => typeof v === 'object' && v !== null && '$array' in v;
 
@@ -29,7 +35,7 @@ export function saveGame(state: GameState, rng: Rng, content: { areas_sha256: st
   };
   return {
     header: { format: 'sz-save', version: SAVE_VERSION, date: state.date, seed: rng.seed, content: { ...content } },
-    body: { state: JSON.parse(JSON.stringify(body)) as unknown, rng: rng.save() },
+    body: { state: JSON.parse(JSON.stringify(body, finiteOnly)) as unknown, rng: rng.save() },
     arrays,
   };
 }
@@ -115,7 +121,7 @@ function canonical(v: unknown): unknown {
 export function saveToJson(save: Save): string {
   const arrays = Object.fromEntries(Object.keys(save.arrays).sort()
     .map((k) => [k, { dtype: 'u32le', b64: toBase64(u32ToBytes(save.arrays[k]!)) }]));
-  return JSON.stringify(canonical({ header: save.header, body: save.body, arrays })) + '\n';
+  return JSON.stringify(canonical({ header: save.header, body: save.body, arrays }), finiteOnly) + '\n';
 }
 
 export function saveFromJson(text: string): Save {

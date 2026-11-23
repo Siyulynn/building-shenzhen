@@ -249,17 +249,29 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
 1. It applies `actions` first. Each answer must name a pending instance and one of its options, or `step()` throws. The answer is logged and the card removed.
 2. If an interrupting card is still pending, it returns `{ status: 'paused', state, pendingCards }` without advancing the month.
 3. Otherwise it runs the 14 tick steps of §6 in order. These are named functions, all no-ops in M1 except `statistics`, which appends the month to `history.months`. Then it advances `date`, `subStep` and `turn`, and returns `{ status: 'advanced', state, events, stats }`.
-4. Past the last turn it throws.
+4. Past the last turn, no month runs. Cards that the last month raised (the closing event) can still be answered. A call that clears them returns `{ status: 'finished', state }`. A call with nothing left to answer throws.
 
-- **Cards raised during a step:** the month still completes. The next `step()` call pauses until they are answered, so their answers are logged at the following month and sub-step. Non-interrupting cards wait without pausing.
-- **Inputs:** `step()` never changes the state it is given. Each state module added later must be deep-copied in `cloneState`.
+- **Cards raised during a step:** this is a decision, made so that `step()` stays one indivisible month.
+  - Interrupting cards pause *between* monthly sub-steps, never mid-tick. The month that raised a card still completes.
+  - The answer applies at the top of the next call, before the next month runs, and is logged there. Example: a deficit card raised by `finance` in month t (fiscal §7.1) is answered before month t+1.
+  - Non-interrupting cards wait without pausing.
+- **Turn actions while paused:** when M2 adds actions other than `answer_card` (zoning, building, enforcement), `step()` must apply none of them while an interrupting card is still unanswered after the answers in the same call.
+- **Inputs:** `step()` never changes the state it is given.
+  - Each state module added later must be copied in `cloneState`.
+  - Append-only logs (the action log, the ledger's entries) copy the array and share entries, which are never changed after they are written.
+- **Start month:** it must be the first month of a quarter, so that `subStep` matches the calendar quarter. `createInitialState` throws otherwise.
 - **The `steps` argument** (optional) replaces the tick pipeline. Tests use it to raise fixture cards and draw randomness.
+- **`runQuarter(state, actions, rng, steps?)`:** one player turn, shared by the CLI and the UI. It runs up to three sub-steps, with `actions` applied before the first. It returns:
+  - `paused`, when a sub-step leaves an interrupting card mid-quarter. Answer it and call again to finish the quarter;
+  - `turn_end`, when the quarter is over. Interrupting cards from its last month come back in `pendingCards`, and are answered with the next turn's actions;
+  - `finished`, when the scenario is over.
 - **Headless helpers:**
   - `runMonths(state, months, rng, policy, steps?)` asks the policy for answers before every step, and throws if it leaves an interrupting card unanswered;
   - `firstOption` answers every pending card with its first option;
   - `replay(initial, log, months, rng, steps?)` feeds each logged answer back at its own month and sub-step.
 
 **RNG:** sfc32, one named stream per tick step, each seeded by splitmix32 from the run's seed and the step's name. A system added later gets its own stream, so it never shifts another system's draws in a golden run. The streams' state is plain numbers and goes in the save.
+- **Previews never touch the live `Rng`.** `step()` advances it in place. A preview, such as the investor preview (M3, fiscal §7), is either deterministic or runs on a copy, `Rng.load(rng.save())`.
 
 **Save** (PLAN §6.7):
 - sim-core produces `{ header, body, arrays }`:
@@ -267,15 +279,18 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
   - `body`: the state as JSON, with each typed array replaced by a reference;
   - `arrays`: the named typed arrays.
 - `saveToJson` gives a canonical text form, with the arrays as base64.
+- **Saving fails on NaN or Infinity**, which JSON would otherwise turn into `null` without warning.
+- **Arrays are `u32le` only.** A milestone that keeps per-cell layers of another type adds its dtype (`u8`, `i16le`, `u16le`, `f32le`) here first.
 - Compression and the file container belong to the caller, because no synchronous deflate exists without DOM or Node.
 - Loading runs the migration table from the saved `version` up to the current one. Version 1 is the first.
 
 **M1's tests:**
 - save at month k, load, continue, and match an uninterrupted run byte for byte;
 - replay from the seed plus the action log;
-- the pause contract with a fixture card;
+- the pause contract with a fixture card, including a card raised by the last month and quarters run with `runQuarter`;
 - a known-answer test for the RNG;
-- a source scan of sim-core: no `Math.random`, no `Date`, no `node:` imports and no imports from `apps` or `render`.
+- saving refuses non-finite numbers;
+- a recursive source scan of sim-core: no `Math.random`, no `Date`, no `node:` imports, no imports from `apps` or `render`, and no year literals.
 
 ---
 

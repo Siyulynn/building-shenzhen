@@ -62,6 +62,7 @@ export function createInitialState(content: { scenario: ScenarioContent; areas: 
   if (!Number.isInteger(scenario.turns) || scenario.turns <= 0) throw new Error('scenario.turns must be a positive integer');
   if (areas.format !== AREAS_FORMAT) throw new Error(`slice_areas.json format ${areas.format}, expected ${AREAS_FORMAT}`);
   const start = parseYM(scenario.start);
+  if (start % 3 !== 0) throw new Error(`the start month ${scenario.start} is not the first month of a quarter`);
   const seen = new Set<number>();
   return {
     date: start,
@@ -88,14 +89,17 @@ export function createInitialState(content: { scenario: ScenarioContent; areas: 
   };
 }
 
-/** A copy that step() may change. Area cells are shared: nothing writes them. */
+/**
+ * A copy that step() may change. Area cells are shared: nothing writes them. Append-only logs (the action log,
+ * later the ledger) copy the array but share their entries, which are never changed after they are written.
+ */
 export function cloneState(s: GameState): GameState {
   return {
     ...s,
     scenario: { ...s.scenario },
     areas: s.areas.map((a) => ({ ...a, name: { ...a.name }, utilities: { ...a.utilities }, facilities: { ...a.facilities } })),
     pendingCards: s.pendingCards.map((c) => ({ ...c, options: [...c.options] })),
-    actionLog: s.actionLog.map((e) => ({ ...e, action: { ...e.action } })),
+    actionLog: [...s.actionLog],
     history: { months: [...s.history.months] },
   };
 }

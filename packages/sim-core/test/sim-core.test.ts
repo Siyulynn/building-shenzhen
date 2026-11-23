@@ -4,8 +4,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parse } from 'yaml';
 import {
-  Rng, TICK_STEPS, createInitialState, isFinished, loadGame, parseYM, replay, runMonths, saveFromJson, saveGame,
-  saveToJson, step, type AreasContent, type DecisionPolicy, type GameState, type ScenarioContent, type TickStep,
+  Rng, TICK_STEPS, createInitialState, isFinished, loadGame, parseYM, replay, runMonths, runQuarter, saveFromJson, saveGame,
+  saveToJson, step, firstOption, type AreasContent, type DecisionPolicy, type GameState, type ScenarioContent, type TickStep,
 } from '../src/index.js';
 
 const ROOT = resolve(__dirname, '../../..');
@@ -116,6 +116,53 @@ describe('step', () => {
     expect(r3.state.actionLog).toHaveLength(1);
   });
 
+  it('lets the closing card of the last month be answered, then finishes', () => {
+    const closing: TickStep[] = [{ name: 'events', run: (ctx) => {
+      if (ctx.state.history.months.length === MONTHS - 1) ctx.raise({ card: 'fixture.closing', options: ['a'], interrupting: true });
+    } }, TICK_STEPS.find((s) => s.name === 'statistics')!];
+    const rng = new Rng(8);
+    const end = runMonths(initial(), MONTHS, rng, firstOption, closing);
+    expect(isFinished(end)).toBe(true);
+    const card = end.pendingCards[0]!;
+    expect(step(end, [], rng, closing).status).toBe('paused');
+    const r = step(end, [{ type: 'answer_card', instance: card.id, option: 'a' }], rng, closing);
+    expect(r.status).toBe('finished');
+    expect(r.state.date).toBe(end.date);
+    expect(r.state.actionLog).toHaveLength(1);
+    expect(() => step(r.state, [], rng, closing)).toThrow(/ended/);
+  });
+
+  it('runs quarters: three months, a mid-quarter pause, and cards from the last month at turn end', () => {
+    // a card in the 1st month of turn 1 (pauses mid-quarter) and in the 3rd month of turn 2 (at turn end)
+    const at = new Set([3, 8]);
+    const cards: TickStep[] = [{ name: 'events', run: (ctx) => {
+      if (at.has(ctx.state.history.months.length)) ctx.raise({ card: 'fixture.q', options: ['a'], interrupting: true });
+    } }, TICK_STEPS.find((s) => s.name === 'statistics')!];
+    const rng = new Rng(9);
+    const answer = (p: { id: string }[]) => p.map((c) => ({ type: 'answer_card' as const, instance: c.id, option: 'a' }));
+    const q0 = runQuarter(initial(), [], rng, cards);
+    expect(q0).toMatchObject({ status: 'turn_end', pendingCards: [] });
+    expect(q0.state.turn).toBe(1);
+    const q1a = runQuarter(q0.state, [], rng, cards);
+    expect(q1a.status).toBe('paused');
+    expect(q1a.state.subStep).toBe(1);
+    if (q1a.status !== 'paused') throw new Error();
+    const q1b = runQuarter(q1a.state, answer(q1a.pendingCards), rng, cards);
+    expect(q1b).toMatchObject({ status: 'turn_end', pendingCards: [] });
+    expect(q1b.state.turn).toBe(2);
+    const q2 = runQuarter(q1b.state, [], rng, cards);
+    expect(q2.status).toBe('turn_end');
+    if (q2.status !== 'turn_end') throw new Error();
+    expect(q2.pendingCards).toHaveLength(1);
+    expect(runQuarter(q2.state, [], rng, cards).status).toBe('paused');     // must be answered first
+    const q3 = runQuarter(q2.state, answer(q2.pendingCards), rng, cards);
+    expect(q3.state.turn).toBe(4);
+  });
+
+  it('refuses a start month that is not the first month of a quarter', () => {
+    expect(() => createInitialState({ scenario: { ...scenario, start: '1980-08' }, areas: areasJson })).toThrow(/quarter/);
+  });
+
   it('does not change the state it was given', () => {
     const s0 = initial();
     const before = saveToJson(saveGame(s0, new Rng(5), content));
@@ -164,6 +211,14 @@ describe('determinism and saves', () => {
     expect(back.areas[0]!.cells).toBeInstanceOf(Uint32Array);
   });
 
+  it('refuses to save a non-finite number', () => {
+    const s = initial();
+    s.areas[0]!.serviceGap = Number.NaN;
+    expect(() => saveGame(s, new Rng(2), content)).toThrow(/non-finite/);
+    s.areas[0]!.serviceGap = Number.POSITIVE_INFINITY;
+    expect(() => saveGame(s, new Rng(2), content)).toThrow(/non-finite/);
+  });
+
   it('refuses a save from a newer version', () => {
     const sv = saveGame(initial(), new Rng(2), content);
     expect(() => loadGame({ ...sv, header: { ...sv.header, version: 99 } })).toThrow(/newer/);
@@ -172,7 +227,8 @@ describe('determinism and saves', () => {
 
 describe('sim-core source rules (PLAN §6.2)', () => {
   const dir = resolve(__dirname, '../src');
-  const files = readdirSync(dir).filter((f) => f.endsWith('.ts'));
+  const files = (readdirSync(dir, { recursive: true }) as string[]).filter((f) => f.endsWith('.ts'));
+  it('scans subdirectories too', () => expect(files.length).toBeGreaterThanOrEqual(6));
   it.each(files)('%s has no wall clock, Math.random, Node or app imports, or year literals', (f) => {
     const src = readFileSync(join(dir, f), 'utf8');
     expect(src).not.toMatch(/Math\.random/);
