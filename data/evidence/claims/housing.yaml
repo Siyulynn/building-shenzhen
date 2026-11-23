@@ -1,0 +1,46 @@
+# Rows V3, V19
+- id: housing.affordable_completion_share.2006_2010
+  source: sz_gov_2011_housing_plan
+  locator: 现状 section (十一五 affordable housing)
+  quote: '至2010年末，全市已竣工保障性住房约2万套（占"十一五"16.9万套的12%）'
+  value_raw: 12%
+  value: 0.12
+  definition: affordable units completed by end-2010 / units arranged in the 11th Five-Year Plan (about 16.9万)
+  geography: citywide
+  reference_period: 2006-2010
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V3
+- id: housing.floor_per_resident.2009
+  source: sz_gov_2011_housing_plan
+  locator: 现状 section (housing stock)
+  quote: "常住人口人均住房建筑面积27平方米"
+  value: 27
+  unit: m2 per resident
+  reference_period: "2009"
+  geography: citywide
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V19
+- id: housing.ownership_rate.2009
+  source: sz_gov_2011_housing_plan
+  locator: 现状 section (housing stock)
+  quote: "住房自有率40%"
+  value: 0.40
+  reference_period: "2009"
+  geography: citywide
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V19
+- id: housing.stock_total.2010
+  source: sz_gov_2011_housing_plan
+  locator: 现状 section (housing stock)
+  quote: "全市住房总建筑面积4.09亿平方米，约810万套"
+  value_raw: 4.09亿平方米 / 约810万套
+  value: 409000000
+  unit: m2
+  reference_period: "2010"
+  geography: citywide
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V19

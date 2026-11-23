@@ -1,0 +1,47 @@
+# Rows V1, V2, V11 of docs/research/verification-log-2026-11.md
+- id: pop.resident.2009.sz_gov_2011_housing_plan
+  source: sz_gov_2011_housing_plan
+  locator: 现状 section (end-2009 population)
+  quote: "2009年末，深圳市常住人口891.23万人"
+  value_raw: 891.23万人
+  value: 8912300
+  unit: persons
+  definition: resident population (常住人口), end of year
+  geography: citywide
+  reference_period: "2009"
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V1
+- id: pop.registered.2009.sz_gov_2011_housing_plan
+  source: sz_gov_2011_housing_plan
+  locator: 现状 section (end-2009 population)
+  value_raw: 241.45万人 (27.1% of residents)
+  value: 2414500
+  unit: persons
+  definition: registered population (户籍人口), end of year
+  geography: citywide
+  reference_period: "2009"
+  status: lead
+  extracted_by: ai:web-fetch-agent
+  log_row: V1
+  notes: The agent gave the figure in its own words; capture the verbatim sentence at intake, then raise to sourced.
+- id: pop.resident.2009.yearbook_2014
+  source: sz_stats_yearbook_2014
+  origin: review_v3
+  value_raw: 995.01万
+  value: 9950100
+  unit: persons
+  definition: resident population, end of year (probably the census-revised vintage)
+  geography: citywide
+  reference_period: "2009"
+  status: lead
+  log_row: V2
+  notes: Cited by the v0.3 review; the yearbook has not been opened.
+- id: stats.resident_vs_registered_definition
+  source: sz_stats_2025_hukou_reply
+  locator: reply text
+  quote: "我局统计人口指标为常住人口口径"
+  summary: Shenzhen's population statistics use the resident (常住) definition; 常住户籍人口 are people counted in both.
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V11

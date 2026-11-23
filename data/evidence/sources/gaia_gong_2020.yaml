@@ -1,0 +1,8 @@
+id: gaia_gong_2020
+title: Annual maps of global artificial impervious area (GAIA) between 1985 and 2018
+authors: [Gong et al.]
+published: { where: "Remote Sensing of Environment 236:111510", date: 2020 }
+url: https://developers.google.com/earth-engine/datasets/catalog/Tsinghua_FROM-GLC_GAIA_v10
+tier: C
+reuse: unknown   # reportedly CC BY 4.0; confirm on the live page
+access: search_summary_only

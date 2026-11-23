@@ -1,0 +1,47 @@
+# Row V10: State Council decision of 1993-12-15
+- id: event.tax_sharing_decision
+  source: sz_gov_gazette_1994_state_council_tax_sharing
+  locator: title and date of the decision
+  quote: "国务院关于实行分税制财政管理体制的决定"
+  date: { decision: 1993-12-15, effective: 1994-01-01, precision: day }
+  summary: The State Council introduces the tax-sharing fiscal system.
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V10
+- id: rule.tax_sharing_1994.vat_split
+  source: sz_gov_gazette_1994_state_council_tax_sharing
+  locator: 中央与地方共享收入
+  quote: "增值税中央分享75%，地方分享25%"
+  value: 0.75
+  definition: central share of VAT
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V10
+- id: rule.tax_sharing_1994.securities_trading_tax_split
+  source: sz_gov_gazette_1994_state_council_tax_sharing
+  locator: 中央与地方共享收入
+  quote: "证券交易税，中央与地方各分享50%"
+  value: 0.5
+  definition: central share of securities trading tax, as the decision text assigns it
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V10
+- id: rule.tax_sharing_1994.business_tax_exceptions
+  source: sz_gov_gazette_1994_state_council_tax_sharing
+  summary: Business tax is local, except tax paid centrally by the railways and by bank and insurance head offices.
+  status: lead
+  extracted_by: ai:web-fetch-agent
+  log_row: V10
+  notes: Reported without a verbatim quote; capture one at intake.
+- id: rule.tax_sharing_1994.rebate
+  source: sz_gov_gazette_1994_state_council_tax_sharing
+  summary: The central rebate uses 1993 as the base year and grows at 0.3 times national VAT and consumption-tax growth.
+  status: lead
+  extracted_by: ai:web-fetch-agent
+  log_row: V10
+  notes: Reported without a verbatim quote; capture one at intake.
+- id: rule.securities_stamp_duty_in_practice
+  origin: review_v3
+  summary: What was actually levied on share trades (证券交易印花税?) and how its split later moved toward the centre.
+  status: lead
+  notes: Needs its own source.

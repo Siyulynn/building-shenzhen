@@ -1,0 +1,25 @@
+# Rows V13, V13a
+- id: land.use_fee_share.1986
+  source: wb_2012_untying_land_knot_shen_xu
+  locator: pp. 90–91
+  quote: "By the end of 1986, the annual collection of land use fees was only 1.5 percent of the annual government revenue, or 6 percent of the capital investment for infrastructure."
+  value_raw: 1.5% of revenue; 6% of infrastructure capital investment
+  reference_period: "1986"
+  status: sourced
+  extracted_by: ai:pdftotext+grep
+  log_row: V13
+- id: land.min_fee_waived
+  source: wb_2012_untying_land_knot_shen_xu
+  locator: same chapter (page to record at intake)
+  quote: "Frequently, even this small fee was waived, as local officials were anxious to attract new investment projects."
+  status: sourced
+  extracted_by: ai:pdftotext+grep
+  log_row: V13a
+- id: land.regulations_1981
+  source: wb_2012_untying_land_knot_shen_xu
+  summary: "November 1981 SEZ land regulations: land-use certificates for 20–50 years; industrial land ¥10–30/m²/yr, commercial ¥70–200/m²/yr."
+  date: { value: 1981-11, precision: month }
+  status: lead
+  extracted_by: ai:pdftotext+grep
+  log_row: V13
+  notes: Capture the verbatim passage at intake.

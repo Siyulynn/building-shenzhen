@@ -1,0 +1,82 @@
+# Rows V5–V9, V12 and fiscal leads
+- id: fiscal.basic_construction_share.1994.municipal
+  source: sz_gov_1995_budget_report_1994
+  locator: section on 1994 expenditure, 基本建设支出 paragraph
+  quote: "占市级财政支出的35.5%"
+  value_raw: 171,171万元, 35.5%
+  value: 0.355
+  definition: basic construction expenditure / municipal-level (市级) budgetary expenditure
+  geography: municipal level
+  reference_period: "1994"
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V5
+- id: fiscal.maintenance_growth.1994
+  source: sz_gov_1995_budget_report_1994
+  summary: City maintenance spending was 20,922万元 in 1994, up 47.36%, because many new roads and bridges came into use.
+  value: 0.4736
+  geography: municipal level
+  reference_period: "1994"
+  status: lead
+  extracted_by: ai:web-fetch-agent
+  log_row: V6
+  notes: The agent reported the figures without a verbatim sentence; capture one at intake, then raise to sourced.
+- id: fiscal.land_receipts_in_budget.1994
+  source: sz_gov_1995_budget_report_1994
+  summary: 国有土地使用权有偿转让收入 of 55,000万元 was counted inside the 1994 budget.
+  value: 550000000
+  unit: yuan
+  geography: municipal level
+  reference_period: "1994"
+  status: lead
+  extracted_by: ai:web-fetch-agent
+  log_row: V7
+  notes: No verbatim sentence captured; capture one at intake.
+- id: fiscal.land_receipts_off_budget.1995
+  source: sz_gov_1995_budget_report_1994
+  locator: section on the 1995 draft budget
+  quote: "国土使用权有偿出让收入不纳入预算"
+  summary: From 1995, land-transfer receipts are presented outside the budget (in a separate 特区开发收入 section).
+  reference_period: "1995"
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V7
+- id: fiscal.budget_totals.1994
+  source: sz_gov_1995_budget_report_1994
+  value_raw: citywide revenue 74.4亿, spending 74.6亿; municipal revenue 50.08亿, spending 48.21亿
+  reference_period: "1994"
+  status: lead
+  extracted_by: ai:web-fetch-agent
+  log_row: V8
+  notes: The agent gave the figures but no verbatim sentence. Capture the exact quotes at intake, then raise to sourced.
+- id: fiscal.2009.review_figures
+  origin: review_v3
+  value_raw: 2765.3亿 originating in Shenzhen; 880.8亿 local general-budget revenue; 1000.8亿 general-budget spending
+  reference_period: "2009"
+  status: lead
+  log_row: V9
+  notes: The cited link is the 1993 State Council decision, which has no 2009 data. A person should mark this rejected.
+- id: fiscal.2008.work_report_figures
+  source: sz_gov_2009_work_report
+  origin: search_summary
+  value_raw: 全口径 2830亿; central 2029亿; local general budget 800.4亿
+  reference_period: "2008"
+  status: lead
+  notes: Search summary only.
+- id: forex.retention.start
+  source: safe_2018_forex_history
+  locator: section on the 1979 reforms
+  quote: "给予出口企业购买外汇的额度"
+  summary: From 1979, forex retention gave exporters a quota to buy foreign exchange.
+  date: { value: "1979", precision: year }
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V12
+- id: forex.retention.abolished
+  source: safe_2018_forex_history
+  summary: Retention was abolished in early 1994, with bank settlement and a single managed floating rate.
+  date: { value: "1994", precision: approx }
+  status: lead
+  extracted_by: ai:web-fetch-agent
+  log_row: V12
+  notes: Reported without a verbatim quote; capture one at intake.

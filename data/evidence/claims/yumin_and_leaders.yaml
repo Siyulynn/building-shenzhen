@@ -1,0 +1,25 @@
+# Row V18 and Appendix A leads
+- id: yumin.company_1992
+  source: sohu_2021_yumin
+  summary: Yumin Village's shareholding company (渔丰实业股份有限公司) was founded in 1992.
+  date: { value: "1992", precision: year }
+  status: lead
+  log_row: V18
+- id: yumin.redevelopment_2001
+  source: sohu_2021_yumin
+  summary: Redevelopment of Yumin Village started in 2001.
+  date: { value: "2001", precision: year }
+  status: lead
+  log_row: V18
+- id: yumin.area
+  source: shenzhen_noted_2015_yumin
+  origin: review_v3
+  value_raw: about 0.25 km²
+  status: lead
+  log_row: V18
+  notes: The article is behind a login.
+- id: leaders.yijiantiao_1986
+  origin: search_summary
+  summary: One leader held both the Party Secretary and Mayor posts from May 1986.
+  date: { value: 1986-05, precision: month }
+  status: lead

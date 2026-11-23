@@ -1,0 +1,10 @@
+id: conflict.pop.resident.2009
+subject: Shenzhen resident population, end-2009
+claims:
+  - pop.resident.2009.sz_gov_2011_housing_plan   # 891.23万, sourced
+  - pop.resident.2009.yearbook_2014              # 995.01万, lead
+diagnosis: probable vintage difference (before vs after the 2010-census revision)
+resolution:
+  calibration: use one consistent vintage for the whole 1979-2009 series (decision pending)
+  encyclopedia: show both, with an explanation of the revision
+status: open

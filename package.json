@@ -1,0 +1,25 @@
+{
+  "name": "building-shenzhen",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "evidence:validate": "tsx packages/evidence/src/cli.ts validate",
+    "evidence:status": "tsx packages/evidence/src/cli.ts status",
+    "evidence:compile": "tsx packages/evidence/src/cli.ts compile --draft",
+    "evidence:compile:strict": "tsx packages/evidence/src/cli.ts compile --strict",
+    "check": "npm run typecheck && npm test && npm run evidence:validate"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.1",
+    "yaml": "^2.9.1",
+    "zod": "^3.25.76"
+  }
+}

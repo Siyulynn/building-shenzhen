@@ -1,0 +1,46 @@
+# Rows V4, V14–V17
+- id: stats.gdp_production_approach
+  source: nbs_2024_gdp_concepts
+  locator: 生产法 paragraph
+  quote: "增加值＝总产出－中间投入"
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V14
+- id: stats.gdp_current_and_constant_prices
+  source: nbs_2024_gdp_concepts
+  locator: 现价与不变价 paragraph
+  quote: "GDP核算分为现价核算和不变价核算"
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V14
+- id: gdp.nominal.2009
+  source: sz_gov_2011_housing_plan
+  value_raw: 8201.32亿元
+  value: 820132000000
+  unit: yuan, current prices
+  reference_period: "2009"
+  geography: citywide
+  status: lead
+  extracted_by: ai:web-fetch-agent
+  log_row: V4
+  notes: The agent gave the figure without the surrounding sentence; capture it at intake.
+- id: imagery.usgs_aerial_1977
+  source: szu_2021_pengcheng_exhibition
+  locator: list of exhibits
+  quote: "深港区域USGS航拍影像（1977年）"
+  summary: USGS aerial imagery of the Shenzhen–Hong Kong area from 1977 (and 1969) exists; find the frames in the USGS archives.
+  status: sourced
+  extracted_by: ai:web-fetch-agent
+  log_row: V15
+- id: imagery.nasa_landsat_1973_2001
+  source: nasa_svs_2911
+  summary: Nine Landsat scenes of the Shenzhen area, 1973–2001.
+  status: lead
+  log_row: V16
+  notes: Search summary only; open the pages.
+- id: gis.gaia_1985_2018
+  source: gaia_gong_2020
+  summary: Yearly impervious-surface transition at 30 m, 1985–2018.
+  status: lead
+  log_row: V17
+  notes: Search summary only; confirm the licence.
