@@ -30,7 +30,7 @@
   So the mask is a `lead` observation. Playable land still comes from the present-day DEM, and the map keeps its caveat.
 
 ## The site register (`content/slice/sites_1979.yaml`)
-- **Coverage:** 20 sites. 16 have present-day OSM proxy points (`osm_shenzhen_places`, tier D). Four are unplaced: the KCR line, the Guangzhou road, the border fence and military land.
+- **Coverage:** 20 sites. 15 have present-day OSM proxy points (`osm_shenzhen_places`, tier D). Five are unplaced: the county offices, the KCR line, the Guangzhou road, the border fence and military land.
 - **Claims:** each site cites `site.<id>.exists_1979` (lead, general knowledge, use `encyclopedia`). Each placed site also cites `site.<id>.location` (lead, use `geometry`). Sourced Phase 1 claims are attached as context, and most are `design_note`. One is `geometry`: `phase1.map.yumin_river_location`.
 - **Flag colour:** the weakest of the site's own encyclopedia and geometry claims.
 - **What Landsat shows at each proxy point (hints, not findings):**
