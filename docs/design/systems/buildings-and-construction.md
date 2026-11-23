@@ -71,7 +71,9 @@ interface Building {
 }
 interface BlockStock {
   blockId: number; cell: number; area: number; village?: number;
-  cohorts: { era: number; use: FloorUse; stage: Stage; legality: Legality; m2: number }[];
+  cohorts: { era: number; use: FloorUse; stage: Stage; legality: Legality; m2: number;
+             archetype: string;            // the era kit, as on Building; m² per bed and per job are keyed by it
+             due?: YM }[];                 // completion month, for cohorts under construction
   events: { date: YM; kind: BlockEventKind; use?: FloorUse; m2: number; builder: ActorId }[];   // last 24 months
   rightsSummary: { title: Title; share: number }[];
 }

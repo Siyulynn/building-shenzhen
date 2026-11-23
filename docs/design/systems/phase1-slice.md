@@ -199,10 +199,15 @@ interface SliceArea { id: number; key: string; name: LocalizedString; cells: Uin
   illegalFloorShare: number;                              // summary of the block stocks
   serviceGap: number; }                                   // fiscal §6.1
 type PopKind = 'villager' | 'urban_resident' | 'migrant_factory' | 'migrant_construction' | 'hk_manager';
+type Sector = 'farming_fishing' | 'factory' | 'construction' | 'services' | 'state';   // Phase 1 subset of PLAN §3.2
 interface PopGroup { area: number; kind: PopKind;
   registration: 'local' | 'nonlocal' | 'hmt';             // PLAN §3.2 attributes, fixed per kind in Phase 1
-  stayedSixMonths: number;                                // count with 6+ months, the rest is under 6 months
-  size: number; employed: Record<Sector, number>; wage: number; savings: number; mood: number; }
+  size: number;                                           // usual residents of the area (integer)
+  stayedSixMonths: number;                                // integer: here six months or more (resident, 常住)
+  underSix: [number, number, number, number, number, number];  // integer arrival cohorts: slot k arrived k months ago
+  present: number;                                        // integer: sleeping here this month (Spring Festival, §6.2)
+  employed: Record<Sector, number>; wage: number; savings: number; mood: number; }
+// size === stayedSixMonths + Σ underSix, always (§5.2)
 interface Climate { reformWind: number /* −1..1, exogenous series */; scrutiny: number /* 0..100 */ }
 interface Readiness { roads: number; servicedLand: number; waterPower: number }   // each 0..1; the bar is their weighted mean (§7.1)
 interface Sweep { active: boolean; monthsLeft: number }  // the visible vs real gap itself is leadership §4.4's
@@ -291,6 +296,137 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
 - a known-answer test for the RNG;
 - saving refuses non-finite numbers;
 - a recursive source scan of sim-core: no `Math.random`, no `Date`, no `node:` imports, no imports from `apps` or `render`, and no year literals.
+
+### 5.2 Pops, labour, migration and housing (M2)
+M2 adds four tick steps from §6: labour (5), housing (7), migration (8) and construction (4, village households only). It also adds statistics fields (13). This section owns their model until the pops spec exists.
+
+**Units and conventions.**
+- **Units:**
+  - money is nominal yuan;
+  - wages are yuan per worker-month;
+  - rents are yuan per m² per month;
+  - floor area is m².
+- **People are integers.** A flow computed as a real number x becomes `floor(x)`, plus 1 with probability `frac(x)`, drawn from the step's own RNG stream (seeded stochastic rounding). A slice-wide total is split across areas by largest remainder, with ties going to the lower area id.
+- **Fixed order:**
+  - Systems loop over the constant arrays `POP_KINDS`, `SECTORS`, `AREA_ORDER` (state order) and `ARCHETYPES`, never over a record's keys. A save sorts keys, so iterating over them would change draws and float sums after a load.
+  - The kind and sector names are schema enums, not balance data.
+- **Params:** `params/slice.yaml` is parsed once and validated: no nulls, every number finite. Then `createTickSteps(params)` builds the tick pipeline. Params never enter `GameState`. The save header carries `params_sha256` next to `areas_sha256`.
+- **Seasonality:** seasonality reads the month of the year (`date % 12`). The months it uses come from params. No code reads the calendar year.
+
+**The start state (`content/slice/start_1979.yaml`, placeholder).** For each playable area it gives:
+- pop sizes by kind (all counted as `stayedSixMonths` at the start);
+- baseline jobs by sector (the 1979 economy: farming and fishing, the town's shops, state units);
+- housing floor area by archetype;
+- the village plot footprint, which caps village floors;
+- block-stock rights.
+
+Every number is a `placeholder: true` design guess. The claims it cites are upper bounds only (§9.1): SEZ residents, agricultural and non-agricultural residents, and non-registered residents at end-1979. Areas 8–9 have no pops (§6.1).
+
+**State added by M2.**
+```ts
+interface LabourMarket { wage: Record<Sector, number>;                     // slice-wide, yuan per worker-month
+  jobs: { area: number; sector: Sector; jobs: number; filled: number }[];  // this month's demand and its fill
+  baseJobs: { area: number; sector: Sector; jobs: number }[] }             // the start economy; M3 adds industry
+interface HousingMarket { area: number;
+  beds: { local: number; rental: number };          // capacity from completed floor (buildings §7)
+  sleepers: { local: number; rental: number };      // present people by pool
+  crowding: number;                                 // rental sleepers ÷ max(1, rental beds), may exceed 1
+  rent: number }                                    // yuan / m² / month, rental pool
+interface MigrationState { stockLag: Record<'migrant_factory' | 'migrant_construction', number[]> }  // slice stock, last network_lag_months months
+interface PolicyLevers { permitRegime: 'loose' | 'standard' | 'strict'; enforcement: 'low' | 'medium' | 'high' }  // §4; set by actions from M5
+// GameState gains: pops: PopGroup[]; blocks: BlockStock[] (buildings §2.2); labour; housing: HousingMarket[];
+//                  migration; policy; history gains the monthly series listed under "Statistics"
+```
+
+**Block stocks.**
+- **Granularity:** one `BlockStock` per playable area for M2 (`blockId` = area id, `cell` = the area's first cell). `village` is unset. The split into villages follows the site register in a later milestone.
+- **Cohorts** use buildings §2.2 with two additions: `archetype` (one of §5's six) and `due` (the completion month, for cohorts under construction).
+- **Era:** `era` is an index into `params.eras`. M2 has one era.
+- **Bed pools:**
+  - **Local:** village houses and state flats, for villagers, urban residents and Hong Kong managers. No rent.
+  - **Rental:** village rental blocks and dormitories, for migrants. This pool has the rent.
+- **Beds** = completed m² ÷ `m2_per_bed[archetype]`, rounded down.
+
+**Labour (step 5).**
+- **Labour force:** `present × participation[kind]`, stochastically rounded.
+- **Jobs:**
+  - `baseJobs`;
+  - construction jobs, from m² under construction × `construction_jobs_per_m2`;
+  - in M3, industry.
+- **Who works where:** a worker takes only the sectors in `eligible[kind]`.
+- **Matching:** jobs are filled within the area first, in `AREA_ORDER` and `SECTORS` order. Leftover vacancies then take unemployed workers from the other playable areas. A cross-area worker counts as employed in their home group.
+- **Wages:** each sector's wage moves toward clearing, `wage += wage_speed × wage × (vacancy_rate − unemployment_rate)`, and never falls below `wage_floor[sector]`.
+
+**Housing market (step 7).**
+- Sleepers are each pool's present people. `crowding = rental sleepers ÷ max(1, rental beds)`.
+- **Rent moves gradually**, so there is no cobweb:
+  - `target = base_rent × max(crowding, crowding_floor)^rent_elasticity`;
+  - `rent += rent_speed × (target − rent)`.
+- **Over the cap:** if crowding exceeds `crowding_max`, the excess migrants leave this month as a housing outflow (newest arrivals first). So no one sleeps above the cap, and the people are conserved as an outflow.
+- **Locals** are assumed housed in their own pool in M2. Its crowding is reported, not enforced.
+
+**Migration (step 8).** Inflow is slice-level per migrant kind k, then allocated across areas.
+- **Inflow:**
+  - `gap = max(0, (wage[sector(k)] − inland_wage) ÷ inland_wage)`;
+  - `pull = vacancies ÷ (vacancies + K_vac)`, which saturates;
+  - `network = 1 + network_alpha × ln(1 + lagged slice stock ÷ K_net)`, which is concave and at least 1, so an empty slice can still attract migrants;
+  - `inflow = base[k] × gap × pull × network × permit_factor[regime]`.
+- **Allocation:** weights are the area's vacancies in sector(k) plus its free rental beds under `crowding_max`. If every weight is zero, nobody comes, and the inflow is lost, not stored.
+- **Arrivals** enter `underSix[0]` and are present at once.
+- **Outflow per group:**
+  - `size × (base_exit + unemployment_push × unemployment_rate + housing_push × max(0, crowding − 1))`;
+  - taken from the newest cohort first, then from `stayedSixMonths`.
+- **Ageing:** at the end of the step each queue shifts. `underSix[5]` moves into `stayedSixMonths`, so a newcomer counts as resident only after six months.
+- **Spring Festival:**
+  - In the months `spring.away_months`, migrants' `present = size − round(size × spring.away_share)`.
+  - In `spring.return_month`, `round(away × (spring_nonreturn + nonreturn_unemployment × unemployment_rate))` leave as a real outflow, and the rest come back.
+  - Usual residence (`size`) does not change while people are away.
+- **Births and deaths** are explicit zero flows in M2.
+
+**Village building (step 4).** Once a month, for each area with village plots:
+- **The test (buildings §3.1):**
+  - `value = rent × min(1, crowding) × horizon_months` per m²;
+  - `cost = build_cost_per_m2`;
+  - `risk = p_enforce[enforcement] × cost`;
+  - it builds when `value − cost − risk > hurdle × cost`.
+- **How much:** `starts = min(max_start_m2_per_month[area], unmet rental beds × m2_per_bed.village_rental × response)`.
+- **How high:** village floor area is capped at `footprint × max_floors`, where `max_floors = min(structural_max_floors[era], enforcement_max_floors[enforcement])`.
+  - Floors up to `legal_floors` are `permitted`.
+  - Floors above that are `unpermitted_tolerated` (buildings §5).
+- **Completion:** a start becomes an `under_construction` cohort with `due = date + duration_months`, and an event `start`. It completes in step 4 of its due month (event `complete`). Only completed floor supplies beds (buildings §11).
+- **`illegalFloorShare`** = illegal floor ÷ all village floor, recomputed from the block stock each month.
+
+**Statistics (step 13).** Monthly slice series in `history`:
+- the three counts of PLAN §3.2, as filtered sums:
+  - registered = local-hukou kinds;
+  - resident = Σ `stayedSixMonths`;
+  - present = Σ `present`;
+- migrants;
+- jobs and employed by sector;
+- rental beds;
+- mean crowding and rent;
+- floor area under construction;
+- the illegal floor share.
+
+**Deferred past M2** (zero or absent):
+- escapes to Hong Kong (they need the event system, M5);
+- investor dormitories (M3) and state flats (city projects, M4);
+- births and deaths;
+- savings, and mood beyond its start value (needs, M5).
+
+**M2's tests:**
+- **At rest:** with no shock, 12 months barely move the pops (each count within 2%).
+- **A fixture job shock** (factory jobs added to `baseJobs` through `steps`) runs the whole loop: jobs → migrants → crowding → rent → village floors, including illegal floors under low enforcement.
+- **Stability:**
+  - inflow starts with zero migrants in the slice;
+  - the migrant stock stays bounded over 63 months under the shock;
+  - rent settles after the shock, without swings that grow.
+- **Invariants** (property tests over seeds):
+  - per group, Δsize = inflow − outflow;
+  - `size = stayedSixMonths + Σ underSix`;
+  - no negative people, jobs, beds or floor;
+  - `illegalFloorShare` and the bed counts equal what the block stocks give.
+- **M1's determinism tests** rerun on the real M2 tick: save/load/continue, replay, and input not changed.
 
 ---
 
@@ -471,9 +607,10 @@ The six prologue quarters (1979-Q1 to 1980-Q2, §2.1) are a **prologue with a de
 
 ## 8. Parameters (sketch of `params/slice.yaml`)
 ```yaml
+# M2 (§5.2) lives in params/slice.yaml in full; wages, rents, m² per bed and build costs are placeholder design guesses
 migration: { base: { migrant_factory: null, migrant_construction: null }, network_lag_months: 6,
              permit_factor: { loose: 1.3, standard: 1.0, strict: 0.6 }, spring_nonreturn: 0.1 }
-housing: { m2_per_bed: { village_rental: null, dormitory: null, flats: null } }
+housing: { m2_per_bed: { village_rental: null, dormitory: null, flats: null, village_house: null } }
 production: { value_added_ratio: { processing_hk: 0.2 } }       # fiscal §12
 climate: { scrutiny_decay: 0.05, failure_threshold: 80, failure_quarters: 4 }
 review: { pass_mark: 0.6 }
@@ -535,7 +672,12 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 - county and city budget revenue and spending, and foreign investment used, 1979–84;
 - the terms the SEZ opened with in 1980 (tax incentives, what foreign firms could do, leasing);
 - the terms of the 1980s fiscal contracting arrangement (fiscal §13);
-- period maps of the Luohu and Shekou areas, for the area boundaries and the 1979 coastline.
+- period maps of the Luohu and Shekou areas, for the area boundaries and the 1979 coastline;
+- for M2's placeholders (`params/slice.yaml`, `content/slice/start_1979.yaml`):
+  - wages by sector in Shenzhen, inland and in Hong Kong, 1979–84;
+  - urban-village rents, and floor area per bed in village rooms, dormitories and state flats;
+  - village house construction cost and time;
+  - the population, jobs and housing floor area of the slice areas in 1979.
 
 ---
 
@@ -579,7 +721,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 |---|---|---|
 | M1 | `sim-core` package: state, seeded RNG, `step()`, the action log, save and load. Also: `content/slice/areas.yaml` from whole proxy subdistricts, with the area invariant checked by `m1b_sites.py`; the map viewer's slice overlay synced to it (playable vs card-only, replacing the hard-coded Luohu + Shekou sets in `apps/map-spike/src/main.ts`) | The §5.1 tests pass (save, load and continue matches an uninterrupted 63-month run; replay from the log; the pause contract); the area invariant passes. *Status:* done. Rebuild the areas with `pipeline/m1_areas.py`, then run `pipeline/m1b_sites.py` (the invariant); sim-core's tests run in `npm run check` |
 | M1b | The 1979 site register: candidate sites with claims, rough geometry, site flags on the map; start state compiled from it | Every site in the start state has a flag and a claim. *Status:* register and flags done; the start state is not compiled yet |
-| M2 | Pops, labour, migration, housing (block stocks), village building | The town fills with migrants and rental floors on its own |
+| M2 | Pops, labour, migration, housing (block stocks), village building (§5.2) | At rest, the start state holds still. Under a fixture job shock, the town fills with migrants and village rental floors on its own, illegal floors included. Without M3 there is no job growth, so the shock stands in for investors. M2's tests in §5.2 pass |
 | M3 | Industry blocks, production, investors and the preview | Accepted investors create jobs, orders and housing demand |
 | M4 | Fiscal: ledger, obligations, projects, the loan, the deficit rule; nominal GDP | Overbuilding forces a deficit card; the loan squeezes later years |
 | M5 | Leaders, the shortcut, the annual review and the sweep, the climate value, the events, the prologue beats, the SEZ chain, the grant cliff and the closing visit | Each year's review forces a trade-off; readiness visibly changes the first wave; the prologue tests pass; the 1980-Q2 snapshot is generated and passes its bands |
