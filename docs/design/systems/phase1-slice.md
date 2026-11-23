@@ -100,7 +100,7 @@ Areas 1–7 are contiguous and playable. Areas 8–9 form the western cluster, w
   - **Shekou** (8) competes with the player for investors, and becomes an enclave when its industrial zone begins (§7).
   - **Nantou** (9) appears through village, water and road cards. The 1981 water plant (`phase1.water.nantou_1981_capacity`) is one of them.
 - **The area invariant:** every placed site's `area` equals the area whose cells contain its point.
-  - A point that falls on no land cell (the Luohu bridge on the river, Chiwan offshore in 1979) takes the nearest land cell.
+  - A point that falls on no land cell inside the city (the Luohu bridge on the river, Chiwan offshore in 1979) takes the nearest one.
   - `pipeline/m1b_sites.py` checks this against `content/slice/areas.yaml` once that file exists (M1), and fails on a mismatch.
 
 ### 3.1 The 1979 site register: what already existed

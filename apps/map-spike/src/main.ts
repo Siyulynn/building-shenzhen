@@ -7,8 +7,27 @@ interface Meta {
   districts: (Named & { land_km2: number })[]; subdistricts: Named[];
 }
 
-const SLICE_DISTRICTS = new Set(['Luohu']);
-const SLICE_SUBDISTRICTS = new Set(['蛇口街道', '招商街道']);
+/** The slice areas compiled from content/slice/areas.yaml by pipeline/m1_areas.py (phase1-slice.md §3, §5.1). */
+interface AreaRec { id: number; key: string; name: { zh: string; en: string }; access: 'playable' | 'card_only';
+  runs: [number, number, number][] }
+async function loadAreas(W: number, H: number) {
+  const res = await fetch('/grid/areas.json');
+  if (!res.ok) return null;
+  const d: { grid: { width: number; height: number }; areas: AreaRec[] } = await res.json();
+  if (d.grid.width !== W || d.grid.height !== H) return null;
+  const cell = new Uint8Array(W * H);
+  const label: [number, number][] = [];
+  for (const a of d.areas) {
+    let sx = 0, sy = 0, n = 0;
+    for (const [y, x0, x1] of a.runs) {
+      cell.fill(a.id, y * W + x0, y * W + x1 + 1);
+      sx += ((x0 + x1) / 2) * (x1 - x0 + 1); sy += y * (x1 - x0 + 1); n += x1 - x0 + 1;
+    }
+    label.push([sx / n, sy / n]);
+  }
+  return { areas: d.areas, cell, label };
+}
+type Areas = NonNullable<Awaited<ReturnType<typeof loadAreas>>>;
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const canvas = $<HTMLCanvasElement>('map');
@@ -123,14 +142,14 @@ function hypso(e: number): [number, number, number] {
   return stops[stops.length - 1]![1];
 }
 
-function buildBase(g: Grid, opts: { hill: boolean; dist: boolean; sub: boolean; slice: boolean }): HTMLCanvasElement {
+function buildBase(g: Grid, opts: { hill: boolean; dist: boolean; sub: boolean; slice: boolean },
+  sa: Areas | null): HTMLCanvasElement {
   const { width: W, height: H } = g.meta;
   const off = document.createElement('canvas');
   off.width = W; off.height = H;
   const img = off.getContext('2d')!.createImageData(W, H);
   const px = img.data;
-  const sliceIds = new Set(g.meta.subdistricts.filter((s) => SLICE_SUBDISTRICTS.has(s.name)).map((s) => s.id));
-  const sliceDist = new Set(g.meta.districts.filter((d) => SLICE_DISTRICTS.has(d.en)).map((d) => d.id));
+  const cardOnly = new Set(sa?.areas.filter((a) => a.access === 'card_only').map((a) => a.id) ?? []);
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
       const i = y * W + x;
@@ -149,10 +168,14 @@ function buildBase(g: Grid, opts: { hill: boolean; dist: boolean; sub: boolean; 
         }
         if (!inside) { const m = (r + gg + b) / 3; r = m * 0.75; gg = m * 0.75; b = m * 0.78; } // Hong Kong, Dongguan, Huizhou
       }
-      const inSlice = sliceDist.has(g.dist[i]!) || sliceIds.has(g.sub[i]!);
-      if (opts.slice && inside && !g.water[i] && !inSlice) { r *= 0.55; gg *= 0.55; b *= 0.55; }
+      const area = sa ? sa.cell[i]! : 0;
+      if (opts.slice && sa && inside && !g.water[i]) {
+        if (!area) { r *= 0.5; gg *= 0.5; b *= 0.5; }                       // locked
+        else if (cardOnly.has(area)) { r = r * 0.6 + 90; gg = gg * 0.6 + 60; b = b * 0.6 + 20; }  // card only
+      }
       const edge = (a: ArrayLike<number>) =>
         x < W - 1 && y < H - 1 && (a[i] !== a[i + 1] || a[i] !== a[i + W]) && (a[i]! > 0 || a[i + 1]! > 0 || a[i + W]! > 0);
+      if (opts.slice && sa && edge(sa.cell)) { r = 255; gg = 236; b = 120; }
       if (opts.sub && edge(g.sub)) { r = 250; gg = 240; b = 215; }
       if (opts.dist && edge(g.dist)) { r = 196; gg = 60; b = 48; }
       px[i * 4] = r; px[i * 4 + 1] = gg; px[i * 4 + 2] = b; px[i * 4 + 3] = 255;
@@ -166,7 +189,9 @@ async function main() {
   const g = await load();
   const { meta } = g;
   const opts = { hill: true, dist: true, sub: false, slice: false };
-  let base = buildBase(g, opts);
+  const sa = await loadAreas(meta.width, meta.height);
+  if (!sa) { $<HTMLInputElement>('slice').disabled = true; }
+  let base = buildBase(g, opts, sa);
   const y79 = await load1979(meta.width * meta.height);
   const changeLayer = y79.change ? buildChange(meta.width, meta.height, y79.change) : null;
   const m1c = await loadM1c(meta.width * meta.height);
@@ -250,6 +275,16 @@ async function main() {
     };
     if (opts.sub && view.scale > 1.2) labels(meta.subdistricts, 11, '#f4ecd8');
     if (opts.dist) labels(meta.districts, 14, '#ffd9c9');
+    if (opts.slice && sa && view.scale > 1.5) {
+      ctx.font = `${12 * dpr}px system-ui, sans-serif`;
+      sa.areas.forEach((a, k) => {
+        const [lx, ly] = sa.label[k]!;
+        const sx = view.ox + (lx + 0.5) * view.scale, sy = view.oy + (ly + 0.5) * view.scale;
+        const text = `${a.id} ${a.name.zh}${a.access === 'card_only' ? ' (card only)' : ''}`;
+        ctx.lineWidth = 3 * dpr; ctx.strokeStyle = 'rgba(14,26,36,.85)'; ctx.fillStyle = '#ffec78';
+        ctx.strokeText(text, sx, sy); ctx.fillText(text, sx, sy);
+      });
+    }
     const dt = performance.now() - t0;
     worst = Math.max(worst, dt); frames++;
     if (performance.now() - last > 1000) {
@@ -300,12 +335,14 @@ async function main() {
     const THEN: Record<number, string> = { 1: ' · 1979: sea', 2: ' · 1979: land', 3: ' · 1979: inland water', 255: ' · 1979: no data' };
     const then = y79.change ? (THEN[y79.change[i]!] ?? '') : '';
     const c84 = m1c.change ? ` · 1979→1984: ${CHANGE_7984[m1c.change[i]!]?.[0] ?? '?'}` : '';
-    $('hover').textContent = `cell ${cx},${cy} · ${g.water[i] ? 'water' : `${g.elev[i]} m`} · ${d ? `${d.name} ${d.en}` : 'outside Shenzhen'}${s ? ` · ${s.name}` : ''}${then}${c84}`;
+    const ar = sa?.areas.find((a) => a.id === sa.cell[i]);
+    const sl = ar ? ` · area ${ar.id} ${ar.name.zh} (${ar.access === 'card_only' ? 'card only' : 'playable'})` : '';
+    $('hover').textContent = `cell ${cx},${cy} · ${g.water[i] ? 'water' : `${g.elev[i]} m`} · ${d ? `${d.name} ${d.en}` : 'outside Shenzhen'}${s ? ` · ${s.name}` : ''}${sl}${then}${c84}`;
   });
   for (const key of ['hill', 'dist', 'sub', 'slice'] as const) {
     $<HTMLInputElement>(key).addEventListener('change', (e) => {
       opts[key] = (e.target as HTMLInputElement).checked;
-      base = buildBase(g, opts); request();
+      base = buildBase(g, opts, sa); request();
     });
   }
   for (const key of LAYER_KEYS) {

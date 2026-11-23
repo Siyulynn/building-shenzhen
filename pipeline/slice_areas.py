@@ -1,19 +1,24 @@
-"""Stand-in slice areas on the Spike A grid, from the proxy subdistricts in phase1-slice.md §3 (v0.3).
+"""The slice areas on the Spike A grid, read from content/slice/areas.yaml (phase1-slice.md §3, §5.1).
 
-Replaced by content/slice/areas.yaml in M1. Import: from slice_areas import load_grid, area_mask
+Import: from slice_areas import AREAS, load_areas, load_grid, area_mask
 """
 import json
 from pathlib import Path
 
 import numpy as np
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 GRID = ROOT / "apps/map-spike/public/grid"
-AREAS = {  # area -> (key, proxy subdistricts without 街道)
-    1: ("market_town", ["东门", "翠竹"]), 2: ("luohu_crossing", ["南湖"]), 3: ("caiwuwei", ["桂园"]),
-    4: ("huangbeiling", ["黄贝"]), 5: ("sungang", ["笋岗", "清水河"]), 6: ("donghu_liantang", ["东湖", "东晓", "莲塘"]),
-    7: ("shangbu", ["华强北", "园岭"]), 8: ("shekou", ["蛇口", "招商"]), 9: ("nantou", ["南头"]),
-}
+AREAS_YAML = ROOT / "content/slice/areas.yaml"
+
+
+def load_areas():
+    """The area records, in file order."""
+    return yaml.safe_load(AREAS_YAML.read_text(encoding="utf-8"))
+
+
+AREAS = {a["id"]: (a["key"], a["proxy_subdistricts"]) for a in load_areas()}  # area -> (key, proxy subdistricts)
 
 
 def load_grid():
@@ -31,11 +36,30 @@ def load_grid():
     return g
 
 
+def subdistrict_ids(g):
+    """Proxy name (without 街道) -> grid subdistrict id. Fails unless each name resolves to exactly one id."""
+    by_name = {}
+    for s in g["meta"]["subdistricts"]:
+        by_name.setdefault(s["name"], []).append(s["id"])
+    out = {}
+    for a, (_, subs) in AREAS.items():
+        for s in subs:
+            ids = by_name.get(s + "街道", [])
+            if len(ids) != 1:
+                raise SystemExit(f"area {a}: proxy subdistrict {s} resolves to {len(ids)} grid ids, not 1")
+            out[s] = ids[0]
+    return out
+
+
 def area_mask(g):
-    """uint8 grid: slice area number per cell (0 = none)."""
-    ids = {s["name"]: s["id"] for s in g["meta"]["subdistricts"]}
+    """uint8 grid: slice area number per cell (0 = none). Fails if a subdistrict is in two areas."""
+    ids = subdistrict_ids(g)
+    seen = {}
     out = np.zeros((g["H"], g["W"]), dtype=np.uint8)
     for a, (_, subs) in AREAS.items():
         for s in subs:
-            out[g["sub"] == ids[s + "街道"]] = a
+            if s in seen:
+                raise SystemExit(f"proxy subdistrict {s} is in areas {seen[s]} and {a}")
+            seen[s] = a
+            out[g["sub"] == ids[s]] = a
     return out

@@ -1,0 +1,9 @@
+# The slice's time frame (docs/design/systems/phase1-slice.md §2, §5.1). The sim reads the start month and the
+# number of turns from here; no year appears in code.
+# 21 quarterly turns of three monthly sub-steps: 1979-Q1 to 1984-Q1, closing with the January 1984 visit.
+start: 1979-01
+turns: 21
+months_per_turn: 3
+claims:
+  - { id: phase1.event.shenzhen_city_approval, use: design_note }   # the prologue opens in the quarter of the change
+  - { id: phase1.event.deng_first_visit, use: design_note }         # the closing event, 1984-Q1

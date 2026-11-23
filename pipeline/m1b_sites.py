@@ -10,13 +10,21 @@ Each site gets:
                    (design_note claims are context, they do not raise or lower the flag)
   cell             grid x, y of the proxy point (None when unplaced)
   landsat_check    what the 1979 scene shows at that cell: an automatic hint for the person who places the site
+The area invariant (phase1-slice.md §3): every placed site's `area` equals the area of content/slice/areas.yaml
+whose cells contain its point. A point on no land cell inside the city takes the nearest one. A mismatch fails the run.
 """
 import json
 from pathlib import Path
 
+import sys
+
 import numpy as np
 import yaml
 from pyproj import Transformer
+from scipy.ndimage import distance_transform_edt
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from slice_areas import area_mask, load_grid  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 GRID = ROOT / "apps/map-spike/public/grid"
@@ -34,6 +42,12 @@ def main():
     water79 = np.fromfile(GRID / "water1979.bin", dtype=np.uint8).reshape(H, W)
     change = np.fromfile(GRID / "coast_change.bin", dtype=np.uint8).reshape(H, W)
     to_utm = Transformer.from_crs("EPSG:4326", meta["crs"], always_xy=True)
+    g = load_grid()
+    areas = area_mask(g)
+    # for each cell, the nearest land cell inside the city (present-day grid): points on the river, offshore or
+    # across the border snap to it
+    _, (near_y, near_x) = distance_transform_edt((g["water"] != 0) | (g["dist"] == 0), return_indices=True)
+    mismatches = []
 
     out = []
     for s in sites:
@@ -57,6 +71,11 @@ def main():
             x, y = to_utm.transform(lon, lat)
             cx, cy = int((x - x0) // cell), int((y1 - y) // cell)
             rec["cell"] = [cx, cy]
+            ly, lx = int(near_y[cy, cx]), int(near_x[cy, cx])
+            got = int(areas[ly, lx]) or None
+            if s.get("area") != got:
+                mismatches.append(f"{s['id']}: area {s.get('area')} in the register, but its point lies in area {got}"
+                                  f" (cell {lx},{ly})")
             w = int(water79[cy, cx])
             rec["landsat_check"] = {"water_1979": {0: "land", 1: "water", 255: "no data"}[w],
                                     "change": CHANGE[int(change[cy, cx])]}
@@ -66,6 +85,9 @@ def main():
                                                 ensure_ascii=False, indent=1), encoding="utf-8")
     for r in out:
         print(f"{r['id']:<32} {r['evidence_status']:<8} {str(r['cell']):<12} {r['landsat_check']}")
+    if mismatches:
+        raise SystemExit("area invariant failed:" + "".join(f"\n  {m}" for m in mismatches))
+    print(f"area invariant ok: {sum(r['cell'] is not None for r in out)} placed sites in their areas")
 
 
 if __name__ == "__main__":

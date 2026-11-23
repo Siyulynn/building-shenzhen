@@ -1,0 +1,51 @@
+# The slice areas (docs/design/systems/phase1-slice.md §3, §5.1). A design proposal, decided 2026-11-23 (§13).
+# Names and roles come from general knowledge and are lead; the roles stay in the spec.
+# Geometry: each area is a union of whole present-day OSM subdistricts (names without 街道), used as proxies.
+# No subdistrict is split, and none belongs to two areas. Redraw from period maps when those are in hand.
+# Compile: pipeline/m1_areas.py -> data/starts/slice_areas.json (checks the invariant against the Spike A grid).
+- id: 1
+  key: market_town
+  name: { zh: 深圳墟, en: Shenzhen market town }
+  access: playable
+  proxy_subdistricts: [东门, 翠竹]
+- id: 2
+  key: luohu_crossing
+  name: { zh: 罗湖口岸与渔民村, en: Luohu crossing and Yumin }
+  access: playable
+  proxy_subdistricts: [南湖]
+- id: 3
+  key: caiwuwei
+  name: { zh: 蔡屋围, en: Caiwuwei }
+  access: playable
+  proxy_subdistricts: [桂园]
+- id: 4
+  key: huangbeiling
+  name: { zh: 黄贝岭与文锦渡, en: Huangbeiling and Wenjindu }
+  access: playable
+  proxy_subdistricts: [黄贝]
+- id: 5
+  key: sungang
+  name: { zh: 笋岗, en: Sungang }
+  access: playable
+  proxy_subdistricts: [笋岗, 清水河]
+- id: 6
+  key: donghu_liantang
+  name: { zh: 东湖–莲塘, en: Donghu–Liantang }
+  access: playable
+  proxy_subdistricts: [东湖, 东晓, 莲塘]
+- id: 7
+  key: shangbu
+  name: { zh: 上步, en: Shangbu }
+  access: playable
+  proxy_subdistricts: [华强北, 园岭]
+- id: 8
+  key: shekou
+  name: { zh: 蛇口工业区, en: Shekou Industrial Zone }
+  access: card_only
+  flag: shekou_enclave
+  proxy_subdistricts: [蛇口, 招商]
+- id: 9
+  key: nantou
+  name: { zh: 南头, en: Nantou }
+  access: card_only
+  proxy_subdistricts: [南头]
