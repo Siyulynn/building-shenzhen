@@ -462,6 +462,7 @@ interface Zone {
   area: number;               // the playable area holding most of its cells (ties: lower id); recomputed on edit
   created: YM;
   template?: string;          // the precedent it was applied from: a record of what the player did, not of history
+  servicedShare?: number;     // M3b hook (§5.5): the share of its buildable cells serviced (三通一平), 0–1; absent = 1
   name: { kind: 'generic' } | { kind: 'precedent'; precedent: string } | { kind: 'custom'; zh: string; en: string };
 }
 // GameState gains: grid: { width: number; height: number } (from the areas content); zones: Zone[] (id order);
@@ -601,7 +602,7 @@ interface AnsweredCard { card: CardInstance; option: string }   // answered, awa
 4. **Arrivals:** each archetype makes an offer with probability `rate_per_quarter ÷ 3` (stream `investment`). The offer's size is drawn, its options are set as in step 3, and it is raised as a non-interrupting card with the offer as its payload. It expires after `offer_months`, which is longer than a quarter because `runQuarter` does not stop between months.
 
 **Siting and capacity.**
-- **A zone's floor capacity** = its buildable cells × 10,000 m² × `industry.max_far`. Its use is the floor and dormitory area of the firms sited in it. A firm fits when use + its floor + its dormitory ≤ capacity. Only `industrial` zones host firms in M3b.
+- **A zone's floor capacity** = its buildable cells × `servicedShare` (absent = 1) × 10,000 m² × `industry.max_far`. Its use is the floor and dormitory area of the firms sited in it. A firm fits when use + its floor + its dormitory ≤ capacity. Only `industrial` zones host firms in M3b.
 - **Plan vs. fact:** editing or removing a zone leaves its firms running in their area (non-conforming). Capacity only gates new firms. A zone changed to another use takes no new firm.
 - **Existing premises** (archetypes with `existing_premises` only). The local side of a processing contract supplied the premises and labour (`phase1.industry.processing_contract`). So the first contracts can use the town's and villages' existing buildings before any zone exists.
   - In each area, the jobs of firms in existing premises stay ≤ `industry.premises_jobs_per_area`.
@@ -645,7 +646,7 @@ interface Cohort { /* buildings §2.2, M2 */ workDone?: number; workTotal?: numb
 **Deferred.**
 - **To M4:**
   - the preview's cash this quarter, retained tax and new obligations. They need the fiscal regime.
-  - **Serviced land (三通一平):** a zone's capacity gains a serviced share, 1 until M4's site-preparation projects exist: road access, water, power, and cleared, level ground. A connected site stays distinct from one with spare water and power to operate.
+  - **Serviced land (三通一平):** M4's site-preparation projects set a zone's `servicedShare`, which M3b already reads and nothing sets yet: road access, water, power, and cleared, level ground. A connected site stays distinct from one with spare water and power to operate.
   - **Construction capacity:** factories, roads, utilities and site preparation draw on one monthly pool of work, supplied by local labour and by teams that join it (contracted county crews, the Engineering Corps, outside state companies). A dedicated contract waives a project's draw on the pool but not its cost or time. Village self-build stays outside the pool.
 - **To M5:**
   - the guaranteed first contract in 1979-Q2, and the post-SEZ origins with their incentives;

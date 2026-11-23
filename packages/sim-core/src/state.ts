@@ -73,6 +73,7 @@ export interface Zone {
   area: number;               // the playable area holding most of its cells (ties: lower id)
   created: YM;
   template?: string;          // the precedent it was applied from: a record of what the player did
+  servicedShare?: number;     // §5.5 hook: the share of its buildable cells serviced (三通一平), 0–1; absent = 1. Set by M4
   name: ZoneName;
 }
 

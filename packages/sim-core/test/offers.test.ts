@@ -202,6 +202,25 @@ describe('M3b buildable layer', () => {
   });
 });
 
+describe('M3b serviced land hook', () => {
+  it('scales a zone capacity by its serviced share; absent means fully serviced', () => {
+    const r0 = month(initial(), [ONE_CELL]);
+    const z = r0.state.zones[0]!;
+    expect(z.servicedShare).toBeUndefined();
+    const c = offerCards(r0.state)[0]!;
+    const free = (s: GameState) => previewOffer(s, c, P200, { investors }).sites[0]!.zoneFreeM2;
+    expect(free(r0.state)).toBe(10_000);
+    z.servicedShare = 0.5;
+    expect(free(r0.state)).toBe(5_000);
+    // unserviced: the zone drops out of the options at the next refresh, and survives a save
+    z.servicedShare = 0;
+    const r1 = month(r0.state);
+    expect(offerCards(r1.state).every((x) => !x.options.includes('accept:zone:1'))).toBe(true);
+    const back = loadGame(saveFromJson(saveToJson(saveGame(r1.state, new Rng(1), content)))).state;
+    expect(back.zones[0]!.servicedShare).toBe(0);
+  });
+});
+
 describe('M3b preview', () => {
   it('is pure and shows jobs, beds, utilities and output per site', () => {
     const r0 = month(initial(), [ONE_CELL]);
@@ -246,7 +265,20 @@ describe('M3b offers: determinism', () => {
     expect(saveToJson(saveGame(replay(initial(), end.actionLog, 30, rngB, steps), rngB, content))).toBe(text);
   });
 
-  it('keeps the M2 invariants and the firm sums with offers flowing for the whole slice', () => {
-    walk(initial(), 63, new Rng(21), createTickSteps(fixed(150, 1.5), { precedents, investors }).map((st) => st), checkInvariants);
+  it('keeps the M2 invariants and the firm sums for the whole slice, accepting offers into zones and premises', () => {
+    const steps = createTickSteps(fixed(150, 1.5), { precedents, investors, buildable });
+    const rng = new Rng(21);
+    let s = month(initial(), [zoneAt(360, 369, 360, 369)], steps, rng).state;   // a 100-cell industrial zone in area 7
+    for (let m = 1; m < 63; m++) {
+      // odd months take the first site (the zone), even months the last before decline (existing premises, if any)
+      const acts = offerCards(s).filter((c) => c.options.length > 1)
+        .map((c) => answer(c, c.options[m % 2 ? 0 : c.options.length - 2]!));
+      const r = month(s, acts, steps, rng);
+      checkInvariants(s, r.state, r.events);
+      s = r.state;
+    }
+    expect(s.firms.length).toBeGreaterThan(5);
+    expect(s.firms.some((f) => f.premises === 'existing')).toBe(true);
+    expect(s.firms.some((f) => f.premises === 'new_factory' && f.posted > 0)).toBe(true);
   });
 });

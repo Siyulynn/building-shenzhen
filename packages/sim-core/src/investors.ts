@@ -61,11 +61,14 @@ function has(sorted: Uint32Array, v: number): boolean {
 
 // ---- siting and capacity ----
 
-/** A zone's floor capacity: buildable cells × 10,000 m² × max_far. Every cell counts without the layer (§5.5). */
+/**
+ * A zone's floor capacity: buildable cells × servicedShare × 10,000 m² × max_far (§5.5). Every cell counts without the
+ * layer; the serviced share is 1 until M4's site preparation sets it.
+ */
 export function zoneCapacityM2(s: GameState, z: Zone, p: SliceParams, buildable?: Buildable): number {
   const cells = cellsOfRuns(z.runs, s.grid);
   const n = buildable ? cells.filter((c) => has(buildable.cells, c)).length : cells.length;
-  return n * CELL_M2 * p.industry.max_far;
+  return n * (z.servicedShare ?? 1) * CELL_M2 * p.industry.max_far;
 }
 /** The floor and dormitory area of the firms sited in a zone. */
 export const zoneUsedM2 = (s: GameState, zone: number) =>
