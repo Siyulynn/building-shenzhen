@@ -101,6 +101,21 @@ describe('step', () => {
     expect(r3.state.actionLog).toEqual([{ date: r1.state.date, subStep: 1, action: { type: 'answer_card', instance: card.id, option: 'b' } }]);
   });
 
+  it('does not pause for a non-interrupting card, which waits until answered', () => {
+    const note: TickStep[] = [{ name: 'events', run: (ctx) => {
+      if (ctx.state.history.months.length === 0) ctx.raise({ card: 'fixture.note', options: ['ok'], interrupting: false });
+    } }, TICK_STEPS.find((s) => s.name === 'statistics')!];
+    const rng = new Rng(4);
+    const r1 = step(initial(), [], rng, note);
+    const r2 = step(r1.state, [], rng, note);
+    expect(r2.status).toBe('advanced');
+    expect(r2.state.pendingCards.map((c) => c.card)).toEqual(['fixture.note']);
+    const id = r2.state.pendingCards[0]!.id;
+    const r3 = step(r2.state, [{ type: 'answer_card', instance: id, option: 'ok' }], rng, note);
+    expect(r3.state.pendingCards).toHaveLength(0);
+    expect(r3.state.actionLog).toHaveLength(1);
+  });
+
   it('does not change the state it was given', () => {
     const s0 = initial();
     const before = saveToJson(saveGame(s0, new Rng(5), content));

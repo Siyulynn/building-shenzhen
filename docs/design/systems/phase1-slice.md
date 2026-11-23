@@ -217,9 +217,10 @@ This section owns the shared types that no other spec defines yet. Each later mi
 - **`content/slice/areas.yaml`:** one record per area, with `id`, `key`, `name: { zh, en }`, `access: playable | card_only`, an optional `flag`, and `proxy_subdistricts`, a list of whole present-day subdistrict names without 街道. The areas' roles stay in this spec. They are not stored there.
 - **`content/slice/scenario.yaml`:** `start` (a `YYYY-MM` month), `turns`, `months_per_turn`, and `claims` for the dates. The sim reads the start month and the turn count from here, so no year appears in code.
 - **`data/starts/slice_areas.json`:** compiled by `pipeline/m1_areas.py` (generated, versioned, PLAN §6.6). It holds:
+  - `format` (1) and `generated_by`;
   - the grid's `width`, `height`, `cell_m`, `origin_top_left` and `crs`;
-  - the sha256 of `areas.yaml`;
-  - per area, the `areas.yaml` fields plus its cells as row runs `[y, x0, x1]` (inclusive).
+  - `areas_sha256`, the sha256 of `areas.yaml` with LF line endings;
+  - per area, the `areas.yaml` fields, plus `cell_count` and its cells as row runs `[y, x0, x1]` (inclusive).
 
   sim-core takes this file's parsed content as input and does no file IO. So `npm run check` runs without the git-ignored grid.
 
@@ -239,15 +240,24 @@ interface GameState {
   actionLog: ActionLogEntry[];
   history: { months: YM[] }; // statistics series join here as systems arrive
 }
+interface SimEvent { step: string; kind: string; detail?: Record<string, unknown> }   // e.g. 'card_raised'
+interface MonthStats { date: YM }                                                       // grows with the systems
+type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerAction[];
 ```
 
 **`step(state, actions, rng, steps?)`** (PLAN §6.2):
 1. It applies `actions` first. Each answer must name a pending instance and one of its options, or `step()` throws. The answer is logged and the card removed.
 2. If an interrupting card is still pending, it returns `{ status: 'paused', state, pendingCards }` without advancing the month.
-3. Otherwise it runs the 14 tick steps of §6 in order: named functions, all no-ops in M1. Then it advances `date`, `subStep` and `turn`, and returns `{ status: 'advanced', state, events, stats }`.
+3. Otherwise it runs the 14 tick steps of §6 in order. These are named functions, all no-ops in M1 except `statistics`, which appends the month to `history.months`. Then it advances `date`, `subStep` and `turn`, and returns `{ status: 'advanced', state, events, stats }`.
 4. Past the last turn it throws.
 
-The optional `steps` argument replaces the tick pipeline. Tests use it to raise fixture cards and draw randomness.
+- **Cards raised during a step:** the month still completes. The next `step()` call pauses until they are answered, so their answers are logged at the following month and sub-step. Non-interrupting cards wait without pausing.
+- **Inputs:** `step()` never changes the state it is given. Each state module added later must be deep-copied in `cloneState`.
+- **The `steps` argument** (optional) replaces the tick pipeline. Tests use it to raise fixture cards and draw randomness.
+- **Headless helpers:**
+  - `runMonths(state, months, rng, policy, steps?)` asks the policy for answers before every step, and throws if it leaves an interrupting card unanswered;
+  - `firstOption` answers every pending card with its first option;
+  - `replay(initial, log, months, rng, steps?)` feeds each logged answer back at its own month and sub-step.
 
 **RNG:** sfc32, one named stream per tick step, each seeded by splitmix32 from the run's seed and the step's name. A system added later gets its own stream, so it never shifts another system's draws in a golden run. The streams' state is plain numbers and goes in the save.
 

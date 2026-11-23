@@ -30,7 +30,7 @@
 | `landsat_1979_10_19` (Landsat 3 MSS, sun 46.0°) | reference geometry; the "before" scene |
 | `landsat_1984_11_22` (Landsat 5 MSS, sun 39.2°) | the "after" scene (east only) |
 | `kh9_1980_09_11_a048`, `_f047`, `_f048` (KH-9 Declass 3) | the 1980-09-11 photo |
-| Spike A grid (UTM 50N, 100 m cells) | output grid; `pipeline/slice_areas.py` approximates the slice areas from proxy subdistricts until M1's `areas.yaml` |
+| Spike A grid (UTM 50N, 100 m cells) | output grid; `pipeline/slice_areas.py` reads the slice areas from `content/slice/areas.yaml` (M1) |
 
 ## KH-9 registration (`pipeline/m1c_kh9_georef.py`)
 1. `pipeline/kh9_reduce.py` streams each scan segment out of the archive (37289×24802 px, about 0.9 m) and keeps an 8× block average (about 7.5 m).
@@ -83,7 +83,7 @@ Points sit on low, flat land only. In the hills of Sungang and Donghu–Liantang
 - October against late November: harvest and fallow can read as cleared. The control removes the average shift, not local cropping patterns.
 - 60 m MSS pixels are averaged into 100 m cells. KH-9's absolute error is a few tens of metres. That's good enough for 100 m cells and for spotting features. It isn't good enough for tracing footprints.
 - A panoramic camera shifts hills by relief displacement.
-- The slice areas are proxy subdistricts (`pipeline/slice_areas.py`), not M1's `areas.yaml`.
+- The slice areas are whole present-day proxy subdistricts (`content/slice/areas.yaml`), not period boundaries.
 - **Nothing here goes into `checkpoint_1983q4.yaml` as a number.** The per-area shares may inform `design_note` bands, for example "Huangbeiling visibly breaks ground by 1984 while the hills stay green". They do that through claims only after a person reviews the imagery.
 
 ## Evidence records

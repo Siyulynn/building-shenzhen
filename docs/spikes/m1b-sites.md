@@ -5,8 +5,9 @@
 ## How to rebuild
 1. `npm run spike:grid` (Spike A grid, `docs/spikes/spike-a-map.md`).
 2. `pipeline/.venv/Scripts/python -I pipeline/m1b_landsat_1979.py` puts the Landsat scene on the grid. It needs the bundle extracted to `data/raw/sources/landsat_1979_10_19/extracted/`.
-3. `npm run evidence:compile`, then `pipeline/.venv/Scripts/python -I pipeline/m1b_sites.py`. This writes `sites.json`, using the claim statuses and the 1979 masks. The venv also needs `pyyaml`.
-4. `npm run spike:map`. The panel has toggles for the false-colour image, the coastline change and the site flags. Click a flag to see its claims.
+3. `pipeline/.venv/Scripts/python -I pipeline/m1_areas.py` compiles `content/slice/areas.yaml` to `data/starts/slice_areas.json` and the viewer's `areas.json`.
+4. `npm run evidence:compile`, then `pipeline/.venv/Scripts/python -I pipeline/m1b_sites.py`. This writes `sites.json`, using the claim statuses and the 1979 masks. It fails unless every placed site lies in its area. The venv also needs `pyyaml` and `scipy`.
+5. `npm run spike:map`. The panel has toggles for the slice areas, the false-colour image, the coastline change and the site flags. Click a flag to see its claims.
 
 ## The 1979 Landsat scene (`landsat_1979_10_19`)
 - **The scene:** LM03_L1TP_131044_19791019_20200906_02_T2. Landsat 3 MSS, 60 m pixels, Collection 2 Tier 2, geometric RMSE 26.8 m, taken at 02:10 UTC.
