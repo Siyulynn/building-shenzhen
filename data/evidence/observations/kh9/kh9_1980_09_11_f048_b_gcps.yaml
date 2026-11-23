@@ -1,0 +1,18 @@
+# sidecar for data/evidence/observations/kh9/kh9_1980_09_11_f048_b_gcps.csv (protocol §10)
+layer: kh9_control_points
+source: kh9_1980_09_11_f048
+segment: b
+observed_date: { value: 1980-09-11, precision: day, basis: KH-9 acquisition date }
+reference: landsat_1979_10_19 (bands 4+5 at 30 m, UTM 50N; reference geometric RMSE 26.8 m)
+status: lead
+extracted_by: ai:pipeline/m1c_kh9_georef.py
+georef:
+  model: order-3 polynomial, scan pixels (8x reduced) to UTM 50N
+  points_kept: 653
+  heldout_random_5fold: { rmse_m: 30.6, median_m: 24.1, p90_m: 48.2 }
+  heldout_2km_blocks: { rmse_m: 32.2, median_m: 26.3, p90_m: 49.9 }
+confidence: 0.5
+reuse: reference_only
+notes: >-
+  Automatic matches on low, flat land (NCC >= 0.6). Covers Shekou and Nantou; Shekou's western shore has
+  no points nearby, so the model extrapolates there. See docs/spikes/m1c-imagery.md.

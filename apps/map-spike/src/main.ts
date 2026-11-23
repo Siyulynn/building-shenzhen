@@ -1,5 +1,6 @@
 // Spike A (throwaway): render the 100 m grid with pan, zoom, land colouring and overlays.
 // M1b adds the 1979 Landsat scene, the coastline change since 1979 and the 1979 site register flags.
+// M1c adds the KH-9 1980-09-11 mosaic, the Landsat 1984-11-22 scene and the 1979->1984 change map.
 interface Named { id: number; name: string; en: string; label: [number, number] }
 interface Meta {
   cell_m: number; width: number; height: number;
@@ -49,14 +50,38 @@ async function load1979(n: number) {
   return { landsat, change: change && change.length === n ? change : null, sites };
 }
 
-function buildChange(W: number, H: number, change: Uint8Array): HTMLCanvasElement {
+const loadImage = (src: string) => new Promise<HTMLImageElement | null>((ok) => {
+  const img = new Image(); img.onload = () => ok(img); img.onerror = () => ok(null); img.src = src;
+});
+
+/** Optional M1c layers (pipeline/m1c_*.py): KH-9 1980-09-11 mosaic, Landsat 1984-11-22, change 1979->1984. */
+async function loadM1c(n: number) {
+  const kres = await fetch('/grid/kh9_1980.json');
+  const kmeta: { slice: { cell_box: [number, number, number, number] } } | null = kres.ok ? await kres.json() : null;
+  const [kh9, kh9slice, landsat84] = await Promise.all([
+    kmeta ? loadImage('/grid/kh9_1980.png') : null, kmeta ? loadImage('/grid/kh9_1980_slice.png') : null,
+    loadImage('/grid/landsat1984.png')]);
+  const cres = await fetch('/grid/change_79_84.bin');
+  const change = cres.ok ? new Uint8Array(await cres.arrayBuffer()) : null;
+  return { kh9, kh9slice, box: kmeta?.slice.cell_box ?? null, landsat84, change: change && change.length === n ? change : null };
+}
+const CHANGE_7984: Record<number, [string, [number, number, number, number]]> = {
+  0: ['no data or excluded (hill, shadow)', [0, 0, 0, 0]], 1: ['stable land', [0, 0, 0, 0]],
+  2: ['greener', [92, 170, 84, 150]], 3: ['cleared or built (lead)', [232, 74, 60, 220]],
+  4: ['water then, land later (level change or fill)', [240, 160, 46, 220]],
+  5: ['land then, water later (ponds, level change)', [63, 170, 230, 220]],
+  6: ['water both dates', [40, 80, 140, 90]],
+};
+
+function buildChange(W: number, H: number, change: Uint8Array,
+  colors: Record<number, [number, number, number]> = { 1: [240, 140, 46], 2: [170, 110, 220], 3: [63, 199, 214] },
+  alpha = 210): HTMLCanvasElement {
   const off = document.createElement('canvas');
   off.width = W; off.height = H;
   const img = off.getContext('2d')!.createImageData(W, H);
-  const colors: Record<number, [number, number, number]> = { 1: [240, 140, 46], 2: [170, 110, 220], 3: [63, 199, 214] };
   for (let i = 0; i < W * H; i++) {
     const c = colors[change[i]!];
-    if (c) img.data.set([...c, 210], i * 4);
+    if (c) img.data.set([...c, alpha], i * 4);
   }
   off.getContext('2d')!.putImageData(img, 0, 0);
   return off;
@@ -144,9 +169,19 @@ async function main() {
   let base = buildBase(g, opts);
   const y79 = await load1979(meta.width * meta.height);
   const changeLayer = y79.change ? buildChange(meta.width, meta.height, y79.change) : null;
-  const layers = { landsat: false, coast: false, sites: true };
-  const present = { landsat: !!y79.landsat, coast: !!changeLayer, sites: y79.sites.length > 0 };
-  for (const key of ['landsat', 'coast', 'sites'] as const) {
+  const m1c = await loadM1c(meta.width * meta.height);
+  const change7984 = m1c.change ? (() => {
+    const off = document.createElement('canvas'); off.width = meta.width; off.height = meta.height;
+    const img = off.getContext('2d')!.createImageData(meta.width, meta.height);
+    for (let i = 0; i < m1c.change!.length; i++) img.data.set(CHANGE_7984[m1c.change![i]!]![1], i * 4);
+    off.getContext('2d')!.putImageData(img, 0, 0);
+    return off;
+  })() : null;
+  const LAYER_KEYS = ['landsat', 'coast', 'sites', 'kh9', 'landsat84', 'change84'] as const;
+  const layers = { landsat: false, coast: false, sites: true, kh9: false, landsat84: false, change84: false };
+  const present = { landsat: !!y79.landsat, coast: !!changeLayer, sites: y79.sites.length > 0,
+    kh9: !!m1c.kh9, landsat84: !!m1c.landsat84, change84: !!change7984 };
+  for (const key of LAYER_KEYS) {
     if (!present[key]) { $<HTMLInputElement>(key).disabled = true; $<HTMLInputElement>(key).checked = false; layers[key] = false; }
   }
   const unplaced = y79.sites.filter((s) => !s.cell);
@@ -176,7 +211,16 @@ async function main() {
     ctx.setTransform(view.scale, 0, 0, view.scale, view.ox, view.oy);
     ctx.drawImage(base, 0, 0);
     if (layers.landsat && y79.landsat) ctx.drawImage(y79.landsat, 0, 0, meta.width, meta.height);
+    if (layers.landsat84 && m1c.landsat84) ctx.drawImage(m1c.landsat84, 0, 0, meta.width, meta.height);
+    if (layers.kh9 && m1c.kh9) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(m1c.kh9, 0, 0, meta.width, meta.height);
+      const b = m1c.box;  // the 6.25 m crop over the playable areas, once zoomed in past 25 m per screen pixel
+      if (b && m1c.kh9slice && view.scale > 4) ctx.drawImage(m1c.kh9slice, b[0], b[1], b[2] - b[0], b[3] - b[1]);
+      ctx.imageSmoothingEnabled = view.scale < 1;
+    }
     if (layers.coast && changeLayer) ctx.drawImage(changeLayer, 0, 0);
+    if (layers.change84 && change7984) ctx.drawImage(change7984, 0, 0);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     if (layers.sites) {
       const dpr = devicePixelRatio;
@@ -255,7 +299,8 @@ async function main() {
     const s = meta.subdistricts.find((x) => x.id === g.sub[i]);
     const THEN: Record<number, string> = { 1: ' · 1979: sea', 2: ' · 1979: land', 3: ' · 1979: inland water', 255: ' · 1979: no data' };
     const then = y79.change ? (THEN[y79.change[i]!] ?? '') : '';
-    $('hover').textContent = `cell ${cx},${cy} · ${g.water[i] ? 'water' : `${g.elev[i]} m`} · ${d ? `${d.name} ${d.en}` : 'outside Shenzhen'}${s ? ` · ${s.name}` : ''}${then}`;
+    const c84 = m1c.change ? ` · 1979→1984: ${CHANGE_7984[m1c.change[i]!]?.[0] ?? '?'}` : '';
+    $('hover').textContent = `cell ${cx},${cy} · ${g.water[i] ? 'water' : `${g.elev[i]} m`} · ${d ? `${d.name} ${d.en}` : 'outside Shenzhen'}${s ? ` · ${s.name}` : ''}${then}${c84}`;
   });
   for (const key of ['hill', 'dist', 'sub', 'slice'] as const) {
     $<HTMLInputElement>(key).addEventListener('change', (e) => {
@@ -263,7 +308,7 @@ async function main() {
       base = buildBase(g, opts); request();
     });
   }
-  for (const key of ['landsat', 'coast', 'sites'] as const) {
+  for (const key of LAYER_KEYS) {
     $<HTMLInputElement>(key).addEventListener('change', (e) => {
       layers[key] = (e.target as HTMLInputElement).checked;
       if (key === 'sites' && !layers.sites) { selected = null; showSite(null); }

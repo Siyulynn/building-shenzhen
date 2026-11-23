@@ -13,5 +13,6 @@ notes: >-
   EarthExplorer Standard Format. The 2,062,167,797-byte download passed gzip
   integrity verification and contains four TIFF segments. EarthExplorer lists
   nominal 2–4 ft camera resolution and corner coordinates covering the Luohu,
-  Shangbu and Nantou reference points. Scan alignment, actual ground detail
-  and cloud coverage are pending inspection.
+  Shangbu and Nantou reference points. Inspected 2026-11-23
+  (docs/spikes/m1c-imagery.md): it reads west to east, with cloud over Futian
+  and Luohu. No segment registered (too few matches, or the coarse fit failed).

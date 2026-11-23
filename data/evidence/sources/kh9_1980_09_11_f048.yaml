@@ -13,5 +13,7 @@ notes: >-
   EarthExplorer Standard Format. The 1,617,866,382-byte archive passed gzip
   integrity verification and contains four TIFF segments. EarthExplorer
   lists nominal 2–4 ft camera resolution and corner coordinates covering
-  the Shekou and Nantou reference points. Scan alignment, actual ground
-  detail and cloud coverage are pending inspection.
+  the Shekou and Nantou reference points. Inspected 2026-11-23
+  (docs/spikes/m1c-imagery.md): segment b covers Shekou and Nantou and is
+  registered to Landsat 1979 at about 31 m hold-out RMSE. Segment a's coarse
+  fit failed.

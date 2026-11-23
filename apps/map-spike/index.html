@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shenzhen grid and 1979 sites</title>
+  <title>Shenzhen grid, 1979–1984</title>
   <style>
     html, body { margin: 0; height: 100%; background: #0e1a24; color: #e8e4d8; font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
     canvas { display: block; width: 100vw; height: 100vh; cursor: grab; }
@@ -38,6 +38,12 @@
     <label><input type="checkbox" id="sites" checked /> 1979 site register</label>
     <div style="font-size:12px"><span class="key" style="background:#d9473a"></span>lead <span class="key" style="background:#e0a63a"></span>sourced <span class="key" style="background:#4caf6a"></span>verified</div>
     <div id="unplaced"></div>
+    <h2>1980 (KH-9 Hexagon, 1980-09-11)</h2>
+    <label><input type="checkbox" id="kh9" /> Panoramic photo, ±30 m relative to Landsat 1979 (zoom in for 6 m detail)</label>
+    <h2>1984 (Landsat 5 MSS, 1984-11-22)</h2>
+    <label><input type="checkbox" id="landsat84" /> False-colour image (band data only east of Huangbeiling's west edge)</label>
+    <label><input type="checkbox" id="change84" /> Change 1979-10 → 1984-11 (areas 4 and 6 only)</label>
+    <div style="font-size:12px;color:#8fa3b3"><span class="key" style="background:#e84a3c"></span>cleared or built <span class="key" style="background:#f0a02e"></span>water then land <span class="key" style="background:#3faae6"></span>land then water <span class="key" style="background:#5caa54"></span>greener. Leads only, low flat land only.</div>
     <div id="caveat">Present-day boundaries. Site points are present-day OSM proxies, not yet placed on 1979 imagery. The 1979 water mask is an automatic threshold (tide unknown).</div>
     <div id="perf"></div>
   </div>

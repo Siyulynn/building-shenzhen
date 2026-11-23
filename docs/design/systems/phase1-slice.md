@@ -73,6 +73,10 @@ The prologue teaches the sim through history, with no text tutorial. Powers star
   - **Playable land in Phase 1 comes from the present-day DEM, by decision.** All seven playable areas lie inland around Luohu and Shangbu, where the 1979 and present-day shorelines don't change what is buildable.
   - The reclaimed coast is in Shekou, Nantou and the locked Futian and Nanshan shore, which are card-only or locked. Hand-tracing the 1979 shoreline is deferred to Phase 2, when the western cluster becomes playable.
   - The 1979 mask stays a visual layer with its caveat.
+- **What changed, 1979→1984 (M1c, `docs/spikes/m1c-imagery.md`).** The KH-9 photo of 1980-09-11 is registered over all seven playable areas (about 30 m relative to Landsat 1979). It is the visual reference for the 1980-Q2 snapshot and for placing sites.
+  - The Landsat scene of 1984-11-22 has band data only for Huangbeiling (4) and Donghu–Liantang (6). Huangbeiling shows a clear "cleared or built" signal, most of it after 1980-09.
+  - **The core (areas 1–3, 5, 7) has no end-1983 imagery in hand.** The KH-9 frames of 1983-11-01 are the candidate for a same-sensor 1980 → 1983 comparison, and Landsat 3 of 1982-08-10 is the candidate for a midpoint.
+  - All of it is `lead`. It can shape `design_note` bands for the checkpoint (§9.2) only through reviewed claims, never as numbers.
 - **1979 is not a blank map.** The start state is built from a register of sites that already existed (§3.1), each flagged on the map with its evidence status.
 - **The SEZ boundary** does not exist at the start. It is drawn onto the map by the establishment event (§7.1), and only cells inside it get SEZ policies afterwards.
 - **Slice areas.** Seven playable areas and two card-only areas, as a **design proposal** (decided 2026-11-23, §13). Their names and roles come from general knowledge and are `lead`.

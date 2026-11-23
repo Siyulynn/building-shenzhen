@@ -16,3 +16,5 @@ notes: >-
   02:15:49.031 UTC, 0% scene and land cloud, and geometric model RMSE
   18.450 m. QA_PIXEL samples confirm useful coverage in eastern Shenzhen
   and fill or absence for the four western and central reference points.
+  The band data stops at about UTM 50N E 205.3 km, further east than
+  QA_PIXEL reports (docs/spikes/m1c-imagery.md).

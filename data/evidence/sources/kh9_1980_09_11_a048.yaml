@@ -13,5 +13,8 @@ notes: >-
   EarthExplorer Standard Format. The 1,530,067,699-byte archive passed gzip
   integrity verification and contains four TIFF segments. EarthExplorer
   lists nominal 2–4 ft camera resolution and corner coordinates covering
-  the Luohu, Shekou, Shangbu and Nantou reference points. Scan alignment,
-  actual ground detail and cloud coverage are pending inspection.
+  the Luohu, Shekou, Shangbu and Nantou reference points. Inspected
+  2026-11-23 (docs/spikes/m1c-imagery.md): the aft camera is turned about
+  180 degrees. Segment c covers the Luohu–Shangbu core cloud-free and is
+  registered to Landsat 1979 at about 28 m hold-out RMSE. Segment b failed
+  registration (too few matches).

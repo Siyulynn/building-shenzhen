@@ -7,3 +7,4 @@ data/raw/
 .claude/settings.local.json
 pipeline/.venv/
 apps/*/public/grid/
+pipeline/__pycache__/
