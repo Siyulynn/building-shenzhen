@@ -1,0 +1,10 @@
+id: "phase1_1985_fiscal_table"
+title: "财政金融统计"
+published: {"where":"深圳经济特区年鉴（1985）","date":"1985"}
+url: "https://www.shenzhenshizhi.cn/book/8732df747f9b9aa1c47cfff5ea30c585/%E8%B2%A1%E6%94%BF%E9%87%91%E8%9E%8D%E7%B5%B1%E8%AE%A1_169.pdf"
+retrieved: "2026-11-23"
+tier: "A"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "The online OCR merges columns. Use the page image to recover the exact fiscal series and reconcile line definitions."
