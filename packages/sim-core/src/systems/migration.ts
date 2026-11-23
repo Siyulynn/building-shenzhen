@@ -1,10 +1,10 @@
-/** Tick step 8, M2: migrant inflow, outflow, the six-month queue and the Spring Festival (phase1-slice.md §5.2). */
+/** Tick step 8, M2: migrant outflow, the six-month queue and inflow (phase1-slice.md §5.2). The Spring Festival is in step 5. */
 import { MIGRANT_KINDS, isMigrant, type MigrantKind } from '../enums.js';
 import type { SliceParams } from '../params.js';
 import type { GameState, PopGroup, Queue6 } from '../state.js';
 import type { TickContext } from '../step.js';
 import { largestRemainder, stochRound } from '../round.js';
-import { groupFor, leave, removeNewestFirst } from './common.js';
+import { groupFor, leave } from './common.js';
 import { unemploymentRate } from './labour.js';
 
 type Flow = { inflow: number; outflow: number };
@@ -26,7 +26,7 @@ export function migration(p: SliceParams) {
       if (!isMigrant(g.kind) || g.size === 0) continue;
       const crowd = s.housing.find((m) => m.area === g.area)?.crowding ?? 0;
       const rate = M.base_exit + M.unemployment_push * unemploymentRate(g, p) + M.housing_push * Math.max(0, crowd - 1);
-      flow(g).outflow += leave(g, stochRound(g.size * rate, ctx.rng));
+      flow(g).outflow += leave(s, g, stochRound(g.size * rate, ctx.rng), p);
     }
 
     // 2. ageing: the oldest under-six cohort becomes resident
@@ -53,36 +53,35 @@ export function migration(p: SliceParams) {
       const lagged = s.migration.stockLag[k][0] ?? 0;
       const network = 1 + M.network_alpha * Math.log1p(lagged / M.K_net);
       const total = stochRound(M.base[k] * gap * pull * network * M.permit_factor[s.policy.permitRegime], ctx.rng);
-      const alloc = largestRemainder(total, areas.map((_, i) => vac[i]! + free[i]!));
+      // water-filling: an area's overflow above its free beds goes again to the areas that still have beds;
+      // whoever finds no bed in the slice does not come (lost, not stored)
+      const placed = areas.map(() => 0);
+      let left = total;
+      while (left > 0) {
+        const w = areas.map((_, i) => (free[i]! > 0 ? vac[i]! + free[i]! : 0));
+        if (w.every((x) => x === 0)) break;
+        const alloc = largestRemainder(left, w);
+        let moved = 0;
+        areas.forEach((_, i) => {
+          const n = Math.min(alloc[i]!, free[i]!);
+          placed[i]! += n; free[i]! -= n; moved += n;
+        });
+        left -= moved;
+        if (moved === 0) break;
+      }
       areas.forEach((a, i) => {
-        const n = Math.min(alloc[i]!, free[i]!);           // no bed under the cap: they do not come (lost, not stored)
+        const n = placed[i]!;
         if (n <= 0) return;
-        free[i]! -= n;
         const g = groupFor(s, a, k);
         g.underSix[0] += n; g.size += n; g.present += n;
         flow(g).inflow += n;
       });
     }
 
-    // 4. the Spring Festival: away in away_months; on return, some do not come back
-    const away = M.spring.away_months;
-    const cur = s.date % 12, next = (s.date + 1) % 12;
-    for (const g of s.pops) {
-      if (!isMigrant(g.kind)) { g.present = g.size; continue; }
-      const nowAway = away.includes(cur), nextAway = away.includes(next);
-      if (nextAway && !nowAway) {
-        g.present = g.size - Math.min(g.size, stochRound(g.size * M.spring.away_share, ctx.rng));
-      } else if (nextAway && nowAway) {
-        g.present = Math.min(g.present, g.size);
-      } else if (!nextAway && nowAway) {
-        const gone = g.size - g.present;
-        const share = M.spring.nonreturn + M.spring.nonreturn_unemployment * unemploymentRate(g, p);
-        const nonreturn = Math.min(gone, stochRound(gone * Math.min(1, share), ctx.rng));
-        flow(g).outflow += removeNewestFirst(g, nonreturn);
-        g.present = g.size;
-      } else {
-        g.present = g.size;
-      }
+    // 4. the market's occupants and crowding at the end of the month (rent stays as step 7 set it)
+    for (const m of s.housing) {
+      m.occupants.rental = s.pops.reduce((x, g) => x + (g.area === m.area && isMigrant(g.kind) ? g.size : 0), 0);
+      m.crowding = m.occupants.rental / Math.max(1, m.beds.rental);
     }
 
     // 5. the network's lagged stock, and the month's flows as events

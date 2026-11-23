@@ -4,6 +4,7 @@
  */
 import type { Rng, Stream } from './rng.js';
 import { cloneState, isFinished, type CardInstance, type GameState, type PlayerAction, type SubStep } from './state.js';
+import { ENFORCEMENT_LEVELS, PERMIT_REGIMES } from './enums.js';
 import { formatYM, type YM } from './ym.js';
 import { statistics } from './systems/statistics.js';
 
@@ -58,14 +59,29 @@ export const TICK_STEPS: readonly TickStep[] = Object.freeze([
   { name: 'reviews', run: noop },
 ]);
 
-function applyAction(s: GameState, action: PlayerAction): void {
-  if (action.type !== 'answer_card') throw new Error(`unknown action type ${(action as { type: string }).type}`);
+const log = (s: GameState, action: PlayerAction) => s.actionLog.push({ date: s.date, subStep: s.subStep, action: { ...action } });
+
+/** A turn action (§4, §5.1): validated, applied and logged. */
+function applyTurnAction(s: GameState, action: PlayerAction): void {
+  if (action.type === 'set_enforcement') {
+    if (!(ENFORCEMENT_LEVELS as readonly string[]).includes(action.level)) throw new Error(`unknown enforcement ${action.level}`);
+    s.policy.enforcement = action.level;
+  } else if (action.type === 'set_permit_regime') {
+    if (!(PERMIT_REGIMES as readonly string[]).includes(action.regime)) throw new Error(`unknown permit regime ${action.regime}`);
+    s.policy.permitRegime = action.regime;
+  } else {
+    throw new Error(`unknown action type ${(action as { type: string }).type}`);
+  }
+  log(s, action);
+}
+
+function applyAnswer(s: GameState, action: PlayerAction & { type: 'answer_card' }): void {
   const k = s.pendingCards.findIndex((c) => c.id === action.instance);
   if (k < 0) throw new Error(`no pending card ${action.instance}`);
   const card = s.pendingCards[k]!;
   if (!card.options.includes(action.option)) throw new Error(`card ${card.id} has no option ${action.option}`);
   s.pendingCards.splice(k, 1);
-  s.actionLog.push({ date: s.date, subStep: s.subStep, action: { ...action } });
+  log(s, action);
 }
 
 const blockingCards = (s: GameState) => s.pendingCards.filter((c) => c.interrupting);
@@ -77,10 +93,11 @@ export function step(state: GameState, actions: readonly PlayerAction[], rng: Rn
     throw new Error('the scenario has ended: no turns left');
   }
   const s = cloneState(state);
-  for (const a of actions) applyAction(s, a);
-
+  // answers first; turn actions only once no interrupting card is left (§5.1), logged after the answers
+  for (const a of actions) if (a.type === 'answer_card') applyAnswer(s, a);
   const blocking = blockingCards(s);
   if (blocking.length) return { status: 'paused', state: s, pendingCards: blocking };
+  for (const a of actions) if (a.type !== 'answer_card') applyTurnAction(s, a);
   if (isFinished(s)) return { status: 'finished', state: s };
 
   const events: SimEvent[] = [];

@@ -21,7 +21,7 @@ export function housing(p: SliceParams) {
       if (rental > cap) {
         const split = largestRemainder(rental - cap, migrants.map((g) => g.size));
         migrants.forEach((g, i) => {
-          const n = leave(g, split[i]!);
+          const n = leave(s, g, split[i]!, p);
           if (n <= 0) return;
           ctx.events.push({ step: 'housing', kind: 'flow', detail: { area: g.area, pop: g.kind, inflow: 0, outflow: n, reason: 'crowding_cap' } });
         });

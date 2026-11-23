@@ -66,6 +66,10 @@ export function validateParams(raw: unknown): SliceParams {
   if (!Number.isInteger(p.migration.network_lag_months) || p.migration.network_lag_months < 1) {
     throw new Error('params: migration.network_lag_months must be a positive integer');
   }
+  if (!(p.housing.crowding_max >= 1)) throw new Error('params: housing.crowding_max must be >= 1');
+  if (!Number.isInteger(p.village_build.duration_months) || p.village_build.duration_months < 1) {
+    throw new Error('params: village_build.duration_months must be a positive integer');
+  }
   for (const m of p.migration.spring.away_months) if (!Number.isInteger(m) || m < 0 || m > 11) throw new Error('params: spring.away_months are 0..11');
   return p;
 }

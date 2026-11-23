@@ -1,5 +1,6 @@
 /** Helpers shared by the M2 systems (phase1-slice.md §5.2). */
-import { ARCHETYPES, POOL, POP_KINDS, VILLAGE_ARCHETYPES, type HousingArchetype, type PopKind } from '../enums.js';
+import { ARCHETYPES, POOL, POP_KINDS, SECTORS, VILLAGE_ARCHETYPES, type HousingArchetype, type PopKind } from '../enums.js';
+import { largestRemainder } from '../round.js';
 import type { SliceParams } from '../params.js';
 import { REGISTRATION } from '../enums.js';
 import type { BlockStock, GameState, PopGroup, Queue6, Stage } from '../state.js';
@@ -53,11 +54,38 @@ export function groupFor(s: GameState, area: number, kind: PopKind): PopGroup {
   return g;
 }
 
-/** n usual residents leave, newest first, and `present` falls in proportion. Returns how many left. */
-export function leave(g: PopGroup, n: number): number {
+/** A group's labour force: a stock, so rounded to the nearest person with no draw (§5.2). */
+export const labourForce = (g: PopGroup, p: SliceParams): number => Math.round(g.size * p.labour.participation[g.kind]);
+
+/**
+ * Keep employment whole after people leave (§5.2): the unemployed left first, so trim only what exceeds the labour
+ * force, by largest remainder over sectors, and take the same workers out of the job rows (home area first).
+ */
+export function trimEmployed(s: GameState, g: PopGroup, p: SliceParams): void {
+  const excess = SECTORS.reduce((a, sec) => a + g.employed[sec], 0) - labourForce(g, p);
+  if (excess <= 0) return;
+  const cut = largestRemainder(excess, SECTORS.map((sec) => g.employed[sec]));
+  SECTORS.forEach((sec, i) => {
+    let left = cut[i]!;
+    if (left <= 0) return;
+    g.employed[sec] -= left;
+    const rows = s.labour.jobs.filter((r) => r.sector === sec);
+    for (const r of [...rows.filter((r) => r.area === g.area), ...rows.filter((r) => r.area !== g.area)]) {
+      const t = Math.min(left, r.filled);
+      r.filled -= t; left -= t;
+      if (left <= 0) break;
+    }
+  });
+}
+
+/** n usual residents leave, newest first; `present` falls in proportion and employment stays whole. */
+export function leave(s: GameState, g: PopGroup, n: number, p: SliceParams): number {
   const before = g.size;
   const out = removeNewestFirst(g, n);
-  if (out > 0) g.present = Math.max(0, Math.min(g.size, g.present - Math.round((out * g.present) / before)));
+  if (out > 0) {
+    g.present = Math.max(0, Math.min(g.size, g.present - Math.round((out * g.present) / before)));
+    trimEmployed(s, g, p);
+  }
   return out;
 }
 

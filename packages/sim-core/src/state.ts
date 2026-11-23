@@ -60,7 +60,10 @@ export interface MigrationState { stockLag: Record<MigrantKind, number[]> }
 export interface PolicyLevers { permitRegime: PermitRegime; enforcement: Enforcement }
 
 export interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM }
-export type PlayerAction = { type: 'answer_card'; instance: string; option: string };
+export type PlayerAction =
+  | { type: 'answer_card'; instance: string; option: string }
+  | { type: 'set_enforcement'; level: Enforcement }
+  | { type: 'set_permit_regime'; regime: PermitRegime };
 export type SubStep = 0 | 1 | 2;
 export interface ActionLogEntry { date: YM; subStep: SubStep; action: PlayerAction }
 
