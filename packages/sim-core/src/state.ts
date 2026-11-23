@@ -1,7 +1,7 @@
 /** The slice's game state (phase1-slice.md §5, §5.1, §5.2). Later milestones add modules from their specs. */
 import {
-  ARCHETYPES, POP_KINDS, REGISTRATION, SECTORS, USE_OF, isMigrant,
-  type Enforcement, type HousingArchetype, type LandUse, type MigrantKind, type PermitRegime, type PopKind, type Sector,
+  HOUSING_ARCHETYPES, POP_KINDS, REGISTRATION, SECTORS, USE_OF, isMigrant,
+  type BuildingArchetype, type Enforcement, type HousingArchetype, type LandUse, type MigrantKind, type PermitRegime, type PopKind, type Sector,
 } from './enums.js';
 import type { SliceParams } from './params.js';
 import { bedsByPool } from './systems/common.js';
@@ -36,7 +36,7 @@ export type Legality = 'permitted' | 'unpermitted_tolerated' | 'marked_illegal' 
 export type BlockEventKind = 'start' | 'complete' | 'add_floors' | 'change_use' | 'stall' | 'resume' | 'demolish'
   | 'legalise' | 'mark_illegal';
 export interface Cohort { era: number; use: FloorUse; stage: Stage; legality: Legality; m2: number;
-  archetype: HousingArchetype; due?: YM }
+  archetype: BuildingArchetype; due?: YM }
 export interface BlockEvent { date: YM; kind: BlockEventKind; use?: FloorUse; m2: number; builder: string }
 export interface BlockStock {
   blockId: number; cell: number; area: number; village?: number;
@@ -217,7 +217,7 @@ export function createInitialState(content: {
       baseJobs.push({ area: area.id, sector, jobs: j });
     }
     const cohorts: Cohort[] = [];
-    for (const arch of ARCHETYPES) {
+    for (const arch of HOUSING_ARCHETYPES) {
       const m2 = s.housing_m2[arch];
       if (!(m2 >= 0)) throw new Error(`start area ${area.id}: housing_m2.${arch} must be >= 0`);
       if (m2 > 0) cohorts.push({ era, use: USE_OF[arch], stage: 'completed', legality: 'permitted', m2, archetype: arch });

@@ -1,12 +1,12 @@
 /** Tick step 4, M2: village households complete and start rental floors (phase1-slice.md §5.2, buildings §3.1). */
-import { USE_OF } from '../enums.js';
+import { BUILDER_OF, USE_OF } from '../enums.js';
 import type { SliceParams } from '../params.js';
 import type { BlockStock, Cohort } from '../state.js';
 import type { TickContext } from '../step.js';
 import { bedsByPool, illegalShare, villageM2 } from './common.js';
 
 const EVENT_KEEP_MONTHS = 24;
-const BUILDER = 'village_household';
+const BUILDER = BUILDER_OF.village_rental;
 
 function mergeCompleted(b: BlockStock): void {
   const out: Cohort[] = [];
@@ -29,7 +29,7 @@ export function construction(p: SliceParams) {
         if (c.stage === 'under_construction' && c.due !== undefined && c.due <= s.date) {
           c.stage = 'completed';
           delete c.due;
-          b.events.push({ date: s.date, kind: 'complete', use: c.use, m2: c.m2, builder: BUILDER });
+          b.events.push({ date: s.date, kind: 'complete', use: c.use, m2: c.m2, builder: BUILDER_OF[c.archetype] });
         }
       }
       mergeCompleted(b);

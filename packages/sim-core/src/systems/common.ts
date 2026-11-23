@@ -1,12 +1,14 @@
 /** Helpers shared by the M2 systems (phase1-slice.md §5.2). */
-import { ARCHETYPES, POOL, POP_KINDS, SECTORS, VILLAGE_ARCHETYPES, type HousingArchetype, type PopKind } from '../enums.js';
+import {
+  BUILDING_ARCHETYPES, HOUSING_ARCHETYPES, POOL, POP_KINDS, SECTORS, VILLAGE_ARCHETYPES, type BuildingArchetype, type PopKind,
+} from '../enums.js';
 import { largestRemainder } from '../round.js';
 import type { SliceParams } from '../params.js';
 import { REGISTRATION } from '../enums.js';
 import type { BlockStock, GameState, PopGroup, Queue6, Stage } from '../state.js';
 
-export function m2ByArchetype(b: BlockStock, stages: readonly Stage[]): Record<HousingArchetype, number> {
-  const out = Object.fromEntries(ARCHETYPES.map((a) => [a, 0])) as Record<HousingArchetype, number>;
+export function m2ByArchetype(b: BlockStock, stages: readonly Stage[]): Record<BuildingArchetype, number> {
+  const out = Object.fromEntries(BUILDING_ARCHETYPES.map((a) => [a, 0])) as Record<BuildingArchetype, number>;
   for (const c of b.cohorts) if (stages.includes(c.stage)) out[c.archetype] += c.m2;
   return out;
 }
@@ -15,7 +17,7 @@ export function m2ByArchetype(b: BlockStock, stages: readonly Stage[]): Record<H
 export function bedsByPool(b: BlockStock, p: SliceParams): { local: number; rental: number } {
   const m2 = m2ByArchetype(b, ['completed']);
   const beds = { local: 0, rental: 0 };
-  for (const a of ARCHETYPES) beds[POOL[a]] += Math.floor(m2[a] / p.housing.m2_per_bed[a]);
+  for (const a of HOUSING_ARCHETYPES) beds[POOL[a]] += Math.floor(m2[a] / p.housing.m2_per_bed[a]);
   return beds;
 }
 

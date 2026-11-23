@@ -1,6 +1,6 @@
 /** params/slice.yaml, parsed (phase1-slice.md §5.2, §8). Validated once; never stored in GameState. */
 import type { Enforcement, HousingArchetype, MigrantKind, PermitRegime, PopKind, Sector } from './enums.js';
-import { ARCHETYPES, ENFORCEMENT_LEVELS, MIGRANT_KINDS, PERMIT_REGIMES, POP_KINDS, SECTORS } from './enums.js';
+import { ENFORCEMENT_LEVELS, HOUSING_ARCHETYPES, MIGRANT_KINDS, PERMIT_REGIMES, POP_KINDS, SECTORS } from './enums.js';
 
 export interface SliceParams {
   eras: { id: string; structural_max_floors: number }[];
@@ -63,8 +63,8 @@ export function validateParams(raw: unknown): SliceParams {
   need(p.migration.base, MIGRANT_KINDS, 'migration.base');
   need(p.migration.sector, MIGRANT_KINDS, 'migration.sector');
   need(p.migration.permit_factor, PERMIT_REGIMES, 'migration.permit_factor');
-  need(p.housing.m2_per_bed, ARCHETYPES, 'housing.m2_per_bed');
-  for (const a of ARCHETYPES) if (p.housing.m2_per_bed[a] <= 0) throw new Error(`params: housing.m2_per_bed.${a} must be > 0`);
+  need(p.housing.m2_per_bed, HOUSING_ARCHETYPES, 'housing.m2_per_bed');
+  for (const a of HOUSING_ARCHETYPES) if (p.housing.m2_per_bed[a] <= 0) throw new Error(`params: housing.m2_per_bed.${a} must be > 0`);
   need(p.village_build.p_enforce, ENFORCEMENT_LEVELS, 'village_build.p_enforce');
   need(p.village_build.enforcement_max_floors, ENFORCEMENT_LEVELS, 'village_build.enforcement_max_floors');
   if (!Number.isInteger(p.migration.network_lag_months) || p.migration.network_lag_months < 1) {

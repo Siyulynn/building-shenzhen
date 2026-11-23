@@ -17,16 +17,27 @@ export const REGISTRATION: Record<PopKind, 'local' | 'nonlocal' | 'hmt'> = {
 export const SECTORS = ['state', 'farming_fishing', 'factory', 'construction', 'services'] as const;
 export type Sector = (typeof SECTORS)[number];
 
-export const ARCHETYPES = ['village_house', 'state_flats', 'village_rental', 'dormitory'] as const;
-export type HousingArchetype = (typeof ARCHETYPES)[number];
+/** The housing archetypes: they supply beds (§5.2). */
+export const HOUSING_ARCHETYPES = ['village_house', 'state_flats', 'village_rental', 'dormitory'] as const;
+export type HousingArchetype = (typeof HOUSING_ARCHETYPES)[number];
+/** §5's six building archetypes: the housing ones, the standard factory (标准厂房) and the shop or market (§5.5). */
+export const BUILDING_ARCHETYPES = [...HOUSING_ARCHETYPES, 'standard_factory', 'shop_market'] as const;
+export type BuildingArchetype = (typeof BUILDING_ARCHETYPES)[number];
+export const isHousing = (a: BuildingArchetype): a is HousingArchetype => (HOUSING_ARCHETYPES as readonly string[]).includes(a);
 /** Which bed pool an archetype supplies: local (no rent) or rental (migrants, with rent). */
 export const POOL: Record<HousingArchetype, 'local' | 'rental'> = {
   village_house: 'local', state_flats: 'local', village_rental: 'rental', dormitory: 'rental',
 };
-export const VILLAGE_ARCHETYPES: readonly HousingArchetype[] = ['village_house', 'village_rental'];
-/** buildings §2.2 floor use for each housing archetype. */
-export const USE_OF: Record<HousingArchetype, 'residential_owner' | 'residential_rental' | 'dormitory'> = {
+export const VILLAGE_ARCHETYPES: readonly BuildingArchetype[] = ['village_house', 'village_rental'];
+/** buildings §2.2 floor use for each building archetype. */
+export const USE_OF = {
   village_house: 'residential_owner', state_flats: 'residential_owner', village_rental: 'residential_rental', dormitory: 'dormitory',
+  standard_factory: 'factory', shop_market: 'shop',
+} as const satisfies Record<BuildingArchetype, string>;
+/** Who completes a cohort of each archetype in the slice (§5.5): its builder is read from the archetype. */
+export const BUILDER_OF: Record<BuildingArchetype, string> = {
+  village_house: 'village_household', village_rental: 'village_household', state_flats: 'city',
+  dormitory: 'investor', standard_factory: 'investor', shop_market: 'investor',
 };
 
 export const PERMIT_REGIMES = ['loose', 'standard', 'strict'] as const;
