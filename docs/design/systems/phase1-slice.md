@@ -644,9 +644,9 @@ interface Cohort { /* buildings §2.2, M2 */ workDone?: number; workTotal?: numb
 - per year at full ramp: gross output, exports and value added.
 
 **Deferred.**
-- **To M4:**
+- **To M4** (specified in §5.6):
   - the preview's cash this quarter, retained tax and new obligations. They need the fiscal regime.
-  - **Serviced land (三通一平):** M4's site-preparation projects set a zone's `servicedShare`, which M3b already reads and nothing sets yet: road access, water, power, and cleared, level ground. A connected site stays distinct from one with spare water and power to operate.
+  - **Serviced land (三通一平):** M4's site-preparation projects set a zone's `servicedShare`, which M3b already reads: road access, water, power, and cleared, level ground. A connected site stays distinct from one with spare water and power to operate.
   - **Construction capacity:** factories, roads, utilities and site preparation draw on one monthly pool of work, supplied by local labour and by teams that join it (contracted county crews, the Engineering Corps, outside state companies). A dedicated contract waives a project's draw on the pool but not its cost or time. Village self-build stays outside the pool.
 - **To M5:**
   - the guaranteed first contract in 1979-Q2, and the post-SEZ origins with their incentives;
@@ -684,6 +684,186 @@ interface Cohort { /* buildings §2.2, M2 */ workDone?: number; workTotal?: numb
   - the M2 invariants hold.
 - **Determinism:** save, load and continue, and replay, with firms and offer cards. Input not changed.
 - **No effect without content:** with no investor archetypes, M2's and M3a's runs are unchanged.
+
+### 5.6 Fiscal, projects and construction capacity (M4)
+The city earns, owes, borrows and builds. Every yuan moves through one ledger (fiscal §2). Recurring revenue pays recurring obligations. Projects spend as their work is done, and leave obligations behind them when they finish. The firms' factories and the city's works compete for one monthly pool of construction capacity. Site preparation (三通一平) is what turns a zone into land that investors can use.
+
+**Content passed to the tick, never stored in state** (as in §5.3 and §5.5):
+```ts
+createTickSteps(params, content?: { …; fiscal?: FiscalContent })
+interface FiscalContent { regimes: Regime[]; projects: ProjectTemplate[]; teams: TeamTemplate[] }
+```
+- **Without `fiscal`:** finance does nothing, no project or team action is accepted, every cohort under construction gets its month of work as in M3b, and zones keep `servicedShare` absent (= 1). So M2's and M3's runs are unchanged. This is tested, and it is the golden-run argument for this milestone.
+- **With it:** everything below runs. The save header gains `fiscal_sha256` (the three files together).
+- **Actions owned by a system:** a tick step may declare `act(state, action)`. `step()` offers it every turn action that is not a core one (§5.1); an action that no step handles throws, as an unknown action does now. The project and team actions below are the finance step's. They are logged like zone actions and refused while an interrupting card is pending.
+
+**State added by M4** (the Phase 1 subset of fiscal §3).
+```ts
+type AccountId = 'general' | 'land' | 'debt' | 'forex';      // forex is a quota to buy, in USD; never added to yuan
+type TxType = 'tax' | 'grant' | 'land_fee' | 'obligation' | 'project' | 'loan' | 'retention' | 'import';
+interface LedgerEntry { date: YM; type: TxType; account: AccountId; amount: number; ref: string }   // integer yuan (USD for forex)
+interface Obligation { id: number; kind: 'payroll' | 'service' | 'maintenance' | 'transfer' | 'arrears';
+  perMonth: number; index: 'none' | 'wages'; baseWage?: number; from: YM; until?: YM; createdBy: string }
+interface Loan { id: number; kind: 'project' | 'short'; principal: number; rate: number;
+  schedule: { date: YM; principal: number; interest: number }[]; taken: YM }
+interface Project {
+  id: number; template: string; kind: ProjectKind;          // from nextProjectId, never reused
+  area: number; zone?: number; cells?: CellRuns;            // site preparation: the cells it services, fixed at commit
+  budget: number; spent: number;                            // integer yuan; spending follows the work done
+  crew: number; workTotal: number;                          // crew units at full pace; months of work at full pace
+  workDone: number; crewBank: number;                       // integers (below)
+  priority: 'high' | 'normal' | 'low'; contract?: number;   // a dedicated team contract
+  committed: YM; completed?: YM;
+  stage: 'committed' | 'building' | 'stalled' | 'done' | 'cancelled';
+  waiting?: 'capacity' | 'finance' | 'mobilization' }        // why it did not get a full month this month
+type ProjectKind = 'road' | 'water_main' | 'power_line' | 'site_preparation' | 'school';
+interface TeamContract { id: number; team: string; mode: 'pool' | 'dedicated'; project?: number;
+  crew: number; signed: YM; starts: YM; ends?: YM }          // starts after mobilisation; pool contracts end
+interface FiscalState {
+  regime: string; balances: Record<AccountId, number>; ledger: LedgerEntry[];
+  obligations: Obligation[]; loans: Loan[]; projects: Project[]; contracts: TeamContract[];
+  nextId: { obligation: number; loan: number; project: number; contract: number };
+  projectLoan: 'not_offered' | 'offered' | 'declined' | 'taken';
+  deficit?: { turn: number; option?: DeficitOption };     // this quarter's card and its answer
+  austerity: number;                                        // this month's cut share of the cuttable obligations
+}
+type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
+// GameState gains: fiscal: FiscalState; servicedLand: CellRuns (serviced cells, sorted runs)
+// SliceArea gains: roadKm (completed city roads in the area)
+// Cohort gains: crewBank?: number (pool work banked toward the next month of work)
+// History gains, per month: gdp, revenue, obligationsDue, obligationsPaid, projectSpend, reserve, debtOutstanding, austerity
+```
+- **Integer money.** Every ledger amount is a whole yuan, rounded once when the entry is written. So "Σ entries = Δ balance" holds exactly, per account.
+- **The ledger is append-only.** `cloneState` copies the array and shares the entries. There is no compaction in Phase 1: 63 months write about a thousand entries.
+- **No stock goes negative:** `general`, `land` and `debt` balances, the forex quota and loan principal outstanding are all ≥ 0 at the end of every step.
+
+**Content.**
+- `content/slice/fiscal_regimes.yaml`: `regime.county_1979` and `regime.contracting_1980s` (fiscal §11, `lead`). Each has its tax rates by ownership (placeholders), its retained share, its land-use fee schedule, whether land money may pay recurring spending (`sanctioned | grey | forbidden`), and the provincial grant schedule.
+  - **The grant schedule is dated content citing claims** (fiscal §4.2): factor 1 from the start, 0.5 from 1983-01 (`phase1.fiscal.provincial_base.1983`), 0 from 1984-01 (`.1984`), unchanged through 1982 (`.1982`). The retained share of 1 cites `phase1.fiscal.contracting_retain`. All `fiscal_rule`, so the draft compile tags them `[UNVERIFIED]`.
+  - **M4 applies the schedule.** The budget cards, the four-quarter warning and the switch to `regime.contracting_1980s` at the SEZ event are M5's (§7.1).
+  - **Land-use fees** start at zero in the county regime. In the contracting regime they start from the land rules' in-force date (`phase1.event.land_rules_1981`); the rate is a placeholder, with the 1981 ranges as `design_note` (`land.regulations_1981`, lead).
+- `content/slice/projects.yaml`: the project templates (who and what, names in both languages, claims). Their numbers are in `params/slice.yaml` under the same id, as for investors.
+- `content/slice/teams.yaml`: the construction teams that can join (below).
+- **Citations.** Content cites only claims that are in the store. The M4 research claims that are still waiting for intake (the Construction Bank loan, the ¥90/m² Luohu servicing estimate, the Lufeng crews, Guomao, the cultural programme, Shenzhen University) are named in this section and the research notes. They enter content when they are in the store.
+
+**Revenue (tick step 11, posted to the ledger in this order).**
+- **Taxes on the firms:** Σ firm value added × `tax.value_added_rate[ownership]` × `collection_efficiency` × `local_share`, to `general` (ref `tax.industry`).
+- **The existing economy:** `county_base_revenue_per_month` to `general` (ref `tax.county_base`): the town's and the county's taxes and fees, flat in Phase 1.
+- **The provincial base grant:** `provincial_base_grant_per_year ÷ 12 ×` the schedule's factor this month, to `general` (ref `grant.provincial_base`). It counts as recurring revenue.
+- **Land-use fees:** each firm in a zone pays the regime's fee × its land (floor ÷ `industry.max_far`) ÷ 12, to `land` (ref `land_fee`).
+- **Forex retention:** exports this month × `forex.retention_share` ÷ `forex.yuan_per_usd`, added to the quota (`forex`, USD, ref `retention`). The rule cites `forex.retention.start`; its share is a placeholder.
+
+**Obligations (step 11).** Due this month:
+- **Baselines** (fiscal §6.1), recomputed monthly: `county_base_obligations_per_month` + `admin_per_resident_month` × residents (Σ `stayedSixMonths`) + `police_per_present_month` × present + `sanitation_per_m2_month` × completed floor in the slice. Compulsory schooling waits for children in the pops (deferred).
+- **Live obligations:** each record with `from ≤ date` and no `until` before it. `index: 'wages'` scales `perMonth` by the state wage now ÷ `baseWage`.
+- **Debt service:** each loan's schedule entry for this month, principal plus interest.
+- **Arrears** from last month.
+
+**Paying, and the deficit rule** (fiscal §7.1). The month always closes, and closes balanced, before any card is answered (§5.1).
+1. **The reserve:** pay what is due from `general`, up to its balance.
+2. **A shortfall** is resolved in this order, each covering what it can:
+   1. this quarter's deficit answer, if the card was answered;
+   2. the default: short-term borrowing up to capacity, then austerity;
+   3. arrears: whatever is still unpaid becomes an `arrears` obligation due next month (event `arrears`; unpaid payroll is flagged for M5's stability).
+3. **The deficit card** (interrupting, once a quarter): when a month has a shortfall and no card has been raised this quarter, it is raised and the month's shortfall goes straight to arrears. The answer holds for the rest of the quarter. Options, the headless default first (so `firstOption` gives fiscal §7.1's default):
+   - `borrow_short`: a short-term loan of the shortfall, up to borrowing capacity, at `short_loan.rate_month`, repaid in equal principal over `short_loan.term_months`. It lowers capacity;
+   - `use_land_money`: pay from `land`. When the regime says `grey` or `forbidden`, the amount is recorded as event `land_for_recurring`, for M5's scrutiny;
+   - `austerity`: leave unpaid up to `austerity_max_cut` of the cuttable obligations (baselines, payroll, service). The cut is forgiven, not owed, and `fiscal.austerity` records the share for M5's service gaps and mood.
+- **Borrowing capacity** (fiscal §7, simplified): `short_loan.revenue_multiple` × the last 12 months' recurring revenue − short-term principal outstanding, never below 0. The full debt-service-cover and collateral rule waits for a later phase.
+
+**The state-bank project loan** (fiscal §11: one in the slice).
+- **When it is offered:** when a project commit leaves *money for projects* below zero, and the loan is neither taken nor pending. M5 adds the offer at the 1980-Q1 budget briefing (§2.1). The card is non-interrupting, with options `take` then `decline`, and expires after `loan.offer_months`. A declined or lapsed loan is offered again at the next such commit, until it is taken.
+- **Its terms** are placeholders: `principal`, a monthly `rate`, interest only for `grace_months`, then equal principal over `term_months`. The proceeds go to `debt` and pay only for projects. Debt service comes due from `general`. So a loan taken early squeezes the years after its grace period, not the year it is taken. Cumulative guaranteed bank lending of the period (`phase1.fiscal.guaranteed_infrastructure_loans`) is context, not this loan's size.
+
+**Projects** (fiscal §6.2).
+- **Committing:** `{ type: 'commit_project'; template: string; area?: number; zone?: number; priority? }`. It is valid when:
+  - the template exists;
+  - the target fits its kind: a playable area for roads, mains, lines and schools, an existing zone for site preparation, which must have buildable cells not yet serviced;
+  - the forex quota covers the template's `forex_usd`, which is drawn at once (`import`).
+
+  An invalid commit throws, like an invalid zone. Money is not a validity test: an unfunded commit is allowed, shows as negative money for projects, and offers the loan.
+- **Budget:** the template's `budget`, or for site preparation `budget_per_cell` × its cells. The cells are the zone's buildable cells outside `servicedLand` at commit, frozen in the project.
+- **Other actions:** `set_project_priority { project; priority }`; `cancel_project { project }`, which stops the work and books `cancel_penalty` × the unspent budget as a one-month `transfer` obligation. What was spent is sunk.
+- **Spending follows the work.** A month's work on a city project costs its pro-rata share of the budget: spent after = round(budget × crew-units delivered so far ÷ (crew × workTotal)). So the total spent is exactly the budget at completion. It is paid from `debt`, then `land`, then `general`. `general` is drawn only down to `reserve_months` × last month's obligations due, so the recurring side keeps its reserve.
+- **Waiting for finance:** a project whose month cannot be paid gets no work that month (`stage: 'stalled'`, `waiting: 'finance'`) and resumes when money returns. This is buildings §4's stall, for a city project that loses its funding.
+- **Completion** applies the template's asset, then its obligations:
+  - `road`: `roadKm` in its area (readiness reads it in M5);
+  - `water_main`, `power_line`: `waterCap` or `powerCap` in its area (§5.5's spare utilities);
+  - `site_preparation`: its cells join `servicedLand`;
+  - `school`: `schoolPlaces` in its area, plus `payroll` (staff × the state wage, `index: 'wages'`) and `service` per place;
+  - every kind: `maintenance` = budget × `maint_rate_year` ÷ 12.
+
+**Serviced land (三通一平, the §5.5 hook).**
+- **Serviced land is a property of the land, not of a zone.** `servicedLand` holds the serviced cells. In tick step 3, before names and offers, each zone's `servicedShare` is set to its buildable cells in `servicedLand` ÷ its buildable cells (0 when it has none). So an edit that adds cells lowers the share until they are serviced, and removing a zone leaves its land serviced for the next.
+- **The start:** `servicedLand` is empty. The 1979 town has no serviced industrial land (a placeholder, like the start utilities). The first contracts use existing premises (§5.5).
+- **Connected is not supplied.** Site preparation adds floor capacity for new firms. It adds no water or power: a serviced zone can still have a utility bottleneck, which only mains and lines relieve (§5.5).
+- **Rights and compensation** are not settled by levelling. Village compensation is part of readiness's serviced-land part in M5 (§7.1).
+- **Evidence:** the 1979 report proposes that an outside contractor deliver "几通一平" for an export processing zone. Early Luohu–Shangbu works are described as "七通一平". [Construction capacity research](../../research/phase1-m4-construction-capacity.md). 三通一平 is the playable minimum, not a historical label for every site. The Luohu servicing estimate of ¥90 per m² of gross land (`phase1.fiscal.luohu.site_servicing_estimate.1980`, sourced, awaiting intake) is a five-connection package. It is the candidate for `budget_per_cell` once it is in the store.
+
+**The construction-capacity pool.**
+- **Units.** A *crew unit* is one organised worker-month of formal construction capacity. A job's `crew` is the crew units it uses a month at full pace. A firm's cohort has `crew = max(1, ceil(m² × capacity.crew_per_m2))`. A project's `crew` is a template param.
+- **Work stays in months, and stays integer.** Each month a job is given an integer number of crew units, at most its crew. They go into its `crewBank`. Whenever the bank holds a full crew, `workDone` gains a month and the bank loses a crew. Completion is still `workDone ≥ workTotal`. A job given its full crew every month advances one month a month, exactly as in M3b. One given half advances every second month.
+- **Supply each month:** `capacity.local_crew` (the county's own builders: a param, so the pool does not depend on this month's employment, which step 5 computes later) + the crew of every pool contract active this month.
+- **Demand:** every firm cohort under construction, and every city project being built without a dedicated contract.
+- **Allocation:** in priority order (`high`, `normal`, `low`; firm cohorts are `normal`), then by start month, then firm cohorts before projects, then by id. Each job takes min(its crew, what is left). The last job served may get a partial share; later ones get none (`waiting: 'capacity'`). No proportional sharing: a queue finishes things, and the player sees what is waiting and why.
+- **A firm's two cohorts are two jobs,** the factory first. Under scarcity the dormitory can finish later than the factory. The firm opens when its factory completes (§5.5), so a late factory opens late with no change to the firm code.
+- **Outside the pool:**
+  - **Village self-build** (§5.2): it keeps its month of work every month;
+  - **a project with a dedicated contract:** its work comes from its contract's crew from the contract's `starts` month (`waiting: 'mobilization'` before it). A contract crew smaller than the project's crew makes the project slower. The contract waives the pool draw, not the project's cost or its time.
+- **The labour market is unchanged:** construction jobs still come from m² under construction (§5.2). The pool limits how fast formal work advances, not how many jobs are posted. City projects post no construction jobs in M4; their crews' housing (works camps) is M5's (§8 `corps`).
+
+**Teams that join** (`content/slice/teams.yaml`, numbers in `params.teams`).
+- **A contract:** `{ type: 'contract_team'; team: string; mode: 'pool' | 'dedicated'; project?: number }`. A dedicated contract names a project that is not done and has no contract yet. The template lists the modes it allows. A team holds one live contract at a time.
+- **Timing:** a contract starts `mobilization_months` after signing. A pool contract then lasts `duration_months`. A dedicated one lasts until its project is done or cancelled.
+- **Cost:** a pool contract creates a `service` obligation of `cost_per_month` from signing to its end. A dedicated contract costs nothing extra: its work is paid through the project's budget.
+- **One crew, one mode:** a contract is either a pool bonus or a project exemption, never both.
+- **The Phase 1 teams** (names `lead`; each is a design category):
+  - `team.county_crew` (外县施工队, contracted county crews), dedicated. The historical example is the Lufeng crews on the first Shennan Road section (`phase1.shennan.lufeng_crew`, `phase1.shennan.luoxi_arrival`, awaiting intake). Their two counts have different scopes. Neither is added to the other, and neither is the param;
+  - `team.engineering_corps` (基建工程兵), pool. Its advance units and the 1982 deployment are M5's cards (`phase1.event.construction_corps_first_units`, `phase1.event.construction_corps_arrival`). In M4 it can be contracted by action, for tests and for the CLI;
+  - `team.outside_soe` (外地国营建筑公司, an outside state construction company), dedicated or pool.
+
+**Nominal GDP** (fiscal §8.2: production approach, nominal only in Phase 1).
+- **GDP** = Σ value added this month:
+  - **firms:** value added as in §5.5;
+  - **the existing economy:** for each base job row, its base jobs × the row's fill rate × `gdp.base_va_per_job_month[sector]`;
+  - **construction, as the work is done:** the value of the month's work × `gdp.construction_va_ratio`. The value is a city project's payment, a firm cohort's m² × `construction.cost_per_m2[archetype]` ÷ `workTotal` for each month of work it gains, and a village cohort's m² × `village_build.build_cost_per_m2` ÷ its duration.
+- **Not in GDP:** the grant, loans, land fees, retention and transfers (fiscal §8.2).
+- GDP needs only `params`, so it is computed with or without the fiscal content.
+
+**Views** (fiscal §7). `fiscalViews(state, params, content)` is pure. It returns:
+- **recurring money available:** last month's recurring revenue − obligations due, per month and ×12;
+- **money for projects:** `general` above the reserve floor + `land` + `debt` − Σ unspent budget of live projects;
+- **import access:** the forex quota in USD;
+- **borrowing capacity** (shown inside the loan and deficit cards);
+- **obligations by kind** and the loans' schedules.
+
+**The preview** (fiscal §7.2, completing §5.5's). With fiscal content, `previewOffer` adds per site, still pure and with no RNG:
+- **cash this quarter:** the land-use fees for its first three months in a zone (0 in existing premises and in the county regime);
+- **retained tax per year** at full ramp: its yearly value added × the current regime's rate × collection × retained share. A scheduled regime change is a note, not computed;
+- **new obligations per year:** for the people it brings (its jobs, counted as residents and present) × the admin and police baselines, plus sanitation on the floor it builds, ×12.
+
+**Params** (`params/slice.yaml`, placeholders): `fiscal` (`start_regime`, `start_balances`, `provincial_base_grant_per_year`, `county_base_revenue_per_month`, `county_base_obligations_per_month`, the per-head baselines, `collection_efficiency`, `reserve_months`, `forex`, `short_loan`, `austerity_max_cut`, `loan`, `cancel_penalty`), `capacity` (`local_crew`, `crew_per_m2`), `construction.cost_per_m2`, `projects` and `teams` by id, and `gdp`.
+- **The grant's base** is tuned so that, at the start, revenue plus the grant covers the baselines with a small surplus. That is a balance choice, recorded in the params file, not a historical figure (fiscal §4.2).
+
+**Deferred.**
+- **To M5:** the budget cards and the grant warning; the regime switch at the SEZ; the co-financing offer and the loan's offer at the briefing; readiness from `roadKm`, `servicedLand` and the utilities; scrutiny from grey land money; service gaps and mood from austerity; works camps and the Corps' arrival cards.
+- **Major projects as content:** Guomao (国贸), the first Shennan Road section, the cultural programme and the Shenzhen University card use this project mechanism, as templates with their own params. They wait for their claims to enter the store and for M5's cards. Where sources conflict (the SZU allocation, the cultural roster and its cost, the first segment's limits), the conflict records stay open and no figure is averaged. [M4 project research](../../research/phase1-m4-major-projects.md)
+- **Later phases:** the full borrowing rule (debt-service cover and collateral), price indexation, ledger compaction.
+
+**M4's tests:**
+- **No effect without content:** without `fiscal`, M2's and M3's runs give the same state and history (GDP aside, which is new).
+- **The ledger:**
+  - per account, Σ entries = Δ balance, every month (a property test over seeds and random project commits);
+  - no balance, quota or principal goes negative; obligations due = Σ live obligations + debt service + arrears;
+  - no deadlock: with zero revenue, an empty reserve and no capacity, the month closes balanced, with the rest in arrears.
+- **The deficit rule:** overbuilding (completed projects whose obligations exceed revenue) raises the deficit card once a quarter; each answer does what it says; `firstOption` gives the default.
+- **The loan:** an unfunded commit offers it; taking it funds the project; recurring money after the grace period is lower than in the same run without the loan by the debt service.
+- **The grant schedule:** the grant halves and ends on the content's dates, with no year in code.
+- **Projects:** spending equals the budget at completion; a project stalls without money and resumes; completion applies the asset and its obligations; site preparation raises the zone's share, and an investor can then site in it.
+- **The pool** (the research's three-way run): a road and a factory queued together on the local pool alone; the same with the road on a dedicated county-crew contract, where the factory finishes sooner and the road is neither instant nor free; the same with a pool contract added, where both finish sooner. Village self-build is the same in all three.
+- **GDP:** positive at the start, from the existing economy; firm and construction value added add to it; the grant and loans don't.
+- **The preview:** gains cash, retained tax and new obligations, and stays pure.
+- **Determinism:** save, load and continue, and replay, with projects, contracts, loans and the deficit card. Input not changed.
 
 ---
 
