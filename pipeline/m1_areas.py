@@ -46,7 +46,7 @@ def main():
     out = {
         "format": 1,
         "generated_by": "pipeline/m1_areas.py",
-        "areas_sha256": hashlib.sha256(AREAS_YAML.read_bytes()).hexdigest(),
+        "areas_sha256": hashlib.sha256(AREAS_YAML.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),  # LF-normalised
         "grid": {k: meta[k] for k in ("width", "height", "cell_m", "origin_top_left", "crs")},
         "areas": areas,
     }

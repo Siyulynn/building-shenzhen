@@ -1,0 +1,6 @@
+{
+  "name": "@sz/sim-core",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts"
+}
