@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parse } from 'yaml';
 import {
-  compileInvestors, compilePrecedents, createInitialState, validateParams, type AreasContent, type GameState, type ScenarioContent,
+  compileBuildable, compileInvestors, compilePrecedents, createInitialState, validateParams, type AreasContent, type GameState, type ScenarioContent,
   type StartContent,
 } from '../src/index.js';
 
@@ -21,8 +21,10 @@ const precedentsText = text('content/slice/precedents.yaml');
 export const precedents = compilePrecedents(parse(precedentsText), areasJson);
 const investorsText = text('content/slice/investors.yaml');
 export const investors = compileInvestors(parse(investorsText), params);
+const buildableText = text('data/starts/slice_buildable.json');
+export const buildable = compileBuildable(JSON.parse(buildableText), areasJson);
 export const content = { areas_sha256: areasJson.areas_sha256, params_sha256: sha256(paramsText),
-  precedents_sha256: sha256(precedentsText), investors_sha256: sha256(investorsText), buildable_sha256: '' };
+  precedents_sha256: sha256(precedentsText), investors_sha256: sha256(investorsText), buildable_sha256: sha256(buildableText) };
 export const MONTHS = scenario.turns * scenario.months_per_turn;
 
 export const initial = (): GameState => createInitialState({ scenario, areas: areasJson, start, params });

@@ -1,10 +1,12 @@
 /** M3b's offer tests (phase1-slice.md §5.5): arrivals, options, siting, capacity, lapsing, the preview, determinism. */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, createTickSteps, loadGame, previewOffer, replay, runMonths, runQuarter, saveFromJson, saveGame, saveToJson, step,
+  Rng, compileBuildable, createTickSteps, loadGame, previewOffer, replay, runMonths, runQuarter, saveFromJson, saveGame, saveToJson, step,
   validateParams, type CardInstance, type GameState, type PlayerAction, type SimEvent, type TickStep,
 } from '../src/index.js';
-import { content, initial, investors, params, precedents } from './fixtures.js';
+import { ROOT, areasJson, buildable, content, initial, investors, params, precedents } from './fixtures.js';
 import { checkInvariants, walk } from './invariants.js';
 
 const HK = 'investor.hk_processing', SOE = 'investor.inland_state_unit';
@@ -175,6 +177,28 @@ describe('M3b offers: capacity', () => {
     const r1 = month(r0.state, [answer(offerCards(r0.state)[0]!, 'accept:premises:1')], steps);
     // 100 of 150 jobs used in area 1: the next 100-job offer can't go there
     for (const c of offerCards(r1.state)) expect(c.options).not.toContain('accept:premises:1');
+  });
+});
+
+describe('M3b buildable layer', () => {
+  it('counts only buildable cells towards a zone; zoning unbuildable land stays legal', () => {
+    const steps = createTickSteps(P200, { precedents, investors, buildable });
+    const hill = zoneAt(440, 442, 305, 307);                     // area 6: nine cells too steep or wet to build
+    const r = month(initial(), [hill, ONE_CELL], steps);
+    expect(r.state.zones.map((z) => z.area)).toEqual([6, 7]);
+    const c = offerCards(r.state)[0]!;
+    expect(c.options).toEqual(['accept:zone:2', 'decline']);    // the hill zone has no room
+    const v = previewOffer(r.state, c, P200, { investors, buildable });
+    expect(v.sites[0]!.zoneFreeM2).toBe(10_000);                 // area 7's cell is buildable
+    // without the layer, every cell counts
+    expect(offerCards(month(initial(), [hill, ONE_CELL]).state)[0]!.options).toEqual(['accept:zone:1', 'accept:zone:2', 'decline']);
+  });
+
+  it('matches the per-area counts the pipeline reports, and refuses a layer from other areas', () => {
+    const text = readFileSync(join(ROOT, 'data/starts/slice_buildable.json'), 'utf8');
+    const raw = JSON.parse(text);
+    expect(buildable.cells.length).toBe(raw.areas.reduce((a: number, x: { buildable_count: number }) => a + x.buildable_count, 0));
+    expect(() => compileBuildable({ ...raw, areas_sha256: 'x' }, areasJson)).toThrow(/other areas/);
   });
 });
 

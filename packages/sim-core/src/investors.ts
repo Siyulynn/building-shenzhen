@@ -4,7 +4,7 @@
  */
 import { OWNERSHIPS, type Ownership } from './enums.js';
 import type { SliceParams } from './params.js';
-import type { CardInstance, GameState, LocalizedString, Zone } from './state.js';
+import type { AreasContent, CardInstance, GameState, LocalizedString, Zone } from './state.js';
 import type { TickContext } from './step.js';
 import { createFirm, sizeOffer, type FirmOffer } from './systems/industry.js';
 import { cellsOfRuns } from './zones.js';
@@ -33,8 +33,17 @@ export function compileInvestors(raw: unknown, p: SliceParams): InvestorArchetyp
   });
 }
 
-/** Sorted buildable cells from the compiled layer's per-area runs. */
-export function compileBuildable(raw: { grid: { width: number; height: number }; areas: { id: number; runs: [number, number, number][] }[] }): Buildable {
+/** The compiled buildable layer, data/starts/slice_buildable.json (pipeline/m3b_buildable.py). */
+export interface BuildableContent {
+  format: number; areas_sha256: string; grid: { width: number; height: number };
+  areas: { id: number; runs: [number, number, number][] }[];
+}
+
+/** Sorted buildable cells from the layer's per-area runs. Fails unless it was compiled from these areas. */
+export function compileBuildable(raw: BuildableContent, areas: AreasContent): Buildable {
+  if (raw.format !== 1) throw new Error(`buildable: unknown format ${raw.format}`);
+  if (raw.areas_sha256 !== areas.areas_sha256) throw new Error('buildable: compiled from other areas; rerun pipeline/m3b_buildable.py');
+  if (raw.grid.width !== areas.grid.width || raw.grid.height !== areas.grid.height) throw new Error('buildable: grid size differs');
   const all: number[] = [];
   for (const a of raw.areas) all.push(...cellsOfRuns(a.runs, raw.grid));
   return { cells: Uint32Array.from(new Set(all)).sort() };
