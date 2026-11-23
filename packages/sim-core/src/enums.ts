@@ -33,3 +33,7 @@ export const PERMIT_REGIMES = ['loose', 'standard', 'strict'] as const;
 export const ENFORCEMENT_LEVELS = ['low', 'medium', 'high'] as const;
 export type PermitRegime = (typeof PERMIT_REGIMES)[number];
 export type Enforcement = (typeof ENFORCEMENT_LEVELS)[number];
+
+/** Zone uses (phase1-slice.md §5.3): buildings §2.2's plannedUse. */
+export const LAND_USES = ['industrial', 'residential', 'commercial', 'public', 'reserve'] as const;
+export type LandUse = (typeof LAND_USES)[number];

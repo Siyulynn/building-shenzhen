@@ -7,6 +7,7 @@ import { cloneState, isFinished, type CardInstance, type GameState, type PlayerA
 import { ENFORCEMENT_LEVELS, PERMIT_REGIMES } from './enums.js';
 import { formatYM, type YM } from './ym.js';
 import { statistics } from './systems/statistics.js';
+import { applyZoneAction, isZoneAction } from './zones.js';
 
 export interface SimEvent { step: string; kind: string; detail?: Record<string, unknown> }
 export interface MonthStats { date: YM }
@@ -59,7 +60,9 @@ export const TICK_STEPS: readonly TickStep[] = Object.freeze([
   { name: 'reviews', run: noop },
 ]);
 
-const log = (s: GameState, action: PlayerAction) => s.actionLog.push({ date: s.date, subStep: s.subStep, action: { ...action } });
+/** Actions are plain JSON: the log keeps its own deep copy, so a caller reusing an action cannot change it. */
+const log = (s: GameState, action: PlayerAction) =>
+  s.actionLog.push({ date: s.date, subStep: s.subStep, action: JSON.parse(JSON.stringify(action)) as PlayerAction });
 
 /** A turn action (§4, §5.1): validated, applied and logged. */
 function applyTurnAction(s: GameState, action: PlayerAction): void {
@@ -69,6 +72,8 @@ function applyTurnAction(s: GameState, action: PlayerAction): void {
   } else if (action.type === 'set_permit_regime') {
     if (!(PERMIT_REGIMES as readonly string[]).includes(action.regime)) throw new Error(`unknown permit regime ${action.regime}`);
     s.policy.permitRegime = action.regime;
+  } else if (isZoneAction(action)) {
+    applyZoneAction(s, action);
   } else {
     throw new Error(`unknown action type ${(action as { type: string }).type}`);
   }

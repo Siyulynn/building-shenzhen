@@ -6,9 +6,12 @@ import { housing } from './systems/housing.js';
 import { labour } from './systems/labour.js';
 import { migration } from './systems/migration.js';
 import { statistics } from './systems/statistics.js';
+import { zoning, type Precedent } from './zones.js';
 
-export function createTickSteps(params: SliceParams): readonly TickStep[] {
+/** `precedents` from compilePrecedents (§5.3): content, never state. Without them no zone takes a historical name. */
+export function createTickSteps(params: SliceParams, precedents: readonly Precedent[] = []): readonly TickStep[] {
   const impl: Record<string, (ctx: TickContext) => void> = {
+    investment: zoning(params, precedents),           // M3a: names only; investors arrive with M3b
     construction: construction(params),
     labour: labour(params),
     housing: housing(params),

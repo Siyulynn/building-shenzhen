@@ -7,3 +7,4 @@ export * from './enums.js';
 export * from './params.js';
 export * from './round.js';
 export * from './ticks.js';
+export * from './zones.js';

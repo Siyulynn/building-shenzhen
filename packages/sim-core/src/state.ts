@@ -1,7 +1,7 @@
 /** The slice's game state (phase1-slice.md §5, §5.1, §5.2). Later milestones add modules from their specs. */
 import {
   ARCHETYPES, POP_KINDS, REGISTRATION, SECTORS, USE_OF, isMigrant,
-  type Enforcement, type HousingArchetype, type MigrantKind, type PermitRegime, type PopKind, type Sector,
+  type Enforcement, type HousingArchetype, type LandUse, type MigrantKind, type PermitRegime, type PopKind, type Sector,
 } from './enums.js';
 import type { SliceParams } from './params.js';
 import { bedsByPool } from './systems/common.js';
@@ -59,11 +59,29 @@ export interface HousingMarket {
 export interface MigrationState { stockLag: Record<MigrantKind, number[]> }
 export interface PolicyLevers { permitRegime: PermitRegime; enforcement: Enforcement }
 
+/** Row runs [y, x0, x1], inclusive, sorted by y then x0, disjoint: plain JSON (§5.3). */
+export type CellRuns = [number, number, number][];
+export type ZoneName = { kind: 'generic' } | { kind: 'precedent'; precedent: string } | { kind: 'custom'; zh: string; en: string };
+/** phase1-slice.md §5.3. The player's plan; village households ignore it. */
+export interface Zone {
+  id: number;                 // from nextZoneId, never reused
+  use: LandUse;
+  runs: CellRuns; cellCount: number;
+  area: number;               // the playable area holding most of its cells (ties: lower id)
+  created: YM;
+  template?: string;          // the precedent it was applied from: a record of what the player did
+  name: ZoneName;
+}
+
 export interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM }
 export type PlayerAction =
   | { type: 'answer_card'; instance: string; option: string }
   | { type: 'set_enforcement'; level: Enforcement }
-  | { type: 'set_permit_regime'; regime: PermitRegime };
+  | { type: 'set_permit_regime'; regime: PermitRegime }
+  | { type: 'create_zone'; use: LandUse; runs: CellRuns; template?: string }
+  | { type: 'edit_zone'; zone: number; add?: CellRuns; remove?: CellRuns; use?: LandUse }
+  | { type: 'remove_zone'; zone: number }
+  | { type: 'rename_zone'; zone: number; name: LocalizedString | null };
 export type SubStep = 0 | 1 | 2;
 export interface ActionLogEntry { date: YM; subStep: SubStep; action: PlayerAction }
 
@@ -80,6 +98,7 @@ export interface GameState {
   turn: number;
   subStep: SubStep;
   scenario: { start: YM; turns: number; monthsPerTurn: number };
+  grid: { width: number; height: number };
   areas: SliceArea[];
   pops: PopGroup[];
   blocks: BlockStock[];
@@ -88,6 +107,8 @@ export interface GameState {
   housing: HousingMarket[];
   migration: MigrationState;
   policy: PolicyLevers;
+  zones: Zone[];              // id order
+  nextZoneId: number;
   pendingCards: CardInstance[];
   actionLog: ActionLogEntry[];
   history: History;
@@ -225,6 +246,7 @@ export function createInitialState(content: {
     turn: 0,
     subStep: 0,
     scenario: { start: startYM, turns: scenario.turns, monthsPerTurn: scenario.months_per_turn },
+    grid: { width: areas.grid.width, height: areas.grid.height },
     areas: sliceAreas,
     pops,
     blocks,
@@ -236,6 +258,8 @@ export function createInitialState(content: {
       migrant_construction: Array(lagLen).fill(stockOf('migrant_construction')),
     } },
     policy: { permitRegime: start.policy.permit_regime, enforcement: start.policy.enforcement },
+    zones: [],
+    nextZoneId: 1,
     pendingCards: [],
     actionLog: [],
     history: emptyHistory(),
@@ -254,6 +278,7 @@ export function cloneState(s: GameState): GameState {
   return {
     ...s,
     scenario: { ...s.scenario },
+    grid: { ...s.grid },
     areas: s.areas.map((a) => ({ ...a, name: { ...a.name }, utilities: { ...a.utilities }, facilities: { ...a.facilities } })),
     pops: s.pops.map((p) => ({ ...p, underSix: [...p.underSix] as Queue6, employed: { ...p.employed } })),
     blocks: s.blocks.map((b) => ({ ...b, cohorts: b.cohorts.map((c) => ({ ...c })), events: [...b.events],
@@ -264,6 +289,7 @@ export function cloneState(s: GameState): GameState {
     migration: { stockLag: { migrant_factory: [...s.migration.stockLag.migrant_factory],
       migrant_construction: [...s.migration.stockLag.migrant_construction] } },
     policy: { ...s.policy },
+    zones: s.zones.map((z) => ({ ...z, runs: z.runs.map((r) => [...r] as CellRuns[number]), name: { ...z.name } })),
     pendingCards: s.pendingCards.map((c) => ({ ...c, options: [...c.options] })),
     actionLog: [...s.actionLog],
     history: {

@@ -31,6 +31,10 @@ export interface SliceParams {
     response: number; max_start_m2_per_villager_month: number; duration_months: number;
     legal_floors: number; enforcement_max_floors: Record<Enforcement, number>;
   };
+  zoning: {
+    names: { min_overlap: number; max_offset_cells: number; max_scale_ratio: number;
+      weights: { overlap: number; offset: number; scale: number } };
+  };
 }
 
 function walk(v: unknown, path: string): void {
@@ -69,6 +73,14 @@ export function validateParams(raw: unknown): SliceParams {
   if (!(p.housing.crowding_max >= 1)) throw new Error('params: housing.crowding_max must be >= 1');
   if (!Number.isInteger(p.village_build.duration_months) || p.village_build.duration_months < 1) {
     throw new Error('params: village_build.duration_months must be a positive integer');
+  }
+  const zn = p.zoning?.names;
+  if (!zn) throw new Error('params: zoning.names is not set');
+  if (!(zn.min_overlap > 0 && zn.min_overlap <= 1)) throw new Error('params: zoning.names.min_overlap must be in (0, 1]');
+  if (!(zn.max_offset_cells > 0)) throw new Error('params: zoning.names.max_offset_cells must be > 0');
+  if (!(zn.max_scale_ratio > 1)) throw new Error('params: zoning.names.max_scale_ratio must be > 1');
+  for (const k of ['overlap', 'offset', 'scale'] as const) {
+    if (!(zn.weights?.[k] >= 0)) throw new Error(`params: zoning.names.weights.${k} must be >= 0`);
   }
   for (const m of p.migration.spring.away_months) if (!Number.isInteger(m) || m < 0 || m > 11) throw new Error('params: spring.away_months are 0..11');
   return p;

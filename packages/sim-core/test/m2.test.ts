@@ -18,6 +18,7 @@ const SHOCK = { 7: 3000, 2: 1000 } as const;          // factory jobs added to b
 /** The fixture shock: the investment step adds factory jobs once, at SHOCK_MONTH. */
 const shocked = (jobs: Readonly<Record<number, number>> = SHOCK, at = SHOCK_MONTH): TickStep[] => STEPS.map((s) =>
   s.name !== 'investment' ? s : { name: 'investment', run: (ctx) => {
+    s.run(ctx);                                         // the real step first (zone names, M3a)
     if (ctx.state.history.months.length !== at) return;
     for (const [area, n] of Object.entries(jobs)) {
       ctx.state.labour.baseJobs.find((r) => r.area === Number(area) && r.sector === 'factory')!.jobs += n;
@@ -245,6 +246,7 @@ function checkInvariants(before: GameState, s: GameState, events: SimEvent[]): v
 /** Factory-job changes through the investment step: [month index, area, delta]. */
 const jobChanges = (changes: [number, number, number][], base: readonly TickStep[]): TickStep[] => base.map((s) =>
   s.name !== 'investment' ? s : { name: 'investment', run: (ctx) => {
+    s.run(ctx);
     for (const [at, area, n] of changes) if (ctx.state.history.months.length === at) {
       const row = ctx.state.labour.baseJobs.find((r) => r.area === area && r.sector === 'factory')!;
       row.jobs = Math.max(0, row.jobs + n);
