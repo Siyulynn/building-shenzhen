@@ -1,0 +1,10 @@
+id: conflict.construction_corps_advance_date
+subject: Timing of the Anshan advance formation's entry into Shenzhen in 1979
+claims:
+  - phase1.event.construction_corps_september_account
+  - phase1.event.construction_corps_first_units
+diagnosis: The retrospective archive account puts the mobilization and journey in its September narrative. Ma Chengli places the departure of his first Anshan train in November. The accounts may use different milestones or cover different groups. The original orders and train records are needed to resolve the chronology.
+resolution:
+  encyclopedia: Attribute dates to each account and name the milestone and contingent.
+  tutorial: Use a fourth-quarter deployment of advance crews as a scripted beat. Keep the exact first arrival across all units open.
+status: open

@@ -1,4 +1,4 @@
-# Leads behind the 1979-Q1 to 1980-Q2 prologue beats (phase1-slice.md §2.1). Open each one before Historical mode.
+# Evidence behind the 1979-Q1 to 1980-Q2 prologue beats (phase1-slice.md §2.1).
 - id: phase1.event.escapes_1979
   origin: general_knowledge
   summary: Many young residents of the border area crossed illegally to Hong Kong in 1979 (逃港).
@@ -14,9 +14,40 @@
     Recalled as Typhoon Hope, early August 1979; not checked. Check the Hong Kong Observatory's 1979 tropical cyclone
     report and any Shenzhen damage account. Until then the slice's Q3 storm stays emergent, not an anchor.
 - id: phase1.event.construction_corps_first_units
-  origin: inference
-  summary: Engineering corps (基建工程兵) units were sent to Shenzhen before the autumn 1982 contingent.
-  status: lead
+  source: phase1_sz_oral_history_ma_chengli
+  locator: "Printed pp. 48–49, first Anshan train and unloading at Caiwuwei"
+  quote: "1979年11月，第一列军列从大雪纷飞的鞍山装好设备后"
+  summary: Ma Chengli recalled the first train from his Anshan contingent leaving for Shenzhen in November 1979 and unloading at Caiwuwei.
+  date: { value: "1979-11", precision: month }
+  status: sourced
+  extracted_by: ai:phase1-construction-corps-research
   notes: >-
-    Inferred from the word 再次 ("again") in the quote of phase1.event.construction_corps_arrival. No date or size is
-    claimed. Find when the first units arrived before using them as a 1979-Q4 card.
+    The date in this quote is for the departure. A 2017 People's Daily Overseas Edition version of Ma's account places
+    his group's arrival in Shenzhen in November too. The scope is Ma's Anshan contingent. See the separate September
+    archive claim and December arrival account before assigning a date to the whole advance formation.
+- id: phase1.event.construction_corps_survey
+  source: phase1_sz_oral_history_ma_chengli
+  locator: "Printed p. 48, first section"
+  quote: "考察小组到了深圳"
+  summary: Ma Chengli recalled participating in a June 1979 engineering corps survey visit to Shenzhen.
+  date: { value: "1979-06", precision: month }
+  status: sourced
+  extracted_by: ai:phase1-construction-corps-research
+- id: phase1.event.construction_corps_september_account
+  source: phase1_archive_construction
+  locator: "Main story, first paragraph, also reproduced on Shenzhen Government Online"
+  quote: "五个建制连共1041人组成先遣团"
+  summary: The archival retrospective describes an Anshan advance formation of five companies and 1,041 people in its September 1979 account.
+  date: { value: "1979-09", precision: month }
+  status: sourced
+  extracted_by: ai:phase1-construction-corps-research
+  notes: The Chinese text places mobilization and travel in the same sentence. It gives no separate departure, landing or full-strength date.
+- id: phase1.event.construction_corps_december_arrival
+  source: phase1_hkcd_shan_jinsheng
+  locator: "先遣隊連長單金生, passage beginning 我們拉上全部的生活、勞動物資"
+  quote: "12月4日上火車，12月8日到達深圳"
+  summary: Shan Jinsheng recalled his advance group arriving at Sungang station on 8 December 1979 and basing itself near present-day Tongxinling.
+  date: { value: "1979-12-08", precision: day }
+  status: sourced
+  extracted_by: ai:phase1-construction-corps-research
+  notes: In the same interview Shan dates the call to return to his unit to 20 November, the briefing to 22 November, and describes building bamboo shelters after arrival.

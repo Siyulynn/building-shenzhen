@@ -54,7 +54,7 @@ The prologue teaches the sim through history, with no text tutorial. Powers star
 | 1979-Q1 | The county becomes Shenzhen City (in March). Meet the Secretary and the Mayor (fictional). First project: a road and water link toward Luohu | anchor, then scripted | Projects create obligations. The provincial grant keeps the county's basic obligations afloat | Land-use painting, city projects, the three ledger views | `phase1.event.shenzhen_city_approval` |
 | 1979-Q2 | Shekou's construction headquarters is set up next door. **A guaranteed first processing contract (三来一补)** is offered in the market town | anchor + scripted | Gross exports against small value added; the forex quota from retention; that basic industry needs serviced land | Investor cards (Hong Kong processing and inland state units only), the import-access view | `phase1.event.shekou_command`, `forex.retention.start`, `phase1.industry.processing_contract` |
 | 1979-Q3 | Shekou breaks ground (July). Young residents escape to Hong Kong. Typhoon season | anchor + guaranteed emergent | Wages and migration push. Disasters raise scrutiny. Permits trade inflow against scrutiny | The temporary-permit regime, the scrutiny gauge | `phase1.event.shekou_works`; `phase1.event.escapes_1979` (lead); `phase1.event.typhoon_1979` (lead) |
-| 1979-Q4 | **The first, lightweight review** (forex and order only; it scores but cannot fail). Shacks and rental rooms appear near the border. The first engineering-corps units are offered as special builders who live in tents: house them soon, or their mood and output fall | scripted | The review and visible vs real values. Village building and enforcement. Construction labour needs beds | Enforcement level, the pre-inspection sweep (§6.8), the special construction units | `phase1.event.construction_corps_first_units` (lead, no date) |
+| 1979-Q4 | **The first, lightweight review** (forex and order only; it scores but cannot fail). Shacks and rental rooms appear near the border. An engineering corps advance party (基建工程兵先遣队) reaches Shenzhen. Arrange temporary quarters and supplies for its construction crews | scripted | The review and visible vs real values. Village building and enforcement. Construction crews need beds and supplies | Enforcement level, the pre-inspection sweep (§6.8), the special construction units | `phase1.event.construction_corps_first_units`, `phase1.event.construction_corps_december_arrival` |
 | 1980-Q1 | Spring Festival departures. **The Q1 budget briefing** brings the state-bank project loan and the co-financing offer | scripted | Debt service and borrowing capacity: a loan today squeezes later years | The loan, the co-financing offer | `phase1.fiscal.guaranteed_infrastructure_loans` (context) |
 | 1980-Q2 | **The readiness check:** a report on roads, serviced land and water and power near Luohu and Shangbu, with the bottleneck named. The last quarter to commit | scripted | The three parts of readiness and the deadline | The readiness bar becomes a forecast of the first wave | design_note |
 | 1980-Q3 | **The SEZ is established** (§7.1) | anchor | Everything the prologue taught now scales | Keyed to the event, not the date: SEZ tax incentives (15%), wider investor origins, leasing to outside investors, the priority choice | `phase1.event.sez_regulations`, `phase1.fiscal.sez_income_tax_1980` |
@@ -62,7 +62,7 @@ The prologue teaches the sim through history, with no text tutorial. Powers star
 **Rules of the prologue:**
 - **No empty quarters.** A quarter's beat is a decision with an effect, so a turn never ends with nothing to do. This is tested (§10).
 - **No soft-lock on imports.** The city starts with a small municipal forex quota (fiscal §11, `forex_start_quota_usd`, placeholder). The 1979-Q2 contract adds quota through retention. Declining every investor still leaves enough to import one generator before 1980-Q3 (tested, §10).
-- **The engineering corps in 1979-Q4 is a lead.** The only dated claim is the autumn-1982 contingent (event 7b), whose quote says the centre sent troops "again". If no source dates earlier units by M5, the 1979-Q4 card offers provincial construction teams instead, and the corps arrives with event 7b.
+- **Advance crews in 1979-Q4.** Eyewitness accounts document late-1979 movements. The tutorial card represents an advance deployment on the prologue turn. The first arrival across all units and the total number present that quarter remain open. The 1982 card represents the much larger mobilization. [Construction corps research](../../research/phase1-1979-1984.md#the-construction-corps)
 - **The 1980-Q2 snapshot** (§9.1) is saved at the end of the prologue. It is the goal the prologue is calibrated against, and an alternative start at 1980-Q3.
 
 ---
@@ -331,10 +331,10 @@ Every historical statement cites claim IDs (CLAUDE.md). Claims that don't exist 
 | 6 | The second-line fence goes up | anchor | 1982-06 | `phase1.event.second_line_construction` (sourced) |
 | 7 | **Deng Xiaoping's visit** (the closing event, §7.2) | anchor | 1984-01-24 | `phase1.event.deng_first_visit` (sourced) |
 | 7a | The Bamboo Garden Hotel opens | anchor (card) | 1981-01-25 | `phase1.event.bamboo_garden_opens` (sourced) |
-| 7b | The construction corps arrives | anchor (card) | 1982 (autumn) | `phase1.event.construction_corps_arrival` (sourced) |
+| 7b | The main construction corps deployment begins | anchor (card) | 1982 (autumn) | `phase1.event.construction_corps_arrival` (sourced) |
 | 7c | Interim rules on residence and temporary-residence papers | anchor (card) | 1983-07-06 | `phase1.event.temporary_residence_documents` (sourced) |
 | 7d | The provincial grant halves, then ends (the budget cards) | anchor (card) | 1983, 1984 | `phase1.fiscal.provincial_base.1983`, `.1984` (sourced) |
-| 7e | The first engineering-corps units (1979-Q4 beat) | scripted | — | `phase1.event.construction_corps_first_units` (lead, no date) |
+| 7e | Advance engineering corps crews (1979-Q4 beat) | scripted | — | `phase1.event.construction_corps_first_units`, `phase1.event.construction_corps_december_arrival` (sourced) |
 | 8 | Our first processing contract signed (guaranteed in 1979-Q2) | scripted milestone | — | design_note; `phase1.industry.processing_contract` |
 | 9 | The first export processing zone opens (the mandate) | milestone | — | design_note |
 | 10 | Shekou poaches an investor | emergent | — | design_note |
@@ -517,6 +517,6 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 11. **Calibration checkpoints:** end-1979, the 1980-Q2 snapshot, and end-1983 before the visit (§9).
 
 **Still open:**
-1. Whether the 1979-Q4 engineering-corps beat survives research (§2.1): if no source dates earlier units, use provincial construction teams.
+1. The exact sequence and on-site headcount of the 1979 advance crews (§2.1). Period orders or transport records could reconcile the September account with the later eyewitness dates.
 2. Whether the 1979 typhoon becomes an anchor (`phase1.event.typhoon_1979`, lead).
 3. The provincial grant's base amount (fiscal §13).
