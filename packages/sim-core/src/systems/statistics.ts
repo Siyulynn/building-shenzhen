@@ -1,9 +1,12 @@
 /** Tick step 13: the month's series (phase1-slice.md §5.2). The three counts are filtered sums (PLAN §3.2). */
 import { SECTORS, isMigrant } from '../enums.js';
+import type { SliceParams } from '../params.js';
 import type { TickContext } from '../step.js';
 import { illegalShare, underConstructionM2, villageM2 } from './common.js';
+import { industryTotals } from './industry.js';
 
-export function statistics() {
+/** Without params (the M1 pipeline) there are no firms, and the industry series are zero. */
+export function statistics(p?: SliceParams) {
   return (ctx: TickContext): void => {
     const s = ctx.state;
     const h = s.history;
@@ -29,5 +32,11 @@ export function statistics() {
     for (const e of ctx.events) if (e.kind === 'flow') { inflow += e.detail!.inflow as number; outflow += e.detail!.outflow as number; }
     h.inflow.push(inflow);
     h.outflow.push(outflow);
+    const t = p ? industryTotals(s, p) : { output: 0, exports: 0, valueAdded: 0, posted: 0, staffed: 0 };
+    h.firmJobs.push(t.posted);
+    h.firmStaffed.push(t.staffed);
+    h.output.push(t.output);
+    h.exports.push(t.exports);
+    h.valueAdded.push(t.valueAdded);
   };
 }

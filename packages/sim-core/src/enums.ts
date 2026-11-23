@@ -48,3 +48,7 @@ export type Enforcement = (typeof ENFORCEMENT_LEVELS)[number];
 /** Zone uses (phase1-slice.md §5.3): buildings §2.2's plannedUse. */
 export const LAND_USES = ['industrial', 'residential', 'commercial', 'public', 'reserve'] as const;
 export type LandUse = (typeof LAND_USES)[number];
+
+/** Firm ownership (§5.5): before the SEZ. Joint ventures, foreign and overseas Chinese firms arrive with M5. */
+export const OWNERSHIPS = ['hk_processing', 'inland_soe'] as const;
+export type Ownership = (typeof OWNERSHIPS)[number];

@@ -566,6 +566,7 @@ interface Firm {
   powerKw: number; waterM3Day: number; // needs at full ramp
   accepted: YM; opens: YM;        // opens when its factory completes; the month after acceptance in existing premises
   posted: number; staffed: number;     // this month's factory jobs posted and filled (tick step 5)
+  output: number;                 // this month's gross output, yuan (tick step 6)
 }
 interface AnsweredCard { card: CardInstance; option: string }   // answered, awaiting its system's tick
 // GameState gains: firms: Firm[] (id order); nextFirmId: number; answered: AnsweredCard[]

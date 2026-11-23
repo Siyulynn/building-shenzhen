@@ -5,6 +5,7 @@ import type { GameState, JobRow, PopGroup } from '../state.js';
 import type { TickContext } from '../step.js';
 import { largestRemainder, stochRound } from '../round.js';
 import { labourForce, removeNewestFirst, underConstructionM2 } from './common.js';
+import { firmPosts, postFirmJobs, staffFirms } from './industry.js';
 
 export { labourForce };
 
@@ -92,9 +93,10 @@ export function labour(p: SliceParams) {
     const L = p.labour;
     springFestival(ctx, p);
 
-    // jobs this month: the start economy plus construction work (M3 adds industry)
+    // jobs this month: the start economy, construction work and the firms' posts (§5.5)
+    postFirmJobs(s, p);
     const jobs: JobRow[] = s.labour.baseJobs.map((j) => {
-      let n = j.jobs;
+      let n = j.jobs + (j.sector === 'factory' ? firmPosts(s, j.area, j.sector) : 0);
       if (j.sector === 'construction') {
         const b = s.blocks.find((x) => x.area === j.area);
         if (b) n += Math.floor(underConstructionM2(b) * L.construction_jobs_per_m2);
@@ -112,6 +114,7 @@ export function labour(p: SliceParams) {
     }
     match(s, p, jobs, avail);
     s.labour.jobs = jobs;
+    staffFirms(s, jobs);
 
     // wages move toward clearing, never below the floor
     for (const sec of SECTORS) {

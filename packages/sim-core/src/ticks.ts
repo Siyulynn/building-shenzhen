@@ -5,18 +5,25 @@ import { construction } from './systems/construction.js';
 import { housing } from './systems/housing.js';
 import { labour } from './systems/labour.js';
 import { migration } from './systems/migration.js';
+import { production } from './systems/industry.js';
 import { statistics } from './systems/statistics.js';
 import { zoning, type Precedent } from './zones.js';
 
-/** `precedents` from compilePrecedents (§5.3): content, never state. Without them no zone takes a historical name. */
-export function createTickSteps(params: SliceParams, precedents: readonly Precedent[] = []): readonly TickStep[] {
+/**
+ * Content the tick reads, never stored in state (§5.3, §5.5). Without precedents no zone takes a historical name;
+ * without investor archetypes no offer is raised.
+ */
+export interface TickContent { precedents?: readonly Precedent[] }
+
+export function createTickSteps(params: SliceParams, content: TickContent = {}): readonly TickStep[] {
   const impl: Record<string, (ctx: TickContext) => void> = {
-    investment: zoning(params, precedents),           // M3a: names only; investors arrive with M3b
+    investment: zoning(params, content.precedents ?? []),
     construction: construction(params),
     labour: labour(params),
     housing: housing(params),
     migration: migration(params),
-    statistics: statistics(),
+    production: production(params),
+    statistics: statistics(params),
   };
   return Object.freeze(TICK_STEPS.map((st) => (impl[st.name] ? { name: st.name, run: impl[st.name]! } : st)));
 }

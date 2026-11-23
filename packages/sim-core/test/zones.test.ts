@@ -7,7 +7,7 @@ import {
 } from '../src/index.js';
 import { areasJson, content, initial, params, precedents } from './fixtures.js';
 
-const STEPS = createTickSteps(params, precedents);
+const STEPS = createTickSteps(params, { precedents });
 const P = (key: string) => precedents.find((p) => p.id === `precedent.zone.${key}`)!;
 const SHANGBU = 'precedent.zone.shangbu_industrial';
 const SHUIBEI = 'precedent.zone.shuibei_industrial';

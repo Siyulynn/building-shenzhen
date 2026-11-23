@@ -1,6 +1,6 @@
 /** params/slice.yaml, parsed (phase1-slice.md §5.2, §8). Validated once; never stored in GameState. */
-import type { Enforcement, HousingArchetype, MigrantKind, PermitRegime, PopKind, Sector } from './enums.js';
-import { ENFORCEMENT_LEVELS, HOUSING_ARCHETYPES, MIGRANT_KINDS, PERMIT_REGIMES, POP_KINDS, SECTORS } from './enums.js';
+import type { Enforcement, HousingArchetype, MigrantKind, Ownership, PermitRegime, PopKind, Sector } from './enums.js';
+import { ENFORCEMENT_LEVELS, HOUSING_ARCHETYPES, MIGRANT_KINDS, OWNERSHIPS, PERMIT_REGIMES, POP_KINDS, SECTORS } from './enums.js';
 
 export interface SliceParams {
   eras: { id: string; structural_max_floors: number }[];
@@ -34,6 +34,19 @@ export interface SliceParams {
   zoning: {
     names: { min_overlap: number; max_offset_cells: number; max_scale_ratio: number;
       weights: { overlap: number; offset: number; scale: number } };
+  };
+  industry: {
+    max_far: number; premises_jobs_per_area: number; premises_output_factor: number; order_index: number;
+    by_ownership: Record<Ownership, {
+      output_per_job_month: number; value_added_ratio: number; export_share: number;
+      floor_m2_per_job: number; power_kw_per_job: number; water_m3_day_per_job: number;
+    }>;
+  };
+  investors: {
+    offer_months: number;
+    archetypes: Record<string, {
+      rate_per_quarter: number; jobs: [number, number]; dorm_beds_per_job: number; build_months: number; ramp_months: number;
+    }>;
   };
 }
 
@@ -81,6 +94,29 @@ export function validateParams(raw: unknown): SliceParams {
   if (!(zn.max_scale_ratio > 1)) throw new Error('params: zoning.names.max_scale_ratio must be > 1');
   for (const k of ['overlap', 'offset', 'scale'] as const) {
     if (!(zn.weights?.[k] >= 0)) throw new Error(`params: zoning.names.weights.${k} must be >= 0`);
+  }
+  const I = p.industry, V = p.investors;
+  if (!I || !V) throw new Error('params: industry and investors must be set');
+  need(I.by_ownership, OWNERSHIPS, 'industry.by_ownership');
+  if (!(I.max_far > 0)) throw new Error('params: industry.max_far must be > 0');
+  if (!(I.premises_output_factor > 0 && I.premises_output_factor <= 1)) throw new Error('params: industry.premises_output_factor must be in (0, 1]');
+  if (!(I.order_index >= 0)) throw new Error('params: industry.order_index must be >= 0');
+  for (const o of OWNERSHIPS) {
+    const b = I.by_ownership[o];
+    if (!(b.value_added_ratio >= 0 && b.value_added_ratio <= 1)) throw new Error(`params: industry.by_ownership.${o}.value_added_ratio must be in [0, 1]`);
+    if (!(b.export_share >= 0 && b.export_share <= 1)) throw new Error(`params: industry.by_ownership.${o}.export_share must be in [0, 1]`);
+    if (!(b.floor_m2_per_job > 0)) throw new Error(`params: industry.by_ownership.${o}.floor_m2_per_job must be > 0`);
+  }
+  if (!Number.isInteger(V.offer_months) || V.offer_months <= 3) {
+    throw new Error('params: investors.offer_months must be an integer above 3: an offer outlives a quarter (§5.5)');
+  }
+  for (const [id, a] of Object.entries(V.archetypes)) {
+    const [lo, hi] = a.jobs;
+    if (!Number.isInteger(lo) || !Number.isInteger(hi) || lo < 1 || hi < lo) throw new Error(`params: investors.archetypes.${id}.jobs must be [min, max] integers`);
+    for (const k of ['build_months', 'ramp_months'] as const) {
+      if (!Number.isInteger(a[k]) || a[k] < 1) throw new Error(`params: investors.archetypes.${id}.${k} must be a positive integer`);
+    }
+    if (!(a.rate_per_quarter >= 0 && a.rate_per_quarter <= 3)) throw new Error(`params: investors.archetypes.${id}.rate_per_quarter must be in [0, 3]`);
   }
   for (const m of p.migration.spring.away_months) if (!Number.isInteger(m) || m < 0 || m > 11) throw new Error('params: spring.away_months are 0..11');
   return p;

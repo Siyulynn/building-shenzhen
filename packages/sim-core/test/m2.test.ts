@@ -10,6 +10,7 @@ import {
 import { bedsByPool, illegalShare, villageM2 } from '../src/systems/common.js';
 import { labourForce, unemploymentRate } from '../src/systems/labour.js';
 import { MONTHS, ROOT, areasJson, content, initial, params, scenario, start } from './fixtures.js';
+import { checkInvariants, walk } from './invariants.js';
 
 const STEPS = createTickSteps(params);
 const SHOCK_MONTH = 6;
@@ -33,19 +34,6 @@ const withTurns = (turns: number, mut?: (s: GameState) => void) => {
 const migrantsOf = (s: GameState) => s.pops.reduce((a, g) => a + (isMigrant(g.kind) ? g.size : 0), 0);
 const startMigrants = migrantsOf(initial());
 const shockJobs = Object.values(SHOCK).reduce((a, b) => a + b, 0);
-
-/** Run month by month, calling check after each with the month's events. */
-function walk(s0: GameState, months: number, rng: Rng, steps: readonly TickStep[],
-  check: (before: GameState, after: GameState, events: SimEvent[]) => void): GameState {
-  let s = s0;
-  for (let i = 0; i < months; i++) {
-    const r = step(s, [], rng, steps);
-    if (r.status !== 'advanced') throw new Error(`month ${i}: ${r.status}`);
-    check(s, r.state, r.events);
-    s = r.state;
-  }
-  return s;
-}
 
 describe('M2 params and start', () => {
   it('rejects nulls, non-finite numbers and bad keys', () => {
@@ -208,41 +196,6 @@ describe('M2 stability', () => {
 });
 
 /** Hard rule 5 for one month: people conserved through flow events, and every stock whole. */
-function checkInvariants(before: GameState, s: GameState, events: SimEvent[]): void {
-  const flows = new Map<string, number>();
-  for (const e of events) if (e.kind === 'flow') {
-    const d = e.detail as { area: number; pop: string; inflow: number; outflow: number };
-    const k = `${d.area}:${d.pop}`;
-    flows.set(k, (flows.get(k) ?? 0) + d.inflow - d.outflow);
-  }
-  for (const g of s.pops) {
-    const was = before.pops.find((x) => x.area === g.area && x.kind === g.kind)?.size ?? 0;
-    expect(g.size - was).toBe(flows.get(`${g.area}:${g.kind}`) ?? 0);
-    expect(g.size).toBe(g.stayedSixMonths + g.underSix.reduce((a, b) => a + b, 0));
-    for (const n of [g.size, g.stayedSixMonths, g.present, ...g.underSix, ...Object.values(g.employed)]) {
-      expect(Number.isInteger(n) && n >= 0).toBe(true);
-    }
-    expect(g.present).toBeLessThanOrEqual(g.size);
-    expect(Object.values(g.employed).reduce((a, b) => a + b, 0)).toBeLessThanOrEqual(labourForce(g, params));
-    if (!isMigrant(g.kind)) expect(g.size).toBe(was);              // births and deaths are zero in M2
-  }
-  for (const r of s.labour.jobs) expect(r.jobs >= 0 && r.filled >= 0 && r.filled <= r.jobs).toBe(true);
-  for (const sec of Object.keys(s.labour.wage) as (keyof typeof s.labour.wage)[]) {
-    const filled = s.labour.jobs.reduce((a, r) => a + (r.sector === sec ? r.filled : 0), 0);
-    expect(s.pops.reduce((a, g) => a + g.employed[sec], 0)).toBe(filled);
-  }
-  for (const b of s.blocks) {
-    for (const c of b.cohorts) expect(c.m2).toBeGreaterThan(0);
-    const m = s.housing.find((x) => x.area === b.area)!;
-    expect(m.beds).toEqual(bedsByPool(b, params));
-    expect(s.areas.find((a) => a.id === b.area)!.illegalFloorShare).toBe(illegalShare(b));
-    const plot = s.villagePlots.find((v) => v.area === b.area)!;
-    const maxFloors = Math.min(params.eras[0]!.structural_max_floors, params.village_build.enforcement_max_floors[s.policy.enforcement]);
-    const startVillage = villageM2(initial().blocks.find((x) => x.area === b.area)!, ['completed']);
-    expect(villageM2(b, ['completed', 'under_construction'])).toBeLessThanOrEqual(Math.max(startVillage, plot.footprintM2 * maxFloors));
-  }
-}
-
 /** Factory-job changes through the investment step: [month index, area, delta]. */
 const jobChanges = (changes: [number, number, number][], base: readonly TickStep[]): TickStep[] => base.map((s) =>
   s.name !== 'investment' ? s : { name: 'investment', run: (ctx) => {

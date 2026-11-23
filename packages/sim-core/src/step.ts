@@ -86,6 +86,7 @@ function applyAnswer(s: GameState, action: PlayerAction & { type: 'answer_card' 
   const card = s.pendingCards[k]!;
   if (!card.options.includes(action.option)) throw new Error(`card ${card.id} has no option ${action.option}`);
   s.pendingCards.splice(k, 1);
+  s.answered.push({ card, option: action.option });   // for its system's next tick (§5.5)
   log(s, action);
 }
 
@@ -126,6 +127,7 @@ export function step(state: GameState, actions: readonly PlayerAction[], rng: Rn
     };
     st.run(ctx);
   }
+  s.answered = [];                                       // every system has seen this month's answers
 
   const stats: MonthStats = { date: s.date };
   s.date += 1;

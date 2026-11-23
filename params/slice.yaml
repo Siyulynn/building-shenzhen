@@ -66,3 +66,20 @@ zoning:
     max_offset_cells: 10                 # or: centroids at most this far apart
     max_scale_ratio: 3                   # zone cells ÷ precedent cells within [1/3, 3]
     weights: { overlap: 0.5, offset: 0.25, scale: 0.25 }
+
+industry:                                # M3b (§5.5): firms, production and value added. All placeholders
+  max_far: 1.0                           # floor m² per m² of buildable zone land (a cell is 10,000 m²)
+  premises_jobs_per_area: 150            # jobs in existing premises per area (small processing contracts)
+  premises_output_factor: 0.8            # existing premises produce a little less than a new factory
+  order_index: 1                         # flat until M5's Hong Kong demand series
+  by_ownership:
+    hk_processing: { output_per_job_month: 400, value_added_ratio: 0.2, export_share: 1,
+                     floor_m2_per_job: 10, power_kw_per_job: 0.5, water_m3_day_per_job: 0.1 }
+    inland_soe:    { output_per_job_month: 200, value_added_ratio: 0.35, export_share: 0.2,
+                     floor_m2_per_job: 15, power_kw_per_job: 0.8, water_m3_day_per_job: 0.2 }
+
+investors:                               # M3b (§5.5): offers by archetype (content/slice/investors.yaml). Placeholders
+  offer_months: 6                        # an offer outlives a quarter: runQuarter does not stop between months
+  archetypes:
+    investor.hk_processing:     { rate_per_quarter: 0.4, jobs: [60, 200], dorm_beds_per_job: 0.8, build_months: 9, ramp_months: 3 }
+    investor.inland_state_unit: { rate_per_quarter: 0.1, jobs: [100, 400], dorm_beds_per_job: 0.5, build_months: 12, ramp_months: 6 }

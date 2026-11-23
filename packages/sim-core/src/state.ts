@@ -1,7 +1,8 @@
 /** The slice's game state (phase1-slice.md §5, §5.1, §5.2). Later milestones add modules from their specs. */
 import {
   HOUSING_ARCHETYPES, POP_KINDS, REGISTRATION, SECTORS, USE_OF, isMigrant,
-  type BuildingArchetype, type Enforcement, type HousingArchetype, type LandUse, type MigrantKind, type PermitRegime, type PopKind, type Sector,
+  type BuildingArchetype, type Enforcement, type HousingArchetype, type LandUse, type MigrantKind, type Ownership,
+  type PermitRegime, type PopKind, type Sector,
 } from './enums.js';
 import type { SliceParams } from './params.js';
 import { bedsByPool } from './systems/common.js';
@@ -73,7 +74,20 @@ export interface Zone {
   name: ZoneName;
 }
 
-export interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM }
+/** phase1-slice.md §5.5. A firm is a fact on the ground: it keeps its area when its zone is edited or removed. */
+export interface Firm {
+  id: number;                     // from nextFirmId, never reused
+  archetype: string; ownership: Ownership; sector: 'factory';
+  area: number; zone?: number; premises: 'new_factory' | 'existing';
+  jobs: number; floorM2: number; dormM2: number; powerKw: number; waterM3Day: number;
+  accepted: YM; opens: YM;
+  posted: number; staffed: number; output: number;   // this month's: jobs posted, jobs filled, gross output (yuan)
+}
+
+export interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM;
+  payload?: Record<string, unknown>; expires?: YM }
+/** An answered card awaiting its system's tick (§5.5): kept through a paused call, cleared after the tick. */
+export interface AnsweredCard { card: CardInstance; option: string }
 export type PlayerAction =
   | { type: 'answer_card'; instance: string; option: string }
   | { type: 'set_enforcement'; level: Enforcement }
@@ -91,6 +105,7 @@ export interface History {
   jobs: Record<Sector, number[]>; employed: Record<Sector, number[]>;
   rentalBeds: number[]; crowding: number[]; rent: number[]; underConstructionM2: number[]; illegalShare: number[];
   inflow: number[]; outflow: number[];
+  firmJobs: number[]; firmStaffed: number[]; output: number[]; exports: number[]; valueAdded: number[];
 }
 
 export interface GameState {
@@ -109,7 +124,10 @@ export interface GameState {
   policy: PolicyLevers;
   zones: Zone[];              // id order
   nextZoneId: number;
+  firms: Firm[];              // id order
+  nextFirmId: number;
   pendingCards: CardInstance[];
+  answered: AnsweredCard[];
   actionLog: ActionLogEntry[];
   history: History;
 }
@@ -139,6 +157,7 @@ export interface StartContent {
     base_jobs: Record<Sector, number>;
     housing_m2: Record<HousingArchetype, number>;
     village_footprint_m2: number;
+    utilities: { water_m3_day: number; power_kw: number };   // spare capacity for new industry (§5.5)
   }[];
 }
 
@@ -163,7 +182,7 @@ const isCount = (n: unknown) => typeof n === 'number' && Number.isInteger(n) && 
 export function emptyHistory(): History {
   return { months: [], registered: [], resident: [], present: [], migrants: [], jobs: seriesBySector(),
     employed: seriesBySector(), rentalBeds: [], crowding: [], rent: [], underConstructionM2: [], illegalShare: [],
-    inflow: [], outflow: [] };
+    inflow: [], outflow: [], firmJobs: [], firmStaffed: [], output: [], exports: [], valueAdded: [] };
 }
 
 export function createInitialState(content: {
@@ -222,6 +241,9 @@ export function createInitialState(content: {
       if (!(m2 >= 0)) throw new Error(`start area ${area.id}: housing_m2.${arch} must be >= 0`);
       if (m2 > 0) cohorts.push({ era, use: USE_OF[arch], stage: 'completed', legality: 'permitted', m2, archetype: arch });
     }
+    const u = s.utilities;
+    if (!u || !(u.water_m3_day >= 0) || !(u.power_kw >= 0)) throw new Error(`start area ${area.id}: utilities need water_m3_day and power_kw >= 0`);
+    area.utilities = { waterCap: u.water_m3_day, powerCap: u.power_kw };
     blocks.push({ blockId: area.id, cell: area.cells[0] ?? 0, area: area.id, cohorts, events: [],
       rightsSummary: start.rights.map((r) => ({ ...r })) });
     villagePlots.push({ area: area.id, footprintM2: s.village_footprint_m2 });
@@ -260,11 +282,18 @@ export function createInitialState(content: {
     policy: { permitRegime: start.policy.permit_regime, enforcement: start.policy.enforcement },
     zones: [],
     nextZoneId: 1,
+    firms: [],
+    nextFirmId: 1,
     pendingCards: [],
+    answered: [],
     actionLog: [],
     history: emptyHistory(),
   };
 }
+
+/** Cards are plain JSON; the payload is copied whole. */
+const copyCard = (c: CardInstance): CardInstance => ({ ...c, options: [...c.options],
+  ...(c.payload ? { payload: JSON.parse(JSON.stringify(c.payload)) as Record<string, unknown> } : {}) });
 
 const copyBySector = <T>(r: Record<Sector, T>, f: (v: T) => T): Record<Sector, T> =>
   Object.fromEntries(SECTORS.map((s) => [s, f(r[s])])) as Record<Sector, T>;
@@ -290,7 +319,9 @@ export function cloneState(s: GameState): GameState {
       migrant_construction: [...s.migration.stockLag.migrant_construction] } },
     policy: { ...s.policy },
     zones: s.zones.map((z) => ({ ...z, runs: z.runs.map((r) => [...r] as CellRuns[number]), name: { ...z.name } })),
-    pendingCards: s.pendingCards.map((c) => ({ ...c, options: [...c.options] })),
+    firms: s.firms.map((f) => ({ ...f })),
+    pendingCards: s.pendingCards.map(copyCard),
+    answered: s.answered.map((a) => ({ card: copyCard(a.card), option: a.option })),
     actionLog: [...s.actionLog],
     history: {
       months: [...h.months], registered: [...h.registered], resident: [...h.resident], present: [...h.present],
@@ -298,6 +329,8 @@ export function cloneState(s: GameState): GameState {
       rentalBeds: [...h.rentalBeds], crowding: [...h.crowding], rent: [...h.rent],
       underConstructionM2: [...h.underConstructionM2], illegalShare: [...h.illegalShare],
       inflow: [...h.inflow], outflow: [...h.outflow],
+      firmJobs: [...h.firmJobs], firmStaffed: [...h.firmStaffed], output: [...h.output], exports: [...h.exports],
+      valueAdded: [...h.valueAdded],
     },
   };
 }
