@@ -165,7 +165,7 @@ In the prologue the actions unlock one beat at a time (§2.1). From the SEZ's es
 
 | Action | System | Notes |
 |---|---|---|
-| Paint a land-use plan on cells: industrial, residential, commercial, public, reserve | buildings §3.1 | The plan guides builders but does not bind village households |
+| Draw, edit, rename or remove zones (industrial, residential, commercial, public, reserve) on any playable cells; view the historical zone template, or apply one of its zones | §5.3, buildings §3.1 | Zoning is free. The plan guides investors and city builders (M3b) but does not bind village households. A zone close enough to a historical one in location, purpose and scale takes its name (§5.3) |
 | Lease a parcel by allocation or negotiation | fiscal §5 | Leasing to outside investors opens with the SEZ; land-use fees follow the 1981 regulations. Auctions are locked in the slice |
 | Build a road, water main, power line, school, clinic or police post | fiscal §6.2, §6.1 | Creates a project, then obligations once it is finished |
 | Accept or decline an investor card | §6.5 | Shows the partial-equilibrium preview (fiscal §7.2). Before the SEZ, only a few kinds of investor can be accepted (§6.5) |
@@ -236,7 +236,11 @@ interface CardInstance { id: string; card: string; options: string[]; interrupti
 type PlayerAction =
   | { type: 'answer_card'; instance: string; option: string }
   | { type: 'set_enforcement'; level: 'low' | 'medium' | 'high' }           // M2, §4
-  | { type: 'set_permit_regime'; regime: 'loose' | 'standard' | 'strict' }  // M2, §4; later milestones add kinds
+  | { type: 'set_permit_regime'; regime: 'loose' | 'standard' | 'strict' }  // M2, §4
+  | { type: 'create_zone'; use: LandUse; runs: CellRuns; template?: string } // M3a, §5.3
+  | { type: 'edit_zone'; zone: number; add?: CellRuns; remove?: CellRuns; use?: LandUse }
+  | { type: 'remove_zone'; zone: number }
+  | { type: 'rename_zone'; zone: number; name: { zh: string; en: string } | null };   // later milestones add kinds
 interface ActionLogEntry { date: YM; subStep: 0 | 1 | 2; action: PlayerAction }
 interface GameState {
   date: YM;                  // the month the next step() simulates
@@ -263,7 +267,7 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
   - Interrupting cards pause *between* monthly sub-steps, never mid-tick. The month that raised a card still completes.
   - The answer applies at the top of the next call, before the next month runs, and is logged there. Example: a deficit card raised by `finance` in month t (fiscal §7.1) is answered before month t+1.
   - Non-interrupting cards wait without pausing.
-- **Turn actions while paused:** `step()` applies the answers in a call first. If an interrupting card is still unanswered after them, it applies none of the other actions (`set_enforcement`, `set_permit_regime`, and later zoning and building), logs none, and returns `paused`; the caller sends them again. Applied turn actions are logged like answers, after them, so replay feeds them back in the same order.
+- **Turn actions while paused:** `step()` applies the answers in a call first. If an interrupting card is still unanswered after them, it applies none of the other actions (`set_enforcement`, `set_permit_regime`, the zone actions, and later building), logs none, and returns `paused`; the caller sends them again. Applied turn actions are logged like answers, after them, so replay feeds them back in the same order.
 - **Inputs:** `step()` never changes the state it is given.
   - Each state module added later must be copied in `cloneState`.
   - Append-only logs (the action log, the ledger's entries) copy the array and share entries, which are never changed after they are written.
@@ -439,6 +443,101 @@ interface PolicyLevers { permitRegime: 'loose' | 'standard' | 'strict'; enforcem
   - `illegalFloorShare` and the bed counts equal what the block stocks give.
 - **M1's determinism tests** rerun on the real M2 tick: save/load/continue, replay, and input not changed.
 
+### 5.3 Zones, the historical template and historical names (M3a)
+The player zones freely (pillar 1: you plan, the city happens). Zones guide investors and city builders from M3b. Village households ignore them (§4). History enters in two optional ways:
+- **the template:** the historical zones, which the player can show as a reference overlay or apply one at a time;
+- **names:** any zone close enough to a historical zone in location, purpose and scale takes that zone's name, however it was drawn.
+
+Names are labels. They appear in cards, the briefing and the encyclopedia, and never feed the economy.
+
+**State added by M3a.**
+```ts
+type LandUse = 'industrial' | 'residential' | 'commercial' | 'public' | 'reserve';   // buildings §2.2's plannedUse
+type CellRuns = [number, number, number][];   // [y, x0, x1], inclusive, sorted by y then x0, disjoint: plain JSON
+interface Zone {
+  id: number;                 // from nextZoneId, never reused
+  use: LandUse;
+  runs: CellRuns; cellCount: number;
+  area: number;               // the playable area holding most of its cells (ties: lower id); recomputed on edit
+  created: YM;
+  template?: string;          // the precedent it was applied from: a record of what the player did, not of history
+  name: { kind: 'generic' } | { kind: 'precedent'; precedent: string } | { kind: 'custom'; zh: string; en: string };
+}
+// GameState gains: grid: { width: number; height: number } (from the areas content); zones: Zone[] (id order);
+//                  nextZoneId: number
+```
+- **Cells as runs:** saves extract only the areas' cells as typed arrays, so zones keep plain runs.
+- **The plan layer** (land use per cell, for the map) is derived from the zones and is not stored.
+
+**Validity.** `step()` throws on an invalid zone action, as it does on a bad answer. The UI clips a stroke first with the exported `zoneCellsAllowed(state, runs)`.
+- Every cell lies in a playable area: none in areas 8–9 (§3), none on locked land.
+- No cell is in two zones.
+- Runs are well formed. An edit may not leave a zone empty (`remove_zone` deletes one).
+- sim-core has no buildability mask. Zoning water or hills is allowed and attracts nothing; M3b reads buildability from the grid.
+
+**Applying the template** is not an action of its own. The pure helper `templateZoneAction(state, precedent)` returns a `create_zone` for the precedent's cells, clipped to playable cells not already zoned, with `template` set. The UI and the `historical_prologue` policy use it. The log records the `create_zone`, so replay needs no content beyond the precedents.
+
+**Precedents** (`content/slice/precedents.yaml`): historical zones now, and the named things of §5.4 later.
+```yaml
+- id: precedent.zone.shangbu_industrial
+  kind: zone                        # zone (M3a); enterprise | landmark | cluster (§5.4)
+  name: { zh: 上步工业区, en: Shangbu Industrial Zone }
+  use: industrial
+  geometry: { kind: square, cell: [351, 372], side: 6, proxy: "osm_shenzhen_places way 588326736", placeholder: true }
+  # kind: square (a placeholder footprint around a proxy cell) | runs (traced from period maps) | unplaced
+  claims: [ { id: precedent.zone.shangbu_industrial.exists, use: encyclopedia },
+            { id: precedent.zone.shangbu_industrial.location, use: geometry } ]
+```
+- **Compiled at load:** `compilePrecedents(raw, areas)` validates the ids, kinds and uses, and turns each placed geometry into runs clipped to the grid. `createTickSteps(params, precedents)` takes the result. Precedents never enter `GameState`, and the save header gains `precedents_sha256`.
+- **The template** is the placed zone precedents. The overlay is drawn by the renderer from content and touches no state.
+
+**Name matching** (tick step 3, before investors look for sites). Each month, a pure function of the zones, the precedents and `params.zoning.names`, with no RNG, gives each zone at most one precedent and each precedent at most one zone:
+1. **A pair matches** when all of these hold:
+   - **purpose:** the zone's use equals the precedent's;
+   - **location:** the zone covers at least `min_overlap` of the precedent's cells, or the two centroids are within `max_offset_cells`;
+   - **scale:** the zone's cell count ÷ the precedent's is within [1 ÷ `max_scale_ratio`, `max_scale_ratio`];
+   - the precedent is placed, and the zone has no custom name.
+2. **Keeping:** a zone keeps last month's precedent while the pair still matches, so drawing a better match later does not take the name away.
+3. **The rest are assigned greedily by score**, highest first: `w.overlap × overlap share + w.offset × (1 − offset ÷ max_offset_cells) + w.scale × (1 − |ln ratio| ÷ ln max_scale_ratio)`. Ties go to the lower zone id, then to the precedent's order in the file.
+4. **Losing a name:** a zone edited until it no longer matches falls back to its generic label, and the name is free for any zone that matches it. A custom name (`rename_zone`) takes the zone out of matching; renaming to `null` puts it back.
+- **The generic label** is rendered from the area and the id, for example `上步 · 工业区 #3 / Shangbu · industrial zone #3`. It never takes the bare form of a precedent's name.
+- **Gates:** a precedent may carry `after_event` (an event whose claim it cites), keyed to the event, never to a date. None does until M5's events exist.
+
+**The Phase 1 precedents.** Placement is `lead` and every footprint is a placeholder.
+
+| Precedent | Area (from the proxy) | Placement | Existence |
+|---|---|---|---|
+| 上步工业区 Shangbu Industrial Zone | 7 | Centre of OSM way 588326736 (present-day `landuse=commercial`), 6 × 6 placeholder cells | Named on p. 363 of `phase1_1985_industrial_buildings`, whose sourced claims give its plants and floor |
+| 八卦岭工业区 Bagualing Industrial Zone | — | Unplaced: the OSM export's query never asked for it | Named on the same page, in the combined floor claim |
+| 水贝工业区 Shuibei Industrial Zone | 1 | The OSM 水贝社区 quarter point, placeholder cells. A second 水贝 point falls in area 6 | Lead only: named in the design brief |
+
+- **Scale:** the paired figure (`phase1.housing.shangbu_bagualing.completed_industrial_floor.1984`, about 110,000 m² through end-1983) covers both zones together. It is not split. The template's scale is its placeholder cell count until each zone's extent is traced on period maps (§9).
+- **Timing:** when each zone started is not in the store. So no precedent has a gate yet, and the 1980-Q2 snapshot applies none (§9.1).
+
+**Params** (`params/slice.yaml`, `zoning.names`): `min_overlap` 0.25, `max_offset_cells` 10, `max_scale_ratio` 3, `weights` { overlap 0.5, offset 0.25, scale 0.25 }.
+
+**What M3b reads from a zone:** its use, its cells by area, and from the grid which of them are buildable and serviced. Investors locate only in industrial and commercial zones.
+
+**M3a's tests:**
+- **Validity:** refuse cells in areas 8–9 or outside every area, overlapping zones, malformed runs and edits that empty a zone. Ids are never reused.
+- **Names:**
+  - an applied template zone takes its precedent's name;
+  - a zone drawn shifted (within the offset) or resized (within the ratio) takes it too;
+  - a zone with the wrong use, too far or too large takes none, and an unplaced precedent never matches;
+  - one zone per name; the first matching zone keeps it when a better one is drawn; an edit that breaks the match frees the name for the next zone; a custom name opts out.
+- **No effect on the economy:** with zones present, M2's at-rest and shock runs give the same pops, blocks and history.
+- **Determinism:** save, load and continue, and replay, with zone actions in the log. Zone actions are refused while an interrupting card is pending.
+
+### 5.4 Named emergence (M3c, held)
+A sketch, not built.
+- **Generic emergent things:** enterprises, landmarks and clusters (an electronics market, a first supermarket) form from sim conditions at any location: firms by product line, shop floor, demand, with a seeded hazard. They are `emergent` events (PLAN §7).
+- **Historical names attach by the zone rule:** a precedent of the same kind and archetype gives its name when the location, purpose and scale are close enough. Otherwise the thing gets a generic name, so other electronics hubs can emerge elsewhere under their own names.
+- **Location preference:** a precedent may add a modest hazard multiplier (a param) at its real place, so history leans toward it without forcing it.
+- **Why it is held:**
+  - The store has no claims for the brief's examples (the first Wanjia supermarket, the Huaqiangbei electronics complex). Whether either falls inside 1979–83 is the first thing to check (leads `precedent.landmark.wanjia_first_store`, `precedent.cluster.huaqiangbei_electronics`).
+  - If both postdate the slice, Phase 1 has no named content for the engine. Candidates inside the window, such as the early electronics plants in Shangbu (`phase1_shangbu_huaqiang_history`, section 深圳电子工业肇启), are research targets (§9).
+  - Firms with product lines arrive in M3b. The engine follows once an in-window precedent is sourced.
+
 ---
 
 ## 6. Systems and the monthly tick
@@ -545,6 +644,7 @@ content/slice/prologue.yaml       # the scripted prologue beats and their unlock
 content/slice/snapshot_1980q2.yaml   # the 1980-Q2 snapshot: facts, bands, and the save once M1 exists (§9.1)
 content/slice/checkpoint_1983q4.yaml # the end-1983 calibration checkpoint (§9.2)
 content/slice/start_1979.yaml     # start state compiled from the site register plus placeholders (placeholder: true until sourced)
+content/slice/precedents.yaml     # historical zones (the template) and, later, named enterprises and landmarks (§5.3, §5.4)
 content/slice/investors.yaml      # investor card templates
 content/slice/events/*.yaml       # about 15 events
 content/slice/targets.yaml        # annual review targets
@@ -651,6 +751,8 @@ The provincial grant's base and the starting forex quota are in `params/fiscal.y
 2. **Bands:** the end-1979 checkpoint, a hard check against the year-end claims, and the 1980-Q2 bands, between the end-1979 and end-1980 claims.
 3. **The save:** generated once M1's save format exists, by running the prologue with the scripted `historical_prologue` policy and a fixed seed. A save that fails the bands is not shipped. Until then the state body is `placeholder: true`.
 
+It applies no template zones until the store says which zones existed by 1980-Q2 (§5.3).
+
 The same save doubles as a 1980-Q3 start for players who skip the prologue. It enters with the zone's announcement card on top.
 
 ### 9.2 The end-1983 checkpoint: the final state before the visit
@@ -680,6 +782,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 - Shekou Industrial Zone: firms, jobs and output by year;
 - county and city budget revenue and spending, and foreign investment used, 1979–84;
 - the terms the SEZ opened with in 1980 (tax incentives, what foreign firms could do, leasing);
+- the extent, start and first firms of the Shangbu, Bagualing and Shuibei industrial zones, from period plans (§5.3); the dates and places of the first Wanjia supermarket and the Huaqiangbei electronics complex, and any named electronics plant or market inside 1979–83 (§5.4);
 - the terms of the 1980s fiscal contracting arrangement (fiscal §13);
 - period maps of the Luohu and Shekou areas, for the area boundaries and the 1979 coastline;
 - for M2's placeholders (`params/slice.yaml`, `content/slice/start_1979.yaml`):
@@ -731,7 +834,9 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 | M1 | `sim-core` package: state, seeded RNG, `step()`, the action log, save and load. Also: `content/slice/areas.yaml` from whole proxy subdistricts, with the area invariant checked by `m1b_sites.py`; the map viewer's slice overlay synced to it (playable vs card-only, replacing the hard-coded Luohu + Shekou sets in `apps/map-spike/src/main.ts`) | The §5.1 tests pass (save, load and continue matches an uninterrupted 63-month run; replay from the log; the pause contract); the area invariant passes. *Status:* done. Rebuild the areas with `pipeline/m1_areas.py`, then run `pipeline/m1b_sites.py` (the invariant); sim-core's tests run in `npm run check` |
 | M1b | The 1979 site register: candidate sites with claims, rough geometry, site flags on the map; start state compiled from it | Every site in the start state has a flag and a claim. *Status:* register and flags done; the start state is not compiled yet |
 | M2 | Pops, labour, migration, housing (block stocks), village building (§5.2) | At rest, the start state holds still. Under a fixture job shock, the town fills with migrants and village rental floors on its own, illegal floors included. Without M3 there is no job growth, so the shock stands in for investors. M2's tests in §5.2 pass. *Status:* done, with placeholder numbers (`params/slice.yaml`, `content/slice/start_1979.yaml`). Tests: `packages/sim-core/test/m2.test.ts` |
-| M3 | Industry blocks, production, investors and the preview | Accepted investors create jobs, orders and housing demand |
+| M3a | Zones, the historical template and historical names (§5.3) | The §5.3 tests pass: free zoning, the template applies, names attach by location, purpose and scale, and M2 runs are unchanged |
+| M3b | Industry blocks, production, investors and the preview; investors locate in zones | Accepted investors create jobs, orders and housing demand |
+| M3c | Named emergence (§5.4) | Held until an in-window precedent is sourced. Then: a cluster emerges where conditions hold, takes its historical name only near its real place, and can emerge elsewhere under a generic name |
 | M4 | Fiscal: ledger, obligations, projects, the loan, the deficit rule; nominal GDP | Overbuilding forces a deficit card; the loan squeezes later years |
 | M5 | Leaders, the shortcut, the annual review and the sweep, the climate value, the events, the prologue beats, the SEZ chain, the grant cliff and the closing visit | Each year's review forces a trade-off; readiness visibly changes the first wave; the prologue tests pass; the 1980-Q2 snapshot is generated and passes its bands |
 | M6 | The CLI, golden runs, the plausibility report; the 2D UI on the Spike A canvas | All five exit criteria can be checked |
@@ -752,8 +857,12 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 9. **Readiness is one bar of three physical parts:** roads and access, serviced land, water and power. The 1980-Q3 priority choice steers the investor mix (§7.1).
 10. **The provincial grant cliff** is the fiscal arc: full to 1982, half in 1983, none in 1984 (§6.7).
 11. **Calibration checkpoints:** end-1979, the 1980-Q2 snapshot, and end-1983 before the visit (§9).
+12. **Free zoning with an optional historical template** (2026-11-23, §5.3). Zones are explicit entities with stable ids, so names survive edits, saves and replay.
+13. **Historical names attach by closeness, not by script:** location, purpose and scale (§5.3). Named emergence follows the same rule (§5.4).
 
 **Still open:**
 1. The exact sequence and on-site headcount of the 1979 advance crews (§2.1). Period orders or transport records could reconcile the September account with the later eyewitness dates.
 2. Whether the 1979 typhoon becomes an anchor (`phase1.event.typhoon_1979`, lead).
 3. The provincial grant's base amount (fiscal §13).
+4. **Named emergence in Phase 1** (§5.4): whether any named enterprise, landmark or cluster falls inside 1979–83. If none does, M3c moves to the phase that covers its era.
+5. The real extents of the three historical zones, which replace the placeholder squares (§5.3).

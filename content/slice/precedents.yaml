@@ -1,0 +1,30 @@
+# The slice's precedents (docs/design/systems/phase1-slice.md §5.3). The placed zone precedents are the historical
+# zoning template: the player can show them as an overlay or apply one. A zone close enough in location, purpose and
+# scale takes the precedent's name. Placement is lead and every footprint is a placeholder square around a
+# present-day proxy cell (Spike A grid [x, y]), until the zones are traced on period maps.
+
+- id: precedent.zone.shangbu_industrial
+  kind: zone
+  name: { zh: 上步工业区, en: Shangbu Industrial Zone }
+  use: industrial
+  geometry: { kind: square, cell: [351, 372], side: 6, proxy: "osm_shenzhen_places way 588326736", placeholder: true }
+  claims:
+    - { id: precedent.zone.shangbu_industrial.exists, use: encyclopedia }
+    - { id: precedent.zone.shangbu_industrial.location, use: geometry }
+
+- id: precedent.zone.bagualing_industrial
+  kind: zone
+  name: { zh: 八卦岭工业区, en: Bagualing Industrial Zone }
+  use: industrial
+  geometry: { kind: unplaced }
+  claims:
+    - { id: precedent.zone.bagualing_industrial.exists, use: encyclopedia }
+
+- id: precedent.zone.shuibei_industrial
+  kind: zone
+  name: { zh: 水贝工业区, en: Shuibei Industrial Zone }
+  use: industrial
+  geometry: { kind: square, cell: [393, 348], side: 6, proxy: "osm_shenzhen_places node 13019007378", placeholder: true }
+  claims:
+    - { id: precedent.zone.shuibei_industrial.exists, use: encyclopedia }
+    - { id: precedent.zone.shuibei_industrial.location, use: geometry }
