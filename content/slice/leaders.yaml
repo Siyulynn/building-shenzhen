@@ -1,6 +1,7 @@
 # The slice's Secretary and Mayor (docs/design/systems/phase1-slice.md §5.7, §6.8; leadership §2, §7).
 # Both are fictional composites with fictional names (AGENTS.md, PLAN §11): no real official, no real scandal.
-# traits: the Phase 1 subset, deal_maker (offers the shortcut card) and cautious. M5a reads disciplineRisk and rapport.
+# traits: the Phase 1 subset, deal_maker (offers the shortcut card) and cautious. M5a reads disciplineRisk and rapport;
+# M5b adds standing (start 50) and the bench (replacement_for).
 
 - id: leader.secretary
   name: { zh: 周立言, en: Zhou Liyan }
@@ -15,3 +16,12 @@
   fictional: true
   traits: [deal_maker]
   rapport: 0
+
+# M5b (§5.8): the bench. A fall from grace replaces the leader of that role with this record, at risk 0.
+- id: leader.mayor_replacement
+  name: { zh: 林守正, en: Lin Shouzheng }
+  role: mayor
+  fictional: true
+  traits: [cautious]
+  rapport: 0
+  replacement_for: mayor

@@ -1,8 +1,11 @@
-# The slice's events (docs/design/systems/phase1-slice.md §5.7, §7). M5a's four; M5b adds the rest of §7's table.
+# The slice's events (docs/design/systems/phase1-slice.md §5.7, §5.8, §7). M5a's four first, then M5b's.
 # trigger: { date: YYYY-MM } for an anchor (fires in the first month on or after it; the date cites the anchor's
-# claim) or { prologue_turn: n } for a scripted beat (turn 0 is the scenario's first quarter). Never a year in code.
-# effects apply when the event fires; on_answer effects apply the month after its card is answered.
-# Effect numbers are in params/slice.yaml under events.<id>. Card options: the headless default first.
+# claim); { prologue_turn: n } for a scripted beat (turn 0 is the scenario's first quarter); { month_of_year: m,
+# recurring: true } for a seasonal one (0 = January); { hazard: p, ... } for an emergent one, drawn each month;
+# { condition: c } for a milestone. Never a year in code. requires / until: an unlock key that must be set, or not yet.
+# effects apply when the event fires; on_answer effects apply the month after its card is answered, an effect with
+# option: only for that option. Effect numbers are in params/slice.yaml under events.<id>.
+# Card options: the headless default first. A card that only reports offers `noted`.
 
 - id: event.first_processing_contract
   name: { zh: 第一份来料加工合同, en: Our first processing contract }
@@ -29,7 +32,15 @@
   family: scripted
   trigger: { prologue_turn: 5 }          # 1980-Q2, the last quarter to commit (§2.1)
   effects:
-    - { kind: readiness_check }
+    - { kind: readiness_check }          # the card carries the report and the first wave's forecast
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+      - { id: rush, name: { zh: 抢工期, en: Rush the works } }
+  on_answer:                             # M5b (§5.8): every live project to high priority, at a cost
+    - { kind: rush, option: rush }
+    - { kind: cost, option: rush }
   claims: []                             # a design milestone (design_note in §2.1)
 
 - id: event.sez_established
@@ -50,3 +61,315 @@
   claims:
     - { id: phase1.event.sez_regulations, use: anchor_date }
     - { id: phase1.fiscal.sez_income_tax_1980, use: design_note }
+
+# ---- M5b (§5.8): the prologue beats ----
+
+- id: event.first_project
+  name: { zh: 第一个工程, en: The first project }
+  family: scripted
+  trigger: { prologue_turn: 0 }          # 1979-Q1: meet the pair, choose the first project toward Luohu (§2.1)
+  card:
+    interrupting: false
+    options:
+      - { id: project.road_link, name: { zh: 修通往罗湖的路, en: A road toward Luohu } }
+      - { id: project.water_main, name: { zh: 铺设供水管道, en: A water main } }
+      - { id: later, name: { zh: 以后再说, en: Later } }
+  on_answer:
+    - { kind: commit_choice, area: 2 }   # Luohu crossing and Yumin; `later` commits nothing
+  claims:
+    - { id: phase1.map.shennan_1980, use: design_note }
+
+- id: event.shenzhen_city
+  name: { zh: 宝安县改设深圳市, en: "Bao'an County becomes Shenzhen City" }
+  family: anchor
+  trigger: { date: 1979-03 }             # a declared fact (§2.1)
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims:
+    - { id: phase1.event.shenzhen_city_approval, use: anchor_date }
+
+- id: event.shekou_command
+  name: { zh: 蛇口工业区建设指挥部成立, en: "Shekou's construction headquarters is set up" }
+  family: anchor
+  trigger: { date: 1979-04 }             # a declared fact (§2.1)
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims:
+    - { id: phase1.event.shekou_command, use: anchor_date }
+
+- id: event.permit_choice
+  name: { zh: 临时建房许可, en: Temporary building permits }
+  family: scripted
+  trigger: { prologue_turn: 2 }          # 1979-Q3: the permit regime and the scrutiny gauge switch on (§2.1)
+  effects:
+    - { kind: unlock, key: scrutiny.gauge }
+  card:
+    interrupting: false
+    options:
+      - { id: standard, name: { zh: 照章审批, en: Standard approvals } }
+      - { id: loose, name: { zh: 先建后批, en: "Build first, approve later" } }
+      - { id: strict, name: { zh: 从严审批, en: Strict approvals } }
+  on_answer:
+    - { kind: set_permit }
+  claims: []                             # a design beat
+
+- id: event.typhoon
+  name: { zh: 台风, en: A typhoon }
+  family: emergent
+  trigger: { hazard: 0.15, months_of_year: [6, 7, 8], from_turn: 2, guaranteed_by_turn: 2, recurring: true }
+  card:
+    interrupting: false
+    options:
+      - { id: repair, name: { zh: 立即抢修, en: Repair now } }
+      - { id: defer, name: { zh: 暂缓修复, en: Leave it for now } }
+  on_answer:
+    - { kind: cost, option: repair }
+    - { kind: scrutiny, option: defer }
+  claims:
+    - { id: phase1.event.typhoon_1979, use: design_note }   # a lead: the storm stays emergent, not an anchor
+
+- id: event.corps_advance
+  name: { zh: 基建工程兵先遣队到达, en: "The engineering corps' advance units arrive" }
+  family: scripted
+  trigger: { prologue_turn: 3 }          # 1979-Q4 (§2.1)
+  effects:
+    - { kind: contract_team, team: team.corps_advance }
+  card:
+    interrupting: false
+    options:
+      - { id: quarters, name: { zh: 盖临时营房, en: Build them quarters } }
+      - { id: tents, name: { zh: 先住竹棚帐篷, en: Bamboo sheds and tents } }
+  on_answer:
+    - { kind: cost, option: quarters }
+    - { kind: scrutiny, option: tents }
+  claims:
+    - { id: phase1.event.construction_corps_first_units, use: design_note }
+    - { id: phase1.event.construction_corps_december_arrival, use: design_note }
+
+- id: event.cofinancing
+  name: { zh: 1980年工作汇报：贷款与合作建设, en: "The 1980 briefing: a loan and a co-financing offer" }
+  family: scripted
+  trigger: { prologue_turn: 4 }          # 1980-Q1 (§2.1)
+  effects:
+    - { kind: offer_loan }               # the state bank's project loan (§5.6), unless taken or pending
+  card:
+    interrupting: false
+    options:
+      - { id: decline, name: { zh: 婉拒, en: Decline } }
+      - { id: accept, name: { zh: 接受合作建设, en: Accept the co-financing } }
+  on_answer:                             # a Hong Kong investor builds a power line in the market town, for a concession
+    - { kind: cofinance, template: project.power_line, area: 1, option: accept }
+    - { kind: offer, archetype: investor.hk_processing, terms: true, option: accept }
+  claims: []                             # a design beat
+
+# ---- M5b: the recurring cards ----
+
+- id: event.budget
+  name: { zh: 年度预算, en: "The year's budget" }
+  family: recurring
+  trigger: { month_of_year: 0, recurring: true }
+  effects:
+    - { kind: budget_report }            # the grant factor, the recurring balance, the four-quarter warning
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims:
+    - { id: phase1.fiscal.contracting_retain, use: design_note }
+
+- id: event.sweep
+  name: { zh: 迎检整顿, en: A pre-inspection sweep }
+  family: recurring
+  trigger: { month_of_year: 9, recurring: true }   # October, before December's review
+  card:
+    interrupting: true
+    options:
+      - { id: no_sweep, name: { zh: 照常, en: Carry on as usual } }
+      - { id: sweep, name: { zh: 突击整顿, en: Sweep before the inspectors come } }
+  on_answer:
+    - { kind: sweep, option: sweep }
+  claims: []                             # a design mechanic (leadership §4.4)
+
+# ---- M5b: the other anchors (§7) ----
+
+- id: event.bamboo_garden
+  name: { zh: 竹园宾馆开业, en: The Bamboo Garden Hotel opens }
+  family: anchor
+  trigger: { date: 1981-01 }
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims:
+    - { id: phase1.event.bamboo_garden_opens, use: anchor_date }
+
+- id: event.land_rules
+  name: { zh: 特区土地管理暂行规定施行, en: The land-use rules take effect }
+  family: anchor
+  trigger: { date: 1982-01 }             # the fees are the regime's dated schedule (§5.6)
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims:
+    - { id: phase1.event.land_rules_1981, use: anchor_date }
+
+- id: event.second_line
+  name: { zh: 特区管理线动工, en: Work begins on the second-line fence }
+  family: anchor
+  trigger: { date: 1982-06 }
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims:
+    - { id: phase1.event.second_line_construction, use: anchor_date }
+
+- id: event.corps_deployment
+  name: { zh: 基建工程兵大部队调深, en: The main engineering corps deployment }
+  family: anchor
+  trigger: { date: 1982-09 }             # the claim gives the year and says autumn: the month is a design choice
+  card:
+    interrupting: true
+    options:
+      - { id: accept, name: { zh: 接收, en: Take them on } }
+      - { id: decline, name: { zh: 婉拒, en: Decline } }
+  on_answer:
+    - { kind: contract_team, team: team.engineering_corps, option: accept }
+  claims:
+    - { id: phase1.event.construction_corps_arrival, use: anchor_date }
+
+- id: event.temporary_residence
+  name: { zh: 特区暂住证暂行规定, en: The temporary-residence rules }
+  family: anchor
+  trigger: { date: 1983-07 }
+  card:
+    interrupting: false
+    options:
+      - { id: standard, name: { zh: 照章办理, en: Standard approvals } }
+      - { id: strict, name: { zh: 从严办理, en: Strict approvals } }
+  on_answer:
+    - { kind: set_permit }
+  claims:
+    - { id: phase1.event.temporary_residence_documents, use: anchor_date }
+
+# ---- M5b: milestones ----
+
+- id: event.first_zone
+  name: { zh: 第一个工业区投产, en: The first industrial zone opens }
+  family: milestone
+  trigger: { condition: first_zone_firm_open }
+  effects:
+    - { kind: standing }
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims: []
+
+- id: event.mandate_met
+  name: { zh: 特区任务完成, en: "The zone's mandate is met" }
+  family: milestone
+  trigger: { condition: first_zone_firm_open }
+  requires: investors.sez                # after the SEZ opens
+  effects:
+    - { kind: unlock, key: mandate.met }
+    - { kind: standing }
+  claims: []
+
+- id: event.shekou_poach
+  name: { zh: 投资者转投蛇口, en: An investor goes to Shekou }
+  family: milestone
+  trigger: { condition: shekou_captured }   # M5a's capture, shown the first time it happens
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims: []
+
+# ---- M5b: emergent events, each drawn from the events stream ----
+
+- id: event.orders_surge
+  name: { zh: 香港订单激增, en: Hong Kong orders surge }
+  family: emergent
+  trigger: { hazard: 0.02, from_turn: 4, recurring: true }
+  effects:
+    - { kind: offer, archetype: investor.hk_processing }   # a firm wants capacity now: an extra offer
+  claims: []
+
+- id: event.orders_slump
+  name: { zh: 香港订单下滑, en: Hong Kong orders slump }
+  family: emergent
+  trigger: { hazard: 0.02, from_turn: 4, recurring: true }
+  effects:
+    - { kind: orders }
+  card:
+    interrupting: false
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims: []
+
+- id: event.fire
+  name: { zh: 厂房宿舍火灾, en: A fire in a factory with dormitories }
+  family: emergent
+  trigger: { hazard: 0.01, condition: firm_open }
+  effects:
+    - { kind: veto, reason: order_check }   # that year's review fails its order check
+  card:
+    interrupting: false
+    options:
+      - { id: compensate, name: { zh: 抚恤整改, en: Compensate and refit } }
+      - { id: noted, name: { zh: 低调处理, en: Keep it quiet } }
+  on_answer:
+    - { kind: cost, option: compensate }
+    - { kind: scrutiny, option: noted }
+  claims: []
+
+- id: event.escapes
+  name: { zh: 偷渡外逃, en: Escapes to Hong Kong }
+  family: emergent
+  trigger: { hazard: 0.2, from_turn: 1 }
+  until: investors.sez                   # before the SEZ; the outflow itself is not modelled (§5.8)
+  card:
+    interrupting: false
+    options:
+      - { id: patrols, name: { zh: 加强边防巡逻, en: More border patrols } }
+      - { id: noted, name: { zh: 不予声张, en: Say nothing } }
+  on_answer:
+    - { kind: cost, option: patrols }
+    - { kind: scrutiny, option: noted }
+  claims:
+    - { id: phase1.event.escapes_1979, use: design_note }   # a lead: no figure or month is claimed
+
+- id: event.petition
+  name: { zh: 村民上访, en: A village petition over compensation }
+  family: emergent
+  trigger: { hazard: 0.05, condition: site_preparation_committed, recurring: true }
+  card:
+    interrupting: false
+    options:
+      - { id: compensate, name: { zh: 补足补偿, en: Top up the compensation } }
+      - { id: noted, name: { zh: 按原方案, en: Keep to the plan } }
+  on_answer:
+    - { kind: cost, option: compensate }
+    - { kind: scrutiny, option: noted }
+  claims: []
+
+# ---- M5b: the closing visit ----
+
+- id: event.deng_visit
+  name: { zh: 邓小平首次视察深圳经济特区, en: "Deng Xiaoping's first visit to the Shenzhen SEZ" }
+  family: anchor
+  trigger: { date: 1984-01 }             # in the events step, before that month's finance: the end-1983 state
+  effects:
+    - { kind: end_run }                  # the card shows the documented fact of the visit beside the game's verdict
+  card:
+    interrupting: true
+    options:
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims:
+    - { id: phase1.event.deng_first_visit, use: anchor_date }

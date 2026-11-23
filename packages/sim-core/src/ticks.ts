@@ -12,17 +12,20 @@ import { production } from './systems/industry.js';
 import { statistics } from './systems/statistics.js';
 import { offers, type Buildable, type InvestorArchetype } from './investors.js';
 import { events, type EventContent } from './events.js';
+import { climate, reviews, type TargetContent } from './systems/reviews.js';
 import { zoning, type Precedent } from './zones.js';
 
 /**
  * Content the tick reads, never stored in state (§5.3, §5.5, §5.6, §5.7). Without precedents no zone takes a
  * historical name; without investor archetypes no offer is raised; without the fiscal content finance does nothing,
  * no project or team action is accepted, every cohort gets its month of work, and zones stay serviced (servicedShare
- * absent); without events no event fires and nothing is unlocked.
+ * absent); without events no event fires and nothing is unlocked, the climate does not move, no leader falls and no
+ * review is held (M5b, §5.8); without targets no review is held.
  */
 export interface TickContent {
   precedents?: readonly Precedent[]; investors?: readonly InvestorArchetype[]; buildable?: Buildable;
   fiscal?: FiscalContent; events?: EventContent;
+  targets?: TargetContent;                       // M5b (§5.8): the annual reviews; read only with events
 }
 
 /** Tick step 3: serviced shares (with the fiscal content), zone names, then investors look for sites (§5.3, §5.5, §5.6). */
@@ -39,7 +42,11 @@ function investment(params: SliceParams, content: TickContent) {
 export function createTickSteps(params: SliceParams, content: TickContent = {}): readonly TickStep[] {
   const fc = content.fiscal;
   const impl: Record<string, (ctx: TickContext) => void> = {
-    ...(content.events?.length ? { events: events(params, content) } : {}),
+    ...(content.events?.length ? {
+      events: events(params, content),
+      stability: climate(params),
+      reviews: reviews(params, content.targets),
+    } : {}),
     investment: investment(params, content),
     construction: construction(params, !!fc, content.buildable),
     labour: labour(params),

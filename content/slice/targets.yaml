@@ -1,0 +1,51 @@
+# The annual reviews (docs/design/systems/phase1-slice.md §5.8; leadership §3, §4.3). The k-th entry is the k-th
+# December review of the run: no year is read. Each indicator scores clamp((value − floor) ÷ (target − floor), 0, 1);
+# when floor > target, lower is better. Every floor, target and weight is a placeholder design guess (design_note).
+# Indicators: exports_usd and forex_earned_usd (the last 12 months), foreign_firm_jobs (posted now by firms of
+# foreign or Hong Kong origin), projects_completed (city projects finished in the last 12 months), order_check (the
+# visible illegal-floor share).
+
+- id: review.1
+  lightweight: true                      # the first review scores and teaches, and always passes
+  indicators:
+    - { indicator: exports_usd, weight: 1, floor: 0, target: 200000 }
+    - { indicator: projects_completed, weight: 1, floor: 0, target: 1 }
+    - { indicator: order_check, weight: 1, floor: 0.5, target: 0.1 }
+  claims: []
+
+- id: review.2
+  lightweight: false
+  indicators:
+    - { indicator: exports_usd, weight: 2, floor: 0, target: 1000000 }
+    - { indicator: foreign_firm_jobs, weight: 2, floor: 0, target: 600 }
+    - { indicator: projects_completed, weight: 1, floor: 0, target: 2 }
+    - { indicator: order_check, weight: 1, floor: 0.5, target: 0.1 }
+  claims: []
+
+- id: review.3
+  lightweight: false
+  indicators:
+    - { indicator: exports_usd, weight: 2, floor: 0, target: 1200000 }
+    - { indicator: forex_earned_usd, weight: 1, floor: 0, target: 120000 }
+    - { indicator: foreign_firm_jobs, weight: 2, floor: 0, target: 600 }
+    - { indicator: order_check, weight: 1, floor: 0.5, target: 0.1 }
+  claims: []
+
+- id: review.4
+  lightweight: false
+  indicators:
+    - { indicator: exports_usd, weight: 2, floor: 0, target: 2000000 }
+    - { indicator: forex_earned_usd, weight: 1, floor: 0, target: 200000 }
+    - { indicator: foreign_firm_jobs, weight: 2, floor: 0, target: 1000 }
+    - { indicator: order_check, weight: 1, floor: 0.5, target: 0.1 }
+  claims: []
+
+- id: review.5
+  lightweight: false
+  indicators:
+    - { indicator: exports_usd, weight: 2, floor: 0, target: 3000000 }
+    - { indicator: forex_earned_usd, weight: 1, floor: 0, target: 300000 }
+    - { indicator: foreign_firm_jobs, weight: 2, floor: 0, target: 2000 }
+    - { indicator: projects_completed, weight: 1, floor: 0, target: 2 }
+    - { indicator: order_check, weight: 1, floor: 0.5, target: 0.1 }
+  claims: []

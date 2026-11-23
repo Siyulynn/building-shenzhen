@@ -140,6 +140,7 @@ teams:                                   # by team id (content/slice/teams.yaml)
   team.county_crew:       { crew: 60, mobilization_months: 1, duration_months: 12, cost_per_month: 0 }
   team.engineering_corps: { crew: 200, mobilization_months: 2, duration_months: 12, cost_per_month: 20000 }
   team.outside_soe:       { crew: 120, mobilization_months: 2, duration_months: 12, cost_per_month: 30000 }
+  team.corps_advance:     { crew: 60, mobilization_months: 0, duration_months: 9, cost_per_month: 0 }   # M5b: paid centrally
 
 gdp:                                     # nominal value added (fiscal §8.2)
   base_va_per_job_month: { farming_fishing: 30, factory: 50, construction: 50, services: 40, state: 45 }
@@ -148,6 +149,18 @@ gdp:                                     # nominal value added (fiscal §8.2)
 # ---- M5a (§5.7): events, readiness, the SEZ's priorities, Shekou and the shortcut. Placeholder design guesses ----
 events:                                  # by event id (content/slice/events.yaml)
   event.first_processing_contract: { jobs: 120 }   # fits one area's existing premises (premises_jobs_per_area)
+  # M5b (§5.8). cost: yuan, a one-month transfer; scrutiny and standing: points on 0..100; orders: factor and months
+  event.typhoon: { cost: 120000, scrutiny: 6 }       # repair now, or leave the damage to be seen
+  event.corps_advance: { cost: 60000, scrutiny: 4 }  # build quarters, or the crews live in tents
+  event.cofinancing: { jobs: 150, tax_holiday_months: 24, land_fee_factor: 0.5 }   # the investor's concession
+  event.readiness_check: { cost: 100000 }            # the rush: overtime and imported parts
+  event.first_zone: { standing: 5 }
+  event.mandate_met: { standing: 5 }
+  event.orders_surge: { jobs: 150 }                  # a Hong Kong firm wants capacity now: an extra offer
+  event.orders_slump: { factor: 0.7, months: 6 }     # Hong Kong orders x 0.7 for six months
+  event.fire: { cost: 80000, scrutiny: 8 }
+  event.escapes: { cost: 40000, scrutiny: 6 }        # patrols, or the province hears of it
+  event.petition: { cost: 100000, scrutiny: 6 }      # top up the compensation, or let it go up the line
 
 readiness:                               # one bar of three parts over the readiness cells (§7.1)
   areas: [1, 2, 3, 7]                    # the market town, Luohu, Caiwuwei and Shangbu
@@ -177,3 +190,37 @@ shortcut:                                # the deal-maker's shortcut card (leade
   rapport_on_decline: 5                  # the Mayor's rapport lost when the player declines
   land_fee_factor: 0.5                   # the sweetheart price: share of the land-use fee the firm pays
   extra_tax_holiday_months: 24           # added to the archetype's tax holiday
+
+# ---- M5b (§5.8): the climate, the sweep, the annual review and the fall from grace. Placeholder design guesses ----
+climate:
+  reform_wind: 50                        # §6.9's backdrop; flat in the slice
+  scrutiny_decay: 0.05                   # share of scrutiny that fades each month
+  failure_threshold: 80                  # quarters ending above this count toward the failure state
+  failure_quarters: 4
+  permit_factor: { loose: 1.5, standard: 1, strict: 0.7 }   # how hard the province looks under each permit regime
+  gain:                                  # scrutiny points a month, before the permit factor
+    loose_permit: 1                      # a month under the loose regime
+    illegal_share: 4                     # × the real illegal-floor share
+    grey_land_per_100k: 2                # per ¥100,000 of land money spent on recurring lines when it is not sanctioned
+    shortcut: 5                          # per accepted shortcut
+
+sweep:                                   # the pre-inspection sweep (§6.8, leadership §4.4)
+  cash_cost: 50000
+  mood_penalty: 0.1                      # off every migrant group's mood
+  campaign_months: 3
+  visible_cut: 0.5                       # share of illegal floor hidden from the review while it lasts
+  base_p: 2                              # p_caught = min(1, base_p × (real − visible share))
+
+review:                                  # the annual review (leadership §3)
+  pass_mark: 0.6
+  standing_pass: 10
+  standing_fail: 10
+  scrutiny_relief: 10
+  scrutiny_fail: 10
+
+fall:                                    # the fall from grace (leadership §2.6)
+  base: 0.05                             # the monthly trip chance at a high risk
+  k: 0.3
+  threshold: 20                          # disciplineRisk at which the chance is half of base (two shortcuts)
+  freeze_months: 6
+  scrutiny: 15

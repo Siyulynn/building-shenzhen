@@ -29,6 +29,17 @@ function takeLoan(s: GameState, kind: 'project' | 'short', principal: number, p:
   post(s, 'loan', kind === 'project' ? 'debt' : 'general', principal, `loan.${id}`);
 }
 
+/** Raise the project loan's card unless it is taken or already pending (§5.6; M5b's briefing, §5.8). */
+export function offerProjectLoan(ctx: TickContext, p: SliceParams): boolean {
+  const s = ctx.state, F = s.fiscal, L = p.fiscal.loan;
+  if (F.projectLoan === 'taken' || s.pendingCards.some((c) => c.card === LOAN_CARD)) return false;
+  const inst = ctx.raise({ card: LOAN_CARD, options: ['take', 'decline'], interrupting: false });
+  inst.payload = { principal: L.principal, rate_month: L.rate_month, grace_months: L.grace_months, term_months: L.term_months };
+  inst.expires = s.date + L.offer_months;
+  F.projectLoan = 'offered';
+  return true;
+}
+
 export function finance(p: SliceParams, fc: FiscalContent) {
   return (ctx: TickContext): void => {
     const s = ctx.state, F = s.fiscal, P = p.fiscal;
@@ -143,14 +154,7 @@ export function finance(p: SliceParams, fc: FiscalContent) {
     // 5. the project loan's card, when a commit left money for projects below zero
     if (F.loanWanted) {
       F.loanWanted = false;
-      const pending = s.pendingCards.some((c) => c.card === LOAN_CARD);
-      if (F.projectLoan !== 'taken' && !pending) {
-        const inst = ctx.raise({ card: LOAN_CARD, options: ['take', 'decline'], interrupting: false });
-        inst.payload = { principal: P.loan.principal, rate_month: P.loan.rate_month, grace_months: P.loan.grace_months,
-          term_months: P.loan.term_months };
-        inst.expires = s.date + P.loan.offer_months;
-        F.projectLoan = 'offered';
-      }
+      offerProjectLoan(ctx, p);
     }
     ev('month', { revenue, due, baseline, paid, austerity: F.austerity });
   };

@@ -33,7 +33,8 @@ export interface Project {
   priority: Priority; contract?: number;
   committed: YM; completed?: YM;
   stage: 'committed' | 'building' | 'stalled' | 'done' | 'cancelled';
-  waiting?: 'capacity' | 'finance' | 'mobilization';
+  waiting?: 'capacity' | 'finance' | 'mobilization' | 'frozen';   // frozen: a fall from grace (§5.8)
+  cofinanced?: true;                         // M5b (§5.8): paid by an investor; budget 0
 }
 export type TeamMode = 'pool' | 'dedicated';
 export interface TeamContract { id: number; team: string; mode: TeamMode; project?: number; crew: number; signed: YM; starts: YM; ends?: YM }
@@ -52,6 +53,7 @@ export interface FiscalState {
   loanWanted: boolean;                       // a commit left money for projects below zero: offer the loan
   deficit?: { turn: number; option?: DeficitOption };
   austerity: number;
+  frozenUntil?: YM;                          // M5b (§5.8): city projects get no work until this month, inclusive
 }
 
 export const DEFICIT_CARD = 'fiscal.deficit';
@@ -381,6 +383,24 @@ export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalConten
   } else {
     throw new Error(`not a fiscal action: ${a.type}`);
   }
+}
+
+/**
+ * Commit a co-financed project (§5.8): an area template in a playable area, paid by the investor. Its budget is 0, so
+ * the city spends nothing on it, draws no forex and owes no maintenance; it still needs crews from the pool.
+ */
+export function commitCofinanced(s: GameState, p: SliceParams, fc: FiscalContent, template: string, area: number): Project {
+  const t = fc.projects.find((x) => x.id === template);
+  if (!t || t.target !== 'area') throw new Error(`${template} is not an area project template`);
+  const ar = s.areas.find((x) => x.id === area);
+  if (!ar || ar.access !== 'playable') throw new Error(`${template} needs a playable area`);
+  const pp = projectParams(p, t.id);
+  const F = s.fiscal;
+  const x: Project = { id: F.nextId.project++, template: t.id, kind: t.kind, area, budget: 0, spent: 0, crew: pp.crew!,
+    workTotal: pp.work_months, workDone: 0, crewBank: 0, priority: 'normal', committed: s.date, stage: 'committed',
+    cofinanced: true };
+  F.projects.push(x);
+  return x;
 }
 
 /** A contract is live from signing until it ends (a dedicated one until its project is done or cancelled). */

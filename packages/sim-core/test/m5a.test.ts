@@ -14,7 +14,7 @@ import {
   type SliceParams, type TickStep,
 } from '../src/index.js';
 import {
-  ROOT, areasJson, buildable, content, events, fiscal, initial, investors, leaders, params, precedents, scenario,
+  ROOT, areasJson, buildable, content, eventsM5a as events, fiscal, initial, investors, leaders, params, precedents, scenario,
   start as startContent,
 } from './fixtures.js';
 import { checkInvariants } from './invariants.js';

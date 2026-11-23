@@ -38,11 +38,13 @@ export function sizeOffer(p: SliceParams, archetype: string, ownership: Ownershi
  * A firm's terms (§5.7): the archetype's tax holiday, plus the shortcut's sweetheart price when a leader's shortcut
  * sited it. Undefined when there is nothing to record, so firms without incentives look as in M3b.
  */
-export function firmTerms(p: SliceParams, archetype: string, shortcut?: string): FirmTerms | undefined {
-  const base = archetypeParams(p, archetype).tax_holiday_months ?? 0;
+export function firmTerms(p: SliceParams, archetype: string, shortcut?: string, concession?: FirmTerms): FirmTerms | undefined {
+  // a concession carried in the offer (§5.8) replaces the archetype's holiday and sets its land fee
+  const base = concession?.taxHolidayMonths ?? archetypeParams(p, archetype).tax_holiday_months ?? 0;
   const t: FirmTerms = {};
   const holiday = base + (shortcut ? p.shortcut.extra_tax_holiday_months : 0);
   if (holiday > 0) t.taxHolidayMonths = holiday;
+  if (concession?.landFeeFactor !== undefined) t.landFeeFactor = concession.landFeeFactor;
   if (shortcut) { t.landFeeFactor = p.shortcut.land_fee_factor; t.shortcut = shortcut; }
   return Object.keys(t).length ? t : undefined;
 }
@@ -53,10 +55,11 @@ export function firmTerms(p: SliceParams, archetype: string, shortcut?: string):
  * completes (construction.ts). In existing premises it builds nothing and opens the next month. `shortcut` names
  * the leader whose shortcut sited it (§5.7).
  */
-export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site: FirmSite, shortcut?: string): Firm {
+export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site: FirmSite, shortcut?: string,
+  concession?: FirmTerms): Firm {
   const a = archetypeParams(p, offer.archetype);
   const existing = site.premises === 'existing';
-  const terms = firmTerms(p, offer.archetype, shortcut);
+  const terms = firmTerms(p, offer.archetype, shortcut, concession);
   const f: Firm = {
     id: s.nextFirmId, archetype: offer.archetype, ownership: offer.ownership, sector: 'factory',
     area: site.area, ...(site.premises === 'new_factory' ? { zone: site.zone } : {}), premises: site.premises,
@@ -93,6 +96,10 @@ export function utilityShare(s: GameState, area: number): number {
   return Math.min(share(a?.utilities.powerCap ?? 0, power), share(a?.utilities.waterCap ?? 0, water));
 }
 
+/** Hong Kong orders this month (§5.8): an event's surge or slump while it lasts, else 1. */
+export const orderFactor = (s: GameState) =>
+  s.orders.until !== undefined && s.date <= s.orders.until ? s.orders.factor : 1;
+
 /** Tick step 5, before matching: each open firm posts min(ramp, floor, utilities, orders) jobs (§5.5). */
 export function postFirmJobs(s: GameState, p: SliceParams): void {
   const shares = new Map<number, number>();
@@ -104,7 +111,7 @@ export function postFirmJobs(s: GameState, p: SliceParams): void {
     const ramp = Math.floor(f.jobs * Math.min(1, monthsOpen / archetypeParams(p, f.archetype).ramp_months));
     const floor = f.jobs;                                    // an open firm's floor is complete (or existing)
     const utilities = Math.floor(f.jobs * shares.get(f.area)!);
-    const orders = Math.floor(f.jobs * p.industry.order_index);
+    const orders = Math.floor(f.jobs * p.industry.order_index * orderFactor(s));
     f.posted = Math.max(0, Math.min(ramp, floor, utilities, orders));
   }
 }

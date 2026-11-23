@@ -21,3 +21,11 @@
   name: { zh: 外地国营建筑公司, en: Outside state construction company }
   modes: [dedicated, pool]
   claims: []
+
+- id: team.corps_advance
+  name: { zh: 基建工程兵先遣队, en: Engineering corps advance units }
+  modes: [pool]
+  # M5b's prologue beat (§5.8): the advance and survey units before the main deployment; crews are a placeholder
+  claims:
+    - { id: phase1.event.construction_corps_first_units, use: design_note }
+    - { id: phase1.event.construction_corps_survey, use: design_note }

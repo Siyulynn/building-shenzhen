@@ -99,10 +99,22 @@ export interface SezState { opened?: YM; priority?: string; readiness?: number; 
 export interface ShekouState { captured: number; jobs: number; carry: number }
 export type LeaderRole = 'secretary' | 'mayor';
 /** leadership §2.1, the Phase 1 subset. Fictional composites (AGENTS.md). */
-export interface Leader { id: string; name: LocalizedString; role: LeaderRole; traits: string[]; disciplineRisk: number; rapport: number }
-export interface LeadershipState { leaders: Leader[]; entangled: { leader: string; ref: string; date: YM }[] }
-/** content/slice/leaders.yaml, compiled. */
-export interface LeaderContent { id: string; name: LocalizedString; role: LeaderRole; traits: string[]; rapport: number }
+export interface Leader { id: string; name: LocalizedString; role: LeaderRole; traits: string[]; disciplineRisk: number; rapport: number;
+  standing: number }                                    // M5b (§5.8): with superiors, 0..100
+/** bench: the replacements a fall from grace draws on (§5.8), by role. */
+export interface LeadershipState { leaders: Leader[]; entangled: { leader: string; ref: string; date: YM }[]; bench: Leader[] }
+/** content/slice/leaders.yaml, compiled. A record with replacementFor is on the bench, not in the start pair. */
+export interface LeaderContent { id: string; name: LocalizedString; role: LeaderRole; traits: string[]; rapport: number;
+  replacementFor?: LeaderRole }
+
+/** M5b (§5.8): the climate, the sweep, the reviews, falls from grace and the Hong Kong order shock. */
+export interface Climate { reformWind: number; scrutiny: number; overQuarters: number }
+export interface Sweep { active: boolean; monthsLeft: number }
+export interface ReviewRecord { index: number; date: YM; lightweight: boolean; score: number; pass: boolean; caught: boolean;
+  vetoed?: string; items: { indicator: string; value: number; score: number }[] }
+export interface ReviewsState { held: ReviewRecord[]; vetoes: { date: YM; reason: string }[] }
+export interface FallRecord { date: YM; leader: string; replacedBy: string; entangled: boolean }
+export interface OrdersState { factor: number; until?: YM }
 export const LEADER_TRAITS = ['deal_maker', 'cautious'] as const;
 
 export interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM;
@@ -161,6 +173,12 @@ export interface GameState {
   sez: SezState;
   shekou: ShekouState;
   leadership: LeadershipState;
+  climate: Climate;           // M5b (§5.8)
+  sweep: Sweep;
+  reviews: ReviewsState;
+  falls: FallRecord[];
+  orders: OrdersState;
+  ended?: { date: YM; reason: 'failure' | 'visit' };   // the run ended early: by the climate or the closing visit
   pendingCards: CardInstance[];
   answered: AnsweredCard[];
   actionLog: ActionLogEntry[];
@@ -236,7 +254,11 @@ export function compileLeaders(raw: unknown): LeaderContent[] {
     const traits = Array.isArray(r.traits) ? r.traits : [];
     for (const t of traits) if (!(LEADER_TRAITS as readonly string[]).includes(t)) throw new Error(`${r.id}: unknown trait ${t}`);
     if (!(typeof r.rapport === 'number' && r.rapport >= -100 && r.rapport <= 100)) throw new Error(`${r.id}: rapport must be in [-100, 100]`);
-    return { id: r.id, name: { zh: r.name.zh, en: r.name.en }, role: r.role as LeaderRole, traits: [...traits], rapport: r.rapport };
+    if (r.replacement_for !== undefined && r.replacement_for !== 'secretary' && r.replacement_for !== 'mayor') {
+      throw new Error(`${r.id}: replacement_for must be secretary or mayor`);
+    }
+    return { id: r.id, name: { zh: r.name.zh, en: r.name.en }, role: r.role as LeaderRole, traits: [...traits], rapport: r.rapport,
+      ...(r.replacement_for ? { replacementFor: r.replacement_for as LeaderRole } : {}) };
   });
 }
 
@@ -346,14 +368,25 @@ export function createInitialState(content: {
     events: { fired: [], unlocked: [] },
     sez: {},
     shekou: { captured: 0, jobs: 0, carry: 0 },
-    leadership: { leaders: (content.leaders ?? []).map((l) => ({ id: l.id, name: { ...l.name }, role: l.role,
-      traits: [...l.traits], disciplineRisk: 0, rapport: l.rapport })), entangled: [] },
+    leadership: {
+      leaders: (content.leaders ?? []).filter((l) => !l.replacementFor).map(toLeader),
+      entangled: [],
+      bench: (content.leaders ?? []).filter((l) => l.replacementFor).map(toLeader),
+    },
+    climate: { reformWind: params.climate.reform_wind, scrutiny: 0, overQuarters: 0 },
+    sweep: { active: false, monthsLeft: 0 },
+    reviews: { held: [], vetoes: [] },
+    falls: [],
+    orders: { factor: 1 },
     pendingCards: [],
     answered: [],
     actionLog: [],
     history: emptyHistory(),
   };
 }
+
+const toLeader = (l: LeaderContent): Leader => ({ id: l.id, name: { ...l.name }, role: l.role, traits: [...l.traits],
+  disciplineRisk: 0, rapport: l.rapport, standing: 50 });
 
 /** Cards are plain JSON; the payload is copied whole. */
 const copyCard = (c: CardInstance): CardInstance => ({ ...c, options: [...c.options],
@@ -390,7 +423,14 @@ export function cloneState(s: GameState): GameState {
     sez: { ...s.sez },
     shekou: { ...s.shekou },
     leadership: { leaders: s.leadership.leaders.map((l) => ({ ...l, name: { ...l.name }, traits: [...l.traits] })),
-      entangled: [...s.leadership.entangled] },
+      entangled: [...s.leadership.entangled],
+      bench: s.leadership.bench.map((l) => ({ ...l, name: { ...l.name }, traits: [...l.traits] })) },
+    climate: { ...s.climate },
+    sweep: { ...s.sweep },
+    reviews: { held: [...s.reviews.held], vetoes: [...s.reviews.vetoes] },   // records are never changed after they are written
+    falls: [...s.falls],
+    orders: { ...s.orders },
+    ...(s.ended ? { ended: { ...s.ended } } : {}),
     pendingCards: s.pendingCards.map(copyCard),
     answered: s.answered.map((a) => ({ card: copyCard(a.card), option: a.option })),
     actionLog: [...s.actionLog],
@@ -409,7 +449,8 @@ export function cloneState(s: GameState): GameState {
   };
 }
 
+/** The scenario is over after its last turn, or once it has ended early (§5.8: the failure state, the closing visit). */
 export function isFinished(s: GameState): boolean {
-  return s.turn >= s.scenario.turns;
+  return s.turn >= s.scenario.turns || s.ended !== undefined;
 }
 

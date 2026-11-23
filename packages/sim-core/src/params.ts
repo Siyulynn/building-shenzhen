@@ -50,7 +50,8 @@ export interface SliceParams {
     }>;
   };
   // M5a (§5.7)
-  events: Record<string, { jobs?: number }>;
+  events: Record<string, { jobs?: number; cost?: number; scrutiny?: number; standing?: number; area?: number; factor?: number;
+    months?: number; tax_holiday_months?: number; land_fee_factor?: number }>;
   readiness: {
     areas: number[];
     weights: { roads: number; serviced_land: number; water_power: number };
@@ -62,6 +63,15 @@ export interface SliceParams {
   sez: { priorities: Record<string, Record<string, number>> };
   shekou: { capture_share: number };
   shortcut: { discipline_weight: number; rapport_on_decline: number; land_fee_factor: number; extra_tax_holiday_months: number };
+  // M5b (§5.8)
+  climate: {
+    reform_wind: number; scrutiny_decay: number; failure_threshold: number; failure_quarters: number;
+    permit_factor: Record<PermitRegime, number>;
+    gain: { loose_permit: number; illegal_share: number; grey_land_per_100k: number; shortcut: number };
+  };
+  sweep: { cash_cost: number; mood_penalty: number; campaign_months: number; visible_cut: number; base_p: number };
+  review: { pass_mark: number; standing_pass: number; standing_fail: number; scrutiny_relief: number; scrutiny_fail: number };
+  fall: { base: number; k: number; threshold: number; freeze_months: number; scrutiny: number };
   // M4 (§5.6)
   fiscal: {
     start_regime: string;
@@ -175,8 +185,26 @@ export function validateParams(raw: unknown): SliceParams {
   for (const m of p.migration.spring.away_months) if (!Number.isInteger(m) || m < 0 || m > 11) throw new Error('params: spring.away_months are 0..11');
   validateFiscalParams(p);
   validateM5aParams(p);
+  validateM5bParams(p);
   return p;
 }
+
+function validateM5bParams(p: SliceParams): void {
+  const C = p.climate, S = p.sweep, R = p.review, F = p.fall;
+  if (!C || !S || !R || !F) throw new Error('params: climate, sweep, review and fall must be set (§5.8)');
+  need(C.permit_factor, PERMIT_REGIMES, 'climate.permit_factor');
+  if (!(C.scrutiny_decay >= 0 && C.scrutiny_decay <= 1)) throw new Error('params: climate.scrutiny_decay must be in [0, 1]');
+  if (!(C.failure_threshold > 0 && C.failure_threshold <= 100)) throw new Error('params: climate.failure_threshold must be in (0, 100]');
+  if (!posIntM5(C.failure_quarters)) throw new Error('params: climate.failure_quarters must be a positive integer');
+  for (const [k, v] of Object.entries(C.gain)) if (!(v >= 0)) throw new Error(`params: climate.gain.${k} must be >= 0`);
+  if (!posIntM5(S.campaign_months)) throw new Error('params: sweep.campaign_months must be a positive integer');
+  if (!(S.visible_cut >= 0 && S.visible_cut <= 1) || !(S.cash_cost >= 0) || !(S.mood_penalty >= 0) || !(S.base_p >= 0)) {
+    throw new Error('params: sweep has a bad cost, penalty, cut or base_p');
+  }
+  if (!(R.pass_mark > 0 && R.pass_mark <= 1)) throw new Error('params: review.pass_mark must be in (0, 1]');
+  if (!(F.base >= 0 && F.base <= 1) || !(F.k > 0) || !posIntM5(F.freeze_months)) throw new Error('params: fall needs base in [0, 1], k > 0, whole freeze_months');
+}
+const posIntM5 = (n: unknown) => Number.isInteger(n) && (n as number) >= 1;
 
 function validateM5aParams(p: SliceParams): void {
   const R = p.readiness, Z = p.sez, K = p.shekou, S = p.shortcut;

@@ -14,6 +14,7 @@ export interface SaveContent {
   investors_sha256: string; buildable_sha256: string;   // M3b, §5.5
   fiscal_sha256: string;                                  // M4, §5.6: regimes, projects and teams together
   events_sha256: string; leaders_sha256: string;          // M5a, §5.7
+  targets_sha256: string;                                 // M5b, §5.8
 }
 export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed: number; content: SaveContent }
 export interface Save { header: SaveHeader; body: { state: unknown; rng: RngState }; arrays: Record<string, Uint32Array> }

@@ -5,7 +5,7 @@
  */
 import { OWNERSHIPS, type Ownership } from './enums.js';
 import type { SliceParams } from './params.js';
-import type { AreasContent, CardInstance, GameState, LocalizedString, Zone } from './state.js';
+import type { AreasContent, CardInstance, FirmTerms, GameState, LocalizedString, Zone } from './state.js';
 import type { TickContext } from './step.js';
 import { createFirm, firmTerms, sizeOffer, type FirmOffer } from './systems/industry.js';
 import { cellsOfRuns } from './zones.js';
@@ -114,6 +114,8 @@ export function shortcutOptions(s: GameState, o: FirmOffer, p: SliceParams, b?: 
   return ['decline', ...zones.map((z) => `accept:zone:${z.id}`)];
 }
 
+/** An offer's concession (§5.8), carried in its payload by an event's offer. */
+const termsOf = (c: CardInstance): FirmTerms | undefined => c.payload?.terms as FirmTerms | undefined;
 const offerOf = (c: CardInstance): FirmOffer => {
   const o = c.payload?.offer as FirmOffer | undefined;
   if (!o) throw new Error(`card ${c.id} carries no offer`);
@@ -182,10 +184,10 @@ export function offers(p: SliceParams, content: InvestorContent) {
       if (kind === 'zone') {
         const z = s.zones.find((x) => x.id === n);
         if (z && zoneFits(s, z, o, p, content.buildable)) {
-          firm = createFirm(s, p, o, { premises: 'new_factory', area: z.area, zone: z.id }).id;
+          firm = createFirm(s, p, o, { premises: 'new_factory', area: z.area, zone: z.id }, undefined, termsOf(card)).id;
         }
       } else if (kind === 'premises' && a.existingPremises && premisesFit(s, n, o, p)) {
-        firm = createFirm(s, p, o, { premises: 'existing', area: n }).id;
+        firm = createFirm(s, p, o, { premises: 'existing', area: n }, undefined, termsOf(card)).id;
       }
       if (firm !== undefined) ev('offer_accepted', { card: card.id, firm });
       else { ev('offer_failed', { card: card.id, option }); lost(card); }
@@ -207,8 +209,8 @@ export function offers(p: SliceParams, content: InvestorContent) {
         ev('offer_failed', { card: card.id, option });
         return;
       }
-      s.pendingCards.splice(k, 1);
-      const firm = createFirm(s, p, o, { premises: 'new_factory', area: z.area, zone: z.id }, leader.id).id;
+      const [offerCard] = s.pendingCards.splice(k, 1);
+      const firm = createFirm(s, p, o, { premises: 'new_factory', area: z.area, zone: z.id }, leader.id, termsOf(offerCard!)).id;
       leader.disciplineRisk += p.shortcut.discipline_weight;
       s.leadership.entangled.push({ leader: leader.id, ref: `firm.${firm}`, date: s.date });
       ev('offer_accepted', { card: offerId, firm, shortcut: leader.id });
@@ -286,7 +288,9 @@ export function previewOffer(s: GameState, card: CardInstance, p: SliceParams, c
   const ap = p.investors.archetypes[o.archetype];
   if (!ap) throw new Error(`params: investors.archetypes has no ${o.archetype}`);
   const isShortcut = card.card === SHORTCUT_CARD;
-  const terms = firmTerms(p, o.archetype, isShortcut ? String(card.payload?.leader) : undefined);
+  const offerCard = isShortcut ? s.pendingCards.find((c) => c.id === card.payload?.offerCard) : card;
+  const terms = firmTerms(p, o.archetype, isShortcut ? String(card.payload?.leader) : undefined,
+    offerCard ? termsOf(offerCard) : undefined);
   const holiday = terms?.taxHolidayMonths ?? 0, feeFactor = terms?.landFeeFactor ?? 1;
   const own = p.industry.by_ownership[o.ownership];
   const dormBeds = Math.floor(o.dormM2 / p.housing.m2_per_bed.dormitory);

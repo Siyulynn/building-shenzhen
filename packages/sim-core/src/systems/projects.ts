@@ -35,6 +35,7 @@ const costAt = (x: Project, units: number) =>
 
 /** The most of `units` the city can pay for this month (0 when nothing fits). */
 function affordable(ctx: TickContext, p: SliceParams, x: Project, units: number): number {
+  if (x.budget === 0) return units;                       // co-financed (§5.8): the city pays nothing
   const f = projectFunds(ctx.state, p);
   const cash = f.debt + f.land + f.general;
   if (costAt(x, units) <= cash) return units;
@@ -125,6 +126,8 @@ export function allocatePool(ctx: TickContext, p: SliceParams): Map<Cohort, numb
       continue;
     }
     const x = j.project!;
+    // a fall from grace freezes the city's projects (§5.8): no work, no spending, no draw on the pool
+    if (s.fiscal.frozenUntil !== undefined && s.date <= s.fiscal.frozenUntil) { x.waiting = 'frozen'; continue; }
     if (x.contract !== undefined) {                       // a dedicated contract: outside the pool
       const k = s.fiscal.contracts.find((c) => c.id === x.contract)!;
       if (s.date < k.starts) { x.waiting = 'mobilization'; continue; }
