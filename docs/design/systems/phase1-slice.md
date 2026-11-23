@@ -553,7 +553,7 @@ createTickSteps(params, content?: { precedents?: Precedent[]; investors?: Invest
 
 **State added by M3b.**
 ```ts
-type Ownership = 'hk_processing' | 'inland_soe';   // before the SEZ; joint ventures, foreign and overseas Chinese firms arrive with M5's SEZ event
+type Ownership = 'hk_processing' | 'inland_soe';   // before the SEZ; M5a adds joint ventures, foreign and overseas Chinese firms (§5.7)
 interface Firm {
   id: number;                     // from nextFirmId, never reused
   archetype: string;              // the investor archetype id
@@ -648,7 +648,7 @@ interface Cohort { /* buildings §2.2, M2 */ workDone?: number; workTotal?: numb
   - the preview's cash this quarter, retained tax and new obligations. They need the fiscal regime.
   - **Serviced land (三通一平):** M4's site-preparation projects set a zone's `servicedShare`, which M3b already reads: road access, water, power, and cleared, level ground. A connected site stays distinct from one with spare water and power to operate.
   - **Construction capacity:** factories, roads, utilities and site preparation draw on one monthly pool of work, supplied by local labour and by teams that join it (contracted county crews, the Engineering Corps, outside state companies). A dedicated contract waives a project's draw on the pool but not its cost or time. Village self-build stays outside the pool.
-- **To M5:**
+- **To M5** (specified in §5.7, M5a):
   - the guaranteed first contract in 1979-Q2, and the post-SEZ origins with their incentives;
   - readiness and the first wave;
   - Shekou capturing declined investors, and the deal-maker's shortcut.
@@ -848,7 +848,7 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
 - **The grant's base** is tuned so that, at the start, revenue plus the grant covers the baselines with a small surplus. That is a balance choice, recorded in the params file, not a historical figure (fiscal §4.2).
 
 **Deferred.**
-- **To M5:** the budget cards and the grant warning; the regime switch at the SEZ; the co-financing offer and the loan's offer at the briefing; readiness from `roadKm`, `servicedLand` and the utilities; scrutiny from grey land money; service gaps and mood from austerity; works camps and the Corps' arrival cards.
+- **To M5:** the regime switch at the SEZ and readiness from `roadKm`, `servicedLand` and the utilities are M5a's (§5.7). The budget cards and the grant warning; the co-financing offer and the loan's offer at the briefing; scrutiny from grey land money; service gaps and mood from austerity; works camps and the Corps' arrival cards are M5b's (§5.8).
 - **Major projects as content:** Guomao (国贸), the first Shennan Road section, the cultural programme and the Shenzhen University card use this project mechanism, as templates with their own params. They wait for their claims to enter the store and for M5's cards. Where sources conflict (the SZU allocation, the cultural roster and its cost, the first segment's limits), the conflict records stay open and no figure is averaged. [M4 project research](../../research/phase1-m4-major-projects.md)
 - **Later phases:** the full borrowing rule (debt-service cover and collateral), price indexation, ledger compaction.
 
@@ -866,6 +866,115 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
 - **GDP:** positive at the start, from the existing economy; firm and construction value added add to it; the grant and loans don't.
 - **The preview:** gains cash, retained tax and new obligations, and stays pure.
 - **Determinism:** save, load and continue, and replay, with projects, contracts, loans and the deficit card. Input not changed.
+
+### 5.7 Events, the SEZ chain, readiness and the first wave (M5a)
+M5 is built in two parts. **M5a** (this section) is the investor arc: the events step, the guaranteed first contract, the SEZ chain with its new origins and incentives, readiness and the first wave, Shekou's capture of lost investors, and the deal-maker's shortcut. **M5b** (§5.8) builds the rest of §12's M5 row on top of it: the review and the sweep, the climate value, the remaining events and prologue beats, the budget cards and the closing visit.
+
+**Content.**
+```ts
+createTickSteps(params, content?: { …; events?: EventContent })        // content/slice/events.yaml, compiled
+createInitialState({ …, leaders?: LeaderContent[] })                    // content/slice/leaders.yaml: the pair's start
+```
+- **Without `events`:** no event fires, nothing is unlocked, and Shekou takes no one. **Without `leaders`:** no shortcut is offered. So M2's, M3's and M4's runs are unchanged. The new-origin archetypes are in `investors.yaml`, but they are gated *before* their arrival draw (below), so the `investment` stream draws exactly as in M3b. This is tested.
+- **The save header gains** `events_sha256` and `leaders_sha256`.
+
+**Events** (tick step 2, `content/slice/events.yaml`). Each record has an `id`, a `name` in both languages, a `family` (`anchor | scripted`, §7), one `trigger`, its `effects`, an optional `card` and `on_answer` effects, and `claims`.
+```yaml
+- id: event.sez_established
+  family: anchor
+  trigger: { date: 1980-08 }            # or { prologue_turn: 1 }: never a year in code
+  card: { interrupting: true, options: [ { id: priority.industry, name: { zh: …, en: … } }, … ] }
+  on_answer: [ { kind: sez_open }, { kind: set_regime, regime: regime.contracting_1980s }, { kind: unlock, key: investors.sez }, { kind: first_wave } ]
+  claims: [ { id: phase1.event.sez_regulations, use: anchor_date } ]
+```
+- **Triggers.** `date: YYYY-MM` fires in the first month on or after it; it is dated content citing the anchor's claim. `prologue_turn: n` fires in the first month of turn n or later (turn 0 is the scenario's first quarter). Each event fires once, in content order. The fired events are recorded with their month, for the snapshot's declared facts (§9.1).
+- **Effects** are a closed set of kinds, read by code; their numbers are in `params.events` under the event's id:
+  - `offer { archetype }`: raise one investor card of that archetype with `params.events[id].jobs` jobs. A guaranteed offer draws nothing;
+  - `readiness_check`: raise the readiness report card (below);
+  - `unlock { key }`: add an unlock key. Systems read keys, never dates;
+  - `set_regime { regime }`: switch `fiscal.regime`;
+  - `sez_open`: record the SEZ's opening month, the priority answered and the readiness bar at that moment;
+  - `first_wave`: raise the first wave (below).
+- **Cards.** An event's `card` is raised when the event fires, with its options in content order, the headless default first. Its answer reaches the events step the next month through `answered` (§5.5), which applies `on_answer` in order, before any event fires that month. A non-interrupting event card expires at the end of its quarter; the events step removes it.
+- **Validation** (`compileEvents`): every effect kind is known; an `offer` names an archetype and has its jobs in `params.events`; a `set_regime` names a regime of the fiscal content; `sez_open` and `first_wave` sit in an `on_answer` whose card's options are the keys of `params.sez.priorities`.
+
+**The Phase 1 events of M5a** (`content/slice/events.yaml`):
+
+| Event | Trigger | Effects | Claims |
+|---|---|---|---|
+| `event.first_processing_contract` (our first processing contract, 三来一补) | `prologue_turn: 1` (1979-Q2) | `offer` of `investor.hk_processing`, 120 jobs: it fits the existing premises of any area (`premises_jobs_per_area` 150), so it can be accepted on an empty map | `phase1.industry.processing_contract` (design_note) |
+| `event.shekou_works` (Shekou breaks ground) | `date: 1979-07` | `unlock shekou.competes` | `phase1.event.shekou_works` (anchor_date) |
+| `event.readiness_check` | `prologue_turn: 5` (1980-Q2) | `readiness_check` | design_note |
+| `event.sez_established` (the announcement and the choice of first priorities, §7.1 steps 1–2) | `date: 1980-08` | its card, interrupting, with the three priorities; on answer: `sez_open`, `set_regime regime.contracting_1980s`, `unlock investors.sez`, `first_wave` | `phase1.event.sez_regulations` (anchor_date); `phase1.fiscal.sez_income_tax_1980` (design_note) |
+
+- **The SEZ's timing.** The anchor's date (1980-08-26) falls in the second month of 1980-Q3. The card is raised in 1980-08 and pauses the quarter. The opening (§7.1 step 3) runs in the events step of the next month, 1980-09: the regime switches, the new origins unlock and the first wave arrives. Readiness is measured then, so work finished in August still counts.
+- **The boundary.** Every playable area lies inside the 1980 zone in the slice (§3: the areas were chosen inside it, a design_note until period maps place the line). So M5a draws no per-cell boundary and every playable firm gets the SEZ terms. The zone's area figure stays out of content until it has its own claim.
+- **Not in M5a:** attention from above (scrutiny, the first review targets, §7.1 step 4), the mandate, leasing to outside investors as a player action, and the other events of §7. They are M5b's.
+
+**State added by M5a.**
+```ts
+type Ownership = 'hk_processing' | 'inland_soe' | 'joint_venture' | 'foreign_owned' | 'overseas_chinese';   // the last three from the SEZ
+interface EventsState { fired: { id: string; date: YM }[]; unlocked: string[] }     // unlock keys in the order set
+interface SezState { opened?: YM; priority?: string; readiness?: number; waveCards?: number }
+interface ShekouState { captured: number; jobs: number; carry: number }             // investors Shekou took from the player
+interface Leader {                                                                  // leadership §2.1, the Phase 1 subset
+  id: string; name: LocalizedString; role: 'secretary' | 'mayor'; traits: string[];   // fictional composites (AGENTS.md)
+  disciplineRisk: number; rapport: number }
+interface LeadershipState { leaders: Leader[]; entangled: { leader: string; ref: string; date: YM }[] }   // accepted shortcuts
+// Firm gains: terms?: { taxHolidayMonths?: number; landFeeFactor?: number; shortcut?: string }   // absent = no holiday, full fee
+// GameState gains: events: EventsState; sez: SezState; shekou: ShekouState; leadership: LeadershipState
+```
+
+**Investor origins and incentives.**
+- **New archetypes** (`investors.yaml`): `investor.joint_venture` (中外合资), `investor.foreign_owned` (外商独资) and `investor.overseas_chinese` (华侨、港澳投资), each with `requires: investors.sez`. An archetype with `requires` makes no arrival draw until its key is unlocked. The origins are design categories from §6.5 and the SEZ regulations' general opening to foreign investment; which firms came first is a research target. Their claims stay empty until sourced.
+- **The tax incentive** is the regime: `regime.contracting_1980s` carries lower value-added rates for the three new ownerships. The 15% enterprise income tax (`phase1.fiscal.sez_income_tax_1980`) is cited as a `design_note`: it is an income-tax rate, and the slice taxes value added, so no rate is set from it.
+- **The tax holiday:** an archetype's `tax_holiday_months` (params, absent = 0) is copied into the firm's `terms` when it is sited. Finance taxes no value added from a firm in its first `taxHolidayMonths` months open. The preview reads the same terms (below).
+
+**Readiness** (§7.1). `readiness(state, params, buildable?)` is pure, like `fiscalViews`, and returns `{ roads, servicedLand, waterPower, bar, weakest, cells }`.
+- **The readiness cells:** the buildable cells (§5.5's layer; every cell without it) of the playable areas in `readiness.areas` (1, 2, 3 and 7).
+- **Roads and access.** M4's roads have no geometry, only `roadKm` per area (§5.6). So reach is counted, not traced: each completed km of city road reaches `(2 × road_reach_cells + 1) × 10` cells of its area (a 100 m grid has 10 cells per km), capped at the area's readiness cells. The part is the reached share ÷ `full_at.roads`, capped at 1. Every city road counts as connected to the Luohu crossing: the road template is the link toward it. The start has no city road, a placeholder until the 1979 network (§3.1) enters the start state.
+- **Serviced land.** The share of readiness cells in `servicedLand` (§5.6) ÷ `full_at.serviced_land`, capped at 1. Site preparation's budget stands for clearing, surveying and compensation together. A compensation dispute is M5b's village petition event (§7).
+- **Water and power.** The spare capacity of the readiness areas (each area's caps less the needs of every firm sited there, never below 0) against the needs of a standard first wave (`readiness.standard_wave`: jobs × that ownership's per-job needs). The part is the lower of the power and water ratios, capped at 1, as a factory's output is bound by the scarcer one (§5.5).
+- **The bar** is the weighted mean of the three parts (`readiness.weights`). **The weakest part** is the lowest (ties in the order roads, serviced land, water and power).
+- **The targets are shares, so the parts stay below 1 at the start:** the start has no roads and no serviced land, and the start utilities cover part of a standard wave (§5.5).
+
+**The readiness check** (`event.readiness_check`, 1980-Q2). A non-interrupting report card (option `noted`) whose payload holds the three parts, the bar, the weakest part and the forecast: the first wave's size at today's bar. The SEZ card's payload holds the same report.
+
+**The first wave** (`first_wave`, §7.1 step 3).
+- **Its size:** `min_cards + round(bar × (max_cards − min_cards))` (`readiness.first_wave`), at the bar measured at the opening.
+- **Its mix:** each card's archetype is drawn by weight from `params.sez.priorities[priority]` among the archetypes that are unlocked or need no key; its jobs are drawn from the archetype's range, as for an arrival. Both draws use the `events` stream.
+- **The cards are ordinary investor cards** (§5.5): their options are the sites with room, so a wave that opens onto unserviced land has nowhere to go, and its investors decline or lapse to Shekou. That is §7.1's muddy field.
+
+**Shekou captures lost investors** (§6.5). Once `shekou.competes` is unlocked, every investor that leaves without a firm (declined, lapsed or failed) adds `shekou.capture_share` to `shekou.carry`. Each time the carry reaches 1, Shekou takes one investor: `captured` and `jobs` grow, the carry falls by 1, and event `shekou_captured` records it. It is deterministic, with no draw, so it shifts no stream. Shekou stays card-only: its firms are a tally for the briefing and the verdict, not firms on the map.
+
+**The leaders and the deal-maker's shortcut** (leadership §2.4–§2.5, §7).
+- **The pair** comes from `content/slice/leaders.yaml`: a cautious Secretary and a deal-maker Mayor, fictional composites with fictional names. M5a uses `disciplineRisk` and `rapport` only. Standing, the mandate and falls from grace are M5b's.
+- **When it is offered:** when a leader with the `deal_maker` trait leads, and a pending investor card has no zone site but an industrial zone would fit it on its buildable cells if they were all serviced, step 3 raises the Mayor's shortcut card, once per offer. It is non-interrupting and expires with its offer. Its payload names the offer card and copies the offer.
+- **Its options:** `decline` first (the headless default, as for M4's deficit card), then `accept:zone:<id>` for each such zone, refreshed monthly like the offer's options.
+- **Accepting** sites the firm in that zone now, on unserviced land, at a sweetheart price: its `terms` add `shortcut.extra_tax_holiday_months` to the archetype's holiday and set `landFeeFactor` to `shortcut.land_fee_factor`. The offer card is removed. The Mayor's `disciplineRisk` rises by `shortcut.discipline_weight`, and the decision is recorded in `entangled` (leadership §2.6 reads it in M5b).
+  - **What it costs in the ledger:** the extra holiday is value-added tax the city does not collect once the firm opens, and the discount is land-use fee it does not collect once fees start (1982-01 in the contracting regime). Both show in the preview.
+  - **The firm's land stays unserviced:** it uses the zone's floor capacity like any firm, so the zone takes no other firm until its land is serviced.
+- **Declining** costs the Mayor `shortcut.rapport_on_decline` of `rapport`. The offer stays open on its own card.
+- **Order in a call:** a shortcut accept needs its offer still pending. If the offer card is answered in the same call, the offer's answer wins and the shortcut fails (`offer_failed`). When an offer leaves (accepted, declined, lapsed or failed), its shortcut card is withdrawn.
+
+**The preview** (§5.5, §5.6). `previewOffer` also takes a shortcut card. Each site gains `taxHolidayMonths` and `landFeeFactor` from the terms it would get. With the fiscal content, `cashThisQuarter` applies the fee factor, and `retainedTaxPerYear` is the rate at full ramp after the holiday, with the holiday shown beside it.
+
+**Params** (`params/slice.yaml`, placeholders): `events` by event id (`jobs` for an `offer`); `readiness` (`areas`, `weights`, `road_reach_cells`, `full_at`, `standard_wave`, `first_wave`); `sez.priorities` (archetype weights by priority); `shekou.capture_share`; `shortcut` (`discipline_weight`, `rapport_on_decline`, `land_fee_factor`, `extra_tax_holiday_months`); and, per new ownership and archetype, the M3b fields, with `tax_holiday_months` on archetypes.
+
+**M5a's tests:**
+- **No effect without the content:** without `events` and `leaders`, M3b's and M4's runs give the same state and history; the new-origin archetypes never arrive; the `investment` stream draws as before.
+- **The first contract:** raised in the first month of turn 1 for every seed, with 120 jobs and an `accept:premises` option on an empty map; accepting it opens a firm.
+- **Triggers read content:** moving the SEZ record's date moves the chain, with no code change.
+- **The SEZ chain:** the card is raised in the anchor's month and pauses; its answer, the next month, records the priority, switches the regime, unlocks the new origins and raises the first wave; `firstOption` picks industry.
+- **Readiness:** each part is below 1 at the start; a road raises roads, site preparation in a readiness area raises serviced land, a power line raises water and power only up to the water ratio; the bar is the weighted mean and the weakest part is named.
+- **Readiness changes the first wave:** an unprepared run gets `min_cards`; a prepared run, through an affordable prologue plan (the loan, a road, site preparation and a power line), gets more; the readiness check's forecast equals the wave that follows when nothing changes in between.
+- **Incentives:** a new-origin firm pays no tax during its holiday, then pays at the contracting rate; the preview shows the holiday.
+- **Shekou:** no capture before `shekou.competes`; after it, the captured count is `floor(capture_share × lost investors)`.
+- **The shortcut:** offered only with a deal-maker and an unserviced zone that would fit; `decline` is first; accepting sites the firm on unserviced land with its terms, raises `disciplineRisk` and records the entanglement; declining lowers `rapport`; an offer answered in the same call wins; the card is withdrawn with its offer.
+- **Determinism:** save, load and continue, and replay, through the SEZ chain with a shortcut, a capture and the wave. Input not changed.
+
+### 5.8 Reviews, climate, the prologue and the closing visit (M5b)
+Specified once M5a is built: it reads M5a's events step, unlock keys, leaders and entangled shortcuts.
 
 ---
 
@@ -1014,7 +1123,7 @@ The six prologue quarters (1979-Q1 to 1980-Q2, §2.1) are a **prologue with a de
 
   | Part | Measures |
   |---|---|
-  | **Roads and access** | Share of readiness cells within a set distance of a road connected to the Luohu crossing |
+  | **Roads and access** | Share of readiness cells within reach of a city road connected to the Luohu crossing. M4's roads have no geometry, so reach is counted per km of road in each area (§5.7) |
   | **Serviced land** | Share of readiness cells cleared, surveyed and with village compensation agreed |
   | **Water and power** | Built water and power capacity against the demand of a standard first wave, capped at 1 |
 
@@ -1052,9 +1161,10 @@ The six prologue quarters (1979-Q1 to 1980-Q2, §2.1) are a **prologue with a de
 production: { value_added_ratio: { processing_hk: 0.2 } }       # fiscal §12
 climate: { scrutiny_decay: 0.05, failure_threshold: 80, failure_quarters: 4 }
 review: { pass_mark: 0.6 }
-investors: { cards_per_quarter: 1, shekou_capture_on_decline: 0.5 }
+# M5a (§5.7): readiness, sez, shekou, shortcut and events are in params/slice.yaml in full (placeholder: true).
 readiness: { weights: { roads: 0.3, serviced_land: 0.35, water_power: 0.35 }, road_reach_cells: 5,
-             first_wave: { min_cards: 1, max_cards: 4 } }
+             full_at: { roads: 0.3, serviced_land: 0.01 }, first_wave: { min_cards: 1, max_cards: 4 } }
+shekou: { capture_share: 0.5 }                                  # replaces investors.shekou_capture_on_decline
 sweep: { cash_cost: null, mood_penalty: 0.05 }                  # campaign_months and p_caught: leadership params
 corps: { tent_mood_penalty_per_month: 0.03 }                    # special construction units living in tents
 ```
@@ -1167,7 +1277,8 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 | M3b | Industry, production, investors and the preview; investors locate in zones (§5.5) | Accepted investors create jobs, orders and housing demand. The §5.5 tests pass. *Status:* done, with placeholder numbers (`params/slice.yaml` `industry` and `investors`, the area utilities in `content/slice/start_1979.yaml`) and a placeholder buildable layer (rebuild with `pipeline/m3b_buildable.py`). Code: `packages/sim-core/src/investors.ts`, `src/systems/industry.ts`; tests: `test/m3b.test.ts`, `test/offers.test.ts` |
 | M3c | Named emergence (§5.4) | Held until an in-window precedent is sourced. Then: a cluster emerges where conditions hold, takes its historical name only near its real place, and can emerge elsewhere under a generic name |
 | M4 | Fiscal: ledger, obligations, projects, the loan, the deficit rule; nominal GDP; serviced land and the construction-capacity pool (§5.6) | Overbuilding forces a deficit card; the loan squeezes later years. The §5.6 tests pass. *Status:* done, with placeholder numbers (`params/slice.yaml` `fiscal`, `capacity`, `projects`, `teams`, `gdp`). M2 and M3 runs are unchanged without the fiscal content. Code: `packages/sim-core/src/fiscal.ts`, `src/systems/finance.ts`, `src/systems/projects.ts`; tests: `test/m4.test.ts` |
-| M5 | Leaders, the shortcut, the annual review and the sweep, the climate value, the events, the prologue beats, the SEZ chain, the grant cliff and the closing visit | Each year's review forces a trade-off; readiness visibly changes the first wave; the prologue tests pass; the 1980-Q2 snapshot is generated and passes its bands |
+| M5a | The events step; the guaranteed first contract; the SEZ chain, its new origins and incentives; readiness, the 1980-Q2 check and the first wave; Shekou's capture; the leaders and the deal-maker's shortcut (§5.7) | Readiness visibly changes the first wave. The §5.7 tests pass. *Status:* in progress |
+| M5b | The annual review and the sweep, the climate value, the remaining events and prologue beats, the budget cards and the grant warning, the briefing's loan and co-financing offers, and the closing visit (§5.8) | Each year's review forces a trade-off; the prologue tests pass; the 1980-Q2 snapshot is generated and passes its bands |
 | M6 | The CLI, golden runs, the plausibility report; the 2D UI on the Spike A canvas | All five exit criteria can be checked |
 | Playtest | Several full playthroughs; notes in `docs/playtests/` | You want to play it again |
 
