@@ -1,5 +1,5 @@
-# System spec: the Phase 1 slice ("Luohu and Shekou, 1980–1985")
-**Status:** draft v0.1, for review. **Covers:** `PLAN.md` §10 Phase 1 and §14 step 3. **Uses the Phase 1 subsets of:** fiscal-and-macro §11, buildings-and-construction §13 and leadership-and-reviews §7. Those specs own their schemas, and this spec only says which parts the slice switches on and how they connect.
+# System spec: the Phase 1 slice ("Luohu and Shekou, 1979–1984")
+**Status:** draft v0.2. Decisions taken: start 1979-Q1, end at the January 1984 visit, Shangbu included, Shekou by cards only, quarterly turns. **Covers:** `PLAN.md` §10 Phase 1 and §14 step 3. **Uses the Phase 1 subsets of:** fiscal-and-macro §11, buildings-and-construction §13 and leadership-and-reviews §7. Those specs own their schemas, and this spec only says which parts the slice switches on and how they connect.
 
 **Every number in this spec is a starting parameter** (in `params/slice.yaml`) unless it cites a claim. The start state uses placeholder values, flagged `placeholder: true`, until the slice's research targets (§9) are found. Evidence compiles in **draft mode** (evidence protocol §9), so the slice is allowed to run on `lead` and placeholder data, with every such value tagged `[UNVERIFIED]`.
 
@@ -9,10 +9,10 @@
 Phase 1 tests the core triangle: **growth vs fiscal survival vs politics and reviews.** If it is fun in ugly 2D, the project is validated.
 
 **Exit criteria** (from PLAN §10):
-1. You can play 24 quarters, and the town grows plausibly in response to your choices.
+1. You can play all 21 quarters (1979-Q1 to 1984-Q1), and the town grows plausibly in response to your choices.
 2. Budget pressure and the review target force at least one hard trade-off a year. A loan taken today visibly squeezes a later year.
 3. The slice is checked against its own Luohu–Shekou plausibility bands (§9), not whole-city totals.
-4. A headless 24-quarter run takes seconds, and the invariant tests pass.
+4. A headless 21-quarter run takes seconds, and the invariant tests pass.
 5. **You want to play it again.** This one is judged by playtests (§12), not tests.
 
 **The three tensions the player should feel:**
@@ -25,8 +25,9 @@ Phase 1 tests the core triangle: **growth vs fiscal survival vs politics and rev
 ---
 
 ## 2. Time and turns
-- **Start:** 1980-Q1. **End:** 1985-Q4. That is 24 quarterly turns of three monthly sub-steps each (PLAN §2).
-- **Why 1980:** it places the SEZ's establishment inside the slice as its first national anchor. The date of the anchor is a claim to be created and sourced (Appendix A ✓, not yet in the store). Starting in 1979-Q1 is the alternative; see §13.
+- **Start:** 1979-Q1, when the area is still Bao'an County. **End:** 1984-Q1, with the January 1984 visit by Deng Xiaoping as the closing event. That is 21 quarterly turns of three monthly sub-steps each (PLAN §2). Quarterly turns are kept.
+- **The arc:** about six quarters before the SEZ exists, the SEZ's establishment as the major early event (§7.1), then about fourteen quarters of building the zone, ending with the visit as the slice's verdict (§7.2).
+- **All anchor dates are `lead`** in the evidence store (`data/evidence/claims/anchors_1979_1984.yaml`) until sourced.
 - **Quarter character** (PLAN §2): Q1 Spring Festival departures and the annual budget card; Q2 the construction peak; Q3 typhoon risk; Q4 the year-end review.
 - **Turn flow:** briefing → cards → plan and build → govern → end turn. Interrupting cards pause the turn mid-quarter (PLAN §6.2).
 
@@ -35,6 +36,8 @@ Phase 1 tests the core triangle: **growth vs fiscal survival vs politics and rev
 ## 3. The map
 - **The grid** is the Spike A grid (`docs/spikes/spike-a-map.md`): 100 m cells in UTM 50N. Only cells inside the slice areas are playable. Everything else is drawn but locked.
 - **The coastline** is the present-day DEM coastline until the 1979 coastline is traced. This overstates Shekou's land (reclamation started in this period). The map shows a caveat until it is fixed.
+- **1979 is not a blank map.** The start state is built from a register of sites that already existed (§3.1), each flagged on the map with its evidence status.
+- **The SEZ boundary** does not exist at the start. It is drawn onto the map by the establishment event (§7.1), and only cells inside it get SEZ policies afterwards.
 - **Slice areas.** Ten areas, as a **design proposal**. Their names and roles come from general knowledge and are `lead`. Their geometry starts as present-day OSM subdistricts used as proxies, and should be redrawn from period maps once those are found.
 
 | # | Area (proposal) | Proxy geometry (present-day subdistrict) | Role in the slice | Status |
@@ -52,7 +55,49 @@ Phase 1 tests the core triangle: **growth vs fiscal survival vs politics and rev
 
 Areas 1–8 form the Luohu cluster, and 9–10 the Shekou cluster. The land between them (present-day Futian and Nanshan) is locked in Phase 1. A single road link joins the two clusters.
 
-- **The Shekou flag:** the player cannot zone or lease land inside area 9. They negotiate with it through cards instead, and it competes with them for investors.
+- **The Shekou flag:** the player cannot zone or lease land inside area 9 at any point in the slice. They deal with it only through cards, and it competes with them for investors. It becomes an enclave when Shekou's industrial zone begins (§7).
+
+### 3.1 The 1979 site register: what already existed
+Shenzhen in 1979 had a market town, a border crossing and railway, villages, farmland, fishponds, a reservoir, roads and state units. These are **researched and flagged**, never assumed. Each existing site is a record in `content/slice/sites_1979.yaml`:
+```yaml
+- id: site.shenzhen_market_town
+  name: { zh: 深圳墟, en: Shenzhen market town }
+  kind: town            # town | village | crossing | railway | road | reservoir | farmland | fishpond | state_unit | factory | school | clinic | military | border
+  area: 1               # slice area (§3)
+  geometry: { kind: polygon, ref: data/evidence/observations/sites_1979/shenzhen_market_town.geojson, confidence: 0.3 }
+  in_start_state: block_stock      # tracked_building | block_stock | facility | road | land_use
+  claims: [site.shenzhen_market_town.exists_1979]
+  evidence_status: lead            # computed from the claims; shown on the map
+  research: [USGS 1977 aerial (V15), period maps, county gazetteer]
+```
+- **Flags on the map:** every site shows a marker coloured by evidence status: `lead` (red), `sourced` (amber), `verified` (green). Clicking it opens the claims, the sources and what is still unknown. The sites stay flagged in the slice, so the player always sees which parts of 1979 are researched.
+- **How sites enter the start state:** a village becomes a block stock with village houses and farmland; the market town becomes block stocks of shops and state-unit buildings; the station and the bridge become tracked landmarks; the reservoir becomes water and unbuildable land; roads and the railway become network edges.
+- **Placeholders:** where a site is known to exist but its size is not, the start file uses a placeholder (`placeholder: true`) and the map says so.
+- **The key source** is the USGS aerial imagery from 1969 and 1977 (V15). Georeferenced against the Spike A grid, it shows the footprints of villages, fields, ponds and roads (evidence protocol §5.5).
+
+**Candidate sites to study** (all `lead`: from general knowledge, to be confirmed and located):
+
+| Site | Area | Kind | What to establish |
+|---|---|---|---|
+| 深圳墟 Shenzhen market town (the Dongmen streets) | 1 | town | Extent, streets, the market, shops, state units |
+| The county's offices and state units in the town | 1 | state_unit | Which units, where, how many staff |
+| 罗湖桥 Luohu bridge and the border crossing | 2 | crossing | Facilities, daily crossings, checkpoint |
+| The Kowloon–Canton railway and Shenzhen station | 2 | railway | Line, station site, freight sidings |
+| The Guangzhou–Shenzhen road | 1, 5 | road | Route and condition |
+| 蔡屋围 Caiwuwei village | 3 | village | Houses, fields, population, lineage |
+| 渔民村 Yumin village | 4 | village | Houses, fishponds, boats, population (V18) |
+| 黄贝岭 Huangbeiling village | 4 | village | Houses, fields, population |
+| 湖贝, 向西 and other villages around the town | 1, 3 | village | Which villages, where |
+| 笋岗 Sungang village and farmland | 5 | village, farmland | Extent of fields and ponds |
+| 深圳水库 Shenzhen Reservoir and its water supply | 6 | reservoir | Capacity; supply commitments, including to Hong Kong |
+| The Shenzhen River and the border fence | 2, 4, 7 | border | Fence line, patrol roads, restricted strip |
+| 上步 Shangbu: what stood there before the industrial zone | 8 | farmland, village | Land use in 1979 |
+| 南头古城 Nantou old town | 10 | town | Walls, streets, population |
+| Villages and farmland around Nantou | 10 | village, farmland | Which villages, where |
+| Shekou: fishing villages, the harbour, oyster beds | 9 | village, fishpond | Shown only through cards (Shekou is an enclave) |
+| Small factories, schools and clinics in the slice | all | factory, school, clinic | Which existed, capacity |
+| Military and restricted land | all | military | Where building was not allowed |
+
 
 ---
 
@@ -60,14 +105,15 @@ Areas 1–8 form the Luohu cluster, and 9–10 the Shekou cluster. The land betw
 | Action | System | Notes |
 |---|---|---|
 | Paint a land-use plan on cells: industrial, residential, commercial, public, reserve | buildings §3.1 | The plan guides builders but does not bind village households |
-| Lease a parcel by allocation or negotiation | fiscal §5 | Auctions are locked in the slice (the first one is a later milestone) |
+| Lease a parcel by allocation or negotiation | fiscal §5 | Leasing to outside investors opens with the SEZ; land-use fees follow the 1981 regulations. Auctions are locked in the slice |
 | Build a road, water main, power line, school, clinic or police post | fiscal §6.2, §6.1 | Creates a project, then obligations once it is finished |
-| Accept or decline an investor card | §6.5 | Shows the partial-equilibrium preview (fiscal §7.2) |
+| Accept or decline an investor card | §6.5 | Shows the partial-equilibrium preview (fiscal §7.2). Before the SEZ, only a few kinds of investor can be accepted (§6.5) |
 | Take the state-bank project loan; accept the co-financing offer | fiscal §11 | One of each in the slice |
 | Answer the deficit card | fiscal §7.1 | Borrow, use land money, or cut |
 | Set enforcement priority against illegal floors (low, medium, high) | buildings §5 | One enforcement level for the whole slice |
 | Set the temporary-permit regime (loose, standard, strict) | §6.2 | Changes migrant inflow and the climate value |
 | Accept or decline the leader's shortcut | leadership §2.5 | One shortcut card type (deal-maker) |
+| Prepare for the zone (before 1980-08): build roads, power and water near the border, survey land | §7.1 | Readiness decides the first wave of investors when the zone opens |
 | Answer event cards | §7 | About 15 events |
 
 ---
@@ -75,8 +121,8 @@ Areas 1–8 form the Luohu cluster, and 9–10 the Shekou cluster. The land betw
 ## 5. State in the slice
 The slice uses the schemas from the owning specs, switched to their Phase 1 subsets:
 - **Physical** (buildings §2): `BlockStock` for every block in the slice areas; a handful of tracked `Building` records for landmarks (the station, the first hotel, the first industrial building in Shekou: names `lead`). No promotion. Stages include `stalled`.
-- **Fiscal** (fiscal §3): accounts `general`, `land`, `debt` and a simplified `forex` quota. Regime `regime.contracting_1980s` (its terms are `lead`: placeholder parameters until sourced).
-- **Leadership** (leadership §2.1): one Secretary and one Mayor, no rotation; the Mayor has the deal-maker trait.
+- **Fiscal** (fiscal §3): accounts `general`, `land`, `debt` and a simplified `forex` quota. Two regimes: `regime.county_1979` before the SEZ (a county-level budget with little room) and `regime.contracting_1980s` after it. Both are `lead`, with placeholder parameters until sourced.
+- **Leadership** (leadership §2.1): one Secretary and one Mayor, both fictional, no rotation; the Mayor has the deal-maker trait. From 1979-03 they lead the new city; before that, the county.
 - **Reviews:** no title reviews. The annual performance review (leadership §3) runs with the slice's targets (§6.8).
 
 **Phase-1-only state** (sketched here; moves to the pops and authority specs when they are written):
@@ -145,7 +191,8 @@ outflow[kind] = stock × (base_exit + unemployment_push + housing_push) + spring
 - **GDP** is value added: nominal only in Phase 1 (fiscal §11). The ratio for processing is low, so exports look large and local GDP small. That is intended.
 
 ### 6.5 Investors
-- **About one investor card a quarter.** Fields: origin (Hong Kong, overseas Chinese, inland state unit), sector, jobs, floor needed, utilities needed, the terms asked (land price, tax holiday, labour terms, forex), and whether they bring forex.
+- **Before the SEZ:** Hong Kong processing contracts (三来一补) and inland state units only, a card every two quarters or so. That such contracts were allowed in 1979 is `lead`.
+- **After the SEZ:** about one investor card a quarter, and the origins widen to overseas Chinese and foreign firms, with SEZ tax incentives. The first wave's size depends on readiness (§7.1). Fields: origin (Hong Kong, overseas Chinese, inland state unit), sector, jobs, floor needed, utilities needed, the terms asked (land price, tax holiday, labour terms, forex), and whether they bring forex.
 - **The preview** (fiscal §7.2) shows cash this quarter, retained tax per year, jobs, beds needed and new obligations.
 - **Declining** an investor sends some of them to Shekou, which competes for them.
 - **The deal-maker's shortcut** can attach to a card: accept a sweetheart price to close it now (leadership §2.5).
@@ -158,13 +205,13 @@ outflow[kind] = stock × (base_exit + unemployment_push + housing_push) + spring
 Exactly fiscal-and-macro §11, with the deficit rule (§7.1) and the investor preview (§7.2). The three views shown are recurring money, money for projects and import access. **The loan:** one state-bank project loan, which appears once the player has committed to a road or water project bigger than they can fund. **The co-financing offer:** one investor offers to pay for a power line in exchange for a long tax holiday and cheap land.
 
 ### 6.8 Leaders and the annual review
-- **The pair:** a Secretary (fictional, cautious) and a Mayor (fictional, deal-maker). Mandate: "open the first export processing zone" (leadership §7). Briefings at inauguration, the Q1 budget and crises.
+- **The pair:** a Secretary (fictional, cautious) and a Mayor (fictional, deal-maker). Mandate: "open the first export processing zone" (leadership §7), set when the SEZ is established. Briefings at inauguration, the Q1 budget and crises.
 - **The annual review (Q4):** targets for exports, foreign investment used, forex earned and infrastructure built, plus one basic sanitation and order check that includes an unannounced team. The era framing of these targets is `lead` (leadership §3).
 - **Results:** political capital and the leaders' standing, and the scrutiny value.
 - **Discipline risk** comes from accepted shortcuts (leadership §2.6). A fall from grace in the slice freezes projects and replaces the Mayor with a cautious figure, and can fail that year's review if the case touches an accepted shortcut.
 
 ### 6.9 Climate (the one authority value)
-- **Reform wind** is an exogenous series in the slice. Its shape for 1980–85 is a `design_note` until sourced.
+- **Reform wind** is an exogenous series in the slice. Its shape for 1979–84 is a `design_note` until sourced.
 - **Scrutiny** rises with grey choices (a loose permit regime, tolerated illegal floors, accepted shortcuts) and with disasters, and decays slowly.
 - **The failure state:** if scrutiny stays above a threshold for four quarters, the run ends with "the experiment is declared a failure" (PLAN §3.8).
 
@@ -173,7 +220,8 @@ Exactly fiscal-and-macro §11, with the deficit rule (§7.1) and the investor pr
 ## 7. Content
 ```
 content/slice/areas.yaml          # the ten areas: keys, names (en + zh), proxy subdistricts, flags
-content/slice/start_1980.yaml     # start state: pops, blocks, facilities, ledger (placeholder: true until sourced)
+content/slice/sites_1979.yaml     # the 1979 site register (§3.1)
+content/slice/start_1979.yaml     # start state compiled from the site register plus placeholders (placeholder: true until sourced)
 content/slice/investors.yaml      # investor card templates
 content/slice/events/*.yaml       # about 15 events
 content/slice/targets.yaml        # annual review targets
@@ -181,25 +229,45 @@ params/slice.yaml                 # all tunable numbers
 ```
 Every historical statement cites claim IDs (CLAUDE.md). Claims that don't exist yet are created as `lead` in the same change.
 
-**The events** (about 15). *Anchor* dates are fixed in Historical mode; *milestones* are timed by the player; *emergent* events fire from sim conditions. The date column is the reference date, and none is sourced yet.
+**The events** (about 15). *Anchor* dates are fixed in Historical mode; *milestones* are timed by the player; *emergent* events fire from sim conditions. All anchor claims are `lead` until sourced.
 
-| # | Event | Family | Reference | Claim status |
+| # | Event | Family | Reference | Claim |
 |---|---|---|---|---|
-| 1 | The SEZ is established | anchor | 1980-08 | to create (Appendix A ✓) |
-| 2 | Land-use fee regulations | anchor | 1981-11 | `land.regulations_1981` (lead) |
+| 1 | Bao'an County becomes Shenzhen City | anchor | 1979-03 | `event.baoan_becomes_shenzhen_city` (lead) |
+| 2 | Shekou's industrial zone begins (area 9 becomes a card-only enclave) | anchor | 1979 | `event.shekou_industrial_zone_begins` (lead) |
 | 3 | Forex retention: quotas to buy foreign exchange | anchor (in force at start) | 1979 | `forex.retention.start` (sourced) |
-| 4 | The second-line fence goes up | anchor | 1982 | to create (Appendix A ✓) |
-| 5 | A senior leader's inspection visit | anchor | 1984-01 | to create (Appendix A, verify) |
-| 6 | The first processing contract signed | milestone | — | design_note |
-| 7 | The first export processing zone opens (the mandate) | milestone | — | design_note |
-| 8 | Shekou poaches an investor | emergent | — | design_note |
-| 9 | Hong Kong orders surge, or slump | emergent | — | design_note |
-| 10 | A typhoon (Q3) | emergent | — | design_note |
-| 11 | A fire in a mixed factory and dormitory | emergent | — | design_note |
-| 12 | Young villagers escape to Hong Kong | emergent | — | design_note |
-| 13 | A village petitions over land compensation | emergent | — | design_note |
-| 14 | Unannounced inspection team | emergent (Q4) | — | design_note |
-| 15 | A crackdown on smuggling | emergent | — | design_note |
+| 4 | **The SEZ is established** (a chain of cards, §7.1) | anchor | 1980-08-26 | `event.sez_established` (lead) |
+| 5 | Land-use fee regulations | anchor | 1981-11 | `land.regulations_1981` (lead) |
+| 6 | The second-line fence goes up | anchor | 1982 | `event.second_line_fence` (lead) |
+| 7 | **Deng Xiaoping's visit** (the closing event, §7.2) | anchor | 1984-01 | `event.deng_visit_1984` (lead) |
+| 8 | The first processing contract signed | milestone | — | design_note |
+| 9 | The first export processing zone opens (the mandate) | milestone | — | design_note |
+| 10 | Shekou poaches an investor | emergent | — | design_note |
+| 11 | Hong Kong orders surge, or slump | emergent | — | design_note |
+| 12 | A typhoon (Q3) | emergent | — | design_note |
+| 13 | A fire in a mixed factory and dormitory | emergent | — | design_note |
+| 14 | Young villagers escape to Hong Kong (strongest before the SEZ) | emergent | — | design_note |
+| 15 | A village petitions over land compensation | emergent | — | design_note |
+| 16 | Unannounced inspection team | emergent (Q4) | — | design_note |
+
+### 7.1 The SEZ's establishment: the major early event
+The quarters before August 1980 are a **prologue with a deadline**. The player knows a zone is coming, but not its terms.
+- **Before it (1979-Q1 to 1980-Q3):**
+  - the county becomes a city (event 1), which gives the player city powers and the leader pair;
+  - Shekou's zone begins next door (event 2) and starts competing;
+  - escapes to Hong Kong are a constant pressure (event 14);
+  - the player can prepare: roads, power and water toward the border, land surveys, and talks with villages. **Readiness** is a score built from serviced land, utilities capacity and road access near the crossing.
+- **The chain (1980-Q3):**
+  1. *The announcement card:* the zone's boundary is drawn onto the map (327.5 km² in Appendix A, `lead`). Cells inside become eligible for SEZ policies.
+  2. *A choice of first priorities:* industry and processing, the port and trade, or commerce and tourism. This sets the mix of the first investor wave and the mandate's emphasis.
+  3. *The opening:* the first wave of investor cards arrives. Its size scales with readiness. SEZ tax incentives, foreign-owned firms and leasing to outside investors unlock. The fiscal regime switches to `regime.contracting_1980s`.
+  4. *Attention from above:* scrutiny rises, and the first annual review targets are set.
+- **What the player feels:** preparation pays off (a big first wave), or the zone opens to a muddy field and investors go to Shekou.
+
+### 7.2 The January 1984 visit: the closing event
+- **The visit ends the slice.** It is a historical anchor, and its date and itinerary are `lead` until sourced.
+- **Real people** follow PLAN §11: national figures appear only through documented public actions and words, with sources. The game never invents what Deng said or thought. Any words shown are sourced quotes; until then the card shows only the documented fact of the visit, as a `[UNVERIFIED]` lead.
+- **The slice's verdict** is the game's own scorecard, shown alongside the visit. It does not imply the visitor's judgement. It covers growth, the ledger's health, the year's review, scrutiny and the illegal-floor share, and compares the run with the plausibility bands (§9).
 
 ---
 
@@ -218,24 +286,27 @@ investors: { cards_per_quarter: 1, shekou_capture_on_decline: 0.5 }
 ---
 
 ## 9. Calibration: plausibility bands, then targets
-There are no sourced Luohu–Shekou series for 1980–85 in the evidence store yet. So the slice starts with **plausibility bands** (`design_note`), each replaced by a real target when a claim reaches `verified`:
+There are no sourced Luohu–Shekou series for 1979–84 in the evidence store yet. So the slice starts with **plausibility bands** (`design_note`), each replaced by a real target when a claim reaches `verified`:
 - the resident population of the slice roughly multiplies over the period, rather than staying flat or exploding;
 - processing exports grow much faster than local GDP;
 - village rental floor grows faster than planned housing;
-- the city runs at least one recurring deficit before 1985;
+- the city runs at least one recurring deficit before 1984;
+- readiness before the SEZ visibly changes the size of the first investor wave;
 - at least one stalled building appears after a credit tightening.
 
 **Research targets for the slice** (leads to open; record them as claims):
-- population of Luohu and Shekou (or of the SEZ) by year, 1979–85, with registered and resident counts;
+- **the 1979 site register (§3.1):** existence, location and size of each site, starting from the USGS 1969 and 1977 aerial imagery (V15);
+- population of Luohu and Shekou (or of the SEZ) by year, 1979–84, with registered and resident counts;
 - Shekou Industrial Zone: firms, jobs and output by year;
-- SEZ budget revenue and spending, and foreign investment used, 1980–85;
+- county and city budget revenue and spending, and foreign investment used, 1979–84;
+- the terms the SEZ opened with in 1980 (tax incentives, what foreign firms could do, leasing);
 - the terms of the 1980s fiscal contracting arrangement (fiscal §13);
 - period maps of the Luohu and Shekou areas, for the area boundaries and the 1979 coastline.
 
 ---
 
 ## 10. The headless runner and tests
-- **`apps/cli`**: `slice run --seed N --quarters 24 --policy default` writes a JSON series and a short HTML report.
+- **`apps/cli`**: `slice run --seed N --quarters 21 --policy default` writes a JSON series and a short HTML report.
 - **Decision policies:** `default` (first option), `cautious`, `aggressive`, plus scripted answers. Every card answer goes into the action log (PLAN §6.2).
 - **Golden runs:** fixed seeds for the three policies. A change that moves their numbers must say so.
 - **Invariants** (property tests over random seeds and policies):
@@ -244,7 +315,7 @@ There are no sourced Luohu–Shekou series for 1980–85 in the evidence store y
   - capacity ignores occupancy, and floor space is never negative (buildings §11);
   - the same seed and the same actions give the same run;
   - no code reads the calendar year for balance (a lint rule, PLAN §6.2).
-- **Speed:** 24 quarters headless in under 5 seconds on a laptop.
+- **Speed:** 21 quarters headless in under 5 seconds on a laptop.
 
 ---
 
@@ -261,19 +332,26 @@ There are no sourced Luohu–Shekou series for 1980–85 in the evidence store y
 ## 12. Build order (small commits, one system at a time)
 | Milestone | Contents | Done when |
 |---|---|---|
-| M1 | `sim-core` package: state, seeded RNG, `step()`, the action log, save and load; `content/slice/areas.yaml` drawn from proxies | A run of 72 empty months is deterministic |
+| M1 | `sim-core` package: state, seeded RNG, `step()`, the action log, save and load; `content/slice/areas.yaml` drawn from proxies | A run of 63 empty months is deterministic |
+| M1b | The 1979 site register: candidate sites as `lead` claims, rough geometry, site flags on the map; start state compiled from it | Every site in the start state has a flag and a claim |
 | M2 | Pops, labour, migration, housing (block stocks), village building | The town fills with migrants and rental floors on its own |
 | M3 | Industry blocks, production, investors and the preview | Accepted investors create jobs, orders and housing demand |
 | M4 | Fiscal: ledger, obligations, projects, the loan, the deficit rule; nominal GDP | Overbuilding forces a deficit card; the loan squeezes later years |
-| M5 | Leaders, the shortcut, the annual review, the climate value, the 15 events | Each year's review forces a trade-off |
+| M5 | Leaders, the shortcut, the annual review, the climate value, the events, the SEZ chain and the closing visit | Each year's review forces a trade-off; readiness visibly changes the first wave |
 | M6 | The CLI, golden runs, the plausibility report; the 2D UI on the Spike A canvas | All five exit criteria can be checked |
 | Playtest | Several full playthroughs; notes in `docs/playtests/` | You want to play it again |
 
 ---
 
-## 13. Open questions (defaults in bold)
-1. **Start date:** **1980-Q1** (the SEZ is founded during play), or 1979-Q1 (the city is founded first).
-2. **Ten areas**, as in §3, or fewer by merging the reservoir hills and Liantang.
-3. **Include Shangbu**, which is outside present-day Luohu, because it was part of the early zone. Its role is `lead`.
-4. **Shekou as a locked enclave** in Phase 1 (cards only), with full behaviour in Phase 2.
-5. **Quarterly turns in the fast early years:** keep quarters, and judge in playtests whether they feel too coarse (PLAN §2).
+## 13. Decisions and open questions
+**Decided (2026-11-23):**
+1. **Start 1979-Q1, end at the January 1984 visit** (21 quarters). The SEZ's establishment is the major early event.
+2. **1979 existing sites are researched and flagged** (§3.1).
+3. **Shangbu is included**, though it lies outside present-day Luohu.
+4. **Shekou is card-only** for the whole slice.
+5. **Quarterly turns.**
+
+**Still open (defaults in bold):**
+1. **Ten areas**, or fewer by merging the reservoir hills and Liantang.
+2. **Nantou in the slice** (area 10) as the Shekou cluster's playable land, or leave the Shekou cluster entirely to cards.
+3. **Readiness** as one score, or one per priority (industry, port, commerce).

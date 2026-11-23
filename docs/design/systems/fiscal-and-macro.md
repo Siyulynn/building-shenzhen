@@ -277,9 +277,9 @@ A notable firm's figures are taken out of its block's totals before the blocks a
 
 ---
 
-## 11. Phase 1 subset (Luohu and Shekou, 1980–1985; see phase1-slice.md)
+## 11. Phase 1 subset (Luohu and Shekou, 1979–1984; see phase1-slice.md)
 - **Accounts:** a ledger with `general`, `land` and `debt` accounts, and a simplified `forex` quota.
-- **Regime:** `regime.contracting_1980s` only, with SEZ tax incentives.
+- **Regimes:** `regime.county_1979` until the SEZ is established, then `regime.contracting_1980s` with SEZ tax incentives. Both are `lead`.
 - **Land income:** land-use fees from the 1981 regulations [V13], and negotiated leases only.
 - **Obligations:** the baselines, plus payroll, services and maintenance from decisions. The deficit rule in §7.1.
 - **Projects:** the project mechanism.

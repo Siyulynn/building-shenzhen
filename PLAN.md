@@ -954,8 +954,8 @@ There are no calendar promises here; each phase ends on **exit criteria**. Hones
 - **The scale check:** the whole municipality drawn as masses, from block stocks plus a realistic number of tracked buildings. Measure memory, worker message cost and save size.
 - **Exit:** the 3D stack, the size of the tracked tier and a first cost per street are confirmed. Throw the spike code away afterwards, but keep the authoring notes.
 
-### Phase 1: The ugly playable slice ("Luohu and Shekou, 1980–1985", 2D only)
-The full spec is `docs/design/systems/phase1-slice.md`. Its default start is 1980-Q1, so the SEZ is founded during play; 1979-Q1 is the alternative (spec §13).
+### Phase 1: The ugly playable slice ("Luohu and Shekou, 1979–1984", 2D only)
+The full spec is `docs/design/systems/phase1-slice.md`. It runs 21 quarters, from 1979-Q1 (still Bao'an County) to Deng Xiaoping's visit in January 1984. The SEZ's establishment in 1980 is the major early event, and the sites that already existed in 1979 are researched and flagged on the map.
 Phase 1 tests the game's core triangle: **growth vs fiscal survival vs politics and reviews**. If that triangle is fun in ugly 2D, the whole project is validated.
 - **Content:**
   - the grid and about 8–12 named areas around Luohu and Shekou. Shekou is a flagged area where you have less control; its full enclave behaviour arrives in Phase 2;
@@ -977,7 +977,7 @@ Phase 1 tests the game's core triangle: **growth vs fiscal survival vs politics 
   - villages as full actors;
   - the informal economy beyond a single illegal-building value.
 - **Exit:**
-  - You can play 24 quarters and the town grows plausibly in response to your choices.
+  - You can play all 21 quarters and the town grows plausibly in response to your choices.
   - Budget pressure and the review target force at least one hard trade-off a year. A loan taken today visibly squeezes a later year.
   - The slice is checked against its own Luohu–Shekou targets, not whole-city totals.
   - The headless run takes seconds, and the invariant tests pass.
@@ -1129,7 +1129,7 @@ Write `docs/design/sensitive-content.md` early. Agents will read it every time t
 1. Create a real project folder and a git repo. Add `CLAUDE.md`, `docs/design/pillars.md` (§1) and the empty `data/evidence/` tree from the evidence protocol.
    Add thin guardrails: a lightweight YAML schema validator, and `evidence:compile --draft`, which lets `lead` and `sourced` claims through with an `[UNVERIFIED]` tag.
 2. **Spike A (map):** download the elevation data and trace the 1979 coastline roughly. Render the 100 m grid in the browser, with the 8–12 named Luohu and Shekou areas.
-3. **The Phase 1 slice:** write `docs/design/systems/phase1-slice.md` together with the agent, then build the 24-quarter Luohu–Shekou slice in 2D. It tests the triangle of obligations, loans and forex vs village illegal building vs the Secretary–Mayor pair and the early review.
+3. **The Phase 1 slice:** write `docs/design/systems/phase1-slice.md` together with the agent, then build the 21-quarter Luohu–Shekou slice (1979-Q1 to 1984-Q1) in 2D. It tests the triangle of obligations, loans and forex vs village illegal building vs the Secretary–Mayor pair and the early review.
 4. **Playtest Phase 1** until you want to replay it. Fix the design before adding scope.
 5. **Spike B (3D), time-boxed:** the Yumin walk and the tiered-building scale check (§10).
 6. **The full evidence tooling** (`evidence:intake`, `evidence:validate`, `evidence:status`, strict `evidence:compile`). Its first job is intake of the November 2026 verification log: register each source, store a hashed copy in `data/raw/sources/`, and turn each row into a claim record.

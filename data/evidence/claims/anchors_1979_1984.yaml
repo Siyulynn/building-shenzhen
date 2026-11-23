@@ -1,0 +1,34 @@
+# Anchor events for the Phase 1 slice (docs/design/systems/phase1-slice.md §7).
+# All are leads: PLAN Appendix A marks some as corroborated by search summaries only. Open primary sources before raising them.
+- id: event.baoan_becomes_shenzhen_city
+  origin: search_summary
+  summary: Bao'an County becomes Shenzhen City.
+  date: { value: 1979-03, precision: month }
+  status: lead
+  notes: PLAN Appendix A ✓ (search summary).
+- id: event.shekou_industrial_zone_begins
+  origin: memory
+  summary: China Merchants begins the Shekou Industrial Zone.
+  date: { value: "1979", precision: year }
+  status: lead
+  notes: PLAN Appendix A, verify.
+- id: event.sez_established
+  origin: search_summary
+  summary: The Shenzhen Special Economic Zone is established, covering about 327.5 km².
+  date: { value: 1980-08-26, precision: day }
+  value_raw: 327.5 km²
+  status: lead
+  notes: PLAN Appendix A ✓ for the date (search summary). Area and the opening terms need a primary source.
+- id: event.second_line_fence
+  origin: search_summary
+  summary: Construction of the second-line management fence (about 84.6 km) begins.
+  date: { value: "1982", precision: year }
+  value_raw: 84.6 km
+  status: lead
+  notes: PLAN Appendix A ✓ (search summary).
+- id: event.deng_visit_1984
+  origin: memory
+  summary: Deng Xiaoping visits the Shenzhen SEZ.
+  date: { value: 1984-01, precision: month }
+  status: lead
+  notes: PLAN Appendix A, verify. Only documented actions and sourced words may appear in the game (PLAN §11).
