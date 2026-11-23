@@ -232,7 +232,8 @@ This section owns the shared types that no other spec defines yet. Each later mi
 **Types.**
 ```ts
 type YM = number;            // absolute month index: year * 12 + (month - 1). Formatting helpers exist for display only
-interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM }
+interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM;
+  payload?: Record<string, unknown>; expires?: YM }   // M3b, §5.5: plain JSON for the card's system; when it lapses
 type PlayerAction =
   | { type: 'answer_card'; instance: string; option: string }
   | { type: 'set_enforcement'; level: 'low' | 'medium' | 'high' }           // M2, §4
@@ -258,7 +259,7 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
 ```
 
 **`step(state, actions, rng, steps?)`** (PLAN §6.2):
-1. It applies `actions` first. Each answer must name a pending instance and one of its options, or `step()` throws. The answer is logged and the card removed.
+1. It applies `actions` first. Each answer must name a pending instance and one of its options, or `step()` throws. The answer is logged and the card moves to `answered` with its option, for its system to act on in the next tick (§5.5).
 2. If an interrupting card is still pending, it returns `{ status: 'paused', state, pendingCards }` without advancing the month.
 3. Otherwise it runs the 14 tick steps of §6 in order. These are named functions, all no-ops in M1 except `statistics`, which appends the month to `history.months`. Then it advances `date`, `subStep` and `turn`, and returns `{ status: 'advanced', state, events, stats }`.
 4. Past the last turn, no month runs. Cards that the last month raised (the closing event) can still be answered, and only answers are accepted: a turn action throws, since no turn is left for it to act in. A call that clears them returns `{ status: 'finished', state }`. A call with nothing left to answer throws.
@@ -488,7 +489,7 @@ interface Zone {
   claims: [ { id: precedent.zone.shangbu_industrial.exists, use: encyclopedia },
             { id: precedent.zone.shangbu_industrial.location, use: geometry } ]
 ```
-- **Compiled at load:** `compilePrecedents(raw, areas)` validates the ids, kinds and uses, and turns each placed geometry into sorted cells clipped to the grid, with their centroid. `createTickSteps(params, precedents)` takes the result. Precedents never enter `GameState`, and the save header gains `precedents_sha256`.
+- **Compiled at load:** `compilePrecedents(raw, areas)` validates the ids, kinds and uses, and turns each placed geometry into sorted cells clipped to the grid, with their centroid. `createTickSteps(params, { precedents })` takes the result (§5.5). Precedents never enter `GameState`, and the save header gains `precedents_sha256`.
 - **The template** is the placed zone precedents. The overlay is drawn by the renderer from content and touches no state.
 
 **Name matching** (tick step 3, before investors look for sites). Each month, a pure function of the zones, the precedents and `params.zoning.names`, with no RNG, gives each zone at most one precedent and each precedent at most one zone:
@@ -537,6 +538,139 @@ A sketch, not built.
   - The store has no claims for the brief's examples (the first Wanjia supermarket, the Huaqiangbei electronics complex). Whether either falls inside 1979–83 is the first thing to check (leads `precedent.landmark.wanjia_first_store`, `precedent.cluster.huaqiangbei_electronics`).
   - If both postdate the slice, Phase 1 has no named content for the engine. Candidates inside the window, such as the early electronics plants in Shangbu (`phase1_shangbu_huaqiang_history`, section 深圳电子工业肇启), are research targets (§9).
   - Firms with product lines arrive in M3b. The engine follows once an in-window precedent is sourced.
+
+### 5.5 Industry, production and investors (M3b)
+Investors arrive as cards. The player sites each one in an industrial zone or, for a small processing contract, in existing premises. The accepted firm builds, hires and produces. Housing demand follows through M2: construction jobs while the factory rises, factory jobs once it opens, migrants to fill them, and dormitory beds when the deal includes them.
+
+**Content passed to the tick, never stored in state** (like the precedents, §5.3):
+```ts
+createTickSteps(params, content?: { precedents?: Precedent[]; investors?: InvestorArchetype[]; buildable?: Buildable })
+```
+- **Without investors,** no offer is raised, so M2's and M3a's runs are unchanged.
+- **Without the buildable layer,** every zone cell counts as buildable.
+- **The save header gains** `investors_sha256` and `buildable_sha256`.
+
+**State added by M3b.**
+```ts
+type Ownership = 'hk_processing' | 'inland_soe';   // before the SEZ; joint ventures, foreign and overseas Chinese firms arrive with M5's SEZ event
+interface Firm {
+  id: number;                     // from nextFirmId, never reused
+  archetype: string;              // the investor archetype id
+  ownership: Ownership;
+  sector: 'factory';              // a labour sector (§5.2); processing vs manufacturing is the ownership (fiscal §8.1)
+  area: number;                   // copied at siting: the firm stays put when its zone is edited or removed
+  zone?: number;                  // the zone it was sited in; absent in existing premises
+  premises: 'new_factory' | 'existing';
+  jobs: number;                   // at full ramp
+  floorM2: number; dormM2: number;     // built in its area's block stock as standard_factory and dormitory
+  powerKw: number; waterM3Day: number; // needs at full ramp
+  accepted: YM; opens: YM;        // opens when its factory completes; the month after acceptance in existing premises
+  posted: number; staffed: number;     // this month's factory jobs posted and filled (tick step 5)
+}
+interface AnsweredCard { card: CardInstance; option: string }   // answered, awaiting its system's tick
+// GameState gains: firms: Firm[] (id order); nextFirmId: number; answered: AnsweredCard[]
+// CardInstance gains: payload?: Record<string, unknown> (plain JSON); expires?: YM
+// History gains, per month: firmJobs (posted), firmStaffed, output, exports, valueAdded (nominal yuan)
+```
+- **Answers reach their system through `answered`.** `step()` moves each answered card there with its option. The tick's systems read it, and `step()` clears it after the tick. A paused call keeps it, so an accept given beside another interrupting card takes effect when the month runs.
+- **Building archetypes:** §5's six. The four housing archetypes (village house, state flats, village rental, dormitory) supply beds. `standard_factory` supplies workplaces. `shop_market` has no builder until a later milestone. A completion's builder comes from its archetype: village rental → village household; standard factory and dormitory → investor.
+
+**Investor archetypes** (`content/slice/investors.yaml`): who they are, what they may do, and the claims behind them. Their numbers are in `params/slice.yaml` under the same id.
+```yaml
+- id: investor.hk_processing
+  name: { zh: 香港来料加工, en: Hong Kong processing contract }
+  ownership: hk_processing
+  existing_premises: true      # the local side supplies premises and labour (phase1.industry.processing_contract)
+  claims: [ { id: phase1.industry.processing_contract, use: design_note } ]
+- id: investor.inland_state_unit
+  name: { zh: 内地国营单位, en: Inland state unit }
+  ownership: inland_soe
+  existing_premises: false
+```
+
+**Offers** (tick step 3, after zone names). Each month:
+1. **Lapse:** an investor card past `expires` is removed, and the investor walks away (event `offer_lapsed`).
+2. **Resolve** each answered investor card, in answer order:
+   - `decline`: the investor leaves (event `offer_declined`).
+   - `accept:zone:<id>` or `accept:premises:<area>`: the site is checked again, since the zone may have been removed or filled since the options were set. If it still fits, the firm is created. If not, the investor walks away (event `offer_failed`). So of two accepts into a zone with room for one, the first wins.
+3. **Refresh the options** of pending investor cards, so a zone drawn after a card arrived shows up the next month:
+   - every industrial zone with room for the firm, in id order (`accept:zone:<id>`);
+   - for an archetype with `existing_premises`, every playable area with premises room (`accept:premises:<area>`);
+   - `decline`, always last.
+4. **Arrivals:** each archetype makes an offer with probability `rate_per_quarter ÷ 3` (stream `investment`). The offer's size is drawn, its options are set as in step 3, and it is raised as a non-interrupting card with the offer as its payload. It expires after `offer_months`, which is longer than a quarter because `runQuarter` does not stop between months.
+
+**Siting and capacity.**
+- **A zone's floor capacity** = its buildable cells × 10,000 m² × `industry.max_far`. Its use is the floor and dormitory area of the firms sited in it. A firm fits when use + its floor + its dormitory ≤ capacity. Only `industrial` zones host firms in M3b.
+- **Plan vs. fact:** editing or removing a zone leaves its firms running in their area (non-conforming). Capacity only gates new firms. A zone changed to another use takes no new firm.
+- **Existing premises** (archetypes with `existing_premises` only). The local side of a processing contract supplied the premises and labour (`phase1.industry.processing_contract`). So the first contracts can use the town's and villages' existing buildings before any zone exists.
+  - In each area, the jobs of firms in existing premises stay ≤ `industry.premises_jobs_per_area`.
+  - Such a firm builds nothing, opens the month after acceptance, and produces at `industry.premises_output_factor`.
+- **Buildable cells** come from `data/starts/slice_buildable.json`, compiled by `pipeline/m3b_buildable.py`. A cell is buildable if it is land on the present-day DEM, not water in the 1979 Landsat mask, and its slope on the 100 m grid is ≤ `slope_max_pct`.
+  - **It is a placeholder layer:** its inputs are git-ignored, the 1979 water mask is an automatic threshold (`lead`), and the DEM is present-day.
+  - **Zoning unbuildable cells stays legal** (§5.3). They add no capacity.
+
+**Building.** An accepted firm in a new factory starts its `standard_factory` floor and its `dormitory` floor under construction in its area's block, permitted, due after `build_months`. M2 does the rest: construction jobs while it rises, dormitory beds once it is complete.
+
+**Jobs and production** (fiscal §8.1: `output = min(orders, staffed, floor, utilities)`).
+- **Posting (tick step 5, beside the base jobs).** Each month, an open firm posts the smallest of four counts (each rounded down) as factory jobs in its area:
+  - **ramp:** jobs × min(1, months open ÷ `ramp_months`), counting the opening month as 1;
+  - **floor:** jobs, since only an open firm posts and its floor is complete;
+  - **utilities:** jobs × the area's utility share, min(1, capacity ÷ the open firms' needs), for power and for water;
+  - **orders:** jobs × `industry.order_index` (1 until M5's Hong Kong demand series).
+- **Staffing.** An area's filled factory jobs are shared between its base jobs and its firms by largest remainder over their posts.
+- **Production (tick step 6).**
+  - output = staffed × `output_per_job_month[ownership]`, × `premises_output_factor` in existing premises;
+  - exports = output × `export_share[ownership]` (for processing, the gross shipment counts in trade statistics);
+  - value added = output × `value_added_ratio[ownership]`. Nominal yuan only (fiscal §11).
+
+  Because staffed ≤ posted ≤ each cap, output = min(orders, staffed, floor, utilities).
+- **Utilities.** `SliceArea.utilities` (`waterCap` in m³ per day, `powerCap` in kW) start from `start_1979.yaml`, as placeholders.
+  - They are the spare capacity for new industry: enough for the first contracts, and low enough that growth hits a utility bottleneck, which M4's mains and lines relieve.
+  - Households draw nothing from them in M3b.
+
+**The preview** (fiscal §7.2). `previewOffer(state, card, params, content)` is a pure function. For each site option it gives:
+- jobs, the months to build, beds needed (jobs − dormitory beds), and floor and capacity used;
+- power and water needed, against what is free in the area;
+- per year at full ramp: gross output, exports and value added.
+
+**Deferred.**
+- **To M4:** the preview's cash this quarter, retained tax and new obligations. They need the fiscal regime.
+- **To M5:**
+  - the guaranteed first contract in 1979-Q2, and the post-SEZ origins with their incentives;
+  - readiness and the first wave;
+  - Shekou capturing declined investors, and the deal-maker's shortcut.
+
+**Params** (`params/slice.yaml`, placeholders):
+- **`industry`:** `max_far`, `premises_jobs_per_area`, `premises_output_factor` and `order_index`, plus per ownership:
+  - `output_per_job_month`, `value_added_ratio` and `export_share`;
+  - `floor_m2_per_job`, `power_kw_per_job` and `water_m3_day_per_job`.
+- **`investors`:** `offer_months`, plus per archetype:
+  - `rate_per_quarter`, `jobs: [min, max]` and `dorm_beds_per_job`;
+  - `build_months` and `ramp_months`.
+
+**M3b's tests:**
+- **The loop:** with a fixture firm and no cards:
+  - construction jobs while it is built;
+  - factory jobs once it opens, and migrants to fill them;
+  - dormitory beds;
+  - output, exports and value added.
+- **Offers:**
+  - arrivals follow the seed;
+  - options list the industrial zones with room, existing premises and `decline`;
+  - a zone drawn after the offer shows up in the next month's options (through `runQuarter`);
+  - accepting creates the firm, declining and lapsing don't;
+  - an accept beside a pending interrupting card takes effect once the pause clears, and replays.
+- **Capacity:**
+  - a one-cell zone takes one firm and refuses the second;
+  - of two accepts into it in one call, the first wins;
+  - a removed zone leaves its firm running, in its area.
+- **Utilities:** a small power cap binds output.
+- **Sums:**
+  - a firm's floor equals the block's factory floor;
+  - firm plus base staffing equals the row's filled jobs;
+  - the M2 invariants hold.
+- **Determinism:** save, load and continue, and replay, with firms and offer cards. Input not changed.
+- **No effect without content:** with no investor archetypes, M2's and M3a's runs are unchanged.
 
 ---
 
@@ -835,7 +969,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 | M1b | The 1979 site register: candidate sites with claims, rough geometry, site flags on the map; start state compiled from it | Every site in the start state has a flag and a claim. *Status:* register and flags done; the start state is not compiled yet |
 | M2 | Pops, labour, migration, housing (block stocks), village building (§5.2) | At rest, the start state holds still. Under a fixture job shock, the town fills with migrants and village rental floors on its own, illegal floors included. Without M3 there is no job growth, so the shock stands in for investors. M2's tests in §5.2 pass. *Status:* done, with placeholder numbers (`params/slice.yaml`, `content/slice/start_1979.yaml`). Tests: `packages/sim-core/test/m2.test.ts` |
 | M3a | Zones, the historical template and historical names (§5.3) | The §5.3 tests pass: free zoning, the template applies, names attach by location, purpose and scale, and M2 runs are unchanged. *Status:* done. Names are labels only; the footprints are placeholder squares on present-day proxies. Code: `packages/sim-core/src/zones.ts`; tests: `packages/sim-core/test/zones.test.ts` |
-| M3b | Industry blocks, production, investors and the preview; investors locate in zones | Accepted investors create jobs, orders and housing demand |
+| M3b | Industry, production, investors and the preview; investors locate in zones (§5.5) | Accepted investors create jobs, orders and housing demand. The §5.5 tests pass |
 | M3c | Named emergence (§5.4) | Held until an in-window precedent is sourced. Then: a cluster emerges where conditions hold, takes its historical name only near its real place, and can emerge elsewhere under a generic name |
 | M4 | Fiscal: ledger, obligations, projects, the loan, the deficit rule; nominal GDP | Overbuilding forces a deficit card; the loan squeezes later years |
 | M5 | Leaders, the shortcut, the annual review and the sweep, the climate value, the events, the prologue beats, the SEZ chain, the grant cliff and the closing visit | Each year's review forces a trade-off; readiness visibly changes the first wave; the prologue tests pass; the 1980-Q2 snapshot is generated and passes its bands |
