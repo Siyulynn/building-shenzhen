@@ -133,7 +133,7 @@
 - id: site.xiangxi
   name: { zh: 向西, en: Xiangxi village }
   kind: village
-  area: 3
+  area: 2   # its proxy point is in 南湖, area 2's proxy
   geometry: { kind: point, lonlat: [114.1207, 22.5454], proxy: osm_shenzhen_places, confidence: 0.2 }
   in_start_state: block_stock
   placeholder: true
@@ -229,7 +229,7 @@
 - id: site.military_land
   name: { zh: 军事与限制用地, en: Military and restricted land }
   kind: military
-  area: 0
+  area: null   # any area; where is open
   geometry: { kind: unplaced }
   in_start_state: land_use
   claims:

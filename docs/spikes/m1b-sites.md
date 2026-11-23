@@ -25,6 +25,7 @@
   - The tide when the image was taken is unknown, so mudflats may read as land, or as sea.
   - The threshold is automatic.
   - Today's water comes from a DEM threshold (≤ 0.5 m), so inland water that is still water today can show as "inland water in 1979" too. The Shenzhen Reservoir is an example.
+  - About 22% of the "inland water in 1979" cells lie above 50 m (median 28 m). Those are hill shadow in the morning image, not water, so trust that class only on the plains.
 
   So the mask is a `lead` observation. Playable land still comes from the present-day DEM, and the map keeps its caveat.
 

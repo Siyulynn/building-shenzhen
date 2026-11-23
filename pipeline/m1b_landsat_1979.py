@@ -121,6 +121,7 @@ def main():
             "One acquisition at about 10:10 local time; tide unknown, so mudflats may read as land.",
             "Automatic NIR threshold (Otsu): a lead-level observation until a person checks it.",
             "Present-day water comes from the 2011-15 DEM (<= 0.5 m), so inland reservoirs and fishponds differ in kind.",
+            "About a fifth of the inland-water-1979 cells lie above 50 m: hill shadow, not water. Trust that class only on the plains.",
         ],
     }
     (GRID / "landsat1979.json").write_text(json.dumps(out, indent=1), encoding="utf-8")

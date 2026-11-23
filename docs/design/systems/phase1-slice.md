@@ -45,7 +45,7 @@ Phase 1 tests the core triangle: **growth vs fiscal survival vs politics and rev
 | 1 | 深圳墟 Shenzhen market town (Dongmen) | 东门 | Existing town: shops, state units, the first services | lead |
 | 2 | 罗湖 border crossing and station | 桂园 (part) + 南湖 (part) | Border crossing, railway, hotels, Hong Kong traffic | lead |
 | 3 | 蔡屋围 Caiwuwei | 桂园 (part) | Village land beside the town; an early high-rise site | lead |
-| 4 | 渔民村 Yumin and 黄贝岭 Huangbeiling | 黄贝 | Fishing villages that turn to rental housing; the future walkable route | lead (V18) |
+| 4 | 渔民村 Yumin and 黄贝岭 Huangbeiling | 黄贝 + 南湖 (part: Yumin's proxy point is in 南湖) | Fishing villages that turn to rental housing; the future walkable route | lead (V18) |
 | 5 | 笋岗 Sungang | 笋岗 + 清水河 | Flat land north of the railway: warehousing and industry | lead |
 | 6 | 东湖 reservoir hills | 东湖 + 东晓 | Water supply and hills: mostly not buildable | lead |
 | 7 | 莲塘 Liantang | 莲塘 | Edge land toward the eastern border | lead |
