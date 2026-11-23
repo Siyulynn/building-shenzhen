@@ -1,0 +1,39 @@
+# City project templates (docs/design/systems/phase1-slice.md §5.6, fiscal-and-macro §6.2).
+# Who and what; the numbers (budget, crew, months of work, assets, maintenance) are placeholders in
+# params/slice.yaml under the same id. target: area (a playable area) or zone (site preparation).
+# Major projects (Guomao, the first Shennan Road section, the cultural programme, Shenzhen University) use this
+# mechanism once their claims are in the store (§5.6 Deferred).
+
+- id: project.road_link
+  name: { zh: 道路, en: Road link }
+  kind: road
+  target: area
+  # The first surfaced Shennan Road segment (2.1 km, 7 m wide, 1980) is the scale reference, not this template's size
+  claims:
+    - { id: phase1.map.shennan_1980, use: design_note }
+
+- id: project.water_main
+  name: { zh: 供水管道, en: Water main }
+  kind: water_main
+  target: area
+  claims:
+    - { id: phase1.water.urban_1982_capacity, use: design_note }   # the 1982 urban plant's design capacity, for scale
+
+- id: project.power_line
+  name: { zh: 输电线路, en: Power line }
+  kind: power_line
+  target: area
+  claims: []                             # imported equipment draws on the forex quota (params forex_usd)
+
+- id: project.site_preparation
+  name: { zh: 三通一平, en: Site preparation (road, water, power, levelled ground) }
+  kind: site_preparation
+  target: zone
+  # 三通一平 is the playable minimum, not a historical label for every site (§5.6). Budget is per serviced cell.
+  claims: []
+
+- id: project.school
+  name: { zh: 学校, en: School }
+  kind: school
+  target: area
+  claims: []

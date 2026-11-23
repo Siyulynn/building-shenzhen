@@ -1,0 +1,23 @@
+# Construction teams that can join the slice (docs/design/systems/phase1-slice.md §5.6). Design categories: names
+# are lead, and each crew size, mobilisation and cost is a placeholder in params/slice.yaml under the same id.
+# modes: pool (adds time-limited capacity to the shared pool) or dedicated (delivers one project outside the pool).
+# A contract takes one mode: a crew is never both a pool bonus and a project exemption.
+
+- id: team.county_crew
+  name: { zh: 外县施工队, en: Contracted county crew }
+  modes: [dedicated]
+  # The historical example is the Lufeng crews on the first Shennan Road section (research note, awaiting intake)
+  claims: []
+
+- id: team.engineering_corps
+  name: { zh: 基建工程兵, en: Capital Construction Engineering Corps }
+  modes: [pool]
+  # Their arrival is M5's: the 1979 advance units and the 1982 deployment, as cards
+  claims:
+    - { id: phase1.event.construction_corps_first_units, use: design_note }
+    - { id: phase1.event.construction_corps_arrival, use: design_note }
+
+- id: team.outside_soe
+  name: { zh: 外地国营建筑公司, en: Outside state construction company }
+  modes: [dedicated, pool]
+  claims: []

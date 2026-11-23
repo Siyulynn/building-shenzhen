@@ -1,0 +1,42 @@
+# The slice's fiscal regimes (docs/design/systems/phase1-slice.md §5.6, fiscal-and-macro §4.2, §11).
+# Both regimes are lead (fiscal §11): the tax rates are placeholder design guesses, flagged per regime.
+# Dates live here, never in code: the grant schedule and the land-fee start are dated factors citing claims.
+# M4 runs regime.county_1979 throughout; M5 switches to regime.contracting_1980s at the SEZ event (§7.1).
+# value_added_rate: the effective tax on a firm's value added, by ownership. local_share: the share the city keeps
+# ("收入留用", phase1.fiscal.contracting_retain). land_for_recurring: whether land money may pay recurring spending.
+
+- id: regime.county_1979
+  name: { zh: 县级财政, en: County budget }
+  placeholder: true
+  tax: { value_added_rate: { hk_processing: 0.1, inland_soe: 0.15 }, local_share: 1 }
+  land_fee: []                           # no land-use fees before the land rules
+  land_for_recurring: grey
+  grant_schedule:                        # factor × params.fiscal.provincial_base_grant_per_year
+    - { from: 1979-01, factor: 1 }       # funded on the 1978 base from the start (contracting_retain)
+    - { from: 1983-01, factor: 0.5 }     # halved in 1983; unchanged in 1982
+    - { from: 1984-01, factor: 0 }       # from 1984 the city pays from its retained revenue
+  claims:
+    - { id: phase1.fiscal.contracting_retain, use: fiscal_rule }
+    - { id: phase1.fiscal.provincial_base.1982, use: fiscal_rule }
+    - { id: phase1.fiscal.provincial_base.1983, use: fiscal_rule }
+    - { id: phase1.fiscal.provincial_base.1984, use: fiscal_rule }
+
+- id: regime.contracting_1980s
+  name: { zh: 财政包干, en: Fiscal contracting }
+  placeholder: true
+  tax: { value_added_rate: { hk_processing: 0.08, inland_soe: 0.12 }, local_share: 1 }
+  land_fee:                              # yuan per m² of land per year, from the rules' in-force date
+    - { from: 1982-01, per_m2_year: 15 } # placeholder; the 1981 ranges are a lead (land.regulations_1981)
+  land_for_recurring: grey
+  grant_schedule:                        # the grant runs on its own schedule through both regimes (fiscal §4.2)
+    - { from: 1979-01, factor: 1 }
+    - { from: 1983-01, factor: 0.5 }
+    - { from: 1984-01, factor: 0 }
+  claims:
+    - { id: phase1.fiscal.contracting_retain, use: fiscal_rule }
+    - { id: phase1.fiscal.provincial_base.1982, use: fiscal_rule }
+    - { id: phase1.fiscal.provincial_base.1983, use: fiscal_rule }
+    - { id: phase1.fiscal.provincial_base.1984, use: fiscal_rule }
+    - { id: phase1.event.land_rules_1981, use: anchor_date }
+    - { id: land.regulations_1981, use: design_note }
+    - { id: phase1.fiscal.sez_income_tax_1980, use: design_note }   # the SEZ's 15% income tax; M5 adds incentives

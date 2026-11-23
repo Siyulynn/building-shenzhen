@@ -83,3 +83,49 @@ investors:                               # M3b (§5.5): offers by archetype (con
   archetypes:
     investor.hk_processing:     { rate_per_quarter: 0.4, jobs: [60, 200], dorm_beds_per_job: 0.3, build_months: 9, ramp_months: 3 }
     investor.inland_state_unit: { rate_per_quarter: 0.1, jobs: [100, 400], dorm_beds_per_job: 0.5, build_months: 12, ramp_months: 6 }
+
+# ---- M4 (§5.6): fiscal, projects, construction capacity and GDP. Every number is a placeholder design guess ----
+# Money is nominal yuan per month unless named per year. The slice's ledger is the city's books for the slice's
+# economy plus the county's existing taxes and administration (the county_base lines), flat in Phase 1.
+fiscal:
+  start_regime: regime.county_1979       # content/slice/fiscal_regimes.yaml; M5 switches it at the SEZ event
+  start_balances: { general: 300000, land: 0, debt: 0, forex_usd: 50000 }   # general is the reserve
+  # Tuned, not sourced (fiscal §4.2): at the start, county_base_revenue plus the grant covers the baselines with a
+  # surplus of about ¥10,000 a month, so the grant cliff of 1983–84 (the regime content's schedule) opens a gap.
+  provincial_base_grant_per_year: 1380000
+  county_base_revenue_per_month: 130000  # the town's and county's existing taxes and fees
+  county_base_obligations_per_month: 150000   # county administration beyond the per-head baselines
+  admin_per_resident_month: 2            # per resident (stayed six months)
+  police_per_present_month: 0.5          # per person present
+  sanitation_per_m2_month: 0.02          # per m² of completed floor
+  collection_efficiency: 0.8
+  reserve_months: 1                      # projects never draw general below this many months of obligations due
+  forex: { retention_share: 0.1, yuan_per_usd: 1.5 }   # share of exports retained as quota; conversion for it
+  short_loan: { revenue_multiple: 0.25, rate_month: 0.008, term_months: 12 }   # the deficit card's borrowing
+  austerity_max_cut: 0.2                 # share of baselines, payroll and service a month may leave unpaid
+  loan: { principal: 3000000, rate_month: 0.004, grace_months: 24, term_months: 60, offer_months: 3 }   # the state-bank project loan
+  cancel_penalty: 0.1                    # share of a cancelled project's unspent budget, owed the next month
+
+capacity:                                # the construction-capacity pool (§5.6), in crew units (organised worker-months)
+  local_crew: 120                        # the county's own builders. Not either observed local count (§5.6 research)
+  crew_per_m2: 0.02                      # a firm cohort's crew at full pace, per m²
+
+construction:
+  cost_per_m2: { standard_factory: 120, dormitory: 100, state_flats: 110 }   # value of the work, for GDP
+
+projects:                                # by template id (content/slice/projects.yaml)
+  project.road_link:        { budget: 600000, crew: 40, work_months: 6, maint_rate_year: 0.02, road_km: 2 }
+  project.water_main:       { budget: 400000, crew: 30, work_months: 5, maint_rate_year: 0.02, water_m3_day: 200 }
+  project.power_line:       { budget: 500000, crew: 25, work_months: 6, maint_rate_year: 0.02, power_kw: 500, forex_usd: 20000 }
+  project.site_preparation: { budget_per_cell: 100000, crew_per_cell: 10, work_months: 4, maint_rate_year: 0.01 }
+  project.school:           { budget: 300000, crew: 20, work_months: 8, maint_rate_year: 0.03,
+                              school_places: 400, staff: 12, service_per_place_month: 0.5 }
+
+teams:                                   # by team id (content/slice/teams.yaml). Not any historical headcount
+  team.county_crew:       { crew: 60, mobilization_months: 1, duration_months: 12, cost_per_month: 0 }
+  team.engineering_corps: { crew: 200, mobilization_months: 2, duration_months: 12, cost_per_month: 20000 }
+  team.outside_soe:       { crew: 120, mobilization_months: 2, duration_months: 12, cost_per_month: 30000 }
+
+gdp:                                     # nominal value added (fiscal §8.2)
+  base_va_per_job_month: { farming_fishing: 30, factory: 50, construction: 50, services: 40, state: 45 }
+  construction_va_ratio: 0.35            # fiscal §12's starting guess
