@@ -261,7 +261,7 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
 1. It applies `actions` first. Each answer must name a pending instance and one of its options, or `step()` throws. The answer is logged and the card removed.
 2. If an interrupting card is still pending, it returns `{ status: 'paused', state, pendingCards }` without advancing the month.
 3. Otherwise it runs the 14 tick steps of §6 in order. These are named functions, all no-ops in M1 except `statistics`, which appends the month to `history.months`. Then it advances `date`, `subStep` and `turn`, and returns `{ status: 'advanced', state, events, stats }`.
-4. Past the last turn, no month runs. Cards that the last month raised (the closing event) can still be answered. A call that clears them returns `{ status: 'finished', state }`. A call with nothing left to answer throws.
+4. Past the last turn, no month runs. Cards that the last month raised (the closing event) can still be answered, and only answers are accepted: a turn action throws, since no turn is left for it to act in. A call that clears them returns `{ status: 'finished', state }`. A call with nothing left to answer throws.
 
 - **Cards raised during a step:** this is a decision, made so that `step()` stays one indivisible month.
   - Interrupting cards pause *between* monthly sub-steps, never mid-tick. The month that raised a card still completes.
@@ -498,7 +498,7 @@ interface Zone {
    - **scale:** the zone's cell count ÷ the precedent's is within [1 ÷ `max_scale_ratio`, `max_scale_ratio`];
    - the precedent is placed, and the zone has no custom name.
 2. **Keeping:** a zone keeps last month's precedent while the pair still matches, so drawing a better match later does not take the name away.
-3. **The rest are assigned greedily by score**, highest first: `w.overlap × overlap share + w.offset × (1 − offset ÷ max_offset_cells) + w.scale × (1 − |ln ratio| ÷ ln max_scale_ratio)`. Ties go to the lower zone id, then to the precedent's order in the file.
+3. **The rest are assigned greedily by score**, highest first: `w.overlap × overlap share + w.offset × max(0, 1 − offset ÷ max_offset_cells) + w.scale × (1 − |ln ratio| ÷ ln max_scale_ratio)`. The offset term floors at 0, since a pair can match on overlap alone with its centroids further apart than `max_offset_cells`. Ties go to the lower zone id, then to the precedent's order in the file.
 4. **Losing a name:** a zone edited until it no longer matches falls back to its generic label, and the name is free for any zone that matches it. A custom name (`rename_zone`) takes the zone out of matching; renaming to `null` puts it back.
 - **The generic label** is rendered from the area and the id, for example `上步 · 工业区 #3 / Shangbu · industrial zone #3`. It never takes the bare form of a precedent's name.
 - **Gates:** a precedent may carry `after_event` (an event whose claim it cites), keyed to the event, never to a date. None does until M5's events exist.

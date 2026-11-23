@@ -119,7 +119,12 @@ describe('step', () => {
     expect(isFinished(end)).toBe(true);
     const card = end.pendingCards[0]!;
     expect(step(end, [], rng, closing).status).toBe('paused');
-    const r = step(end, [{ type: 'answer_card', instance: card.id, option: 'a' }], rng, closing);
+    // no turn is left for a turn action, with or without the answer beside it
+    const answer = { type: 'answer_card', instance: card.id, option: 'a' } as const;
+    expect(() => step(end, [answer, { type: 'set_enforcement', level: 'high' }], rng, closing)).toThrow(/ended/);
+    expect(() => step(end, [answer, { type: 'create_zone', use: 'industrial', runs: [[370, 349, 354]] }], rng, closing))
+      .toThrow(/ended/);
+    const r = step(end, [answer], rng, closing);
     expect(r.status).toBe('finished');
     expect(r.state.date).toBe(end.date);
     expect(r.state.actionLog).toHaveLength(1);

@@ -1,7 +1,7 @@
 /** M3a's tests (phase1-slice.md §5.3): zone validity, the template, historical names, no economic effect, determinism. */
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, assignZoneNames, compilePrecedents, createTickSteps, loadGame, playableAreaOf, replay, runMonths, saveFromJson,
+  Rng, assignZoneNames, compilePrecedents, createTickSteps, loadGame, matchScore, playableAreaOf, replay, runMonths, saveFromJson,
   saveGame, saveToJson, step, templateZoneAction, validateParams, zoneCellsAllowed, zoneLabel,
   type CellRuns, type GameState, type PlayerAction, type TickStep, type Zone,
 } from '../src/index.js';
@@ -63,6 +63,20 @@ describe('M3a precedents', () => {
     expect(() => validateParams({ ...params, zoning: { names: { ...z, max_scale_ratio: 1 } } })).toThrow(/max_scale_ratio/);
     expect(() => validateParams({ ...params, zoning: { names: { ...z, min_overlap: 0 } } })).toThrow(/min_overlap/);
     expect(() => validateParams({ ...params, zoning: undefined })).toThrow(/zoning/);
+  });
+});
+
+describe('M3a match score', () => {
+  it('floors the offset term at 0 when a pair matches on overlap alone', () => {
+    // a 3-cell-wide strip down the template's west edge, then 30 rows south: overlap 18/36, centroid about 15 cells away
+    const s = initial();
+    const p = P('shangbu_industrial');
+    const strip = (cells: number) => Array.from({ length: cells }, (_, i) => (370 + Math.floor(i / 3)) * s.grid.width + 349 + (i % 3));
+    const m = params.zoning.names;
+    const sc = matchScore({ use: 'industrial', cells: strip(18 + 3 * 30) }, p, s.grid.width, m);
+    expect(sc).not.toBeNull();
+    // overlap 0.5, offset term 0, scale term 1 - ln(3)/ln(3) = 0: exactly w.overlap * 0.5
+    expect(sc).toBeCloseTo(m.weights.overlap * 0.5, 10);
   });
 });
 

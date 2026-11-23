@@ -236,7 +236,8 @@ export function matchScore(z: { use: LandUse; cells: readonly number[] }, p: Pre
   const ratio = z.cells.length / p.cells.length;
   if (overlap < m.min_overlap && offset > m.max_offset_cells) return null;
   if (ratio < 1 / m.max_scale_ratio || ratio > m.max_scale_ratio) return null;
-  return m.weights.overlap * overlap + m.weights.offset * (1 - offset / m.max_offset_cells)
+  // a pair can match on overlap alone with its centroids beyond max_offset_cells: the offset term floors at 0
+  return m.weights.overlap * overlap + m.weights.offset * Math.max(0, 1 - offset / m.max_offset_cells)
     + m.weights.scale * (1 - Math.abs(Math.log(ratio)) / Math.log(m.max_scale_ratio));
 }
 

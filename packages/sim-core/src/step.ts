@@ -97,6 +97,11 @@ export function step(state: GameState, actions: readonly PlayerAction[], rng: Rn
   if (isFinished(state) && !actions.length && !blockingCards(state).length) {
     throw new Error('the scenario has ended: no turns left');
   }
+  // past the last turn only answers are accepted: no turn is left for a turn action to act in (§5.1)
+  if (isFinished(state)) {
+    const late = actions.find((a) => a.type !== 'answer_card');
+    if (late) throw new Error(`the scenario has ended: ${late.type} cannot be applied, only card answers`);
+  }
   const s = cloneState(state);
   // answers first; turn actions only once no interrupting card is left (§5.1), logged after the answers
   for (const a of actions) if (a.type === 'answer_card') applyAnswer(s, a);
