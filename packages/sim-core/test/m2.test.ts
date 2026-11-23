@@ -8,6 +8,7 @@ import {
   saveGame, saveToJson, step, stochRound, validateParams, type GameState, type SimEvent, type StartContent, type TickStep,
 } from '../src/index.js';
 import { bedsByPool, illegalShare, villageM2 } from '../src/systems/common.js';
+import { unemploymentRate } from '../src/systems/labour.js';
 import { MONTHS, ROOT, areasJson, content, initial, params, scenario, start } from './fixtures.js';
 
 const STEPS = createTickSteps(params);
@@ -205,43 +206,92 @@ describe('M2 stability', () => {
   });
 });
 
+/** Hard rule 5 for one month: people conserved through flow events, and every stock whole. */
+function checkInvariants(before: GameState, s: GameState, events: SimEvent[]): void {
+  const flows = new Map<string, number>();
+  for (const e of events) if (e.kind === 'flow') {
+    const d = e.detail as { area: number; pop: string; inflow: number; outflow: number };
+    const k = `${d.area}:${d.pop}`;
+    flows.set(k, (flows.get(k) ?? 0) + d.inflow - d.outflow);
+  }
+  for (const g of s.pops) {
+    const was = before.pops.find((x) => x.area === g.area && x.kind === g.kind)?.size ?? 0;
+    expect(g.size - was).toBe(flows.get(`${g.area}:${g.kind}`) ?? 0);
+    expect(g.size).toBe(g.stayedSixMonths + g.underSix.reduce((a, b) => a + b, 0));
+    for (const n of [g.size, g.stayedSixMonths, g.present, ...g.underSix, ...Object.values(g.employed)]) {
+      expect(Number.isInteger(n) && n >= 0).toBe(true);
+    }
+    expect(g.present).toBeLessThanOrEqual(g.size);
+    if (!isMigrant(g.kind)) expect(g.size).toBe(was);              // births and deaths are zero in M2
+  }
+  for (const r of s.labour.jobs) expect(r.jobs >= 0 && r.filled >= 0 && r.filled <= r.jobs).toBe(true);
+  for (const sec of Object.keys(s.labour.wage) as (keyof typeof s.labour.wage)[]) {
+    const filled = s.labour.jobs.reduce((a, r) => a + (r.sector === sec ? r.filled : 0), 0);
+    expect(s.pops.reduce((a, g) => a + g.employed[sec], 0)).toBe(filled);
+  }
+  for (const b of s.blocks) {
+    for (const c of b.cohorts) expect(c.m2).toBeGreaterThan(0);
+    const m = s.housing.find((x) => x.area === b.area)!;
+    expect(m.beds).toEqual(bedsByPool(b, params));
+    expect(s.areas.find((a) => a.id === b.area)!.illegalFloorShare).toBe(illegalShare(b));
+    const plot = s.villagePlots.find((v) => v.area === b.area)!;
+    const maxFloors = Math.min(params.eras[0]!.structural_max_floors, params.village_build.enforcement_max_floors[s.policy.enforcement]);
+    const startVillage = villageM2(initial().blocks.find((x) => x.area === b.area)!, ['completed']);
+    expect(villageM2(b, ['completed', 'under_construction'])).toBeLessThanOrEqual(Math.max(startVillage, plot.footprintM2 * maxFloors));
+  }
+}
+
+/** Factory-job changes through the investment step: [month index, area, delta]. */
+const jobChanges = (changes: [number, number, number][], base: readonly TickStep[]): TickStep[] => base.map((s) =>
+  s.name !== 'investment' ? s : { name: 'investment', run: (ctx) => {
+    for (const [at, area, n] of changes) if (ctx.state.history.months.length === at) {
+      const row = ctx.state.labour.baseJobs.find((r) => r.area === area && r.sector === 'factory')!;
+      row.jobs = Math.max(0, row.jobs + n);
+    }
+  } });
+
 describe('M2 invariants', () => {
   it.each([1, 2, 3, 4, 5])('conserves people through flows and keeps every stock whole (seed %i)', (seed) => {
-    const steps = shocked();
-    walk(withTurns(scenario.turns, (s) => { if (seed % 2) s.policy.enforcement = 'low'; }), MONTHS, new Rng(seed), steps,
-      (before, s, events) => {
-        const flows = new Map<string, number>();
-        for (const e of events) if (e.kind === 'flow') {
-          const d = e.detail as { area: number; pop: string; inflow: number; outflow: number };
-          const k = `${d.area}:${d.pop}`;
-          flows.set(k, (flows.get(k) ?? 0) + d.inflow - d.outflow);
-        }
-        for (const g of s.pops) {
-          const was = before.pops.find((x) => x.area === g.area && x.kind === g.kind)?.size ?? 0;
-          expect(g.size - was).toBe(flows.get(`${g.area}:${g.kind}`) ?? 0);
-          expect(g.size).toBe(g.stayedSixMonths + g.underSix.reduce((a, b) => a + b, 0));
-          for (const n of [g.size, g.stayedSixMonths, g.present, ...g.underSix, ...Object.values(g.employed)]) {
-            expect(Number.isInteger(n) && n >= 0).toBe(true);
-          }
-          expect(g.present).toBeLessThanOrEqual(g.size);
-          if (!isMigrant(g.kind)) expect(g.size).toBe(was);              // births and deaths are zero in M2
-        }
-        for (const r of s.labour.jobs) expect(r.jobs >= 0 && r.filled >= 0 && r.filled <= r.jobs).toBe(true);
-        for (const sec of Object.keys(s.labour.wage) as (keyof typeof s.labour.wage)[]) {
-          const filled = s.labour.jobs.reduce((a, r) => a + (r.sector === sec ? r.filled : 0), 0);
-          expect(s.pops.reduce((a, g) => a + g.employed[sec], 0)).toBe(filled);
-        }
-        for (const b of s.blocks) {
-          for (const c of b.cohorts) expect(c.m2).toBeGreaterThan(0);
-          const m = s.housing.find((x) => x.area === b.area)!;
-          expect(m.beds).toEqual(bedsByPool(b, params));
-          expect(s.areas.find((a) => a.id === b.area)!.illegalFloorShare).toBe(illegalShare(b));
-          const plot = s.villagePlots.find((v) => v.area === b.area)!;
-          const maxFloors = Math.min(params.eras[0]!.structural_max_floors, params.village_build.enforcement_max_floors[s.policy.enforcement]);
-          const startVillage = villageM2(initial().blocks.find((x) => x.area === b.area)!, ['completed']);
-          expect(villageM2(b, ['completed', 'under_construction'])).toBeLessThanOrEqual(Math.max(startVillage, plot.footprintM2 * maxFloors));
-        }
-      });
+    walk(withTurns(scenario.turns, (s) => { if (seed % 2) s.policy.enforcement = 'low'; }), MONTHS, new Rng(seed), shocked(),
+      checkInvariants);
+  });
+
+  it('conserves people when every exit fires: base exit, festival non-return, unemployment after a job cut', () => {
+    // the start params set both exit rates to 0 (§5.2); turn them on so these branches run
+    const churn = validateParams({ ...params, migration: { ...params.migration, base_exit: 0.01,
+      spring: { ...params.migration.spring, nonreturn: 0.1 } } });
+    const away = churn.migration.spring.away_months;
+    const returnMonth = away.find((m) => !away.includes((m + 1) % 12))!;
+    const steps = jobChanges([[SHOCK_MONTH, 7, 3000], [SHOCK_MONTH, 2, 1000], [36, 7, -2500]], createTickSteps(churn));
+    const out = { ret: [] as number[], other: [] as number[] };
+    let unemployed = 0;
+    walk(initial(), MONTHS, new Rng(7), steps, (before, s, events) => {
+      checkInvariants(before, s, events);
+      const o = events.reduce((a, e) => a + (e.kind === 'flow' ? (e.detail!.outflow as number) : 0), 0);
+      (s.history.months.at(-1)! % 12 === returnMonth ? out.ret : out.other).push(o);
+      unemployed = Math.max(unemployed, ...s.pops.filter((g) => isMigrant(g.kind)).map((g) => unemploymentRate(g, churn)));
+    });
+    const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+    expect(mean(out.other)).toBeGreaterThan(0);                       // base exit
+    expect(mean(out.ret)).toBeGreaterThan(2 * mean(out.other));       // the festival's non-return on top
+    expect(unemployed).toBeGreaterThan(0.1);                          // the cut leaves migrants out of work
+  });
+
+  it('sends the excess above crowding_max away as an outflow, newest arrivals first', () => {
+    const s0 = initial();
+    const m = s0.housing.find((x) => x.area === 1)!;
+    const cap = Math.floor(params.housing.crowding_max * m.beds.rental);
+    const migrants = (s: GameState) => s.pops.filter((x) => x.area === 1 && isMigrant(x.kind));
+    const g = migrants(s0).find((x) => x.kind === 'migrant_factory')!;
+    const stayed = g.stayedSixMonths;
+    const extra = cap + 200 - migrants(s0).reduce((a, x) => a + x.size, 0);
+    g.size += extra; g.underSix[0] += extra; g.present += extra;      // newcomers, well over the cap
+    const r = step(s0, [], new Rng(3), STEPS);
+    if (r.status !== 'advanced') throw new Error(r.status);
+    expect(r.events.some((e) => e.kind === 'flow' && e.detail?.reason === 'crowding_cap')).toBe(true);
+    checkInvariants(s0, r.state, r.events);
+    expect(migrants(r.state).reduce((a, x) => a + x.size, 0)).toBeLessThanOrEqual(cap);
+    expect(migrants(r.state).find((x) => x.kind === 'migrant_factory')!.stayedSixMonths).toBe(stayed);
   });
 });
 
