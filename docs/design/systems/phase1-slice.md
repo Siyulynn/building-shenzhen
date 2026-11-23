@@ -475,7 +475,7 @@ interface Zone {
 - Runs are well formed. An edit may not leave a zone empty (`remove_zone` deletes one).
 - sim-core has no buildability mask. Zoning water or hills is allowed and attracts nothing; M3b reads buildability from the grid.
 
-**Applying the template** is not an action of its own. The pure helper `templateZoneAction(state, precedent)` returns a `create_zone` for the precedent's cells, clipped to playable cells not already zoned, with `template` set. The UI and the `historical_prologue` policy use it. The log records the `create_zone`, so replay needs no content beyond the precedents.
+**Applying the template** is not an action of its own. The pure helper `templateZoneAction(state, precedent)` returns a `create_zone` for the precedent's cells, clipped to playable cells not already zoned, with `template` set. The UI and the `historical_prologue` policy use it. The log records the `create_zone`, so replay needs no content beyond the precedents. The log keeps its own deep copy of every action.
 
 **Precedents** (`content/slice/precedents.yaml`): historical zones now, and the named things of §5.4 later.
 ```yaml
@@ -488,7 +488,7 @@ interface Zone {
   claims: [ { id: precedent.zone.shangbu_industrial.exists, use: encyclopedia },
             { id: precedent.zone.shangbu_industrial.location, use: geometry } ]
 ```
-- **Compiled at load:** `compilePrecedents(raw, areas)` validates the ids, kinds and uses, and turns each placed geometry into runs clipped to the grid. `createTickSteps(params, precedents)` takes the result. Precedents never enter `GameState`, and the save header gains `precedents_sha256`.
+- **Compiled at load:** `compilePrecedents(raw, areas)` validates the ids, kinds and uses, and turns each placed geometry into sorted cells clipped to the grid, with their centroid. `createTickSteps(params, precedents)` takes the result. Precedents never enter `GameState`, and the save header gains `precedents_sha256`.
 - **The template** is the placed zone precedents. The overlay is drawn by the renderer from content and touches no state.
 
 **Name matching** (tick step 3, before investors look for sites). Each month, a pure function of the zones, the precedents and `params.zoning.names`, with no RNG, gives each zone at most one precedent and each precedent at most one zone:
