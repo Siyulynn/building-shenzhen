@@ -9,6 +9,7 @@ import {
   type ObligationKind,
 } from '../fiscal.js';
 import type { SliceParams } from '../params.js';
+import { largestRemainder } from '../round.js';
 import type { GameState } from '../state.js';
 import type { TickContext } from '../step.js';
 
@@ -112,12 +113,9 @@ export function finance(p: SliceParams, fc: FiscalContent) {
     // 4. pay: the cut comes off the cuttable lines in proportion; the rest is paid from general, then land
     const cuttable = lines.filter((l) => CUTTABLE.includes(l.kind));
     const cuttableSum = cuttable.reduce((a, l) => a + l.amount, 0);
-    const cutOf = new Map<Line, number>();
-    let cutLeft = cut;
-    cuttable.forEach((l, i) => {
-      const c = i === cuttable.length - 1 ? cutLeft : Math.min(cutLeft, Math.floor((cut * l.amount) / cuttableSum));
-      cutOf.set(l, c); cutLeft -= c;
-    });
+    // largest remainder: each line's cut is between 0 and its amount, and the cuts add up to the cut (cut <= cuttableSum)
+    const split = largestRemainder(cut, cuttable.map((l) => l.amount));
+    const cutOf = new Map<Line, number>(cuttable.map((l, i) => [l, split[i]!]));
     let landLeft = fromLand, paid = 0, unpaid = 0, payrollUnpaid = 0;
     for (const l of lines) {
       let owe = l.amount - (cutOf.get(l) ?? 0);

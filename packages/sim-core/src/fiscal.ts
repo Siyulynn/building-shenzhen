@@ -96,7 +96,8 @@ function dated<T>(raw: unknown, id: string, what: string, f: (e: Record<string, 
 /** Validate the three M4 content files against each other and the params (§5.6). */
 export function compileFiscal(raw: { regimes: unknown; projects: unknown; teams: unknown }, p: SliceParams): FiscalContent {
   const regimes = list(raw.regimes, 'fiscal_regimes').map((r): Regime => {
-    const rates = r.tax?.value_added_rate ?? {};
+    if (typeof r.tax !== 'object' || r.tax === null) throw new Error(`${r.id}: tax is missing`);
+    const rates = r.tax.value_added_rate ?? {};
     for (const o of OWNERSHIPS) if (!(rates[o] >= 0 && rates[o] <= 1)) throw new Error(`${r.id}: tax.value_added_rate.${o} must be in [0, 1]`);
     if (!(r.tax.local_share >= 0 && r.tax.local_share <= 1)) throw new Error(`${r.id}: tax.local_share must be in [0, 1]`);
     if (!['sanctioned', 'grey', 'forbidden'].includes(r.land_for_recurring)) throw new Error(`${r.id}: land_for_recurring is unknown`);
@@ -319,7 +320,9 @@ export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalConten
     if (t.target === 'zone') {
       const z = s.zones.find((x) => x.id === a.zone);
       if (!z) throw new Error(`${t.id} needs an existing zone`);
+      // neither serviced nor already being serviced by a live site-preparation project
       const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
+      for (const x of F.projects) if (x.cells && liveProject(x)) for (const c of cellsOfRuns(x.cells, s.grid)) served.add(c);
       const todo = buildableCells(s, z.runs, buildable).filter((c) => !served.has(c));
       if (!todo.length) throw new Error(`zone ${z.id} has no buildable cells left to service`);
       area = z.area; zone = z.id; cells = runsOfCells(todo, s.grid.width);
@@ -352,6 +355,7 @@ export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalConten
     if (penalty > 0) addObligation(s, { kind: 'transfer', perMonth: penalty, index: 'none', from: s.date, until: s.date,
       createdBy: `cancel:project.${x.id}` });
     for (const c of F.contracts) if (c.project === x.id && c.ends === undefined) c.ends = s.date;
+    if (F.loanWanted && moneyForProjects(s, p) >= 0) F.loanWanted = false;
   } else if (a.type === 'contract_team') {
     const t = fc.teams.find((x) => x.id === a.team);
     if (!t) throw new Error(`no team ${a.team}`);
@@ -401,7 +405,7 @@ export interface FiscalViews {
 export function fiscalViews(s: GameState, p: SliceParams): FiscalViews {
   const revenue = last(s.history.revenue), due = last(s.history.obligationsDue);
   const f = projectFunds(s, p), unspent = unspentCommitments(s);
-  const byKind = { baseline: last(s.history.baselineDue), debt_service: s.fiscal.loans.reduce((a, l) => a + debtServiceAt(l, s.date), 0),
+  const byKind = { baseline: baselineDue(s, p), debt_service: s.fiscal.loans.reduce((a, l) => a + debtServiceAt(l, s.date), 0),
     payroll: 0, service: 0, maintenance: 0, transfer: 0, arrears: 0 };
   for (const o of s.fiscal.obligations) if (isLive(o, s.date)) byKind[o.kind] += obligationDue(o, s);
   return {

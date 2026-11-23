@@ -4,6 +4,7 @@
  * draw on the construction-capacity pool; without it every cohort gets its month of work, as in M3b.
  */
 import { BUILDER_OF, USE_OF } from '../enums.js';
+import { refreshServicedShares } from '../fiscal.js';
 import type { SliceParams } from '../params.js';
 import type { BlockStock, Cohort } from '../state.js';
 import type { TickContext } from '../step.js';
@@ -24,11 +25,12 @@ function mergeCompleted(b: BlockStock): void {
   b.cohorts = out;
 }
 
-export function construction(p: SliceParams, pool = false) {
+export function construction(p: SliceParams, pool = false, buildable?: { cells: Uint32Array }) {
   return (ctx: TickContext): void => {
     const s = ctx.state;
     const vb = p.village_build;
     const alloc = pool ? allocatePool(ctx, p) : undefined;
+    if (pool) refreshServicedShares(s, buildable);       // site preparation finished this month counts at once (§5.6)
     for (const b of s.blocks) {
       // 1. work on every cohort under construction; completions when the work is done (§5.5). From the pool, a
       //    firm's cohort banks its crew units and gains a month when a full crew is banked (§5.6)

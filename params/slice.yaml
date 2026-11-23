@@ -103,8 +103,8 @@ fiscal:
   forex: { retention_share: 0.1, yuan_per_usd: 1.5 }   # share of exports retained as quota; conversion for it
   short_loan: { revenue_multiple: 0.25, rate_month: 0.008, term_months: 12 }   # the deficit card's borrowing
   austerity_max_cut: 0.2                 # share of baselines, payroll and service a month may leave unpaid
-  loan: { principal: 3000000, rate_month: 0.004, grace_months: 24, term_months: 60, offer_months: 3 }   # the state-bank project loan
-  cancel_penalty: 0.1                    # share of a cancelled project's unspent budget, owed the next month
+  loan: { principal: 3000000, rate_month: 0.004, grace_months: 24, term_months: 60, offer_months: 6 }   # the state-bank project loan; the offer outlives a quarter
+  cancel_penalty: 0.1                    # share of a cancelled project's unspent budget, owed in the month it is cancelled
 
 capacity:                                # the construction-capacity pool (§5.6), in crew units (organised worker-months)
   local_crew: 120                        # the county's own builders. Not either observed local count (§5.6 research)

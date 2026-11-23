@@ -94,6 +94,8 @@ function complete(ctx: TickContext, p: SliceParams, x: Project): void {
  */
 export function allocatePool(ctx: TickContext, p: SliceParams): Map<Cohort, number> {
   const s = ctx.state;
+  // one queue in priority order: firm cohorts and pooled projects share the pool; dedicated projects draw only cash,
+  // but in the same order, so a low-priority dedicated project never pays ahead of a high-priority pooled one
   type Job = { pri: number; start: number; type: number; id: number; ord: number; cohort?: Cohort; project?: Project };
   const jobs: Job[] = [];
   let ord = 0;
@@ -106,6 +108,23 @@ export function allocatePool(ctx: TickContext, p: SliceParams): Map<Cohort, numb
     if (!liveProject(x)) continue;
     delete x.waiting;                                     // why it waits, and whether it is stalled, is this month's
     if (x.stage === 'stalled') x.stage = x.workDone > 0 || x.crewBank > 0 ? 'building' : 'committed';
+    jobs.push({ pri: PRIORITIES.indexOf(x.priority), start: x.committed, type: 1, id: x.id, ord: ord++, project: x });
+  }
+  jobs.sort((a, b) => a.pri - b.pri || a.start - b.start || a.type - b.type || a.id - b.id || a.ord - b.ord);
+
+  const out = new Map<Cohort, number>();
+  let left = poolSupply(ctx, p);
+  for (const j of jobs) {
+    if (j.cohort) {
+      const c = j.cohort, crew = cohortCrew(c, p);
+      // no more than the work left, so a final partial month passes its spare units down the queue
+      const rest = crew * ((c.workTotal ?? 1) - (c.workDone ?? 0)) - (c.crewBank ?? 0);
+      const got = Math.max(0, Math.min(crew, left, rest));
+      out.set(j.cohort, got);
+      left -= got;
+      continue;
+    }
+    const x = j.project!;
     if (x.contract !== undefined) {                       // a dedicated contract: outside the pool
       const k = s.fiscal.contracts.find((c) => c.id === x.contract)!;
       if (s.date < k.starts) { x.waiting = 'mobilization'; continue; }
@@ -116,21 +135,6 @@ export function allocatePool(ctx: TickContext, p: SliceParams): Map<Cohort, numb
       work(ctx, p, x, got);
       continue;
     }
-    jobs.push({ pri: PRIORITIES.indexOf(x.priority), start: x.committed, type: 1, id: x.id, ord: ord++, project: x });
-  }
-  jobs.sort((a, b) => a.pri - b.pri || a.start - b.start || a.type - b.type || a.id - b.id || a.ord - b.ord);
-
-  const out = new Map<Cohort, number>();
-  let left = poolSupply(ctx, p);
-  for (const j of jobs) {
-    if (j.cohort) {
-      const crew = cohortCrew(j.cohort, p);
-      const got = Math.min(crew, left);
-      out.set(j.cohort, got);
-      left -= got;
-      continue;
-    }
-    const x = j.project!;
     const want = Math.min(x.crew, left, x.crew * x.workTotal - delivered(x));
     const got = affordable(ctx, p, x, want);
     left -= got;

@@ -130,12 +130,18 @@ export function validateParams(raw: unknown): SliceParams {
   need(I.by_ownership, OWNERSHIPS, 'industry.by_ownership');
   if (!(I.max_far > 0)) throw new Error('params: industry.max_far must be > 0');
   if (!(I.premises_output_factor > 0 && I.premises_output_factor <= 1)) throw new Error('params: industry.premises_output_factor must be in (0, 1]');
+  if (!(Number.isInteger(I.premises_jobs_per_area) && I.premises_jobs_per_area >= 0)) {
+    throw new Error('params: industry.premises_jobs_per_area must be a whole number >= 0');
+  }
   if (!(I.order_index >= 0)) throw new Error('params: industry.order_index must be >= 0');
   for (const o of OWNERSHIPS) {
     const b = I.by_ownership[o];
     if (!(b.value_added_ratio >= 0 && b.value_added_ratio <= 1)) throw new Error(`params: industry.by_ownership.${o}.value_added_ratio must be in [0, 1]`);
     if (!(b.export_share >= 0 && b.export_share <= 1)) throw new Error(`params: industry.by_ownership.${o}.export_share must be in [0, 1]`);
     if (!(b.floor_m2_per_job > 0)) throw new Error(`params: industry.by_ownership.${o}.floor_m2_per_job must be > 0`);
+    for (const k of ['output_per_job_month', 'power_kw_per_job', 'water_m3_day_per_job'] as const) {
+      if (!(b[k] >= 0)) throw new Error(`params: industry.by_ownership.${o}.${k} must be >= 0`);
+    }
   }
   if (!Number.isInteger(V.offer_months) || V.offer_months <= 3) {
     throw new Error('params: investors.offer_months must be an integer above 3: an offer outlives a quarter (§5.5)');
@@ -146,6 +152,7 @@ export function validateParams(raw: unknown): SliceParams {
     for (const k of ['build_months', 'ramp_months'] as const) {
       if (!Number.isInteger(a[k]) || a[k] < 1) throw new Error(`params: investors.archetypes.${id}.${k} must be a positive integer`);
     }
+    if (!(a.dorm_beds_per_job >= 0)) throw new Error(`params: investors.archetypes.${id}.dorm_beds_per_job must be >= 0`);
     if (!(a.rate_per_quarter >= 0 && a.rate_per_quarter <= 3)) throw new Error(`params: investors.archetypes.${id}.rate_per_quarter must be in [0, 3]`);
   }
   for (const m of p.migration.spring.away_months) if (!Number.isInteger(m) || m < 0 || m > 11) throw new Error('params: spring.away_months are 0..11');
@@ -160,7 +167,10 @@ function validateFiscalParams(p: SliceParams): void {
   if (!F || !C || !p.construction || !p.projects || !p.teams || !p.gdp) {
     throw new Error('params: fiscal, capacity, construction, projects, teams and gdp must be set (§5.6)');
   }
-  for (const [k, v] of Object.entries(F.start_balances)) if (!(v >= 0)) throw new Error(`params: fiscal.start_balances.${k} must be >= 0`);
+  need(F.start_balances, ['general', 'land', 'debt', 'forex_usd'], 'fiscal.start_balances');
+  for (const [k, v] of Object.entries(F.start_balances)) {
+    if (!(Number.isInteger(v) && v >= 0)) throw new Error(`params: fiscal.start_balances.${k} must be a whole number >= 0`);
+  }
   for (const k of ['provincial_base_grant_per_year', 'county_base_revenue_per_month', 'county_base_obligations_per_month',
     'admin_per_resident_month', 'police_per_present_month', 'sanitation_per_m2_month', 'reserve_months'] as const) {
     if (!(F[k] >= 0)) throw new Error(`params: fiscal.${k} must be >= 0`);
@@ -173,8 +183,11 @@ function validateFiscalParams(p: SliceParams): void {
     throw new Error('params: fiscal.short_loan needs term_months >= 1, rate_month >= 0 and revenue_multiple >= 0');
   }
   const L = F.loan;
-  if (!(L.principal > 0) || !(L.rate_month >= 0) || !Number.isInteger(L.grace_months) || L.grace_months < 0
-    || !posInt(L.term_months) || !posInt(L.offer_months)) throw new Error('params: fiscal.loan has a bad term');
+  if (!(Number.isInteger(L.principal) && L.principal > 0) || !(L.rate_month >= 0) || !Number.isInteger(L.grace_months) || L.grace_months < 0
+    || !posInt(L.term_months)) throw new Error('params: fiscal.loan has a bad term');
+  if (!Number.isInteger(L.offer_months) || L.offer_months <= 3) {
+    throw new Error('params: fiscal.loan.offer_months must be an integer above 3: the offer outlives a quarter (§5.6)');
+  }
   if (!(Number.isInteger(C.local_crew) && C.local_crew >= 0)) throw new Error('params: capacity.local_crew must be a whole number');
   if (!(C.crew_per_m2 > 0)) throw new Error('params: capacity.crew_per_m2 must be > 0');
   for (const [id, t] of Object.entries(p.projects)) {
@@ -184,11 +197,20 @@ function validateFiscalParams(p: SliceParams): void {
     }
     if (!posInt(t.work_months)) throw new Error(`params: projects.${id}.work_months must be a positive integer`);
     if (!(t.maint_rate_year >= 0)) throw new Error(`params: projects.${id}.maint_rate_year must be >= 0`);
+    for (const k of ['forex_usd', 'road_km', 'water_m3_day', 'power_kw', 'school_places', 'staff', 'service_per_place_month'] as const) {
+      const v = t[k];
+      if (v !== undefined && !(v >= 0)) throw new Error(`params: projects.${id}.${k} must be >= 0`);
+    }
   }
   for (const [id, t] of Object.entries(p.teams)) {
     if (!posInt(t.crew) || !Number.isInteger(t.mobilization_months) || t.mobilization_months < 0 || !posInt(t.duration_months)
       || !(t.cost_per_month >= 0)) throw new Error(`params: teams.${id} has a bad crew, mobilization, duration or cost`);
   }
+  need(p.construction.cost_per_m2, ['standard_factory', 'dormitory', 'state_flats'], 'construction.cost_per_m2');
+  for (const [k, v] of Object.entries(p.construction.cost_per_m2)) {
+    if (!(v >= 0)) throw new Error(`params: construction.cost_per_m2.${k} must be >= 0`);
+  }
   need(p.gdp.base_va_per_job_month, SECTORS, 'gdp.base_va_per_job_month');
+  for (const k of SECTORS) if (!(p.gdp.base_va_per_job_month[k] >= 0)) throw new Error(`params: gdp.base_va_per_job_month.${k} must be >= 0`);
   if (!(p.gdp.construction_va_ratio >= 0 && p.gdp.construction_va_ratio <= 1)) throw new Error('params: gdp.construction_va_ratio must be in [0, 1]');
 }

@@ -38,7 +38,7 @@ export function createTickSteps(params: SliceParams, content: TickContent = {}):
   const fc = content.fiscal;
   const impl: Record<string, (ctx: TickContext) => void> = {
     investment: investment(params, content),
-    construction: construction(params, !!fc),
+    construction: construction(params, !!fc, content.buildable),
     labour: labour(params),
     housing: housing(params),
     migration: migration(params),

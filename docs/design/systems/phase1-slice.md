@@ -769,21 +769,21 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
 3. **The deficit card** (interrupting, once a quarter): when a month has a shortfall and no card has been raised this quarter, it is raised and the month's shortfall goes straight to arrears. The answer holds for the rest of the quarter. Options, the headless default first (so `firstOption` gives fiscal §7.1's default):
    - `borrow_short`: a short-term loan of the shortfall, up to borrowing capacity, at `short_loan.rate_month`, repaid in equal principal over `short_loan.term_months`. It lowers capacity;
    - `use_land_money`: pay from `land`. When the regime says `grey` or `forbidden`, the amount is recorded as event `land_for_recurring`, for M5's scrutiny;
-   - `austerity`: leave unpaid up to `austerity_max_cut` of the cuttable obligations (baselines, payroll, service). The cut is forgiven, not owed, and `fiscal.austerity` records the share for M5's service gaps and mood.
+   - `austerity`: leave unpaid up to `austerity_max_cut` of the cuttable obligations (baselines, payroll, service), split over the lines by largest remainder, so no line is cut by more than it owes. The cut is forgiven, not owed, and `fiscal.austerity` records the share for M5's service gaps and mood.
 - **Borrowing capacity** (fiscal §7, simplified): `short_loan.revenue_multiple` × the last 12 months' recurring revenue − short-term principal outstanding, never below 0. The full debt-service-cover and collateral rule waits for a later phase.
 
 **The state-bank project loan** (fiscal §11: one in the slice).
-- **When it is offered:** when a project commit leaves *money for projects* below zero, and the loan is neither taken nor pending. The commit sets `loanWanted`, and step 11 raises the card at the end of the month. M5 adds the offer at the 1980-Q1 budget briefing (§2.1). The card is non-interrupting, with options `take` then `decline`, and expires after `loan.offer_months`. A declined or lapsed loan is offered again at the next such commit, until it is taken.
+- **When it is offered:** when a project commit leaves *money for projects* below zero, and the loan is neither taken nor pending. The commit sets `loanWanted`, and step 11 raises the card at the end of the month. M5 adds the offer at the 1980-Q1 budget briefing (§2.1). The card is non-interrupting, with options `take` then `decline`, and expires after `loan.offer_months`, which must be above 3 so the offer outlives the quarter it is raised in (as for investors, §5.5). Cancelling the commit that wanted it, in the same turn, clears `loanWanted` when money for projects is no longer below zero. A declined or lapsed loan is offered again at the next such commit, until it is taken.
 - **Its terms** are placeholders: `principal`, a monthly `rate`, interest only for `grace_months`, then equal principal over `term_months`. The proceeds go to `debt` and pay only for projects. Debt service comes due from `general`. So a loan taken early squeezes the years after its grace period, not the year it is taken. Cumulative guaranteed bank lending of the period (`phase1.fiscal.guaranteed_infrastructure_loans`) is context, not this loan's size.
 
 **Projects** (fiscal §6.2).
 - **Committing:** `{ type: 'commit_project'; template: string; area?: number; zone?: number; priority? }`. It is valid when:
   - the template exists;
-  - the target fits its kind: a playable area for roads, mains, lines and schools, an existing zone for site preparation, which must have buildable cells not yet serviced;
+  - the target fits its kind: a playable area for roads, mains, lines and schools, an existing zone for site preparation, which must have buildable cells that are neither serviced nor in a live site-preparation project;
   - the forex quota covers the template's `forex_usd`, which is drawn at once (`import`).
 
   An invalid commit throws, like an invalid zone. Money is not a validity test: an unfunded commit is allowed, shows as negative money for projects, and offers the loan.
-- **Budget:** the template's `budget`, or for site preparation `budget_per_cell` × its cells. The cells are the zone's buildable cells outside `servicedLand` at commit, frozen in the project.
+- **Budget:** the template's `budget`, or for site preparation `budget_per_cell` × its cells. The cells are the zone's buildable cells outside `servicedLand` and outside every live site-preparation project at commit, frozen in the project. So land is never paid for, or maintained, twice.
 - **Other actions:** `set_project_priority { project; priority }`; `cancel_project { project }`, which stops the work and books `cancel_penalty` × the unspent budget as a one-month `transfer` obligation. What was spent is sunk.
 - **Spending follows the work.** A month's work on a city project costs its pro-rata share of the budget: spent after = round(budget × crew-units delivered so far ÷ (crew × workTotal)). So the total spent is exactly the budget at completion. It is paid from `debt`, then `land`, then `general`. `general` is drawn only down to `reserve_months` × last month's obligations due (in the first month, × this month's baselines), so the recurring side keeps its reserve.
 - **Waiting for finance:** a project whose month cannot be paid gets no work that month (`stage: 'stalled'`, `waiting: 'finance'`) and resumes when money returns. `stalled` and `waiting` describe this month only: a project that waits for capacity is `committed` or `building`, never `stalled`. This is buildings §4's stall, for a city project that loses its funding.
@@ -795,7 +795,7 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
   - every kind: `maintenance` = budget × `maint_rate_year` ÷ 12.
 
 **Serviced land (三通一平, the §5.5 hook).**
-- **Serviced land is a property of the land, not of a zone.** `servicedLand` holds the serviced cells. In tick step 3, before names and offers, each zone's `servicedShare` is set to its buildable cells in `servicedLand` ÷ its buildable cells (0 when it has none). So an edit that adds cells lowers the share until they are serviced, and removing a zone leaves its land serviced for the next.
+- **Serviced land is a property of the land, not of a zone.** `servicedLand` holds the serviced cells. In tick step 3, before names and offers, and again in step 4 once the month's work is done (so site preparation finished this month counts at once), each zone's `servicedShare` is set to its buildable cells in `servicedLand` ÷ its buildable cells (0 when it has none). Offers already raised keep their options; the next month's offers can site in the zone. So an edit that adds cells lowers the share until they are serviced, and removing a zone leaves its land serviced for the next.
 - **The start:** `servicedLand` is empty. The 1979 town has no serviced industrial land (a placeholder, like the start utilities). The first contracts use existing premises (§5.5).
 - **Connected is not supplied.** Site preparation adds floor capacity for new firms. It adds no water or power: a serviced zone can still have a utility bottleneck, which only mains and lines relieve (§5.5).
 - **Rights and compensation** are not settled by levelling. Village compensation is part of readiness's serviced-land part in M5 (§7.1).
@@ -806,11 +806,11 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
 - **Work stays in months, and stays integer.** Each month a job is given an integer number of crew units, at most its crew. They go into its `crewBank`. Whenever the bank holds a full crew, `workDone` gains a month and the bank loses a crew. Completion is still `workDone ≥ workTotal`. A job given its full crew every month advances one month a month, exactly as in M3b. One given half advances every second month.
 - **Supply each month:** `capacity.local_crew` (the county's own builders: a param, so the pool does not depend on this month's employment, which step 5 computes later) + the crew of every pool contract active this month.
 - **Demand:** every firm cohort under construction, and every city project being built without a dedicated contract.
-- **Allocation:** in priority order (`high`, `normal`, `low`; firm cohorts are `normal`), then by start month, then firm cohorts before projects, then by id. Each job takes min(its crew, what is left). The last job served may get a partial share; later ones get none (`waiting: 'capacity'`). No proportional sharing: a queue finishes things, and the player sees what is waiting and why.
+- **Allocation:** in priority order (`high`, `normal`, `low`; firm cohorts are `normal`), then by start month, then firm cohorts before projects, then by id. Each job takes min(its crew, what is left, the work it has left), so a job's last month passes any spare units down the queue. The last job served may get a partial share; later ones get none (`waiting: 'capacity'`). No proportional sharing: a queue finishes things, and the player sees what is waiting and why.
 - **A firm's two cohorts are two jobs,** the factory first. Under scarcity the dormitory can finish later than the factory. The firm opens when its factory completes (§5.5), so a late factory opens late with no change to the firm code.
 - **Outside the pool:**
   - **Village self-build** (§5.2): it keeps its month of work every month;
-  - **a project with a dedicated contract:** its work comes from its contract's crew from the contract's `starts` month (`waiting: 'mobilization'` before it). A contract crew smaller than the project's crew makes the project slower. The contract waives the pool draw, not the project's cost or its time.
+  - **a project with a dedicated contract:** its work comes from its contract's crew from the contract's `starts` month (`waiting: 'mobilization'` before it). A contract crew smaller than the project's crew makes the project slower. The contract waives the pool draw, not the project's cost or its time. Dedicated projects take their place in the same priority order, drawing only money, so when money is short a high-priority pooled project is paid before a low-priority dedicated one.
 - **The labour market is unchanged:** construction jobs still come from m² under construction (§5.2). The pool limits how fast formal work advances, not how many jobs are posted. City projects post no construction jobs in M4; their crews' housing (works camps) is M5's (§8 `corps`).
 
 **Teams that join** (`content/slice/teams.yaml`, numbers in `params.teams`).
@@ -830,8 +830,9 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
   - **construction, as the work is done:** the value of the month's work × `gdp.construction_va_ratio`. The value is a city project's payment, a firm cohort's m² × `construction.cost_per_m2[archetype]` ÷ `workTotal` for each month of work it gains, and a village cohort's m² × `village_build.build_cost_per_m2` ÷ its duration.
 - **Not in GDP:** the grant, loans, land fees, retention and transfers (fiscal §8.2).
 - GDP needs only `params`, so it is computed with or without the fiscal content.
+- **Timing:** firm value added is from step 6's output; the base rows' fill rates are read in step 13, after any staff the housing and migration steps took out (M3b's trims, §5.5). In a month with an outflow the two parts are measured a few steps apart. This is accepted for Phase 1; M6 checks whether it moves the calibration.
 
-**Views** (fiscal §7). `fiscalViews(state, params, content)` is pure. It returns:
+**Views** (fiscal §7). `fiscalViews(state, params)` is pure. Obligations by kind are this month's (the date in the state), the baselines included; recurring money is last month's series. It returns:
 - **recurring money available:** last month's recurring revenue − obligations due, per month and ×12;
 - **money for projects:** `general` above the reserve floor + `land` + `debt` − Σ unspent budget of live projects;
 - **import access:** the forex quota in USD;
