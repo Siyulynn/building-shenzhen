@@ -1,4 +1,5 @@
-// Spike A (throwaway): render the 100 m grid with pan, zoom, land colouring and one overlay.
+// Spike A (throwaway): render the 100 m grid with pan, zoom, land colouring and overlays.
+// M1b adds the 1979 Landsat scene, the coastline change since 1979 and the 1979 site register flags.
 interface Named { id: number; name: string; en: string; label: [number, number] }
 interface Meta {
   cell_m: number; width: number; height: number;
@@ -25,6 +26,62 @@ async function load() {
   };
 }
 type Grid = Awaited<ReturnType<typeof load>>;
+
+interface SiteClaim { id: string; use: string; status: string; summary?: string; source?: string }
+interface Site {
+  id: string; name: { zh: string; en: string }; kind: string; area: number; in_start_state: string;
+  research?: string[]; placeholder: boolean; evidence_status: string; claims: SiteClaim[];
+  geometry: { kind: string; confidence?: number }; cell: [number, number] | null;
+  landsat_check: { water_1979: string; change: string } | null;
+}
+const STATUS_COLOR: Record<string, string> = { lead: '#d9473a', disputed: '#d9473a', sourced: '#e0a63a', verified: '#4caf6a' };
+
+/** Optional M1b layers: a missing file disables its toggle. */
+async function load1979(n: number) {
+  const img = new Image();
+  const landsat = await new Promise<HTMLImageElement | null>((ok) => {
+    img.onload = () => ok(img); img.onerror = () => ok(null); img.src = '/grid/landsat1979.png';
+  });
+  const res = await fetch('/grid/coast_change.bin');
+  const change = res.ok ? new Uint8Array(await res.arrayBuffer()) : null;
+  const sres = await fetch('/grid/sites.json');
+  const sites: Site[] = sres.ok ? (await sres.json()).sites : [];
+  return { landsat, change: change && change.length === n ? change : null, sites };
+}
+
+function buildChange(W: number, H: number, change: Uint8Array): HTMLCanvasElement {
+  const off = document.createElement('canvas');
+  off.width = W; off.height = H;
+  const img = off.getContext('2d')!.createImageData(W, H);
+  const colors: Record<number, [number, number, number]> = { 1: [240, 140, 46], 2: [170, 110, 220], 3: [63, 199, 214] };
+  for (let i = 0; i < W * H; i++) {
+    const c = colors[change[i]!];
+    if (c) img.data.set([...c, 210], i * 4);
+  }
+  off.getContext('2d')!.putImageData(img, 0, 0);
+  return off;
+}
+
+const ESC: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ESC[c]!);
+function showSite(s: Site | null) {
+  const el = $('site');
+  if (!s) { el.style.display = 'none'; return; }
+  const claims = s.claims.map((c) => `<div class="claim" style="border-color:${STATUS_COLOR[c.status] ?? '#555'}">
+      <b>${esc(c.status)}</b> · ${esc(c.use)} · <code>${esc(c.id)}</code><br>${esc(c.summary ?? '')}
+      ${c.source ? `<div class="muted">source: ${esc(c.source)}</div>` : ''}</div>`).join('');
+  const lc = s.landsat_check;
+  el.innerHTML = `<button id="siteclose" title="Close">✕</button>
+    <h3>${esc(s.name.zh)} ${esc(s.name.en)}</h3>
+    <div class="muted">${esc(s.kind)} · slice area ${s.area || '–'} · enters the start state as ${esc(s.in_start_state)}${s.placeholder ? ' (placeholder)' : ''}</div>
+    <div style="margin-top:6px">Flag: <b style="color:${STATUS_COLOR[s.evidence_status]}">${esc(s.evidence_status)}</b></div>
+    <div class="muted">${s.cell ? `Proxy point, cell ${s.cell.join(',')}, confidence ${s.geometry.confidence ?? '?'}` : 'Not placed yet'}</div>
+    ${lc ? `<div class="muted">Landsat 1979 at this cell: ${esc(lc.water_1979)}, ${esc(lc.change)}</div>` : ''}
+    ${claims}
+    <div class="muted">Still to research: ${esc((s.research ?? []).join('; '))}</div>`;
+  el.style.display = 'block';
+  $('siteclose').onclick = () => showSite(null);
+}
 
 function hypso(e: number): [number, number, number] {
   const stops: [number, [number, number, number]][] = [
@@ -85,6 +142,17 @@ async function main() {
   const { meta } = g;
   const opts = { hill: true, dist: true, sub: false, slice: false };
   let base = buildBase(g, opts);
+  const y79 = await load1979(meta.width * meta.height);
+  const changeLayer = y79.change ? buildChange(meta.width, meta.height, y79.change) : null;
+  const layers = { landsat: false, coast: false, sites: true };
+  const present = { landsat: !!y79.landsat, coast: !!changeLayer, sites: y79.sites.length > 0 };
+  for (const key of ['landsat', 'coast', 'sites'] as const) {
+    if (!present[key]) { $<HTMLInputElement>(key).disabled = true; $<HTMLInputElement>(key).checked = false; layers[key] = false; }
+  }
+  const unplaced = y79.sites.filter((s) => !s.cell);
+  $('unplaced').textContent = unplaced.length
+    ? `${y79.sites.length - unplaced.length} placed, ${unplaced.length} not placed yet: ${unplaced.map((s) => s.name.zh).join('、')}` : '';
+  let selected: string | null = null;
   const view = { scale: 1, ox: 0, oy: 0 };
 
   const resize = () => {
@@ -107,7 +175,24 @@ async function main() {
     ctx.imageSmoothingEnabled = view.scale < 1;
     ctx.setTransform(view.scale, 0, 0, view.scale, view.ox, view.oy);
     ctx.drawImage(base, 0, 0);
+    if (layers.landsat && y79.landsat) ctx.drawImage(y79.landsat, 0, 0, meta.width, meta.height);
+    if (layers.coast && changeLayer) ctx.drawImage(changeLayer, 0, 0);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    if (layers.sites) {
+      const dpr = devicePixelRatio;
+      ctx.font = `${11 * dpr}px system-ui, sans-serif`; ctx.textAlign = 'left';
+      for (const s of y79.sites) {
+        if (!s.cell) continue;
+        const sx = view.ox + (s.cell[0] + 0.5) * view.scale, sy = view.oy + (s.cell[1] + 0.5) * view.scale;
+        ctx.beginPath(); ctx.arc(sx, sy, 5 * dpr, 0, Math.PI * 2);
+        ctx.fillStyle = STATUS_COLOR[s.evidence_status] ?? '#999'; ctx.fill();
+        ctx.lineWidth = 1.5 * dpr; ctx.strokeStyle = s.id === selected ? '#fff' : 'rgba(14,26,36,.9)'; ctx.stroke();
+        if (view.scale > 3) {
+          ctx.lineWidth = 3 * dpr; ctx.strokeStyle = 'rgba(14,26,36,.8)'; ctx.fillStyle = '#f4ecd8';
+          ctx.strokeText(s.name.zh, sx + 8 * dpr, sy + 4 * dpr); ctx.fillText(s.name.zh, sx + 8 * dpr, sy + 4 * dpr);
+        }
+      }
+    }
     ctx.textAlign = 'center';
     const dpr = devicePixelRatio;
     const labels = (items: Named[], size: number, color: string) => {
@@ -143,7 +228,20 @@ async function main() {
   }, { passive: false });
   let drag: { x: number; y: number } | null = null;
   canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY }; canvas.classList.add('dragging'); canvas.setPointerCapture(e.pointerId); });
-  canvas.addEventListener('pointerup', () => { drag = null; canvas.classList.remove('dragging'); });
+  let down: { x: number; y: number } | null = null;
+  canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; });
+  canvas.addEventListener('pointerup', (e) => {
+    drag = null; canvas.classList.remove('dragging');
+    if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 4 || !layers.sites) return;
+    const mx = e.offsetX * devicePixelRatio, my = e.offsetY * devicePixelRatio;
+    let best: Site | null = null, bestD = 10 * devicePixelRatio;
+    for (const s of y79.sites) {
+      if (!s.cell) continue;
+      const d = Math.hypot(view.ox + (s.cell[0] + 0.5) * view.scale - mx, view.oy + (s.cell[1] + 0.5) * view.scale - my);
+      if (d < bestD) { best = s; bestD = d; }
+    }
+    selected = best?.id ?? null; showSite(best); request();
+  });
   canvas.addEventListener('pointermove', (e) => {
     if (drag) {
       view.ox += (e.clientX - drag.x) * devicePixelRatio; view.oy += (e.clientY - drag.y) * devicePixelRatio;
@@ -155,12 +253,21 @@ async function main() {
     const i = cy * meta.width + cx;
     const d = meta.districts.find((x) => x.id === g.dist[i]);
     const s = meta.subdistricts.find((x) => x.id === g.sub[i]);
-    $('hover').textContent = `cell ${cx},${cy} · ${g.water[i] ? 'water' : `${g.elev[i]} m`} · ${d ? `${d.name} ${d.en}` : 'outside Shenzhen'}${s ? ` · ${s.name}` : ''}`;
+    const THEN: Record<number, string> = { 1: ' · 1979: sea', 2: ' · 1979: land', 3: ' · 1979: inland water', 255: ' · 1979: no data' };
+    const then = y79.change ? (THEN[y79.change[i]!] ?? '') : '';
+    $('hover').textContent = `cell ${cx},${cy} · ${g.water[i] ? 'water' : `${g.elev[i]} m`} · ${d ? `${d.name} ${d.en}` : 'outside Shenzhen'}${s ? ` · ${s.name}` : ''}${then}`;
   });
   for (const key of ['hill', 'dist', 'sub', 'slice'] as const) {
     $<HTMLInputElement>(key).addEventListener('change', (e) => {
       opts[key] = (e.target as HTMLInputElement).checked;
       base = buildBase(g, opts); request();
+    });
+  }
+  for (const key of ['landsat', 'coast', 'sites'] as const) {
+    $<HTMLInputElement>(key).addEventListener('change', (e) => {
+      layers[key] = (e.target as HTMLInputElement).checked;
+      if (key === 'sites' && !layers.sites) { selected = null; showSite(null); }
+      request();
     });
   }
   draw();

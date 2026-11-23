@@ -35,7 +35,7 @@ Phase 1 tests the core triangle: **growth vs fiscal survival vs politics and rev
 
 ## 3. The map
 - **The grid** is the Spike A grid (`docs/spikes/spike-a-map.md`): 100 m cells in UTM 50N. Only cells inside the slice areas are playable. Everything else is drawn but locked.
-- **The coastline** is the present-day DEM coastline until the 1979 coastline is traced. This overstates Shekou's land (reclamation started in this period). The map shows a caveat until it is fixed.
+- **The coastline.** The start-state baseline is the Landsat 3 MSS scene of 1979-10-19 (source `landsat_1979_10_19`; `pipeline/m1b_landsat_1979.py`, notes in `docs/spikes/m1b-sites.md`). An automatic near-infrared threshold gives a 1979 water mask per cell and a change layer: about 79 km² inside today's city was sea in 1979 and is land now. The mask is a `lead` observation (60 m pixels, tide unknown) until a person checks it, so the map keeps a caveat. Until then the playable land still comes from the present-day DEM.
 - **1979 is not a blank map.** The start state is built from a register of sites that already existed (§3.1), each flagged on the map with its evidence status.
 - **The SEZ boundary** does not exist at the start. It is drawn onto the map by the establishment event (§7.1), and only cells inside it get SEZ policies afterwards.
 - **Slice areas.** Ten areas, as a **design proposal**. Their names and roles come from general knowledge and are `lead`. Their geometry starts as present-day OSM subdistricts used as proxies, and should be redrawn from period maps once those are found.
@@ -64,16 +64,21 @@ Shenzhen in 1979 had a market town, a border crossing and railway, villages, far
   name: { zh: 深圳墟, en: Shenzhen market town }
   kind: town            # town | village | crossing | railway | road | reservoir | farmland | fishpond | state_unit | factory | school | clinic | military | border
   area: 1               # slice area (§3)
-  geometry: { kind: polygon, ref: data/evidence/observations/sites_1979/shenzhen_market_town.geojson, confidence: 0.3 }
+  geometry: { kind: point, lonlat: [114.1136, 22.5466], proxy: osm_shenzhen_places, confidence: 0.2 }
+  # kind: point (a present-day proxy) | polygon (ref: data/evidence/observations/sites_1979/<id>.geojson) | unplaced
   in_start_state: block_stock      # tracked_building | block_stock | facility | road | land_use
-  claims: [site.shenzhen_market_town.exists_1979]
-  evidence_status: lead            # computed from the claims; shown on the map
+  claims:
+    - { id: site.shenzhen_market_town.exists_1979, use: encyclopedia }
+    - { id: site.shenzhen_market_town.location, use: geometry }
+  # evidence_status is computed, not stored: the weakest of the site's own encyclopedia and geometry claims.
+  # design_note claims (context such as later figures) don't move the flag.
   research: [USGS 1977 aerial (V15), period maps, county gazetteer]
 ```
 - **Flags on the map:** every site shows a marker coloured by evidence status: `lead` (red), `sourced` (amber), `verified` (green). Clicking it opens the claims, the sources and what is still unknown. The sites stay flagged in the slice, so the player always sees which parts of 1979 are researched.
 - **How sites enter the start state:** a village becomes a block stock with village houses and farmland; the market town becomes block stocks of shops and state-unit buildings; the station and the bridge become tracked landmarks; the reservoir becomes water and unbuildable land; roads and the railway become network edges.
 - **Placeholders:** where a site is known to exist but its size is not, the start file uses a placeholder (`placeholder: true`) and the map says so.
-- **The key source** is the USGS aerial imagery from 1969 and 1977 (V15). Georeferenced against the Spike A grid, it shows the footprints of villages, fields, ponds and roads (evidence protocol §5.5).
+- **Status (M1b, 2026-11-23):** 20 sites in the register, 16 with present-day OSM proxy points (source `osm_shenzhen_places`) and 4 unplaced (railway line, Guangzhou road, border fence, military land). All flags are red. The viewer shows what the 1979 Landsat scene has at each proxy point as a hint for placing it.
+- **The key sources** are the Landsat scene of 1979-10-19 (now in hand, 60 m) for coastline, water and the largest built-up patches, and the USGS aerial imagery from 1969 and 1977 (V15). Georeferenced against the Spike A grid, it shows the footprints of villages, fields, ponds and roads (evidence protocol §5.5).
 
 **Candidate sites to study** (all `lead`: from general knowledge, to be confirmed and located):
 
@@ -229,17 +234,20 @@ params/slice.yaml                 # all tunable numbers
 ```
 Every historical statement cites claim IDs (CLAUDE.md). Claims that don't exist yet are created as `lead` in the same change.
 
-**The events** (about 15). *Anchor* dates are fixed in Historical mode; *milestones* are timed by the player; *emergent* events fire from sim conditions. All anchor claims are `lead` until sourced.
+**The events** (about 15). *Anchor* dates are fixed in Historical mode; *milestones* are timed by the player; *emergent* events fire from sim conditions. Anchors need `verified` claims (protocol §4). The `phase1.*` claims below are `sourced` from the Phase 1 research (`docs/research/phase1-1979-1984.md`) and wait for a person's check. They replace the earlier `event.*` leads, which stay in the store with a note until a person marks them superseded.
 
 | # | Event | Family | Reference | Claim |
 |---|---|---|---|---|
-| 1 | Bao'an County becomes Shenzhen City | anchor | 1979-03 | `event.baoan_becomes_shenzhen_city` (lead) |
-| 2 | Shekou's industrial zone begins (area 9 becomes a card-only enclave) | anchor | 1979 | `event.shekou_industrial_zone_begins` (lead) |
+| 1 | Bao'an County becomes Shenzhen City | anchor | 1979-03-05 | `phase1.event.shenzhen_city_approval` (sourced) |
+| 2 | Shekou's construction headquarters set up; works begin in July (area 9 becomes a card-only enclave) | anchor | 1979-04-01, 1979-07 | `phase1.event.shekou_command`, `phase1.event.shekou_works` (sourced) |
 | 3 | Forex retention: quotas to buy foreign exchange | anchor (in force at start) | 1979 | `forex.retention.start` (sourced) |
-| 4 | **The SEZ is established** (a chain of cards, §7.1) | anchor | 1980-08-26 | `event.sez_established` (lead) |
-| 5 | Land-use fee regulations | anchor | 1981-11 | `land.regulations_1981` (lead) |
-| 6 | The second-line fence goes up | anchor | 1982 | `event.second_line_fence` (lead) |
-| 7 | **Deng Xiaoping's visit** (the closing event, §7.2) | anchor | 1984-01 | `event.deng_visit_1984` (lead) |
+| 4 | **The SEZ is established** (a chain of cards, §7.1) | anchor | 1980-08-26 | `phase1.event.sez_regulations` (sourced) |
+| 5 | Land-use rules: decided 1981-11-17, in force 1982-01-01 | anchor | 1982-01-01 | `phase1.event.land_rules_1981` (sourced) |
+| 6 | The second-line fence goes up | anchor | 1982-06 | `phase1.event.second_line_construction` (sourced) |
+| 7 | **Deng Xiaoping's visit** (the closing event, §7.2) | anchor | 1984-01-24 | `phase1.event.deng_first_visit` (sourced) |
+| 7a | The Bamboo Garden Hotel opens | anchor (card) | 1981-01-25 | `phase1.event.bamboo_garden_opens` (sourced) |
+| 7b | The construction corps arrives | anchor (card) | 1982 (autumn) | `phase1.event.construction_corps_arrival` (sourced) |
+| 7c | Interim rules on residence and temporary-residence papers | anchor (card) | 1983-07-06 | `phase1.event.temporary_residence_documents` (sourced) |
 | 8 | The first processing contract signed | milestone | — | design_note |
 | 9 | The first export processing zone opens (the mandate) | milestone | — | design_note |
 | 10 | Shekou poaches an investor | emergent | — | design_note |

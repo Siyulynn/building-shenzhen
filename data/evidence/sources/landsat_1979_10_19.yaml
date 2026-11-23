@@ -1,0 +1,20 @@
+id: landsat_1979_10_19
+title: Landsat 3 MSS Collection 2 Level-1 scene LM03_L1TP_131044_19791019_20200906_02_T2
+issuer: U.S. Geological Survey Earth Resources Observation and Science Center
+doc_date: 1979-10-19
+url: https://doi.org/10.5066/P9AF14YV
+retrieved: 2026-11-23
+local_copy:
+  path: data/raw/sources/landsat_1979_10_19/LM03_L1TP_131044_19791019_20200906_02_T2.tar
+  sha256: 27fa5bb1063db1de500b64b0f846b9a99644706d9d7e503778376164f5f1b6c6
+tier: B
+reuse: public_domain
+notes: >-
+  User supplied the EarthExplorer bulk bundle for scene LM31310441979292AAA04,
+  WRS-1 path 131 / row 044, acquired 1979-10-19. The product metadata (MTL.txt)
+  identifies Collection 2 Tier 2, processing level L1TP, 60 m pixels,
+  WGS 84 / UTM zone 49N (EPSG:32649), and 0% scene and land cloud cover.
+  The metadata reports a geometric model RMSE of 26.777 m.
+  All four MSS bands (B4-B7) and both QA GeoTIFFs were readable on the same
+  3727 by 3548 grid. The archive also contains the scene footprint in its
+  STAC JSON. No map features have been digitized from this source.

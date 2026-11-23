@@ -1,0 +1,189 @@
+# Claims behind the 1979 site register (content/slice/sites_1979.yaml, phase1-slice.md §3.1).
+# Two claims per placed site:
+#   site.<id>.exists_1979  lead from general knowledge: the site existed at the start of 1979. Needs a period source.
+#   site.<id>.location     lead: a present-day OSM point used as a proxy. Needs placing on 1979 imagery (Landsat 1979-10-19,
+#                          USGS 1977 aerial, KH-9), then a person checks it.
+- id: site.shenzhen_market_town.exists_1979
+  origin: general_knowledge
+  summary: The Shenzhen market town (深圳墟), around today's Dongmen streets, was the main built-up place in the slice in 1979.
+  status: lead
+- id: site.shenzhen_market_town.location
+  source: osm_shenzhen_places
+  locator: "name=东门老街"
+  summary: Proxy point at the present-day Dongmen old street.
+  status: lead
+  notes: Present-day position; the 1979 extent is unknown.
+
+- id: site.county_offices.exists_1979
+  origin: general_knowledge
+  summary: The county's offices and state units stood in or beside the market town in 1979.
+  status: lead
+  notes: Which units, where and how many staff are all open. Not placed.
+
+- id: site.luohu_crossing.exists_1979
+  origin: general_knowledge
+  summary: The Luohu bridge over the Shenzhen River was a passenger border crossing to Hong Kong in 1979.
+  status: lead
+- id: site.luohu_crossing.location
+  source: osm_shenzhen_places
+  locator: "name=罗湖桥"
+  summary: Proxy point at the present-day Luohu bridge.
+  status: lead
+
+- id: site.shenzhen_station.exists_1979
+  origin: general_knowledge
+  summary: The Kowloon–Canton railway ran to a Shenzhen station by the Luohu crossing in 1979.
+  status: lead
+- id: site.shenzhen_station.location
+  source: osm_shenzhen_places
+  locator: "name=深圳站"
+  summary: Proxy point at the present-day Shenzhen station, which was rebuilt later.
+  status: lead
+
+- id: site.wenjindu_crossing.exists_1979
+  origin: general_knowledge
+  summary: Wenjindu was a crossing used for freight to Hong Kong in 1979.
+  status: lead
+  notes: phase1.map.luohu_gate_roles gives the freight role in the 1985 yearbook, not yet for 1979.
+- id: site.wenjindu_crossing.location
+  source: osm_shenzhen_places
+  locator: "name=文锦渡口岸"
+  summary: Proxy point at the present-day Wenjindu port.
+  status: lead
+
+- id: site.caiwuwei.exists_1979
+  origin: general_knowledge
+  summary: Caiwuwei (蔡屋围) was a village beside the market town in 1979.
+  status: lead
+- id: site.caiwuwei.location
+  source: osm_shenzhen_places
+  locator: "name=蔡屋围 (neighbourhood)"
+  summary: Proxy point at the present-day Caiwuwei neighbourhood.
+  status: lead
+
+- id: site.yumin.exists_1979
+  origin: general_knowledge
+  summary: Yumin village (渔民村) was a fishing village near the Luohu crossing in 1979.
+  status: lead
+  notes: Verification log V18.
+- id: site.yumin.location
+  source: osm_shenzhen_places
+  locator: "name=渔民村 (residential)"
+  summary: Proxy point at the present-day Yumin village; phase1.map.yumin_river_location puts it where the Buji and Shenzhen rivers meet.
+  status: lead
+
+- id: site.huangbeiling.exists_1979
+  origin: general_knowledge
+  summary: Huangbeiling (黄贝岭) was a village east of the market town in 1979.
+  status: lead
+- id: site.huangbeiling.location
+  source: osm_shenzhen_places
+  locator: "name=黄贝岭 (community)"
+  summary: Proxy point at the present-day Huangbeiling community.
+  status: lead
+
+- id: site.hubei.exists_1979
+  origin: general_knowledge
+  summary: Hubei (湖贝) was a village on the east side of the market town in 1979.
+  status: lead
+- id: site.hubei.location
+  source: osm_shenzhen_places
+  locator: "name=湖贝新村"
+  summary: Proxy point at the present-day Hubei new village, which may not be the old village core.
+  status: lead
+
+- id: site.xiangxi.exists_1979
+  origin: general_knowledge
+  summary: Xiangxi (向西) was a village beside the market town in 1979.
+  status: lead
+- id: site.xiangxi.location
+  source: osm_shenzhen_places
+  locator: "name=向西村"
+  summary: Proxy point at the present-day Xiangxi village.
+  status: lead
+
+- id: site.sungang.exists_1979
+  origin: general_knowledge
+  summary: Sungang (笋岗) was a village with farmland north of the market town in 1979.
+  status: lead
+- id: site.sungang.location
+  source: osm_shenzhen_places
+  locator: "name=笋岗村"
+  summary: Proxy point at the present-day Sungang village.
+  status: lead
+
+- id: site.shenzhen_reservoir.exists_1979
+  origin: general_knowledge
+  summary: The Shenzhen Reservoir (深圳水库) existed in 1979 and supplied water, including to Hong Kong.
+  status: lead
+  notes: Capacity and supply commitments are open.
+- id: site.shenzhen_reservoir.location
+  source: osm_shenzhen_places
+  locator: "relation 417246 (深圳水库), centroid"
+  summary: Proxy point at the present-day reservoir.
+  status: lead
+  notes: The 1979 Landsat scene shows its water surface; check the outline against it.
+
+- id: site.shangbu_land.exists_1979
+  origin: general_knowledge
+  summary: Before the industrial zone, Shangbu (上步) was mostly farmland and villages in 1979.
+  status: lead
+  notes: Land use in 1979 is open. phase1.shangbu.reported_pop is for the later management district.
+- id: site.shangbu_land.location
+  source: osm_shenzhen_places
+  locator: "name=上步工业区"
+  summary: Proxy point at the present-day Shangbu industrial area.
+  status: lead
+
+- id: site.nantou_old_town.exists_1979
+  origin: general_knowledge
+  summary: The old county town of Nantou (南头古城), with its walls and streets, existed in 1979.
+  status: lead
+- id: site.nantou_old_town.location
+  source: osm_shenzhen_places
+  locator: "way 219961346 (南头古城), centroid"
+  summary: Proxy point at the present-day Nantou old town.
+  status: lead
+
+- id: site.shekou_fishing_harbour.exists_1979
+  origin: general_knowledge
+  summary: Shekou had fishing villages and a small harbour in 1979.
+  status: lead
+  notes: Shekou is card only in the slice.
+- id: site.shekou_fishing_harbour.location
+  source: osm_shenzhen_places
+  locator: "name=蛇口渔港"
+  summary: Proxy point at the present-day Shekou fishing harbour.
+  status: lead
+  notes: The present-day harbour may stand on reclaimed land; see the Landsat check in sites.json.
+
+- id: site.chiwan.exists_1979
+  origin: general_knowledge
+  summary: Chiwan (赤湾) was a coastal village west of Shekou in 1979.
+  status: lead
+- id: site.chiwan.location
+  source: osm_shenzhen_places
+  locator: "name=赤湾"
+  summary: Proxy point at present-day Chiwan.
+  status: lead
+
+- id: site.kcr_line.exists_1979
+  origin: general_knowledge
+  summary: The Kowloon–Canton railway line crossed the slice from the north to the Luohu crossing in 1979.
+  status: lead
+  notes: Not placed. Trace it on the 1979 imagery.
+- id: site.guangshen_road.exists_1979
+  origin: general_knowledge
+  summary: A road from Guangzhou reached the Shenzhen market town in 1979.
+  status: lead
+  notes: Route and condition are open. Not placed.
+- id: site.border_fence.exists_1979
+  origin: general_knowledge
+  summary: A border fence and patrol road ran along the Shenzhen River in 1979.
+  status: lead
+  notes: Fence line and restricted strip are open. Not placed.
+- id: site.military_land.exists_1979
+  origin: general_knowledge
+  summary: Some land in the slice was military or restricted in 1979.
+  status: lead
+  notes: Where is open. Not placed.

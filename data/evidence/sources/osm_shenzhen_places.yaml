@@ -1,0 +1,13 @@
+id: osm_shenzhen_places
+title: OpenStreetMap named places in present-day Luohu, Futian and Nanshan (villages, crossings, reservoir, old towns), Overpass export
+issuer: OpenStreetMap contributors
+url: https://overpass-api.de/api/interpreter
+retrieved: 2026-11-23
+local_copy:
+  path: data/raw/sources/osm_shenzhen_places/places.json
+  sha256: c560f0561cff6092547e01bbb387668e26667c29a31a5c3585dfcf634d874084
+tier: D
+reuse: open_share_alike
+notes: >-
+  Present-day positions (ODbL); the query is in q.txt beside the export. Used only as proxy points for the
+  1979 site register until the sites are placed on 1979 imagery. Says nothing about what existed in 1979.

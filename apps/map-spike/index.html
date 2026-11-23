@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Spike A: 100 m grid</title>
+  <title>Shenzhen grid and 1979 sites</title>
   <style>
     html, body { margin: 0; height: 100%; background: #0e1a24; color: #e8e4d8; font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
     canvas { display: block; width: 100vw; height: 100vh; cursor: grab; }
@@ -14,6 +14,13 @@
     #hover { position: fixed; bottom: 12px; left: 12px; background: rgba(14,26,36,.88); padding: 6px 10px; border-radius: 6px; font-variant-numeric: tabular-nums; }
     #caveat { color: #d9b26f; margin-top: 6px; font-size: 12px; }
     #perf { color: #8fa3b3; font-size: 12px; }
+    #panel h2 { font-size: 12px; margin: 8px 0 2px; color: #b8c4cc; font-weight: 600; }
+    .key { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+    #site { position: fixed; top: 12px; right: 12px; background: rgba(14,26,36,.92); padding: 10px 12px; border-radius: 6px; width: 320px; max-height: 80vh; overflow: auto; display: none; }
+    #site h3 { margin: 0 0 4px; font-size: 14px; }
+    #site .claim { margin: 6px 0; padding-left: 8px; border-left: 3px solid #555; font-size: 12px; }
+    #site .muted, #unplaced { color: #8fa3b3; font-size: 12px; }
+    #site button { float: right; background: none; color: #e8e4d8; border: 0; cursor: pointer; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -24,9 +31,17 @@
     <label><input type="checkbox" id="dist" checked /> District boundaries</label>
     <label><input type="checkbox" id="sub" /> Subdistrict boundaries and labels</label>
     <label><input type="checkbox" id="slice" /> Phase 1 slice (Luohu + Shekou)</label>
-    <div id="caveat">Present-day coastline and boundaries. The 1979 coastline is not traced yet.</div>
+    <h2>1979 (Landsat 3 MSS, 1979-10-19)</h2>
+    <label><input type="checkbox" id="landsat" /> False-colour image (vegetation red)</label>
+    <label><input type="checkbox" id="coast" /> Coastline change since 1979</label>
+    <div class="muted" id="coastkey" style="font-size:12px;color:#8fa3b3"><span class="key" style="background:#f08c2e"></span>sea then, land now <span class="key" style="background:#3fc7d6"></span>inland water then</div>
+    <label><input type="checkbox" id="sites" checked /> 1979 site register</label>
+    <div style="font-size:12px"><span class="key" style="background:#d9473a"></span>lead <span class="key" style="background:#e0a63a"></span>sourced <span class="key" style="background:#4caf6a"></span>verified</div>
+    <div id="unplaced"></div>
+    <div id="caveat">Present-day boundaries. Site points are present-day OSM proxies, not yet placed on 1979 imagery. The 1979 water mask is an automatic threshold (tide unknown).</div>
     <div id="perf"></div>
   </div>
+  <div id="site"></div>
   <div id="hover">Drag to pan, wheel to zoom</div>
   <script type="module" src="/src/main.ts"></script>
 </body>

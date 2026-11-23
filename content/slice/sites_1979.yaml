@@ -1,0 +1,237 @@
+# The 1979 site register (docs/design/systems/phase1-slice.md §3.1, milestone M1b).
+# Every site is a lead until a period source says it existed and a person places it on 1979 imagery.
+# geometry.kind: point (a present-day OSM proxy, low confidence) | unplaced (known to exist, not yet located).
+# evidence_status is not stored here: pipeline/m1b_sites.py computes it from the cited claims for the map.
+- id: site.shenzhen_market_town
+  name: { zh: 深圳墟, en: Shenzhen market town }
+  kind: town
+  area: 1
+  geometry: { kind: point, lonlat: [114.1136, 22.5466], proxy: osm_shenzhen_places, confidence: 0.2 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.shenzhen_market_town.exists_1979, use: encyclopedia }
+    - { id: site.shenzhen_market_town.location, use: geometry }
+    - { id: phase1.map.shennan_1980, use: design_note }
+  research: [Landsat 1979-10-19 built-up texture, USGS 1977 aerial (V15), Bao'an county gazetteer, period street maps]
+
+- id: site.county_offices
+  name: { zh: 县属机关与国营单位, en: County offices and state units }
+  kind: state_unit
+  area: 1
+  geometry: { kind: unplaced }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.county_offices.exists_1979, use: encyclopedia }
+  research: [Bao'an county gazetteer, 1985 yearbook unit lists]
+
+- id: site.luohu_crossing
+  name: { zh: 罗湖桥与口岸, en: Luohu bridge and crossing }
+  kind: crossing
+  area: 2
+  geometry: { kind: point, lonlat: [114.1135, 22.5301], proxy: osm_shenzhen_places, confidence: 0.4 }
+  in_start_state: tracked_building
+  claims:
+    - { id: site.luohu_crossing.exists_1979, use: encyclopedia }
+    - { id: site.luohu_crossing.location, use: geometry }
+    - { id: phase1.map.luohu_gate_roles, use: design_note }
+  research: [Daily crossings in 1979, checkpoint facilities]
+
+- id: site.shenzhen_station
+  name: { zh: 深圳火车站, en: Shenzhen station }
+  kind: railway
+  area: 2
+  geometry: { kind: point, lonlat: [114.1121, 22.5345], proxy: osm_shenzhen_places, confidence: 0.3 }
+  in_start_state: tracked_building
+  claims:
+    - { id: site.shenzhen_station.exists_1979, use: encyclopedia }
+    - { id: site.shenzhen_station.location, use: geometry }
+  research: [Station site in 1979, freight sidings]
+
+- id: site.kcr_line
+  name: { zh: 广九铁路, en: Kowloon–Canton railway }
+  kind: railway
+  area: 2
+  geometry: { kind: unplaced }
+  in_start_state: road
+  claims:
+    - { id: site.kcr_line.exists_1979, use: encyclopedia }
+  research: [Trace on Landsat 1979 and USGS 1977 aerial]
+
+- id: site.guangshen_road
+  name: { zh: 广深公路, en: Guangzhou–Shenzhen road }
+  kind: road
+  area: 5
+  geometry: { kind: unplaced }
+  in_start_state: road
+  claims:
+    - { id: site.guangshen_road.exists_1979, use: encyclopedia }
+  research: [Route and condition in 1979]
+
+- id: site.wenjindu_crossing
+  name: { zh: 文锦渡, en: Wenjindu crossing }
+  kind: crossing
+  area: 4
+  geometry: { kind: point, lonlat: [114.1269, 22.5430], proxy: osm_shenzhen_places, confidence: 0.3 }
+  in_start_state: tracked_building
+  claims:
+    - { id: site.wenjindu_crossing.exists_1979, use: encyclopedia }
+    - { id: site.wenjindu_crossing.location, use: geometry }
+    - { id: phase1.map.luohu_gate_roles, use: design_note }
+  research: [Freight role and volume in 1979]
+
+- id: site.caiwuwei
+  name: { zh: 蔡屋围, en: Caiwuwei village }
+  kind: village
+  area: 3
+  geometry: { kind: point, lonlat: [114.1027, 22.5409], proxy: osm_shenzhen_places, confidence: 0.3 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.caiwuwei.exists_1979, use: encyclopedia }
+    - { id: site.caiwuwei.location, use: geometry }
+  research: [Houses, fields, population, lineage]
+
+- id: site.yumin
+  name: { zh: 渔民村, en: Yumin village }
+  kind: village
+  area: 4
+  geometry: { kind: point, lonlat: [114.1071, 22.5358], proxy: osm_shenzhen_places, confidence: 0.4 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.yumin.exists_1979, use: encyclopedia }
+    - { id: site.yumin.location, use: geometry }
+    - { id: phase1.map.yumin_river_location, use: geometry }
+  research: [Houses, fishponds, boats, population (V18)]
+
+- id: site.huangbeiling
+  name: { zh: 黄贝岭, en: Huangbeiling village }
+  kind: village
+  area: 4
+  geometry: { kind: point, lonlat: [114.1332, 22.5501], proxy: osm_shenzhen_places, confidence: 0.3 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.huangbeiling.exists_1979, use: encyclopedia }
+    - { id: site.huangbeiling.location, use: geometry }
+  research: [Houses, fields, population]
+
+- id: site.hubei
+  name: { zh: 湖贝, en: Hubei village }
+  kind: village
+  area: 1
+  geometry: { kind: point, lonlat: [114.1238, 22.5510], proxy: osm_shenzhen_places, confidence: 0.2 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.hubei.exists_1979, use: encyclopedia }
+    - { id: site.hubei.location, use: geometry }
+  research: [Old village core versus the present-day new village]
+
+- id: site.xiangxi
+  name: { zh: 向西, en: Xiangxi village }
+  kind: village
+  area: 3
+  geometry: { kind: point, lonlat: [114.1207, 22.5454], proxy: osm_shenzhen_places, confidence: 0.2 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.xiangxi.exists_1979, use: encyclopedia }
+    - { id: site.xiangxi.location, use: geometry }
+  research: [Houses, fields, population]
+
+- id: site.sungang
+  name: { zh: 笋岗, en: Sungang village and farmland }
+  kind: village
+  area: 5
+  geometry: { kind: point, lonlat: [114.1093, 22.5701], proxy: osm_shenzhen_places, confidence: 0.2 }
+  in_start_state: land_use
+  placeholder: true
+  claims:
+    - { id: site.sungang.exists_1979, use: encyclopedia }
+    - { id: site.sungang.location, use: geometry }
+  research: [Extent of fields and ponds]
+
+- id: site.shenzhen_reservoir
+  name: { zh: 深圳水库, en: Shenzhen Reservoir }
+  kind: reservoir
+  area: 6
+  geometry: { kind: point, lonlat: [114.1526, 22.5852], proxy: osm_shenzhen_places, confidence: 0.5 }
+  in_start_state: land_use
+  claims:
+    - { id: site.shenzhen_reservoir.exists_1979, use: encyclopedia }
+    - { id: site.shenzhen_reservoir.location, use: geometry }
+  research: [Capacity, supply commitments, outline on Landsat 1979]
+
+- id: site.border_fence
+  name: { zh: 深圳河边境线, en: Shenzhen River border fence }
+  kind: border
+  area: 2
+  geometry: { kind: unplaced }
+  in_start_state: land_use
+  claims:
+    - { id: site.border_fence.exists_1979, use: encyclopedia }
+  research: [Fence line, patrol roads, restricted strip]
+
+- id: site.shangbu_land
+  name: { zh: 上步, en: Shangbu farmland and villages }
+  kind: farmland
+  area: 8
+  geometry: { kind: point, lonlat: [114.0789, 22.5504], proxy: osm_shenzhen_places, confidence: 0.2 }
+  in_start_state: land_use
+  placeholder: true
+  claims:
+    - { id: site.shangbu_land.exists_1979, use: encyclopedia }
+    - { id: site.shangbu_land.location, use: geometry }
+    - { id: phase1.shangbu.reported_pop, use: design_note }
+  research: [Land use in 1979, which villages]
+
+- id: site.nantou_old_town
+  name: { zh: 南头古城, en: Nantou old town }
+  kind: town
+  area: 10
+  geometry: { kind: point, lonlat: [113.9160, 22.5463], proxy: osm_shenzhen_places, confidence: 0.4 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.nantou_old_town.exists_1979, use: encyclopedia }
+    - { id: site.nantou_old_town.location, use: geometry }
+    - { id: phase1.nantou.pop_1984, use: design_note }
+  research: [Walls, streets, population in 1979]
+
+- id: site.shekou_fishing_harbour
+  name: { zh: 蛇口渔村与渔港, en: Shekou fishing villages and harbour }
+  kind: village
+  area: 9
+  geometry: { kind: point, lonlat: [113.9251, 22.4864], proxy: osm_shenzhen_places, confidence: 0.2 }
+  in_start_state: land_use
+  placeholder: true
+  claims:
+    - { id: site.shekou_fishing_harbour.exists_1979, use: encyclopedia }
+    - { id: site.shekou_fishing_harbour.location, use: geometry }
+    - { id: phase1.shekou.initial_area, use: design_note }
+  research: [Villages, harbour, oyster beds; card only in the slice]
+
+- id: site.chiwan
+  name: { zh: 赤湾, en: Chiwan village }
+  kind: village
+  area: 9
+  geometry: { kind: point, lonlat: [113.8814, 22.4759], proxy: osm_shenzhen_places, confidence: 0.2 }
+  in_start_state: land_use
+  placeholder: true
+  claims:
+    - { id: site.chiwan.exists_1979, use: encyclopedia }
+    - { id: site.chiwan.location, use: geometry }
+  research: [Village and shore in 1979; card only in the slice]
+
+- id: site.military_land
+  name: { zh: 军事与限制用地, en: Military and restricted land }
+  kind: military
+  area: 0
+  geometry: { kind: unplaced }
+  in_start_state: land_use
+  claims:
+    - { id: site.military_land.exists_1979, use: encyclopedia }
+  research: [Where building was not allowed]
