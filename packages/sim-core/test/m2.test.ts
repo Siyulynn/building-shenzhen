@@ -1,0 +1,285 @@
+/** M2's tests (phase1-slice.md §5.2): rest, a fixture job shock, stability, invariants and determinism. */
+import { describe, expect, it } from 'vitest';
+import { parse } from 'yaml';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import {
+  Rng, VILLAGE_ARCHETYPES, createInitialState, createTickSteps, isMigrant, largestRemainder, loadGame, replay, runMonths, saveFromJson,
+  saveGame, saveToJson, step, stochRound, validateParams, type GameState, type SimEvent, type StartContent, type TickStep,
+} from '../src/index.js';
+import { bedsByPool, illegalShare, villageM2 } from '../src/systems/common.js';
+import { MONTHS, ROOT, areasJson, content, initial, params, scenario, start } from './fixtures.js';
+
+const STEPS = createTickSteps(params);
+const SHOCK_MONTH = 6;
+const SHOCK = { 7: 3000, 2: 1000 } as const;          // factory jobs added to baseJobs: a stand-in for M3's investors
+
+/** The fixture shock: the investment step adds factory jobs once, at SHOCK_MONTH. */
+const shocked = (jobs: Readonly<Record<number, number>> = SHOCK, at = SHOCK_MONTH): TickStep[] => STEPS.map((s) =>
+  s.name !== 'investment' ? s : { name: 'investment', run: (ctx) => {
+    if (ctx.state.history.months.length !== at) return;
+    for (const [area, n] of Object.entries(jobs)) {
+      ctx.state.labour.baseJobs.find((r) => r.area === Number(area) && r.sector === 'factory')!.jobs += n;
+    }
+  } });
+
+const withTurns = (turns: number, mut?: (s: GameState) => void) => {
+  const s = createInitialState({ scenario: { ...scenario, turns }, areas: areasJson, start, params });
+  mut?.(s);
+  return s;
+};
+const migrantsOf = (s: GameState) => s.pops.reduce((a, g) => a + (isMigrant(g.kind) ? g.size : 0), 0);
+const startMigrants = migrantsOf(initial());
+const shockJobs = Object.values(SHOCK).reduce((a, b) => a + b, 0);
+
+/** Run month by month, calling check after each with the month's events. */
+function walk(s0: GameState, months: number, rng: Rng, steps: readonly TickStep[],
+  check: (before: GameState, after: GameState, events: SimEvent[]) => void): GameState {
+  let s = s0;
+  for (let i = 0; i < months; i++) {
+    const r = step(s, [], rng, steps);
+    if (r.status !== 'advanced') throw new Error(`month ${i}: ${r.status}`);
+    check(s, r.state, r.events);
+    s = r.state;
+  }
+  return s;
+}
+
+describe('M2 params and start', () => {
+  it('rejects nulls, non-finite numbers and bad keys', () => {
+    const raw = () => parse(readFileSync(join(ROOT, 'params/slice.yaml'), 'utf8')) as Record<string, any>;
+    expect(() => validateParams(raw())).not.toThrow();
+    const a = raw(); a.migration.K_vac = null;
+    expect(() => validateParams(a)).toThrow(/K_vac is not set/);
+    const b = raw(); b.housing.base_rent = Number.NaN;
+    expect(() => validateParams(b)).toThrow(/finite/);
+    const c = raw(); delete c.labour.participation.villager;
+    expect(() => validateParams(c)).toThrow(/missing/);
+    const d = raw(); d.housing.m2_per_bed.dormitory = 0;
+    expect(() => validateParams(d)).toThrow(/> 0/);
+    const e = raw(); e.migration.spring.away_months = [12];
+    expect(() => validateParams(e)).toThrow(/0\.\.11/);
+  });
+
+  it('builds the start from start_1979.yaml, with the housing market at rest', () => {
+    const s = initial();
+    for (const a of start.areas) for (const [kind, n] of Object.entries(a.pops)) {
+      expect(s.pops.find((g) => g.area === a.area && g.kind === kind)?.size ?? 0).toBe(n);
+    }
+    for (const g of s.pops) {
+      expect(g.stayedSixMonths).toBe(g.size);
+      expect(g.present).toBe(g.size);
+    }
+    const H = params.housing;
+    for (const m of s.housing) {
+      const b = s.blocks.find((x) => x.area === m.area)!;
+      expect(m.beds).toEqual(bedsByPool(b, params));
+      expect(m.rent).toBeCloseTo(H.base_rent * Math.max(m.crowding, H.crowding_floor) ** H.rent_elasticity, 12);
+    }
+  });
+
+  it('rounds people to integers with a seeded draw, and splits totals by largest remainder', () => {
+    const r = new Rng(5).stream('x');
+    const draws = Array.from({ length: 2000 }, () => stochRound(2.25, r));
+    expect(new Set(draws)).toEqual(new Set([2, 3]));
+    expect(draws.reduce((a, b) => a + b, 0) / draws.length).toBeCloseTo(2.25, 1);
+    expect(() => stochRound(-1, r)).toThrow();
+    expect(largestRemainder(10, [1, 1, 1])).toEqual([4, 3, 3]);     // the tie goes to the lower index
+    expect(largestRemainder(5, [0, 0])).toEqual([0, 0]);
+  });
+});
+
+describe('M2 at rest', () => {
+  it.each([1, 2, 3])('holds still for 63 months without a shock (seed %i)', (seed) => {
+    const s = runMonths(initial(), MONTHS, new Rng(seed), undefined, STEPS);
+    const h = s.history;
+    const within = (xs: number[], tol: number) => {
+      for (const x of xs) expect(Math.abs(x - xs[0]!)).toBeLessThanOrEqual(tol * Math.abs(xs[0]!));
+    };
+    within(h.registered, 0.02);
+    within(h.resident, 0.02);
+    within(h.migrants, 0.02);
+    within(h.rent, 0.02);
+    within(h.crowding, 0.02);
+    expect(Math.max(...h.underConstructionM2)).toBe(0);
+    expect(h.inflow.every((x) => x === 0) && h.outflow.every((x) => x === 0)).toBe(true);
+    expect(s.blocks.every((b) => b.events.length === 0)).toBe(true);
+  });
+
+  it('takes the Spring Festival away from present, not from usual residence', () => {
+    const s = runMonths(initial(), MONTHS, new Rng(1), undefined, STEPS);
+    const h = s.history;
+    const size = h.registered[0]! + h.migrants[0]! + s.pops.filter((g) => g.kind === 'hk_manager').reduce((a, g) => a + g.size, 0);
+    const away = params.migration.spring.away_months;
+    // the start month is already an away month, but nobody has left yet: the first departure follows a home month
+    const firstHome = h.months.findIndex((ym) => !away.includes(ym % 12));
+    h.months.forEach((ym, i) => {
+      // present is set at the end of a month for the month after: low from the month before the first away month
+      // to the month before the last away month
+      const awayNext = away.includes((ym + 1) % 12);
+      if (awayNext && i >= firstHome) expect(h.present[i]!).toBeLessThan(size);
+      else expect(h.present[i]).toBe(size);
+      expect(h.migrants[i]).toBe(h.migrants[0]);
+    });
+  });
+});
+
+describe('M2 fixture job shock', () => {
+  const run = (seed: number, mut?: (s: GameState) => void) => {
+    const s0 = withTurns(scenario.turns, mut);
+    return runMonths(s0, MONTHS, new Rng(seed), undefined, shocked());
+  };
+
+  it('runs the loop: jobs, then migrants, then crowding and rent, then village floors', () => {
+    const s = run(1);
+    const h = s.history;
+    const first = (xs: number[], f: (x: number) => boolean) => xs.findIndex(f);
+    const jobsUp = first(h.jobs.factory, (x) => x > h.jobs.factory[0]!);
+    const inflow = first(h.inflow, (x) => x > 0);
+    const crowded = first(h.crowding, (x) => x > 1);
+    const building = first(h.underConstructionM2, (x) => x > 0);
+    const moreBeds = first(h.rentalBeds, (x) => x > h.rentalBeds[0]!);
+    expect(jobsUp).toBe(SHOCK_MONTH);
+    expect(inflow).toBe(SHOCK_MONTH);
+    expect(crowded).toBeGreaterThan(inflow);
+    expect(building).toBeGreaterThan(crowded);
+    expect(moreBeds).toBeGreaterThanOrEqual(building + params.village_build.duration_months);
+    expect(Math.max(...h.rent)).toBeGreaterThan(1.5 * h.rent[0]!);
+    expect(h.migrants[MONTHS - 1]!).toBeGreaterThan(10 * startMigrants);
+    expect(h.rentalBeds[MONTHS - 1]!).toBeGreaterThan(5 * h.rentalBeds[0]!);
+    expect(s.labour.wage.factory).toBeGreaterThan(params.labour.wage_start.factory);
+  });
+
+  it('builds unpermitted floors above the legal height when enforcement is low, and none when it is high', () => {
+    const low = run(1, (s) => { s.policy.enforcement = 'low'; });
+    const lowIllegal = low.blocks.flatMap((b) => b.cohorts.filter((c) => c.stage === 'completed' && c.legality === 'unpermitted_tolerated'));
+    expect(lowIllegal.length).toBeGreaterThan(0);
+    expect(low.areas.find((a) => a.id === 7)!.illegalFloorShare).toBeGreaterThan(0);
+    // permitted village floor stays within the legal height (unless the start already exceeded it)
+    for (const b of low.blocks) {
+      const plot = low.villagePlots.find((v) => v.area === b.area)!;
+      const permitted = b.cohorts.filter((c) => VILLAGE_ARCHETYPES.includes(c.archetype) && c.legality === 'permitted'
+        && (c.stage === 'completed' || c.stage === 'under_construction')).reduce((a, c) => a + c.m2, 0);
+      const startVillage = villageM2(initial().blocks.find((x) => x.area === b.area)!, ['completed']);
+      expect(permitted).toBeLessThanOrEqual(Math.max(startVillage, plot.footprintM2 * params.village_build.legal_floors));
+    }
+    const high = run(1, (s) => { s.policy.enforcement = 'high'; });
+    expect(params.village_build.enforcement_max_floors.high).toBeLessThanOrEqual(params.village_build.legal_floors);
+    expect(high.blocks.every((b) => b.cohorts.every((c) => c.legality === 'permitted'))).toBe(true);
+    expect(high.areas.every((a) => a.illegalFloorShare === 0)).toBe(true);
+  });
+});
+
+describe('M2 stability', () => {
+  it('draws migrants into a slice that starts with none', () => {
+    const none: StartContent = { ...start, areas: start.areas.map((a) => ({
+      ...a, pops: { ...a.pops, migrant_factory: 0, migrant_construction: 0 } })) };
+    const s0 = createInitialState({ scenario, areas: areasJson, start: none, params });
+    expect(migrantsOf(s0)).toBe(0);
+    const s = runMonths(s0, 18, new Rng(1), undefined, shocked());
+    expect(s.history.inflow.slice(SHOCK_MONTH, SHOCK_MONTH + 3).some((x) => x > 0)).toBe(true);
+    expect(migrantsOf(s)).toBeGreaterThan(100);
+  });
+
+  it.each([1, 2, 3, 4, 5])('keeps the migrant stock bounded by beds and jobs under the shock (seed %i)', (seed) => {
+    const cap = params.housing.crowding_max;
+    walk(initial(), MONTHS, new Rng(seed), shocked(), (_b, s) => {
+      for (const m of s.housing) {
+        const here = s.pops.reduce((a, g) => a + (g.area === m.area && isMigrant(g.kind) ? g.size : 0), 0);
+        expect(here).toBeLessThanOrEqual(Math.floor(cap * m.beds.rental));
+      }
+      // the jobs ceiling: the start stock plus the shock's workers and a margin for construction crews
+      expect(migrantsOf(s)).toBeLessThanOrEqual(startMigrants + Math.ceil(1.15 * shockJobs / params.labour.participation.migrant_factory));
+    });
+  });
+
+  it('settles rent after the shock, without growing swings', () => {
+    const months = 240;
+    const s = runMonths(withTurns(months / 3), months, new Rng(1), undefined, shocked());
+    const rent = s.history.rent;
+    const final = rent[months - 1]!;
+    for (let i = 120; i < months; i++) expect(Math.abs(rent[i]! - final)).toBeLessThan(0.01 * final);
+    const swing = (a: number, b: number) => Math.max(...rent.slice(a + 1, b).map((x, i) => Math.abs(x - rent[a + i]!)));
+    expect(swing(180, 240)).toBeLessThanOrEqual(swing(60, 120));
+    expect(Math.abs(s.history.crowding[months - 1]! - 1)).toBeLessThan(0.1);
+  });
+});
+
+describe('M2 invariants', () => {
+  it.each([1, 2, 3, 4, 5])('conserves people through flows and keeps every stock whole (seed %i)', (seed) => {
+    const steps = shocked();
+    walk(withTurns(scenario.turns, (s) => { if (seed % 2) s.policy.enforcement = 'low'; }), MONTHS, new Rng(seed), steps,
+      (before, s, events) => {
+        const flows = new Map<string, number>();
+        for (const e of events) if (e.kind === 'flow') {
+          const d = e.detail as { area: number; pop: string; inflow: number; outflow: number };
+          const k = `${d.area}:${d.pop}`;
+          flows.set(k, (flows.get(k) ?? 0) + d.inflow - d.outflow);
+        }
+        for (const g of s.pops) {
+          const was = before.pops.find((x) => x.area === g.area && x.kind === g.kind)?.size ?? 0;
+          expect(g.size - was).toBe(flows.get(`${g.area}:${g.kind}`) ?? 0);
+          expect(g.size).toBe(g.stayedSixMonths + g.underSix.reduce((a, b) => a + b, 0));
+          for (const n of [g.size, g.stayedSixMonths, g.present, ...g.underSix, ...Object.values(g.employed)]) {
+            expect(Number.isInteger(n) && n >= 0).toBe(true);
+          }
+          expect(g.present).toBeLessThanOrEqual(g.size);
+          if (!isMigrant(g.kind)) expect(g.size).toBe(was);              // births and deaths are zero in M2
+        }
+        for (const r of s.labour.jobs) expect(r.jobs >= 0 && r.filled >= 0 && r.filled <= r.jobs).toBe(true);
+        for (const sec of Object.keys(s.labour.wage) as (keyof typeof s.labour.wage)[]) {
+          const filled = s.labour.jobs.reduce((a, r) => a + (r.sector === sec ? r.filled : 0), 0);
+          expect(s.pops.reduce((a, g) => a + g.employed[sec], 0)).toBe(filled);
+        }
+        for (const b of s.blocks) {
+          for (const c of b.cohorts) expect(c.m2).toBeGreaterThan(0);
+          const m = s.housing.find((x) => x.area === b.area)!;
+          expect(m.beds).toEqual(bedsByPool(b, params));
+          expect(s.areas.find((a) => a.id === b.area)!.illegalFloorShare).toBe(illegalShare(b));
+          const plot = s.villagePlots.find((v) => v.area === b.area)!;
+          const maxFloors = Math.min(params.eras[0]!.structural_max_floors, params.village_build.enforcement_max_floors[s.policy.enforcement]);
+          const startVillage = villageM2(initial().blocks.find((x) => x.area === b.area)!, ['completed']);
+          expect(villageM2(b, ['completed', 'under_construction'])).toBeLessThanOrEqual(Math.max(startVillage, plot.footprintM2 * maxFloors));
+        }
+      });
+  });
+});
+
+describe('M2 determinism under the shock', () => {
+  const steps = shocked();
+  const full = (seed: number) => {
+    const rng = new Rng(seed);
+    const s = runMonths(initial(), MONTHS, rng, undefined, steps);
+    return { s, rng, text: saveToJson(saveGame(s, rng, content)) };
+  };
+
+  it('gives the same run for the same seed, and a different one for another', () => {
+    expect(full(21).text).toBe(full(21).text);
+    expect(full(21).text).not.toBe(full(22).text);
+  });
+
+  it('matches an uninterrupted run after save, load and continue', () => {
+    const a = full(21);
+    for (const k of [5, 7, 30, 62]) {
+      const rng = new Rng(21);
+      const mid = runMonths(initial(), k, rng, undefined, steps);
+      const loaded = loadGame(saveFromJson(saveToJson(saveGame(mid, rng, content))));
+      expect(loaded.header.content.params_sha256).toBe(content.params_sha256);
+      const end = runMonths(loaded.state, MONTHS - k, loaded.rng, undefined, steps);
+      expect(saveToJson(saveGame(end, loaded.rng, content))).toBe(a.text);
+    }
+  });
+
+  it('replays from the seed and an empty action log', () => {
+    const a = full(21);
+    const rng = new Rng(21);
+    expect(saveToJson(saveGame(replay(initial(), [], MONTHS, rng, steps), rng, content))).toBe(a.text);
+  });
+
+  it('does not change the state it was given, mid-boom', () => {
+    const mid = runMonths(initial(), 30, new Rng(4), undefined, steps);
+    const before = saveToJson(saveGame(mid, new Rng(4), content));
+    step(mid, [], new Rng(4), steps);
+    expect(saveToJson(saveGame(mid, new Rng(4), content))).toBe(before);
+  });
+});

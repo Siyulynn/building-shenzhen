@@ -5,6 +5,7 @@
 import type { Rng, Stream } from './rng.js';
 import { cloneState, isFinished, type CardInstance, type GameState, type PlayerAction, type SubStep } from './state.js';
 import { formatYM, type YM } from './ym.js';
+import { statistics } from './systems/statistics.js';
 
 export interface SimEvent { step: string; kind: string; detail?: Record<string, unknown> }
 export interface MonthStats { date: YM }
@@ -36,7 +37,10 @@ export type QuarterResult =
 
 const noop = () => {};
 
-/** The 14 steps of §6, in order. M1: all no-ops except statistics, which records the month. */
+/**
+ * The 14 steps of §6, in order, with no systems: all no-ops except statistics, which records the month's series.
+ * `createTickSteps(params)` (ticks.ts) fills in the systems.
+ */
 export const TICK_STEPS: readonly TickStep[] = Object.freeze([
   { name: 'external', run: noop },
   { name: 'events', run: noop },
@@ -50,7 +54,7 @@ export const TICK_STEPS: readonly TickStep[] = Object.freeze([
   { name: 'informal', run: noop },
   { name: 'finance', run: noop },
   { name: 'stability', run: noop },
-  { name: 'statistics', run: (ctx: TickContext) => { ctx.state.history.months.push(ctx.state.date); } },
+  { name: 'statistics', run: statistics() },
   { name: 'reviews', run: noop },
 ]);
 

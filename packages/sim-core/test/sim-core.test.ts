@@ -2,20 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { parse } from 'yaml';
 import {
-  Rng, TICK_STEPS, createInitialState, isFinished, loadGame, parseYM, replay, runMonths, runQuarter, saveFromJson, saveGame,
-  saveToJson, step, firstOption, type AreasContent, type DecisionPolicy, type GameState, type ScenarioContent, type TickStep,
+  Rng, TICK_STEPS, createInitialState, createTickSteps, isFinished, loadGame, parseYM, replay, runMonths, runQuarter, saveFromJson, saveGame,
+  saveToJson, step, firstOption, type DecisionPolicy, type GameState, type TickStep,
 } from '../src/index.js';
-
-const ROOT = resolve(__dirname, '../../..');
-const areasJson = JSON.parse(readFileSync(join(ROOT, 'data/starts/slice_areas.json'), 'utf8')) as AreasContent;
-const scenario = parse(readFileSync(join(ROOT, 'content/slice/scenario.yaml'), 'utf8')) as ScenarioContent;
-const content = { areas_sha256: areasJson.areas_sha256 };
-const initial = (): GameState => createInitialState({ scenario, areas: areasJson });
+import { MONTHS, ROOT, areasJson, content, initial, params, scenario, start } from './fixtures.js';
 
 /** Fixture tick: the events step sometimes raises an interrupting card whose options come from the RNG. */
-const FIXTURE_STEPS: TickStep[] = TICK_STEPS.map((s) => s.name !== 'events' ? s : {
+/** Built on the M2 systems, so the determinism tests cover them too. */
+const FIXTURE_STEPS: TickStep[] = createTickSteps(params).map((s) => s.name !== 'events' ? s : {
   name: 'events',
   run: (ctx) => {
     if (ctx.rng.float() < 0.3) {
@@ -30,7 +25,6 @@ const hashPolicy: DecisionPolicy = (_s, pending) => pending.map((c) => {
   const h = [...c.id].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
   return { type: 'answer_card', instance: c.id, option: c.options[h % c.options.length]! };
 });
-const MONTHS = scenario.turns * scenario.months_per_turn;
 
 describe('content', () => {
   it('builds the start state from the compiled areas', () => {
@@ -160,7 +154,7 @@ describe('step', () => {
   });
 
   it('refuses a start month that is not the first month of a quarter', () => {
-    expect(() => createInitialState({ scenario: { ...scenario, start: '1980-08' }, areas: areasJson })).toThrow(/quarter/);
+    expect(() => createInitialState({ scenario: { ...scenario, start: '1980-08' }, areas: areasJson, start, params })).toThrow(/quarter/);
   });
 
   it('does not change the state it was given', () => {

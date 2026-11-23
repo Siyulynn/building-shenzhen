@@ -3,3 +3,7 @@ export * from './rng.js';
 export * from './state.js';
 export * from './step.js';
 export * from './save.js';
+export * from './enums.js';
+export * from './params.js';
+export * from './round.js';
+export * from './ticks.js';

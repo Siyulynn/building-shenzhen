@@ -8,7 +8,7 @@ import type { YM } from './ym.js';
 
 export const SAVE_VERSION = 1;
 
-export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed: number; content: { areas_sha256: string } }
+export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed: number; content: { areas_sha256: string; params_sha256: string } }
 export interface Save { header: SaveHeader; body: { state: unknown; rng: RngState }; arrays: Record<string, Uint32Array> }
 
 /** Migration from version v to v + 1, keyed by v. Version 1 is the first: none yet. */
@@ -23,7 +23,7 @@ function finiteOnly(key: string, value: unknown): unknown {
 interface ArrayRef { $array: string }
 const isRef = (v: unknown): v is ArrayRef => typeof v === 'object' && v !== null && '$array' in v;
 
-export function saveGame(state: GameState, rng: Rng, content: { areas_sha256: string }): Save {
+export function saveGame(state: GameState, rng: Rng, content: { areas_sha256: string; params_sha256: string }): Save {
   const arrays: Record<string, Uint32Array> = {};
   const body = {
     ...state,
