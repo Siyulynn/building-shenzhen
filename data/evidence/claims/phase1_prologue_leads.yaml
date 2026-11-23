@@ -1,0 +1,22 @@
+# Leads behind the 1979-Q1 to 1980-Q2 prologue beats (phase1-slice.md §2.1). Open each one before Historical mode.
+- id: phase1.event.escapes_1979
+  origin: general_knowledge
+  summary: Many young residents of the border area crossed illegally to Hong Kong in 1979 (逃港).
+  date: { value: "1979", precision: year }
+  status: lead
+  notes: No figure or month is claimed. Look for the county or city account and the Hong Kong arrest statistics for 1979.
+- id: phase1.event.typhoon_1979
+  origin: memory
+  summary: A strong typhoon struck the Hong Kong–Shenzhen coast in summer 1979.
+  date: { value: "1979", precision: year }
+  status: lead
+  notes: >-
+    Recalled as Typhoon Hope, early August 1979; not checked. Check the Hong Kong Observatory's 1979 tropical cyclone
+    report and any Shenzhen damage account. Until then the slice's Q3 storm stays emergent, not an anchor.
+- id: phase1.event.construction_corps_first_units
+  origin: inference
+  summary: Engineering corps (基建工程兵) units were sent to Shenzhen before the autumn 1982 contingent.
+  status: lead
+  notes: >-
+    Inferred from the word 再次 ("again") in the quote of phase1.event.construction_corps_arrival. No date or size is
+    claimed. Find when the first units arrived before using them as a 1979-Q4 card.

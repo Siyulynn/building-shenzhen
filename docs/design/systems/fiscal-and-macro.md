@@ -118,6 +118,13 @@ Each regime file lists, for every tax:
   - `regime.land_auction_mandate_2004`;
   - `regime.eit_unification_2008`.
 - **Before 1994** (`regime.contracting_1980s`): the city keeps local revenue above a remittance formula. The formula's form and rates are **lead**. Model it as `remittance = max(0, base + rate × (revenue − base))`, with parameters.
+- **The provincial base grant, 1979–1984 (基数经费):** sourced, waiting for a person's check.
+  - **The arrangement:** Shenzhen retained the revenue covered by it, and the province funded expenditure on a 1978 base (`phase1.fiscal.contracting_retain`).
+  - **The schedule:** the grant stayed unchanged in 1982 (`phase1.fiscal.provincial_base.1982`) and was halved in 1983 (`phase1.fiscal.provincial_base.1983`). From 1984 the city paid for it from its retained revenue (`phase1.fiscal.provincial_base.1984`).
+  - **How it is modelled:** a monthly inflow to the `general` account, with ledger type `grant` and ref `grant.provincial_base`. It is counted as recurring revenue in the "recurring money" view.
+  - **Where the data lives:** both slice regimes (`regime.county_1979` and `regime.contracting_1980s`) carry the schedule in their content file, as dated factors citing the claims: 1.0 from the start, 0.5 from 1983, 0 from 1984. Code never reads the year.
+  - **The amount:** the base is `params.provincial_base_grant` (placeholder). It is not sourced, and it must not be derived from the 1979 gap between revenue and spending.
+  - **The warning:** when a factor change is scheduled within four quarters, the budget card shows the drop and projects the recurring balance without it.
 
 ### 4.3 The waterfall (always shown)
 ```
@@ -280,6 +287,8 @@ A notable firm's figures are taken out of its block's totals before the blocks a
 ## 11. Phase 1 subset (Luohu and Shekou, 1979–1984; see phase1-slice.md)
 - **Accounts:** a ledger with `general`, `land` and `debt` accounts, and a simplified `forex` quota.
 - **Regimes:** `regime.county_1979` until the SEZ is established, then `regime.contracting_1980s` with SEZ tax incentives. Both are `lead`.
+- **The provincial base grant** (§4.2): full until 1982, halved in 1983, gone in 1984. This is the slice's fiscal cliff.
+- **Import access:** a starting municipal forex quota (`params.forex_start_quota_usd`, placeholder) so the quota is never zero at the start.
 - **Land income:** land-use fees from the 1981 regulations [V13], and negotiated leases only.
 - **Obligations:** the baselines, plus payroll, services and maintenance from decisions. The deficit rule in §7.1.
 - **Projects:** the project mechanism.
@@ -299,12 +308,14 @@ per_resident: { admin: null }; per_present: { police: null }; per_pupil: null; p
 municipal_share: { from_1994_ratio: 0.673 }   # 50.08 / 74.4 [V8]; reporting view only
 lender: { min_dscr: 1.3, max_ltv: 0.6 }
 contracting_1980s: { base: null, rate: null }   # LEAD: needs a source
+provincial_base_grant: { per_year: null }       # placeholder: the 1978 expenditure base is not sourced (§4.2)
+forex_start_quota_usd: null                     # placeholder: the starting municipal quota (§11)
 rebate_base_1993: derived
 value_added_ratio: { processing_hk: 0.2, electronics_jv: 0.3, construction: 0.35 }  # starting guesses; calibrate
 ```
 
 ## 13. Open questions
-- How the 1980s fiscal contracting arrangement for Shenzhen actually worked: base, rates and dates.
+- How the 1980s fiscal contracting arrangement for Shenzhen actually worked: base, rates and dates. The 1979–1984 grant schedule is now sourced (§4.2). Still open: the 1978 expenditure base, which taxes the arrangement covered, and the form of any remittance.
 - How Shenzhen's 1993 rebate base was set, and whether the late-1993 rush to collect taxes (突击收税) happened in Shenzhen (lead).
 - Which series of city-company and off-budget debt exist at all for 1980–2009.
 - Whether to model the province as a separate actor with discretion, or as fixed rules.

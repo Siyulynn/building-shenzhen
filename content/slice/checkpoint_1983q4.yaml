@@ -1,0 +1,58 @@
+# The end-1983 checkpoint (phase1-slice.md §9.2): the slice's final state, after 1983-Q4 and before the January 1984 visit.
+# Compared with end-1983 figures, not end-1984. Citywide (2014 vintage) and SEZ (1985 vintage) figures are upper
+# bounds or growth multiples for the seven playable areas; the vintages are never mixed. SEZ usual (常住) and
+# temporary (暂住) residents stay separate categories. Growth bands start at the multiple × [0.5, 1.5] (design_note).
+- id: checkpoint.1983q4
+  kind: checkpoint
+  at_end_of: 1983-Q4
+  growth_band: [0.5, 1.5]
+
+- id: band.1983q4.slice_residents
+  measure: slice.resident_pop
+  applies_as: upper_bound_and_growth
+  bound: phase1.pop.sez.period_resident.1983
+  growth_from: phase1.pop.sez.period_resident.1979
+  claims:
+    - { id: phase1.pop.sez.period_resident.1983, use: calibration_target }
+    - { id: phase1.pop.sez.period_resident.1979, use: calibration_target }
+
+- id: band.1983q4.slice_temporary_residents
+  measure: slice.present_pop.temporary
+  applies_as: upper_bound
+  bound: phase1.pop.sez.period_temporary.1983
+  claims: [{ id: phase1.pop.sez.period_temporary.1983, use: calibration_target }]
+
+- id: band.1983q4.city_residents_growth
+  measure: slice.resident_pop
+  applies_as: growth
+  growth: { from: phase1.pop.city.resident.1979, to: phase1.pop.city.resident.1983 }
+  note: A citywide multiple, a looser guide than the SEZ one.
+  claims:
+    - { id: phase1.pop.city.resident.1979, use: calibration_target }
+    - { id: phase1.pop.city.resident.1983, use: calibration_target }
+
+- id: band.1983q4.slice_gdp
+  measure: slice.gdp_nominal.year
+  applies_as: upper_bound_and_growth
+  bound: phase1.gdp.city.nominal.1983
+  growth_from: phase1.gdp.city.nominal.1979
+  claims:
+    - { id: phase1.gdp.city.nominal.1983, use: calibration_target }
+    - { id: phase1.gdp.city.nominal.1979, use: calibration_target }
+
+- id: band.1983q4.spending_to_revenue
+  measure: city.general.spending_over_revenue.year
+  applies_as: ratio_band
+  ratio: { numerator: phase1.fiscal.city.budget_spending.1983, denominator: phase1.fiscal.city.budget_revenue.1983 }
+  tolerance: [0.75, 1.25]                   # design_note
+  claims:
+    - { id: phase1.fiscal.city.budget_spending.1983, use: calibration_target }
+    - { id: phase1.fiscal.city.budget_revenue.1983, use: calibration_target }
+
+- id: band.1983q4.grant_test
+  use: design_note
+  facts:
+    - "The scorecard's projected 1984 recurring balance without the provincial grant (§7.2) is computed and shown.
+      Golden runs with the aggressive policy should end it negative, and with the cautious policy near or above zero."
+  claims:
+    - { id: phase1.fiscal.provincial_base.1984, use: fiscal_rule }

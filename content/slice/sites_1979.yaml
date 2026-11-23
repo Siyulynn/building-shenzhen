@@ -2,6 +2,8 @@
 # Existence and placement have separate claims. See docs/research/phase1-map-sources.md.
 # geometry.kind: point (a present-day OSM proxy, low confidence) | unplaced (known to exist, not yet located).
 # evidence_status is not stored here: pipeline/m1b_sites.py computes it from the cited claims for the map.
+# area: the slice area (phase1-slice.md §3, v0.3): 1–7 playable, 8 Shekou and 9 Nantou card-only.
+# in_start_state: card_only for sites in areas 8–9; they appear only through cards.
 - id: site.shenzhen_market_town
   name: { zh: 深圳墟, en: Shenzhen market town }
   kind: town
@@ -96,7 +98,7 @@
 - id: site.yumin
   name: { zh: 渔民村, en: Yumin village }
   kind: village
-  area: 4
+  area: 2
   geometry: { kind: point, lonlat: [114.1071, 22.5358], proxy: osm_shenzhen_places, confidence: 0.4 }
   in_start_state: block_stock
   placeholder: true
@@ -178,7 +180,7 @@
 - id: site.shangbu_land
   name: { zh: 上步, en: Shangbu farmland and villages }
   kind: farmland
-  area: 8
+  area: 7
   geometry: { kind: point, lonlat: [114.0789, 22.5504], proxy: osm_shenzhen_places, confidence: 0.2 }
   in_start_state: land_use
   placeholder: true
@@ -191,9 +193,9 @@
 - id: site.nantou_old_town
   name: { zh: 南头古城, en: Nantou old town }
   kind: town
-  area: 10
+  area: 9
   geometry: { kind: point, lonlat: [113.9160, 22.5463], proxy: osm_shenzhen_places, confidence: 0.4 }
-  in_start_state: block_stock
+  in_start_state: card_only
   placeholder: true
   claims:
     - { id: site.nantou_old_town.exists_1979, use: encyclopedia }
@@ -204,9 +206,9 @@
 - id: site.shekou_fishing_harbour
   name: { zh: 蛇口渔村与渔港, en: Shekou fishing villages and harbour }
   kind: village
-  area: 9
+  area: 8
   geometry: { kind: point, lonlat: [113.9251, 22.4864], proxy: osm_shenzhen_places, confidence: 0.2 }
-  in_start_state: land_use
+  in_start_state: card_only
   placeholder: true
   claims:
     - { id: site.shekou_fishing_harbour.exists_1979, use: encyclopedia }
@@ -217,9 +219,9 @@
 - id: site.chiwan
   name: { zh: 赤湾, en: Chiwan village }
   kind: village
-  area: 9
+  area: 8
   geometry: { kind: point, lonlat: [113.8814, 22.4759], proxy: osm_shenzhen_places, confidence: 0.2 }
-  in_start_state: land_use
+  in_start_state: card_only
   placeholder: true
   claims:
     - { id: site.chiwan.exists_1979, use: encyclopedia }

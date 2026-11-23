@@ -1,0 +1,138 @@
+# The 1980-Q2 snapshot (phase1-slice.md §9.1): the prologue's goal, and an alternative start at 1980-Q3.
+# Three parts: declared facts, calibration bands, and the save (a placeholder until M1's save format exists).
+# Bands name claims, never copy their numbers: values resolve from build/evidence/claims.json at check time.
+# Slice measures (PLAN §3.2 counts) are for the seven playable areas. Citywide (2014 vintage) and SEZ (1985 vintage)
+# figures are upper bounds on them; the two vintages are never mixed. No mid-year value is interpolated.
+
+# --- 1. The snapshot and its save ---------------------------------------------------------------
+- id: snapshot.1980q2
+  kind: snapshot
+  at_end_of: 1980-Q2
+  roles: [prologue_goal, start_1980q3]
+  start_note: A 1980-Q3 start enters with the SEZ announcement card on top of the stack.
+  save:
+    placeholder: true                       # no save format before M1 (sim-core save and load)
+    generated_by: { policy: historical_prologue, seed: 1, quarters: 6 }
+    shipped_only_if: all bands in this file pass
+
+# --- 2. Declared facts at the end of 1980-Q2 ----------------------------------------------------
+- id: snapshot.1980q2.anchors_fired
+  facts:
+    - Bao'an County has become Shenzhen City; the leader pair is in office.
+    - Shekou's construction headquarters is set up and its works have begun; area 8 is the rival enclave.
+    - Forex retention is in force; the city holds a forex quota.
+  claims:
+    - { id: phase1.event.shenzhen_city_approval, use: anchor_date }
+    - { id: phase1.event.shekou_command, use: anchor_date }
+    - { id: phase1.event.shekou_works, use: anchor_date }
+    - { id: forex.retention.start, use: fiscal_rule }
+
+- id: snapshot.1980q2.anchors_pending
+  facts:
+    - The SEZ is not yet established; it fires in the next quarter.
+    - SEZ tax incentives, foreign-owned firms, wider investor origins and leasing to outside investors are still locked.
+  claims:
+    - { id: phase1.event.sez_regulations, use: anchor_date }
+    - { id: phase1.fiscal.sez_income_tax_1980, use: fiscal_rule }
+
+- id: snapshot.1980q2.unlocked
+  use: design_note
+  facts:
+    - "Unlocked by the prologue beats (§2.1): land-use painting, city projects, the three ledger views, investor cards
+      (Hong Kong processing and inland state units), the import-access view, the permit regime, the scrutiny gauge,
+      enforcement, the pre-inspection sweep, the engineering-corps units (or provincial teams), the loan and the
+      co-financing offer."
+    - "Readiness is a forecast of the first wave."
+  claims: []
+
+- id: snapshot.1980q2.grant
+  facts:
+    - The provincial base grant is at its full level (factor 1.0); its amount is the placeholder params.provincial_base_grant.
+  claims:
+    - { id: phase1.fiscal.contracting_retain, use: fiscal_rule }
+
+# --- 3a. End-1979 checkpoint: a hard check against year-end claims ------------------------------
+- id: band.1979q4.slice_residents
+  measure: slice.resident_pop
+  applies_as: upper_bound
+  bound: phase1.pop.sez.period_resident.1979
+  claims: [{ id: phase1.pop.sez.period_resident.1979, use: calibration_target }]
+
+- id: band.1979q4.slice_nonlocal_residents
+  measure: slice.resident_pop.nonlocal
+  applies_as: upper_bound
+  bound: phase1.pop.city.resident_nonregistered.1979
+  note: Migrants are still a tiny share before the SEZ.
+  claims: [{ id: phase1.pop.city.resident_nonregistered.1979, use: calibration_target }]
+
+- id: band.1979q4.slice_gdp
+  measure: slice.gdp_nominal.year
+  applies_as: upper_bound
+  bound: phase1.gdp.city.nominal.1979
+  claims: [{ id: phase1.gdp.city.nominal.1979, use: calibration_target }]
+
+- id: band.1979q4.slice_exports
+  measure: slice.exports_usd.year
+  applies_as: upper_bound
+  bound: phase1.trade.city.exports.1979
+  claims: [{ id: phase1.trade.city.exports.1979, use: calibration_target }]
+
+- id: band.1979q4.spending_to_revenue
+  measure: city.general.spending_over_revenue.year
+  applies_as: ratio_band
+  ratio: { numerator: phase1.fiscal.city.budget_spending.1979, denominator: phase1.fiscal.city.budget_revenue.1979 }
+  tolerance: [0.75, 1.25]                   # design_note: a starting band around the ratio
+  claims:
+    - { id: phase1.fiscal.city.budget_spending.1979, use: calibration_target }
+    - { id: phase1.fiscal.city.budget_revenue.1979, use: calibration_target }
+
+# --- 3b. 1980-Q2 bands: between the end-1979 and end-1980 claims --------------------------------
+# Stocks lie between the two year ends. Flows use the trailing four quarters, which lie between the two annual
+# values if growth is monotone through 1980 (a design assumption, not a claim).
+- id: band.1980q2.slice_residents
+  measure: slice.resident_pop
+  applies_as: upper_bound
+  bound: phase1.pop.sez.period_resident.1980
+  claims: [{ id: phase1.pop.sez.period_resident.1980, use: calibration_target }]
+
+- id: band.1980q2.slice_nonlocal_residents
+  measure: slice.resident_pop.nonlocal
+  applies_as: upper_bound
+  bound: phase1.pop.city.resident_nonregistered.1980
+  claims: [{ id: phase1.pop.city.resident_nonregistered.1980, use: calibration_target }]
+
+- id: band.1980q2.slice_employed
+  measure: slice.employed
+  applies_as: upper_bound
+  bound: phase1.labour.city.employed.1980
+  claims: [{ id: phase1.labour.city.employed.1980, use: calibration_target }]
+
+- id: band.1980q2.slice_gdp
+  measure: slice.gdp_nominal.trailing_4q
+  applies_as: upper_bound
+  bound: phase1.gdp.city.nominal.1980
+  claims: [{ id: phase1.gdp.city.nominal.1980, use: calibration_target }]
+
+- id: band.1980q2.slice_exports
+  measure: slice.exports_usd.trailing_4q
+  applies_as: upper_bound
+  bound: phase1.trade.city.exports.1980
+  claims: [{ id: phase1.trade.city.exports.1980, use: calibration_target }]
+
+- id: band.1980q2.spending_to_revenue
+  measure: city.general.spending_over_revenue.trailing_4q
+  applies_as: between_ratios
+  from: { numerator: phase1.fiscal.city.budget_spending.1979, denominator: phase1.fiscal.city.budget_revenue.1979 }
+  to: { numerator: phase1.fiscal.city.budget_spending.1980, denominator: phase1.fiscal.city.budget_revenue.1980 }
+  tolerance: [0.75, 1.25]                   # design_note
+  claims:
+    - { id: phase1.fiscal.city.budget_spending.1980, use: calibration_target }
+    - { id: phase1.fiscal.city.budget_revenue.1980, use: calibration_target }
+
+- id: band.1980q2.design
+  use: design_note
+  facts:
+    - "At least one processing contract is running, and processing exports are large next to its value added."
+    - "Readiness is above zero in each of its three parts, and the weakest part is named in the 1980-Q2 check."
+    - "The ledger has at least one project obligation, and the loan has been offered."
+  claims: []

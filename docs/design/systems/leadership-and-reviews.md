@@ -205,6 +205,7 @@ claims: []   # claim ids from data/evidence/claims/; none yet (the era and indic
 - **Traits:** one perk and one corruption trade-off (deal-maker), with one shortcut card.
 - **A mandate:** "open the first export processing zone".
 - **One early review target:** an export and forex quota plus a basic sanitation and order check, inspected yearly and including one unannounced team.
+- **One cleanup campaign (§4.4):** the pre-inspection sweep (突击整治) card in Q4. Its visible values, real values and `p_caught` are exactly as in §4.4. The only visible value it improves is the illegal-floor share.
 - **Not yet:** the full title lifecycle (Phase 2 brings Sanitary City).
 
 ## 8. Open questions

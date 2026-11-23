@@ -27,7 +27,11 @@
   - Today's water comes from a DEM threshold (≤ 0.5 m), so inland water that is still water today can show as "inland water in 1979" too. The Shenzhen Reservoir is an example.
   - About 22% of the "inland water in 1979" cells lie above 50 m (median 28 m). Those are hill shadow in the morning image, not water, so trust that class only on the plains.
 
-  So the mask is a `lead` observation. Playable land still comes from the present-day DEM, and the map keeps its caveat.
+  So the mask is a `lead` observation, and the map keeps its caveat.
+- **Decision (slice v0.3): Phase 1's playable land stays on the present-day DEM.**
+  - The seven playable areas lie inland from Luohu to Shangbu.
+  - The reclaimed shore (Shekou, Chiwan, Nantou, the Futian and Nanshan coast) is card-only or locked.
+  - Hand-tracing the 1979 shoreline waits until Phase 2 makes the western cluster playable. The tide record and the KH-9 frames feed that work.
 
 ## The site register (`content/slice/sites_1979.yaml`)
 - **Coverage:** 20 sites. 15 have present-day OSM proxy points (`osm_shenzhen_places`, tier D). Five are unplaced: the county offices, the KCR line, the Guangzhou road, the border fence and military land.
