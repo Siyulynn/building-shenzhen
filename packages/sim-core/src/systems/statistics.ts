@@ -4,6 +4,7 @@ import type { SliceParams } from '../params.js';
 import type { TickContext } from '../step.js';
 import { illegalShare, underConstructionM2, villageM2 } from './common.js';
 import { industryTotals } from './industry.js';
+import { principalOutstanding } from '../fiscal.js';
 
 /** Without params (the M1 pipeline) there are no firms, and the industry series are zero. */
 export function statistics(p?: SliceParams) {
@@ -38,5 +39,28 @@ export function statistics(p?: SliceParams) {
     h.output.push(t.output);
     h.exports.push(t.exports);
     h.valueAdded.push(t.valueAdded);
+
+    // M4 (§5.6): nominal GDP, and the finance step's month
+    let work = 0, spend = 0;
+    let fin: Record<string, number> | undefined;
+    for (const e of ctx.events) {
+      if (e.kind === 'work') work += e.detail!.value as number;
+      else if (e.kind === 'project_paid') spend += e.detail!.amount as number;
+      else if (e.step === 'finance' && e.kind === 'month') fin = e.detail as Record<string, number>;
+    }
+    let base = 0;
+    if (p) for (const j of s.labour.baseJobs) {
+      const row = s.labour.jobs.find((r) => r.area === j.area && r.sector === j.sector);
+      if (row && row.jobs > 0) base += j.jobs * (row.filled / row.jobs) * p.gdp.base_va_per_job_month[j.sector];
+    }
+    h.gdp.push(p ? t.valueAdded + base + work * p.gdp.construction_va_ratio : 0);
+    h.revenue.push(fin?.revenue ?? 0);
+    h.obligationsDue.push(fin?.due ?? 0);
+    h.baselineDue.push(fin?.baseline ?? 0);
+    h.obligationsPaid.push(fin?.paid ?? 0);
+    h.austerity.push(fin?.austerity ?? 0);
+    h.projectSpend.push(spend);
+    h.reserve.push(s.fiscal.balances.general);
+    h.debtOutstanding.push(s.fiscal.loans.reduce((a, l) => a + principalOutstanding(l, s.date + 1), 0));
   };
 }

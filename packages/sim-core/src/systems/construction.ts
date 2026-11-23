@@ -1,9 +1,14 @@
-/** Tick step 4, M2: village households complete and start rental floors (phase1-slice.md §5.2, buildings §3.1). */
+/**
+ * Tick step 4: work on every cohort under construction, then village households start rental floors
+ * (phase1-slice.md §5.2, buildings §3.1). With the fiscal content (M4, §5.6) the firms' cohorts and the city's projects
+ * draw on the construction-capacity pool; without it every cohort gets its month of work, as in M3b.
+ */
 import { BUILDER_OF, USE_OF } from '../enums.js';
 import type { SliceParams } from '../params.js';
 import type { BlockStock, Cohort } from '../state.js';
 import type { TickContext } from '../step.js';
 import { bedsByPool, illegalShare, villageM2 } from './common.js';
+import { allocatePool, cohortCrew, cohortMonthValue } from './projects.js';
 
 const EVENT_KEEP_MONTHS = 24;
 const BUILDER = BUILDER_OF.village_rental;
@@ -19,23 +24,31 @@ function mergeCompleted(b: BlockStock): void {
   b.cohorts = out;
 }
 
-export function construction(p: SliceParams) {
+export function construction(p: SliceParams, pool = false) {
   return (ctx: TickContext): void => {
     const s = ctx.state;
     const vb = p.village_build;
+    const alloc = pool ? allocatePool(ctx, p) : undefined;
     for (const b of s.blocks) {
-      // 1. a month of work on every cohort under construction; completions when the work is done (§5.5).
-      //    M4 will make the month's work depend on construction capacity, and stall cohorts.
+      // 1. work on every cohort under construction; completions when the work is done (§5.5). From the pool, a
+      //    firm's cohort banks its crew units and gains a month when a full crew is banked (§5.6)
       for (const c of b.cohorts) {
         if (c.stage !== 'under_construction') continue;
+        if (alloc && c.firm !== undefined) {
+          const crew = cohortCrew(c, p);
+          c.crewBank = (c.crewBank ?? 0) + (alloc.get(c) ?? 0);
+          if (c.crewBank < crew) continue;
+          c.crewBank -= crew;
+        }
         c.workDone = (c.workDone ?? 0) + 1;
+        ctx.events.push({ step: 'construction', kind: 'work', detail: { value: cohortMonthValue(c, p) } });
         if (c.workDone >= (c.workTotal ?? 0)) {
           c.stage = 'completed';
           if (c.firm !== undefined && c.archetype === 'standard_factory') {
             const f = s.firms.find((x) => x.id === c.firm);
             if (f) f.opens = s.date;
           }
-          delete c.due; delete c.workDone; delete c.workTotal; delete c.firm;
+          delete c.due; delete c.workDone; delete c.workTotal; delete c.firm; delete c.crewBank;
           b.events.push({ date: s.date, kind: 'complete', use: c.use, m2: c.m2, builder: BUILDER_OF[c.archetype] });
         }
       }

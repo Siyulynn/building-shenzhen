@@ -38,6 +38,9 @@ export function illegalShare(b: BlockStock): number {
   return all > 0 ? illegal / all : 0;
 }
 
+export const completedM2 = (b: BlockStock) =>
+  b.cohorts.reduce((s, c) => s + (c.stage === 'completed' ? c.m2 : 0), 0);
+
 export const underConstructionM2 = (b: BlockStock) =>
   b.cohorts.reduce((s, c) => s + (c.stage === 'under_construction' ? c.m2 : 0), 0);
 

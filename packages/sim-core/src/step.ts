@@ -18,7 +18,11 @@ export interface TickContext {
   events: SimEvent[];
   raise(card: { card: string; options: string[]; interrupting: boolean }): CardInstance;
 }
-export interface TickStep { name: string; run(ctx: TickContext): void }
+/**
+ * A tick step. `act`, if present, owns turn actions beyond the core ones (§5.6): it returns true when it applied one,
+ * and throws when the action is its kind but invalid.
+ */
+export interface TickStep { name: string; run(ctx: TickContext): void; act?(state: GameState, action: PlayerAction): boolean }
 
 export type StepResult =
   | { status: 'advanced'; state: GameState; events: SimEvent[]; stats: MonthStats }
@@ -65,7 +69,7 @@ const log = (s: GameState, action: PlayerAction) =>
   s.actionLog.push({ date: s.date, subStep: s.subStep, action: JSON.parse(JSON.stringify(action)) as PlayerAction });
 
 /** A turn action (§4, §5.1): validated, applied and logged. */
-function applyTurnAction(s: GameState, action: PlayerAction): void {
+function applyTurnAction(s: GameState, action: PlayerAction, steps: readonly TickStep[]): void {
   if (action.type === 'set_enforcement') {
     if (!(ENFORCEMENT_LEVELS as readonly string[]).includes(action.level)) throw new Error(`unknown enforcement ${action.level}`);
     s.policy.enforcement = action.level;
@@ -74,7 +78,7 @@ function applyTurnAction(s: GameState, action: PlayerAction): void {
     s.policy.permitRegime = action.regime;
   } else if (isZoneAction(action)) {
     applyZoneAction(s, action);
-  } else {
+  } else if (!steps.some((st) => st.act?.(s, action))) {
     throw new Error(`unknown action type ${(action as { type: string }).type}`);
   }
   log(s, action);
@@ -108,7 +112,7 @@ export function step(state: GameState, actions: readonly PlayerAction[], rng: Rn
   for (const a of actions) if (a.type === 'answer_card') applyAnswer(s, a);
   const blocking = blockingCards(s);
   if (blocking.length) return { status: 'paused', state: s, pendingCards: blocking };
-  for (const a of actions) if (a.type !== 'answer_card') applyTurnAction(s, a);
+  for (const a of actions) if (a.type !== 'answer_card') applyTurnAction(s, a, steps);
   if (isFinished(s)) return { status: 'finished', state: s };
 
   const events: SimEvent[] = [];

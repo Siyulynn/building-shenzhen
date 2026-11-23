@@ -1,0 +1,166 @@
+/**
+ * Tick step 11 (phase1-slice.md §5.6, fiscal-and-macro §4, §6.1, §7.1): the month's revenue, obligations and debt
+ * service, paid from the reserve, with the deficit rule for any shortfall; the state-bank project loan's card.
+ * The month always closes with a balanced ledger before any card is answered.
+ */
+import {
+  DEFICIT_CARD, DEFICIT_OPTIONS, LOAN_CARD, addObligation, borrowingCapacity, debtServiceAt, grantFactor, isLive,
+  landFeeRate, loanSchedule, obligationDue, post, regimeOf, type AccountId, type DeficitOption, type FiscalContent,
+  type ObligationKind,
+} from '../fiscal.js';
+import type { SliceParams } from '../params.js';
+import type { GameState } from '../state.js';
+import type { TickContext } from '../step.js';
+import { completedM2 } from './common.js';
+
+type LineKind = ObligationKind | 'baseline' | 'debt_service';
+interface Line { ref: string; kind: LineKind; amount: number }
+/** Paying order: debt service, arrears and payroll first, so unpaid payroll is the last resort. */
+const ORDER: readonly LineKind[] = ['debt_service', 'arrears', 'payroll', 'baseline', 'service', 'maintenance', 'transfer'];
+const CUTTABLE: readonly LineKind[] = ['baseline', 'payroll', 'service'];
+
+/** The baselines due this month (fiscal §6.1). */
+export function baselineDue(s: GameState, p: SliceParams): number {
+  const F = p.fiscal;
+  let resident = 0, present = 0;
+  for (const g of s.pops) { resident += g.stayedSixMonths; present += g.present; }
+  const floor = s.blocks.reduce((a, b) => a + completedM2(b), 0);
+  return Math.round(F.county_base_obligations_per_month + F.admin_per_resident_month * resident
+    + F.police_per_present_month * present + F.sanitation_per_m2_month * floor);
+}
+
+function takeLoan(s: GameState, kind: 'project' | 'short', principal: number, p: SliceParams): void {
+  const F = s.fiscal;
+  const L = kind === 'project' ? p.fiscal.loan : { ...p.fiscal.short_loan, grace_months: 0 };
+  const id = F.nextId.loan++;
+  F.loans.push({ id, kind, principal, rate: L.rate_month, taken: s.date,
+    schedule: loanSchedule(principal, L.rate_month, s.date + 1, L.grace_months, L.term_months) });
+  post(s, 'loan', kind === 'project' ? 'debt' : 'general', principal, `loan.${id}`);
+}
+
+export function finance(p: SliceParams, fc: FiscalContent) {
+  return (ctx: TickContext): void => {
+    const s = ctx.state, F = s.fiscal, P = p.fiscal;
+    const ev = (kind: string, detail: Record<string, unknown>) => ctx.events.push({ step: 'finance', kind, detail });
+
+    // answers: the deficit card holds for the quarter it is answered in; the loan is taken or declined
+    for (const { card, option } of s.answered) {
+      if (card.card === DEFICIT_CARD) F.deficit = { turn: s.turn, option: option as DeficitOption };
+      else if (card.card === LOAN_CARD && F.projectLoan === 'offered') {
+        if (option === 'take') { takeLoan(s, 'project', P.loan.principal, p); F.projectLoan = 'taken'; ev('loan_taken', {}); }
+        else { F.projectLoan = 'declined'; ev('loan_declined', {}); }
+      }
+    }
+    s.pendingCards = s.pendingCards.filter((c) => {
+      if (c.card !== LOAN_CARD || c.expires === undefined || s.date < c.expires) return true;
+      F.projectLoan = 'declined';
+      ev('loan_lapsed', { card: c.id });
+      return false;
+    });
+
+    // 1. revenue
+    const r = regimeOf(s, fc);
+    let tax = 0;
+    for (const f of s.firms) {
+      tax += f.output * p.industry.by_ownership[f.ownership].value_added_ratio * r.tax.value_added_rate[f.ownership];
+    }
+    let revenue = post(s, 'tax', 'general', tax * P.collection_efficiency * r.tax.local_share, 'tax.industry');
+    revenue += post(s, 'tax', 'general', P.county_base_revenue_per_month, 'tax.county_base');
+    revenue += post(s, 'grant', 'general', (P.provincial_base_grant_per_year / 12) * grantFactor(r, s.date), 'grant.provincial_base');
+    const fee = landFeeRate(r, s.date);
+    if (fee > 0) {
+      let land = 0;
+      for (const f of s.firms) if (f.zone !== undefined) land += (f.floorM2 + f.dormM2) / p.industry.max_far;
+      post(s, 'land_fee', 'land', (fee * land) / 12, 'land_fee');
+    }
+    let exports = 0;
+    for (const f of s.firms) exports += f.output * p.industry.by_ownership[f.ownership].export_share;
+    post(s, 'retention', 'forex', (exports * P.forex.retention_share) / P.forex.yuan_per_usd, 'retention');
+
+    // 2. what is due
+    const baseline = baselineDue(s, p);
+    const lines: Line[] = [{ ref: 'baseline', kind: 'baseline', amount: baseline }];
+    for (const o of F.obligations) if (isLive(o, s.date)) lines.push({ ref: o.createdBy, kind: o.kind, amount: obligationDue(o, s) });
+    for (const l of F.loans) {
+      const d = debtServiceAt(l, s.date);
+      if (d > 0) lines.push({ ref: `loan.${l.id}`, kind: 'debt_service', amount: d });
+    }
+    lines.sort((a, b) => ORDER.indexOf(a.kind) - ORDER.indexOf(b.kind));
+    const due = lines.reduce((a, l) => a + l.amount, 0);
+
+    // 3. the reserve, then the deficit rule
+    let short = Math.max(0, due - F.balances.general);
+    let fromLand = 0, cut = 0;
+    if (short > 0) {
+      const answered = F.deficit?.turn === s.turn ? F.deficit.option : undefined;
+      if (F.deficit?.turn !== s.turn) {
+        // no card yet this quarter: raise it; this month's shortfall goes to arrears
+        const inst = ctx.raise({ card: DEFICIT_CARD, options: [...DEFICIT_OPTIONS], interrupting: true });
+        inst.payload = { shortfall: short, capacity: borrowingCapacity(s, p) };
+        F.deficit = { turn: s.turn };
+      } else {
+        const chain = [...new Set<DeficitOption>([...(answered ? [answered] : []), 'borrow_short', 'austerity'])];
+        const cuttable = lines.reduce((a, l) => a + (CUTTABLE.includes(l.kind) ? l.amount : 0), 0);
+        for (const opt of chain) {
+          if (short <= 0) break;
+          if (opt === 'borrow_short') {
+            const amt = Math.min(short, borrowingCapacity(s, p));
+            if (amt > 0) { takeLoan(s, 'short', amt, p); short -= amt; ev('short_borrowing', { amount: amt }); }
+          } else if (opt === 'use_land_money') {
+            const amt = Math.min(short, F.balances.land);
+            if (amt > 0) {
+              fromLand = amt; short -= amt;
+              if (r.landForRecurring !== 'sanctioned') ev('land_for_recurring', { amount: amt, status: r.landForRecurring });
+            }
+          } else {
+            const amt = Math.min(short, Math.floor(P.austerity_max_cut * cuttable));
+            if (amt > 0) { cut = amt; short -= amt; }
+          }
+        }
+      }
+    }
+
+    // 4. pay: the cut comes off the cuttable lines in proportion; the rest is paid from general, then land
+    const cuttable = lines.filter((l) => CUTTABLE.includes(l.kind));
+    const cuttableSum = cuttable.reduce((a, l) => a + l.amount, 0);
+    const cutOf = new Map<Line, number>();
+    let cutLeft = cut;
+    cuttable.forEach((l, i) => {
+      const c = i === cuttable.length - 1 ? cutLeft : Math.min(cutLeft, Math.floor((cut * l.amount) / cuttableSum));
+      cutOf.set(l, c); cutLeft -= c;
+    });
+    let landLeft = fromLand, paid = 0, unpaid = 0, payrollUnpaid = 0;
+    for (const l of lines) {
+      let owe = l.amount - (cutOf.get(l) ?? 0);
+      for (const acc of ['general', 'land'] as AccountId[]) {
+        const room = acc === 'general' ? F.balances.general : landLeft;
+        const take = Math.min(owe, room);
+        if (take > 0) {
+          post(s, 'obligation', acc, -take, l.ref);
+          if (acc === 'land') landLeft -= take;
+          owe -= take; paid += take;
+        }
+      }
+      if (owe > 0) { unpaid += owe; if (l.kind === 'payroll') payrollUnpaid += owe; }
+    }
+    if (unpaid > 0) {
+      addObligation(s, { kind: 'arrears', perMonth: unpaid, index: 'none', from: s.date + 1, until: s.date + 1, createdBy: 'arrears' });
+      ev('arrears', { amount: unpaid, payroll: payrollUnpaid });
+    }
+    F.austerity = cuttableSum > 0 ? cut / cuttableSum : 0;
+
+    // 5. the project loan's card, when a commit left money for projects below zero
+    if (F.loanWanted) {
+      F.loanWanted = false;
+      const pending = s.pendingCards.some((c) => c.card === LOAN_CARD);
+      if (F.projectLoan !== 'taken' && !pending) {
+        const inst = ctx.raise({ card: LOAN_CARD, options: ['take', 'decline'], interrupting: false });
+        inst.payload = { principal: P.loan.principal, rate_month: P.loan.rate_month, grace_months: P.loan.grace_months,
+          term_months: P.loan.term_months };
+        inst.expires = s.date + P.loan.offer_months;
+        F.projectLoan = 'offered';
+      }
+    }
+    ev('month', { revenue, due, baseline, paid, austerity: F.austerity });
+  };
+}

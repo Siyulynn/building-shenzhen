@@ -8,12 +8,13 @@ import type { AreasContent, CardInstance, GameState, LocalizedString, Zone } fro
 import type { TickContext } from './step.js';
 import { createFirm, sizeOffer, type FirmOffer } from './systems/industry.js';
 import { cellsOfRuns } from './zones.js';
+import { landFeeRate, regimeOf, type FiscalContent } from './fiscal.js';
 
 /** One record of content/slice/investors.yaml, compiled. Its numbers are params.investors.archetypes[id]. */
 export interface InvestorArchetype { id: string; name: LocalizedString; ownership: Ownership; existingPremises: boolean }
 /** The buildable layer (data/starts/slice_buildable.json): sorted buildable cell indices. Content, never state. */
 export interface Buildable { cells: Uint32Array }
-export interface InvestorContent { investors?: readonly InvestorArchetype[]; buildable?: Buildable }
+export interface InvestorContent { investors?: readonly InvestorArchetype[]; buildable?: Buildable; fiscal?: FiscalContent }
 
 const CELL_M2 = 10_000;                               // a 100 m cell (§3)
 
@@ -173,12 +174,18 @@ export interface OfferPreview {
     premisesJobsFree?: number;                // the area's existing premises, in jobs, before this firm
     powerFreeKw: number; waterFreeM3Day: number;
     perYear: { output: number; exports: number; valueAdded: number };   // at full ramp
+    fiscal?: {                                // with the fiscal content (M4, §5.6)
+      cashThisQuarter: number;                // land-use fees for its first three months
+      retainedTaxPerYear: number;             // at full ramp, under the current regime
+      newObligationsPerYear: number;          // baselines for the people it brings and the floor it builds
+    };
   }[];
 }
 
 /**
- * The partial-equilibrium preview of an investor card (§5.5, fiscal §7.2): pure, no state change. Cash, retained
- * tax and new obligations arrive with M4's fiscal regime.
+ * The partial-equilibrium preview of an investor card (§5.5, fiscal §7.2): pure, no state change and no RNG. With the
+ * fiscal content it adds cash this quarter, retained tax per year and new obligations per year (§5.6). A scheduled
+ * regime change is not computed.
  */
 export function previewOffer(s: GameState, card: CardInstance, p: SliceParams, content: InvestorContent = {}): OfferPreview {
   const o = offerOf(card);
@@ -196,6 +203,20 @@ export function previewOffer(s: GameState, card: CardInstance, p: SliceParams, c
     const output = o.jobs * own.output_per_job_month * 12 * factor;
     return { output, exports: output * own.export_share, valueAdded: output * own.value_added_ratio };
   };
+  const F = p.fiscal;
+  const regime = content.fiscal ? regimeOf(s, content.fiscal) : undefined;
+  const money = (perYear: { valueAdded: number }, inZone: boolean, builtM2: number) => {
+    if (!regime) return {};
+    const land = inZone ? builtM2 / p.industry.max_far : 0;
+    const fees = (m: number) => (landFeeRate(regime, s.date + m) * land) / 12;
+    return { fiscal: {
+      cashThisQuarter: Math.round(fees(0) + fees(1) + fees(2)),
+      retainedTaxPerYear: Math.round(perYear.valueAdded * regime.tax.value_added_rate[o.ownership] * F.collection_efficiency
+        * regime.tax.local_share),
+      newObligationsPerYear: Math.round(12 * (o.jobs * (F.admin_per_resident_month + F.police_per_present_month)
+        + builtM2 * F.sanitation_per_m2_month)),
+    } };
+  };
   const sites: OfferPreview['sites'] = [];
   for (const option of card.options) {
     const [, kind, id] = option.split(':');
@@ -204,13 +225,14 @@ export function previewOffer(s: GameState, card: CardInstance, p: SliceParams, c
       if (!z) continue;
       sites.push({ option, area: z.area, premises: 'new_factory', opensInMonths: ap.build_months - 1,
         floorM2: o.floorM2, dormM2: o.dormM2, dormBeds, bedsNeeded: Math.max(0, o.jobs - dormBeds),
-        zoneFreeM2: zoneCapacityM2(s, z, p, content.buildable) - zoneUsedM2(s, z.id), ...free(z.area), perYear: year(1) });
+        zoneFreeM2: zoneCapacityM2(s, z, p, content.buildable) - zoneUsedM2(s, z.id), ...free(z.area), perYear: year(1),
+        ...money(year(1), true, o.floorM2 + o.dormM2) });
     } else if (kind === 'premises') {
       const area = Number(id);
       sites.push({ option, area, premises: 'existing', opensInMonths: 1,
         floorM2: 0, dormM2: 0, dormBeds: 0, bedsNeeded: o.jobs,
         premisesJobsFree: p.industry.premises_jobs_per_area - premisesJobs(s, area), ...free(area),
-        perYear: year(p.industry.premises_output_factor) });
+        perYear: year(p.industry.premises_output_factor), ...money(year(p.industry.premises_output_factor), false, 0) });
     }
   }
   return { archetype: o.archetype, ownership: o.ownership, jobs: o.jobs, buildMonths: ap.build_months, rampMonths: ap.ramp_months,

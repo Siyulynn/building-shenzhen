@@ -9,4 +9,5 @@ export * from './round.js';
 export * from './ticks.js';
 export * from './zones.js';
 export * from './investors.js';
+export * from './fiscal.js';
 export { createFirm, sizeOffer, type FirmOffer, type FirmSite } from './systems/industry.js';

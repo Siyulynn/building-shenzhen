@@ -12,6 +12,7 @@ export const SAVE_VERSION = 1;
 export interface SaveContent {
   areas_sha256: string; params_sha256: string; precedents_sha256: string;
   investors_sha256: string; buildable_sha256: string;   // M3b, §5.5
+  fiscal_sha256: string;                                  // M4, §5.6: regimes, projects and teams together
 }
 export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed: number; content: SaveContent }
 export interface Save { header: SaveHeader; body: { state: unknown; rng: RngState }; arrays: Record<string, Uint32Array> }

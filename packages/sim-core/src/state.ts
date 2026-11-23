@@ -4,6 +4,7 @@ import {
   type BuildingArchetype, type Enforcement, type HousingArchetype, type LandUse, type MigrantKind, type Ownership,
   type PermitRegime, type PopKind, type Sector,
 } from './enums.js';
+import { cloneFiscal, initialFiscal, type FiscalState, type Priority, type TeamMode } from './fiscal.js';
 import type { SliceParams } from './params.js';
 import { bedsByPool } from './systems/common.js';
 import { parseYM, type YM } from './ym.js';
@@ -19,6 +20,7 @@ export interface SliceArea {
   facilities: { schoolPlaces: number; clinicVisits: number; policePosts: number };
   illegalFloorShare: number;
   serviceGap: number;
+  roadKm: number;              // completed city roads in the area (M4, §5.6)
 }
 
 export type Queue6 = [number, number, number, number, number, number];
@@ -39,6 +41,7 @@ export type BlockEventKind = 'start' | 'complete' | 'add_floors' | 'change_use' 
 export interface Cohort { era: number; use: FloorUse; stage: Stage; legality: Legality; m2: number;
   archetype: BuildingArchetype; due?: YM;
   workDone?: number; workTotal?: number;   // months of work done and needed, while under construction
+  crewBank?: number;                       // pool crew units banked toward its next month of work (M4, §5.6)
   firm?: number }                         // the firm whose factory or dormitory this is, until completion
 export interface BlockEvent { date: YM; kind: BlockEventKind; use?: FloorUse; m2: number; builder: string }
 export interface BlockStock {
@@ -98,7 +101,12 @@ export type PlayerAction =
   | { type: 'create_zone'; use: LandUse; runs: CellRuns; template?: string }
   | { type: 'edit_zone'; zone: number; add?: CellRuns; remove?: CellRuns; use?: LandUse }
   | { type: 'remove_zone'; zone: number }
-  | { type: 'rename_zone'; zone: number; name: LocalizedString | null };
+  | { type: 'rename_zone'; zone: number; name: LocalizedString | null }
+  // M4 (§5.6): owned by the finance step
+  | { type: 'commit_project'; template: string; area?: number; zone?: number; priority?: Priority }
+  | { type: 'set_project_priority'; project: number; priority: Priority }
+  | { type: 'cancel_project'; project: number }
+  | { type: 'contract_team'; team: string; mode: TeamMode; project?: number };
 export type SubStep = 0 | 1 | 2;
 export interface ActionLogEntry { date: YM; subStep: SubStep; action: PlayerAction }
 
@@ -109,6 +117,9 @@ export interface History {
   rentalBeds: number[]; crowding: number[]; rent: number[]; underConstructionM2: number[]; illegalShare: number[];
   inflow: number[]; outflow: number[];
   firmJobs: number[]; firmStaffed: number[]; output: number[]; exports: number[]; valueAdded: number[];
+  // M4 (§5.6): nominal yuan per month
+  gdp: number[]; revenue: number[]; obligationsDue: number[]; baselineDue: number[]; obligationsPaid: number[];
+  projectSpend: number[]; reserve: number[]; debtOutstanding: number[]; austerity: number[];
 }
 
 export interface GameState {
@@ -129,6 +140,8 @@ export interface GameState {
   nextZoneId: number;
   firms: Firm[];              // id order
   nextFirmId: number;
+  fiscal: FiscalState;        // M4 (§5.6)
+  servicedLand: CellRuns;     // serviced cells (三通一平), sorted runs
   pendingCards: CardInstance[];
   answered: AnsweredCard[];
   actionLog: ActionLogEntry[];
@@ -185,7 +198,9 @@ const isCount = (n: unknown) => typeof n === 'number' && Number.isInteger(n) && 
 export function emptyHistory(): History {
   return { months: [], registered: [], resident: [], present: [], migrants: [], jobs: seriesBySector(),
     employed: seriesBySector(), rentalBeds: [], crowding: [], rent: [], underConstructionM2: [], illegalShare: [],
-    inflow: [], outflow: [], firmJobs: [], firmStaffed: [], output: [], exports: [], valueAdded: [] };
+    inflow: [], outflow: [], firmJobs: [], firmStaffed: [], output: [], exports: [], valueAdded: [],
+    gdp: [], revenue: [], obligationsDue: [], baselineDue: [], obligationsPaid: [], projectSpend: [], reserve: [],
+    debtOutstanding: [], austerity: [] };
 }
 
 export function createInitialState(content: {
@@ -213,6 +228,7 @@ export function createInitialState(content: {
       facilities: { schoolPlaces: 0, clinicVisits: 0, policePosts: 0 },
       illegalFloorShare: 0,
       serviceGap: 0,
+      roadKm: 0,
     };
   });
 
@@ -287,6 +303,8 @@ export function createInitialState(content: {
     nextZoneId: 1,
     firms: [],
     nextFirmId: 1,
+    fiscal: initialFiscal(params),
+    servicedLand: [],
     pendingCards: [],
     answered: [],
     actionLog: [],
@@ -323,6 +341,8 @@ export function cloneState(s: GameState): GameState {
     policy: { ...s.policy },
     zones: s.zones.map((z) => ({ ...z, runs: z.runs.map((r) => [...r] as CellRuns[number]), name: { ...z.name } })),
     firms: s.firms.map((f) => ({ ...f })),
+    fiscal: cloneFiscal(s.fiscal),
+    servicedLand: s.servicedLand.map((r) => [...r] as CellRuns[number]),
     pendingCards: s.pendingCards.map(copyCard),
     answered: s.answered.map((a) => ({ card: copyCard(a.card), option: a.option })),
     actionLog: [...s.actionLog],
@@ -334,6 +354,9 @@ export function cloneState(s: GameState): GameState {
       inflow: [...h.inflow], outflow: [...h.outflow],
       firmJobs: [...h.firmJobs], firmStaffed: [...h.firmStaffed], output: [...h.output], exports: [...h.exports],
       valueAdded: [...h.valueAdded],
+      gdp: [...h.gdp], revenue: [...h.revenue], obligationsDue: [...h.obligationsDue], baselineDue: [...h.baselineDue],
+      obligationsPaid: [...h.obligationsPaid], projectSpend: [...h.projectSpend], reserve: [...h.reserve],
+      debtOutstanding: [...h.debtOutstanding], austerity: [...h.austerity],
     },
   };
 }
