@@ -49,6 +49,6 @@ export type Enforcement = (typeof ENFORCEMENT_LEVELS)[number];
 export const LAND_USES = ['industrial', 'residential', 'commercial', 'public', 'reserve'] as const;
 export type LandUse = (typeof LAND_USES)[number];
 
-/** Firm ownership (§5.5): before the SEZ. Joint ventures, foreign and overseas Chinese firms arrive with M5. */
-export const OWNERSHIPS = ['hk_processing', 'inland_soe'] as const;
+/** Firm ownership (§5.5, §5.7): the first two before the SEZ; joint ventures, foreign and overseas Chinese firms with it. */
+export const OWNERSHIPS = ['hk_processing', 'inland_soe', 'joint_venture', 'foreign_owned', 'overseas_chinese'] as const;
 export type Ownership = (typeof OWNERSHIPS)[number];

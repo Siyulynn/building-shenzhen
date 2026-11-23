@@ -10,4 +10,6 @@ export * from './ticks.js';
 export * from './zones.js';
 export * from './investors.js';
 export * from './fiscal.js';
-export { createFirm, sizeOffer, type FirmOffer, type FirmSite } from './systems/industry.js';
+export * from './events.js';
+export * from './readiness.js';
+export { createFirm, firmTerms, inTaxHoliday, sizeOffer, type FirmOffer, type FirmSite } from './systems/industry.js';

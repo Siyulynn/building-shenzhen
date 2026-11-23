@@ -46,8 +46,22 @@ export interface SliceParams {
     offer_months: number;
     archetypes: Record<string, {
       rate_per_quarter: number; jobs: [number, number]; dorm_beds_per_job: number; build_months: number; ramp_months: number;
+      tax_holiday_months?: number;     // M5a (§5.7): no value-added tax in a firm's first months open
     }>;
   };
+  // M5a (§5.7)
+  events: Record<string, { jobs?: number }>;
+  readiness: {
+    areas: number[];
+    weights: { roads: number; serviced_land: number; water_power: number };
+    road_reach_cells: number;
+    full_at: { roads: number; serviced_land: number };
+    standard_wave: { ownership: Ownership; jobs: number };
+    first_wave: { min_cards: number; max_cards: number };
+  };
+  sez: { priorities: Record<string, Record<string, number>> };
+  shekou: { capture_share: number };
+  shortcut: { discipline_weight: number; rapport_on_decline: number; land_fee_factor: number; extra_tax_holiday_months: number };
   // M4 (§5.6)
   fiscal: {
     start_regime: string;
@@ -154,10 +168,48 @@ export function validateParams(raw: unknown): SliceParams {
     }
     if (!(a.dorm_beds_per_job >= 0)) throw new Error(`params: investors.archetypes.${id}.dorm_beds_per_job must be >= 0`);
     if (!(a.rate_per_quarter >= 0 && a.rate_per_quarter <= 3)) throw new Error(`params: investors.archetypes.${id}.rate_per_quarter must be in [0, 3]`);
+    if (a.tax_holiday_months !== undefined && !(Number.isInteger(a.tax_holiday_months) && a.tax_holiday_months >= 0)) {
+      throw new Error(`params: investors.archetypes.${id}.tax_holiday_months must be a whole number >= 0`);
+    }
   }
   for (const m of p.migration.spring.away_months) if (!Number.isInteger(m) || m < 0 || m > 11) throw new Error('params: spring.away_months are 0..11');
   validateFiscalParams(p);
+  validateM5aParams(p);
   return p;
+}
+
+function validateM5aParams(p: SliceParams): void {
+  const R = p.readiness, Z = p.sez, K = p.shekou, S = p.shortcut;
+  if (!p.events || !R || !Z || !K || !S) throw new Error('params: events, readiness, sez, shekou and shortcut must be set (§5.7)');
+  for (const [id, e] of Object.entries(p.events)) {
+    if (e.jobs !== undefined && !(Number.isInteger(e.jobs) && e.jobs >= 1)) throw new Error(`params: events.${id}.jobs must be a positive integer`);
+  }
+  if (!R.areas?.length || R.areas.some((a) => !Number.isInteger(a))) throw new Error('params: readiness.areas must list area ids');
+  for (const k of ['roads', 'serviced_land', 'water_power'] as const) {
+    if (!(R.weights[k] >= 0)) throw new Error(`params: readiness.weights.${k} must be >= 0`);
+  }
+  if (!(R.weights.roads + R.weights.serviced_land + R.weights.water_power > 0)) throw new Error('params: readiness.weights must not all be 0');
+  if (!(Number.isInteger(R.road_reach_cells) && R.road_reach_cells >= 0)) throw new Error('params: readiness.road_reach_cells must be a whole number');
+  for (const k of ['roads', 'serviced_land'] as const) {
+    if (!(R.full_at[k] > 0 && R.full_at[k] <= 1)) throw new Error(`params: readiness.full_at.${k} must be in (0, 1]`);
+  }
+  if (!(OWNERSHIPS as readonly string[]).includes(R.standard_wave.ownership)) throw new Error('params: readiness.standard_wave.ownership is unknown');
+  if (!(R.standard_wave.jobs > 0)) throw new Error('params: readiness.standard_wave.jobs must be > 0');
+  const W = R.first_wave;
+  if (!Number.isInteger(W.min_cards) || !Number.isInteger(W.max_cards) || W.min_cards < 0 || W.max_cards < W.min_cards) {
+    throw new Error('params: readiness.first_wave needs whole min_cards <= max_cards');
+  }
+  for (const [pr, mix] of Object.entries(Z.priorities)) {
+    for (const [a, w] of Object.entries(mix)) {
+      if (!(w >= 0)) throw new Error(`params: sez.priorities.${pr}.${a} must be >= 0`);
+    }
+  }
+  if (!(K.capture_share >= 0 && K.capture_share <= 1)) throw new Error('params: shekou.capture_share must be in [0, 1]');
+  if (!(S.discipline_weight >= 0) || !(S.rapport_on_decline >= 0)) throw new Error('params: shortcut weights must be >= 0');
+  if (!(S.land_fee_factor >= 0 && S.land_fee_factor <= 1)) throw new Error('params: shortcut.land_fee_factor must be in [0, 1]');
+  if (!(Number.isInteger(S.extra_tax_holiday_months) && S.extra_tax_holiday_months >= 0)) {
+    throw new Error('params: shortcut.extra_tax_holiday_months must be a whole number >= 0');
+  }
 }
 
 const posInt = (n: unknown) => Number.isInteger(n) && (n as number) >= 1;

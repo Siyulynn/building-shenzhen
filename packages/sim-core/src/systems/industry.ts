@@ -5,7 +5,7 @@
 import { BUILDER_OF, USE_OF, type Ownership } from '../enums.js';
 import type { SliceParams } from '../params.js';
 import { largestRemainder } from '../round.js';
-import type { Firm, GameState, JobRow } from '../state.js';
+import type { Firm, FirmTerms, GameState, JobRow } from '../state.js';
 import type { TickContext } from '../step.js';
 
 /** What an offer brings, at full ramp: drawn when the offer arrives, so the card and the preview can show it. */
@@ -35,13 +35,28 @@ export function sizeOffer(p: SliceParams, archetype: string, ownership: Ownershi
 }
 
 /**
+ * A firm's terms (§5.7): the archetype's tax holiday, plus the shortcut's sweetheart price when a leader's shortcut
+ * sited it. Undefined when there is nothing to record, so firms without incentives look as in M3b.
+ */
+export function firmTerms(p: SliceParams, archetype: string, shortcut?: string): FirmTerms | undefined {
+  const base = archetypeParams(p, archetype).tax_holiday_months ?? 0;
+  const t: FirmTerms = {};
+  const holiday = base + (shortcut ? p.shortcut.extra_tax_holiday_months : 0);
+  if (holiday > 0) t.taxHolidayMonths = holiday;
+  if (shortcut) { t.landFeeFactor = p.shortcut.land_fee_factor; t.shortcut = shortcut; }
+  return Object.keys(t).length ? t : undefined;
+}
+
+/**
  * Create a firm at a site (§5.5). In a new factory it starts its factory and dormitory floor under construction in
  * its area's block, needing build_months of work; work begins this month, and the firm opens when its factory
- * completes (construction.ts). In existing premises it builds nothing and opens the next month.
+ * completes (construction.ts). In existing premises it builds nothing and opens the next month. `shortcut` names
+ * the leader whose shortcut sited it (§5.7).
  */
-export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site: FirmSite): Firm {
+export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site: FirmSite, shortcut?: string): Firm {
   const a = archetypeParams(p, offer.archetype);
   const existing = site.premises === 'existing';
+  const terms = firmTerms(p, offer.archetype, shortcut);
   const f: Firm = {
     id: s.nextFirmId, archetype: offer.archetype, ownership: offer.ownership, sector: 'factory',
     area: site.area, ...(site.premises === 'new_factory' ? { zone: site.zone } : {}), premises: site.premises,
@@ -49,6 +64,7 @@ export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site:
     powerKw: offer.powerKw, waterM3Day: offer.waterM3Day,
     accepted: s.date, ...(existing ? { opens: s.date + 1 } : {}),
     posted: 0, staffed: 0, output: 0,
+    ...(terms ? { terms } : {}),
   };
   if (!existing) {
     const b = s.blocks.find((x) => x.area === site.area);
@@ -119,6 +135,10 @@ export function production(p: SliceParams) {
     }
   };
 }
+
+/** True while a firm is in its tax holiday (§5.7): from opening, for its terms' months. */
+export const inTaxHoliday = (f: Firm, date: number) =>
+  !!f.terms?.taxHolidayMonths && f.opens !== undefined && date < f.opens + f.terms.taxHolidayMonths;
 
 /** This month's industry totals: output, exports and value added, in nominal yuan. */
 export function industryTotals(s: GameState, p: SliceParams) {

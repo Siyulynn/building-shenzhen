@@ -1,0 +1,52 @@
+# The slice's events (docs/design/systems/phase1-slice.md §5.7, §7). M5a's four; M5b adds the rest of §7's table.
+# trigger: { date: YYYY-MM } for an anchor (fires in the first month on or after it; the date cites the anchor's
+# claim) or { prologue_turn: n } for a scripted beat (turn 0 is the scenario's first quarter). Never a year in code.
+# effects apply when the event fires; on_answer effects apply the month after its card is answered.
+# Effect numbers are in params/slice.yaml under events.<id>. Card options: the headless default first.
+
+- id: event.first_processing_contract
+  name: { zh: 第一份来料加工合同, en: Our first processing contract }
+  family: scripted
+  trigger: { prologue_turn: 1 }          # 1979-Q2 (§2.1)
+  # a guaranteed offer in the market town: "our first contract", not the city's (§6.5)
+  effects:
+    - { kind: offer, archetype: investor.hk_processing }
+  claims:
+    - { id: phase1.industry.processing_contract, use: design_note }
+
+- id: event.shekou_works
+  name: { zh: 蛇口工业区破土动工, en: Shekou breaks ground }
+  family: anchor
+  trigger: { date: 1979-07 }
+  # from here Shekou competes for the investors the player loses (§5.7)
+  effects:
+    - { kind: unlock, key: shekou.competes }
+  claims:
+    - { id: phase1.event.shekou_works, use: anchor_date }
+
+- id: event.readiness_check
+  name: { zh: 特区筹备情况汇报, en: The readiness check }
+  family: scripted
+  trigger: { prologue_turn: 5 }          # 1980-Q2, the last quarter to commit (§2.1)
+  effects:
+    - { kind: readiness_check }
+  claims: []                             # a design milestone (design_note in §2.1)
+
+- id: event.sez_established
+  name: { zh: 经济特区成立, en: The Special Economic Zone is established }
+  family: anchor
+  trigger: { date: 1980-08 }
+  card:
+    interrupting: true
+    options:                             # the first priorities (§7.1 step 2); the mix is params.sez.priorities
+      - { id: priority.industry, name: { zh: 工业与来料加工, en: Industry and processing } }
+      - { id: priority.trade, name: { zh: 港口与贸易, en: The port and trade } }
+      - { id: priority.commerce, name: { zh: 商业与旅游, en: Commerce and tourism } }
+  on_answer:                             # the opening, the month after the answer (§7.1 step 3)
+    - { kind: sez_open }
+    - { kind: set_regime, regime: regime.contracting_1980s }
+    - { kind: unlock, key: investors.sez }
+    - { kind: first_wave }
+  claims:
+    - { id: phase1.event.sez_regulations, use: anchor_date }
+    - { id: phase1.fiscal.sez_income_tax_1980, use: design_note }

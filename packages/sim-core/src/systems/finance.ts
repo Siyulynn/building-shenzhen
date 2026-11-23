@@ -12,6 +12,7 @@ import type { SliceParams } from '../params.js';
 import { largestRemainder } from '../round.js';
 import type { GameState } from '../state.js';
 import type { TickContext } from '../step.js';
+import { inTaxHoliday } from './industry.js';
 
 type LineKind = ObligationKind | 'baseline' | 'debt_service';
 interface Line { ref: string; kind: LineKind; amount: number }
@@ -52,6 +53,7 @@ export function finance(p: SliceParams, fc: FiscalContent) {
     const r = regimeOf(s, fc);
     let tax = 0;
     for (const f of s.firms) {
+      if (inTaxHoliday(f, s.date)) continue;                // M5a's incentive (§5.7)
       tax += f.output * p.industry.by_ownership[f.ownership].value_added_ratio * r.tax.value_added_rate[f.ownership];
     }
     let revenue = post(s, 'tax', 'general', tax * P.collection_efficiency * r.tax.local_share, 'tax.industry');
@@ -60,7 +62,9 @@ export function finance(p: SliceParams, fc: FiscalContent) {
     const fee = landFeeRate(r, s.date);
     if (fee > 0) {
       let land = 0;
-      for (const f of s.firms) if (f.zone !== undefined) land += (f.floorM2 + f.dormM2) / p.industry.max_far;
+      for (const f of s.firms) {
+        if (f.zone !== undefined) land += ((f.floorM2 + f.dormM2) / p.industry.max_far) * (f.terms?.landFeeFactor ?? 1);
+      }
       post(s, 'land_fee', 'land', (fee * land) / 12, 'land_fee');
     }
     let exports = 0;

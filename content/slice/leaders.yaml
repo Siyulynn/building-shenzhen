@@ -1,0 +1,17 @@
+# The slice's Secretary and Mayor (docs/design/systems/phase1-slice.md §5.7, §6.8; leadership §2, §7).
+# Both are fictional composites with fictional names (AGENTS.md, PLAN §11): no real official, no real scandal.
+# traits: the Phase 1 subset, deal_maker (offers the shortcut card) and cautious. M5a reads disciplineRisk and rapport.
+
+- id: leader.secretary
+  name: { zh: 周立言, en: Zhou Liyan }
+  role: secretary
+  fictional: true
+  traits: [cautious]
+  rapport: 0
+
+- id: leader.mayor
+  name: { zh: 陈广达, en: Chen Guangda }
+  role: mayor
+  fictional: true
+  traits: [deal_maker]
+  rapport: 0

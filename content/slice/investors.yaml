@@ -1,6 +1,7 @@
-# The slice's investor archetypes before the SEZ (docs/design/systems/phase1-slice.md §5.5, §6.5).
-# Who they are and what they may do; their numbers (rates, sizes, build and ramp months) are placeholders in
-# params/slice.yaml under the same id. Joint ventures, foreign and overseas Chinese firms arrive with M5's SEZ event.
+# The slice's investor archetypes (docs/design/systems/phase1-slice.md §5.5, §5.7, §6.5).
+# Who they are and what they may do; their numbers (rates, sizes, build and ramp months, tax holidays) are
+# placeholders in params/slice.yaml under the same id. requires: an unlock key (§5.7). An archetype with one makes
+# no arrival draw until an event sets the key: joint ventures, foreign and overseas Chinese firms arrive with the SEZ.
 
 - id: investor.hk_processing
   name: { zh: 香港来料加工, en: Hong Kong processing contract }
@@ -16,4 +17,28 @@
   ownership: inland_soe
   existing_premises: false
   # A design category from the slice spec (§6.5). Which inland units set up plants in 1979–80 is a research target.
+  claims: []
+
+# ---- M5a (§5.7): the origins the SEZ opens. Design categories from §6.5; which firms came first is a research
+# target (§9), so their claims are empty. The SEZ's income-tax incentive is in the contracting regime's rates.
+
+- id: investor.joint_venture
+  name: { zh: 中外合资企业, en: Joint venture }
+  ownership: joint_venture
+  existing_premises: false
+  requires: investors.sez
+  claims: []
+
+- id: investor.foreign_owned
+  name: { zh: 外商独资企业, en: Foreign-owned firm }
+  ownership: foreign_owned
+  existing_premises: false
+  requires: investors.sez
+  claims: []
+
+- id: investor.overseas_chinese
+  name: { zh: 华侨投资企业, en: Overseas Chinese firm }
+  ownership: overseas_chinese
+  existing_premises: false
+  requires: investors.sez
   claims: []

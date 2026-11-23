@@ -77,12 +77,27 @@ industry:                                # M3b (§5.5): firms, production and va
                      floor_m2_per_job: 10, power_kw_per_job: 0.5, water_m3_day_per_job: 0.1 }
     inland_soe:    { output_per_job_month: 200, value_added_ratio: 0.35, export_share: 0.2,
                      floor_m2_per_job: 15, power_kw_per_job: 0.8, water_m3_day_per_job: 0.2 }
+    # M5a (§5.7): the SEZ's new origins
+    joint_venture: { output_per_job_month: 350, value_added_ratio: 0.3, export_share: 0.7,
+                     floor_m2_per_job: 12, power_kw_per_job: 0.8, water_m3_day_per_job: 0.15 }
+    foreign_owned: { output_per_job_month: 400, value_added_ratio: 0.3, export_share: 0.8,
+                     floor_m2_per_job: 12, power_kw_per_job: 1.0, water_m3_day_per_job: 0.15 }
+    overseas_chinese: { output_per_job_month: 300, value_added_ratio: 0.25, export_share: 0.8,
+                     floor_m2_per_job: 10, power_kw_per_job: 0.6, water_m3_day_per_job: 0.12 }
 
 investors:                               # M3b (§5.5): offers by archetype (content/slice/investors.yaml). Placeholders
   offer_months: 6                        # an offer outlives a quarter: runQuarter does not stop between months
   archetypes:
     investor.hk_processing:     { rate_per_quarter: 0.4, jobs: [60, 200], dorm_beds_per_job: 0.3, build_months: 9, ramp_months: 3 }
     investor.inland_state_unit: { rate_per_quarter: 0.1, jobs: [100, 400], dorm_beds_per_job: 0.5, build_months: 12, ramp_months: 6 }
+    # M5a (§5.7): arrive only once the SEZ unlocks them. With the two above, about one card a quarter (§6.5).
+    # tax_holiday_months: no value-added tax in a firm's first months open (absent = 0)
+    investor.joint_venture:     { rate_per_quarter: 0.3, jobs: [100, 400], dorm_beds_per_job: 0.4, build_months: 12, ramp_months: 6,
+                                  tax_holiday_months: 24 }
+    investor.foreign_owned:     { rate_per_quarter: 0.15, jobs: [150, 500], dorm_beds_per_job: 0.3, build_months: 12, ramp_months: 6,
+                                  tax_holiday_months: 24 }
+    investor.overseas_chinese:  { rate_per_quarter: 0.25, jobs: [60, 250], dorm_beds_per_job: 0.3, build_months: 9, ramp_months: 3,
+                                  tax_holiday_months: 12 }
 
 # ---- M4 (§5.6): fiscal, projects, construction capacity and GDP. Every number is a placeholder design guess ----
 # Money is nominal yuan per month unless named per year. The slice's ledger is the city's books for the slice's
@@ -129,3 +144,36 @@ teams:                                   # by team id (content/slice/teams.yaml)
 gdp:                                     # nominal value added (fiscal §8.2)
   base_va_per_job_month: { farming_fishing: 30, factory: 50, construction: 50, services: 40, state: 45 }
   construction_va_ratio: 0.35            # fiscal §12's starting guess
+
+# ---- M5a (§5.7): events, readiness, the SEZ's priorities, Shekou and the shortcut. Placeholder design guesses ----
+events:                                  # by event id (content/slice/events.yaml)
+  event.first_processing_contract: { jobs: 120 }   # fits one area's existing premises (premises_jobs_per_area)
+
+readiness:                               # one bar of three parts over the readiness cells (§7.1)
+  areas: [1, 2, 3, 7]                    # the market town, Luohu, Caiwuwei and Shangbu
+  weights: { roads: 0.3, serviced_land: 0.35, water_power: 0.35 }
+  road_reach_cells: 5                    # a km of road reaches (2 × 5 + 1) × 10 cells of its area
+  # the parts are full at these shares of the 1,519 readiness cells: about 456 cells by road (two road links)
+  # and about 15 serviced cells (one site-preparation project the size of a small zone)
+  full_at: { roads: 0.3, serviced_land: 0.01 }
+  standard_wave: { ownership: joint_venture, jobs: 2000 }   # its power need is above the start's spare power
+  first_wave: { min_cards: 1, max_cards: 4 }
+
+sez:
+  priorities:                            # the first wave's archetype weights by first priority (§7.1 step 2)
+    # every investor is a factory until service-sector investors arrive, so trade and commerce steer the origins only
+    priority.industry: { investor.hk_processing: 2, investor.joint_venture: 2, investor.foreign_owned: 1,
+                         investor.overseas_chinese: 1, investor.inland_state_unit: 1 }
+    priority.trade:    { investor.hk_processing: 3, investor.joint_venture: 1, investor.foreign_owned: 1,
+                         investor.overseas_chinese: 2 }
+    priority.commerce: { investor.hk_processing: 1, investor.joint_venture: 1, investor.foreign_owned: 1,
+                         investor.overseas_chinese: 3 }
+
+shekou:
+  capture_share: 0.5                     # share of the investors the player loses that Shekou takes
+
+shortcut:                                # the deal-maker's shortcut card (leadership §2.4-§2.5)
+  discipline_weight: 10                  # disciplineRisk per accepted shortcut
+  rapport_on_decline: 5                  # the Mayor's rapport lost when the player declines
+  land_fee_factor: 0.5                   # the sweetheart price: share of the land-use fee the firm pays
+  extra_tax_holiday_months: 24           # added to the archetype's tax holiday

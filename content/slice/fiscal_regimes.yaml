@@ -1,14 +1,17 @@
 # The slice's fiscal regimes (docs/design/systems/phase1-slice.md §5.6, fiscal-and-macro §4.2, §11).
 # Both regimes are lead (fiscal §11): the tax rates are placeholder design guesses, flagged per regime.
 # Dates live here, never in code: the grant schedule and the land-fee start are dated factors citing claims.
-# M4 runs regime.county_1979 throughout; M5 switches to regime.contracting_1980s at the SEZ event (§7.1).
+# M4 runs regime.county_1979 throughout; M5a's SEZ event switches to regime.contracting_1980s (§5.7, §7.1).
+# The county regime lists the SEZ-era ownerships too, so every regime has a rate for every ownership; none of
+# them can arrive before the SEZ.
 # value_added_rate: the effective tax on a firm's value added, by ownership. local_share: the share the city keeps
 # ("收入留用", phase1.fiscal.contracting_retain). land_for_recurring: whether land money may pay recurring spending.
 
 - id: regime.county_1979
   name: { zh: 县级财政, en: County budget }
   placeholder: true
-  tax: { value_added_rate: { hk_processing: 0.1, inland_soe: 0.15 }, local_share: 1 }
+  tax: { value_added_rate: { hk_processing: 0.1, inland_soe: 0.15, joint_venture: 0.1, foreign_owned: 0.1, overseas_chinese: 0.1 },
+         local_share: 1 }
   land_fee: []                           # no land-use fees before the land rules
   land_for_recurring: grey
   grant_schedule:                        # factor × params.fiscal.provincial_base_grant_per_year
@@ -24,7 +27,10 @@
 - id: regime.contracting_1980s
   name: { zh: 财政包干, en: Fiscal contracting }
   placeholder: true
-  tax: { value_added_rate: { hk_processing: 0.08, inland_soe: 0.12 }, local_share: 1 }
+  # the SEZ's incentive: lower rates for the new origins (placeholders). The 15% income tax is a design_note below:
+  # it is a rate on income, and the slice taxes value added, so no rate here is set from it
+  tax: { value_added_rate: { hk_processing: 0.08, inland_soe: 0.12, joint_venture: 0.05, foreign_owned: 0.05, overseas_chinese: 0.05 },
+         local_share: 1 }
   land_fee:                              # yuan per m² of land per year, from the rules' in-force date
     - { from: 1982-01, per_m2_year: 15 } # placeholder; the 1981 ranges are a lead (land.regulations_1981)
   land_for_recurring: grey
@@ -39,4 +45,4 @@
     - { id: phase1.fiscal.provincial_base.1984, use: fiscal_rule }
     - { id: phase1.event.land_rules_1981, use: anchor_date }
     - { id: land.regulations_1981, use: design_note }
-    - { id: phase1.fiscal.sez_income_tax_1980, use: design_note }   # the SEZ's 15% income tax; M5 adds incentives
+    - { id: phase1.fiscal.sez_income_tax_1980, use: design_note }   # the SEZ's 15% income tax (§5.7)

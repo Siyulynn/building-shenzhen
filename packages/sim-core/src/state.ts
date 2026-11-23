@@ -88,7 +88,22 @@ export interface Firm {
   jobs: number; floorM2: number; dormM2: number; powerKw: number; waterM3Day: number;
   accepted: YM; opens?: YM;        // set when its factory completes (the month after acceptance in existing premises)
   posted: number; staffed: number; output: number;   // this month's: jobs posted, jobs filled, gross output (yuan)
+  terms?: FirmTerms;               // M5a (§5.7): absent = no tax holiday, the full land-use fee
 }
+/** A firm's incentives (§5.7): its tax holiday, its land-use fee factor, and the leader whose shortcut sited it. */
+export interface FirmTerms { taxHolidayMonths?: number; landFeeFactor?: number; shortcut?: string }
+
+/** M5a (§5.7): fired events and unlock keys; the SEZ's opening; Shekou's tally; the leaders. */
+export interface EventsState { fired: { id: string; date: YM }[]; unlocked: string[] }
+export interface SezState { opened?: YM; priority?: string; readiness?: number; waveCards?: number }
+export interface ShekouState { captured: number; jobs: number; carry: number }
+export type LeaderRole = 'secretary' | 'mayor';
+/** leadership §2.1, the Phase 1 subset. Fictional composites (AGENTS.md). */
+export interface Leader { id: string; name: LocalizedString; role: LeaderRole; traits: string[]; disciplineRisk: number; rapport: number }
+export interface LeadershipState { leaders: Leader[]; entangled: { leader: string; ref: string; date: YM }[] }
+/** content/slice/leaders.yaml, compiled. */
+export interface LeaderContent { id: string; name: LocalizedString; role: LeaderRole; traits: string[]; rapport: number }
+export const LEADER_TRAITS = ['deal_maker', 'cautious'] as const;
 
 export interface CardInstance { id: string; card: string; options: string[]; interrupting: boolean; raisedAt: YM;
   payload?: Record<string, unknown>; expires?: YM }
@@ -142,6 +157,10 @@ export interface GameState {
   nextFirmId: number;
   fiscal: FiscalState;        // M4 (§5.6)
   servicedLand: CellRuns;     // serviced cells (三通一平), sorted runs
+  events: EventsState;        // M5a (§5.7)
+  sez: SezState;
+  shekou: ShekouState;
+  leadership: LeadershipState;
   pendingCards: CardInstance[];
   answered: AnsweredCard[];
   actionLog: ActionLogEntry[];
@@ -203,8 +222,27 @@ export function emptyHistory(): History {
     debtOutstanding: [], austerity: [] };
 }
 
+/** content/slice/leaders.yaml (§5.7): the pair, fictional, with the Phase 1 traits. */
+export function compileLeaders(raw: unknown): LeaderContent[] {
+  if (!Array.isArray(raw)) throw new Error('leaders: expected a list');
+  const seen = new Set<string>();
+  return raw.map((r: Record<string, any>, i) => {
+    if (typeof r?.id !== 'string' || !r.id) throw new Error(`leaders[${i}]: id is missing`);
+    if (seen.has(r.id)) throw new Error(`leaders: duplicate id ${r.id}`);
+    seen.add(r.id);
+    if (r.fictional !== true) throw new Error(`${r.id}: leaders are fictional composites; set fictional: true`);
+    if (typeof r.name?.zh !== 'string' || typeof r.name?.en !== 'string') throw new Error(`${r.id}: name needs zh and en`);
+    if (r.role !== 'secretary' && r.role !== 'mayor') throw new Error(`${r.id}: role must be secretary or mayor`);
+    const traits = Array.isArray(r.traits) ? r.traits : [];
+    for (const t of traits) if (!(LEADER_TRAITS as readonly string[]).includes(t)) throw new Error(`${r.id}: unknown trait ${t}`);
+    if (!(typeof r.rapport === 'number' && r.rapport >= -100 && r.rapport <= 100)) throw new Error(`${r.id}: rapport must be in [-100, 100]`);
+    return { id: r.id, name: { zh: r.name.zh, en: r.name.en }, role: r.role as LeaderRole, traits: [...traits], rapport: r.rapport };
+  });
+}
+
 export function createInitialState(content: {
   scenario: ScenarioContent; areas: AreasContent; start: StartContent; params: SliceParams;
+  leaders?: readonly LeaderContent[];                        // M5a (§5.7): without them, no shortcut is offered
 }): GameState {
   const { scenario, areas, start, params } = content;
   if (scenario.months_per_turn !== 3) throw new Error('the slice has three monthly sub-steps per turn (§2)');
@@ -305,6 +343,11 @@ export function createInitialState(content: {
     nextFirmId: 1,
     fiscal: initialFiscal(params),
     servicedLand: [],
+    events: { fired: [], unlocked: [] },
+    sez: {},
+    shekou: { captured: 0, jobs: 0, carry: 0 },
+    leadership: { leaders: (content.leaders ?? []).map((l) => ({ id: l.id, name: { ...l.name }, role: l.role,
+      traits: [...l.traits], disciplineRisk: 0, rapport: l.rapport })), entangled: [] },
     pendingCards: [],
     answered: [],
     actionLog: [],
@@ -340,9 +383,14 @@ export function cloneState(s: GameState): GameState {
       migrant_construction: [...s.migration.stockLag.migrant_construction] } },
     policy: { ...s.policy },
     zones: s.zones.map((z) => ({ ...z, runs: z.runs.map((r) => [...r] as CellRuns[number]), name: { ...z.name } })),
-    firms: s.firms.map((f) => ({ ...f })),
+    firms: s.firms.map((f) => ({ ...f, ...(f.terms ? { terms: { ...f.terms } } : {}) })),
     fiscal: cloneFiscal(s.fiscal),
     servicedLand: s.servicedLand.map((r) => [...r] as CellRuns[number]),
+    events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked] },   // fired entries are never changed
+    sez: { ...s.sez },
+    shekou: { ...s.shekou },
+    leadership: { leaders: s.leadership.leaders.map((l) => ({ ...l, name: { ...l.name }, traits: [...l.traits] })),
+      entangled: [...s.leadership.entangled] },
     pendingCards: s.pendingCards.map(copyCard),
     answered: s.answered.map((a) => ({ card: copyCard(a.card), option: a.option })),
     actionLog: [...s.actionLog],
