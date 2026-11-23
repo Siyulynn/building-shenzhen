@@ -954,7 +954,8 @@ There are no calendar promises here; each phase ends on **exit criteria**. Hones
 - **The scale check:** the whole municipality drawn as masses, from block stocks plus a realistic number of tracked buildings. Measure memory, worker message cost and save size.
 - **Exit:** the 3D stack, the size of the tracked tier and a first cost per street are confirmed. Throw the spike code away afterwards, but keep the authoring notes.
 
-### Phase 1: The ugly playable slice ("Luohu and Shekou, 1979–1985", 2D only)
+### Phase 1: The ugly playable slice ("Luohu and Shekou, 1980–1985", 2D only)
+The full spec is `docs/design/systems/phase1-slice.md`. Its default start is 1980-Q1, so the SEZ is founded during play; 1979-Q1 is the alternative (spec §13).
 Phase 1 tests the game's core triangle: **growth vs fiscal survival vs politics and reviews**. If that triangle is fun in ugly 2D, the whole project is validated.
 - **Content:**
   - the grid and about 8–12 named areas around Luohu and Shekou. Shekou is a flagged area where you have less control; its full enclave behaviour arrives in Phase 2;
