@@ -104,9 +104,11 @@ export function migration(p: SliceParams, network?: StartNetwork) {
         flow(g).inflow += n;
       });
       // whoever finds no bed is turned away (§5.11): recorded where the vacancies are, for rents and building next
-      // month, but not a person; with no accessible vacancy in an area with a market, they go uncounted
+      // month, but not a person. A market with no rental beds takes none (its villagers' build test reads crowding,
+      // which stays 0 there); with no accessible vacancy in a market with beds, they go uncounted
       if (left > 0) {
-        largestRemainder(left, vac).forEach((n, i) => {
+        const where = areas.map((a, i) => (s.housing.find((m) => m.area === a)!.beds.rental > 0 ? vac[i]! : 0));
+        largestRemainder(left, where).forEach((n, i) => {
           if (n <= 0) return;
           s.housing.find((m) => m.area === areas[i])!.turnedAway += n;
           ctx.events.push({ step: 'migration', kind: 'turned_away', detail: { area: areas[i]!, pop: k, n } });

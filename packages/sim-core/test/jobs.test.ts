@@ -145,9 +145,22 @@ describe('R4: matching keeps incumbents and reaches only by road', () => {
     expect(migrants(later)).toBeLessThan(migrants(end));
   });
 
-  it('turnover is deterministic and draws nothing: the same seed gives the same holders', () => {
-    const a = run(initial(), 6, STEPS, 4), b = run(initial(), 6, STEPS, 4);
-    expect(a.labour.held).toEqual(b.labour.held);
+  it('turnover lets idle locals into jobs migrants held, ahead of them in the fill order; with none, migrants keep them', () => {
+    // area 2 (no road): service jobs beyond its locals draw migrants; then idle urban residents arrive
+    const s = run(initial(), 2);
+    s.labour.baseJobs.find((j) => j.area === 2 && j.sector === 'services')!.jobs += 300;
+    const t = run(s, 12);
+    const migrantServices = (x: GameState) => holders(x, (h) => h.area === 2 && h.sector === 'services' && h.kind === 'migrant_factory');
+    expect(migrantServices(t)).toBeGreaterThan(50);
+    const g = t.pops.find((x) => x.area === 2 && x.kind === 'urban_resident')!;
+    g.size += 600; g.stayedSixMonths += 600; g.present += 600;
+    const still = createTickSteps({ ...params, labour: { ...params.labour, turnover_month: 0 } }, TICK);
+    const churn = walk(t, 24, new Rng(8), STEPS, (b, a, e) => checkInvariants(b, a, e));
+    const none = walk(t, 24, new Rng(8), still, (b, a, e) => checkInvariants(b, a, e));
+    // without turnover the migrants keep their jobs (less those who leave); with it, idle locals take some of them
+    expect(migrantServices(churn)).toBeLessThan(migrantServices(none));
+    // deterministic: no draw, so the same seed gives the same holders
+    expect(walk(t, 24, new Rng(8), STEPS, () => {}).labour.held).toEqual(churn.labour.held);
   });
 });
 
@@ -181,9 +194,20 @@ describe('R4: arrivals who find no bed', () => {
     const a = run(s, 1, STEPS, 9), b = run(none, 1, STEPS, 9);
     const rent = (t: GameState) => t.housing.find((m) => m.area === area)!.rent;
     expect(rent(a)).toBeGreaterThan(rent(b));
-    const villageStarts = (t: GameState) => t.blocks.find((x) => x.area === area)!.cohorts
+  });
+
+  it('villages build for them: the turned away are unmet beds', () => {
+    // a market whose rent already passes the build test, with every occupant in a bed: only the turned away are unmet
+    const s = run(initial(), 2);
+    const m = s.housing.find((x) => x.area === 7)!;
+    m.rent = 5; m.crowding = 1; m.occupants.rental = m.beds.rental;
+    const none = structuredClone(s);
+    m.turnedAway = 300;
+    const starts = (t: GameState) => t.blocks.find((x) => x.area === 7)!.cohorts
       .reduce((n, c) => n + (c.archetype === 'village_rental' && c.stage === 'under_construction' ? c.m2 : 0), 0);
-    expect(villageStarts(a)).toBeGreaterThanOrEqual(villageStarts(b));
+    const a = run(s, 1, STEPS, 9), b = run(none, 1, STEPS, 9);
+    expect(starts(b)).toBe(starts(none));
+    expect(starts(a)).toBeGreaterThan(starts(b));
   });
 });
 
@@ -275,7 +299,7 @@ describe('R4: against an idle run', () => {
     expect(total(busy.history.vacancies)).toBeGreaterThan(total(idle.history.vacancies));
     expect(employed(busy)).toBeGreaterThan(employed(idle));
     expect(total(busy.history.inflow)).toBeGreaterThan(total(idle.history.inflow));
-    expect(busy.history.rentalBeds.at(-1)).toBeGreaterThanOrEqual(idle.history.rentalBeds.at(-1)!);
+    expect(busy.history.rentalBeds.at(-1)).toBeGreaterThan(idle.history.rentalBeds.at(-1)!);
     expect(recurring(busy)).toBeGreaterThan(recurring(idle));
     // the occupied city's own lines: land fees on the zones, taxes on formal service posts
     expect(busy.fiscal.ledger.some((l) => l.ref === 'land_fee')).toBe(true);
