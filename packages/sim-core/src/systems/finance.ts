@@ -68,6 +68,16 @@ export function finance(p: SliceParams, fc: FiscalContent) {
       tax += f.output * p.industry.by_ownership[f.ownership].value_added_ratio * r.tax.value_added_rate[f.ownership];
     }
     let revenue = post(s, 'tax', 'general', tax * P.collection_efficiency * r.tax.local_share, 'tax.industry');
+    // R4 (§5.11): staffed formal service posts pay tax on their value added; informal posts pay nothing
+    if (p.growth) {
+      let staffed = 0;
+      for (const sp of s.labour.servicePosts) {
+        const row = s.labour.jobs.find((x) => x.area === sp.area && x.sector === 'services');
+        if (row && row.jobs > 0) staffed += sp.formal * (row.filled / row.jobs);
+      }
+      revenue += post(s, 'tax', 'general', staffed * p.gdp.base_va_per_job_month.services * p.growth.services.tax_rate
+        * P.collection_efficiency * r.tax.local_share, 'tax.services');
+    }
     revenue += post(s, 'tax', 'general', P.county_base_revenue_per_month, 'tax.county_base');
     revenue += post(s, 'grant', 'general', (P.provincial_base_grant_per_year / 12) * grantFactor(r, s.date), 'grant.provincial_base');
     const fee = landFeeRate(r, s.date);
@@ -75,6 +85,11 @@ export function finance(p: SliceParams, fc: FiscalContent) {
       let land = 0;
       for (const f of s.firms) {
         if (f.zone !== undefined) land += ((f.floorM2 + f.dormM2) / p.industry.max_far) * (f.terms?.landFeeFactor ?? 1);
+      }
+      // R4 (§5.11): private shops and work-unit dormitories on zone land pay the fee as firms do
+      for (const b of s.blocks) for (const c of b.cohorts) {
+        if (c.zone !== undefined && c.firm === undefined && (c.builder === 'private' || c.builder === 'work_unit')
+          && c.stage !== 'demolished') land += c.m2 / p.industry.max_far;
       }
       post(s, 'land_fee', 'land', (fee * land) / 12, 'land_fee');
     }

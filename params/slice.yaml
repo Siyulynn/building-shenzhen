@@ -152,6 +152,7 @@ teams:                                   # by team id (content/slice/teams.yaml)
 works:                                   # R2 municipal works orders (buildings-and-construction §13.2). Placeholders taken
                                          # from the M4 templates' rates above, not sourced. Units are crew units (worker-months)
   crew_per_order: 40                     # the most units one order takes in a month
+  maint_rate_year: 0.02                  # R4 (phase1-slice §5.11): a done order's maintenance a year, on its spending (project.road_link's rate)
   service: { units_per_cell: 40, yuan_per_cell: 100000 }   # project.site_preparation: 10 crew × 4 months; budget_per_cell
   road:    { units_per_cell: 12, yuan_per_cell: 30000 }    # project.road_link over its 2 km (20 cells): 40 × 6 ÷ 20; 600,000 ÷ 20
   bridge:  { units_per_cell: 48, yuan_per_cell: 120000 }   # a guess: four road cells, at a road's yuan per unit
@@ -180,6 +181,7 @@ growth:                                  # R3 organic growth (buildings-and-cons
     spend_per_job_month: 100             # local spending that supports one service job (yuan a month)
     formal_share: 0.5                    # share of new service jobs that want shop floor; the rest is informal
     m2_per_job: 15                       # shop floor per formal service job
+    tax_rate: 0.05                       # R4 placeholder, not sourced: tax on a staffed formal post's value added
   residential:
     min_crowding: 1.0                    # work units build dormitories only where rental crowding is at least this
   village_shops:

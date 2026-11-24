@@ -4,7 +4,7 @@
  * ledger, at one yuan-per-unit rate per order: the cost of k more units is round(rate × (unitsDone + k)) − spent.
  */
 import {
-  PRIORITIES, liveProject, moneyForProjects, payProject, post, projectFunds, type Priority,
+  PRIORITIES, addObligation, liveProject, moneyForProjects, payProject, post, projectFunds, type Priority,
 } from './fiscal.js';
 import type { CellWorksParams, SliceParams, StructureWorksParams, WorksParams } from './params.js';
 import type { StartNetwork } from './sites.js';
@@ -104,17 +104,22 @@ export function expandPath(s: GameState, waypoints: unknown): number[] {
 // ---- closing, detaching and the loan flag ----
 
 /** Close an order with nothing left to do: done if it worked, cancelled if not. */
-function settle(s: GameState, o: WorksOrder): void {
+function settle(s: GameState, o: WorksOrder, w: WorksParams): void {
   if (o.unitsDone < o.unitsTotal) return;
   o.stage = o.unitsDone > 0 ? 'done' : 'cancelled';
-  if (o.stage === 'done') o.completed = s.date;
   delete o.waiting;
+  if (o.stage !== 'done') return;
+  o.completed = s.date;
+  // R4 (phase1-slice §5.11): finished works owe maintenance on what they cost, from the next month
+  const maint = (o.spent * w.maint_rate_year) / 12;
+  if (Math.round(maint) > 0) addObligation(s, { kind: 'maintenance', perMonth: maint, index: 'none', from: s.date + 1,
+    createdBy: `works.${o.id}` });
 }
 /** Take `units` of unstarted or remaining work off an order, with their budget. */
 function shrink(s: GameState, o: WorksOrder, w: WorksParams, units: number): void {
   o.unitsTotal -= units;
   o.budget = costTo(o, w, o.unitsTotal);
-  settle(s, o);
+  settle(s, o, w);
 }
 function afterCommit(s: GameState, p: SliceParams): void {
   if (moneyForProjects(s, p) < 0 && s.fiscal.projectLoan !== 'taken') s.fiscal.loanWanted = true;
@@ -141,7 +146,7 @@ export function syncWorksToZones(s: GameState, wc: WorksContent): void {
     keep.push(w);
   }
   s.cellWorks = keep;
-  for (const o of touched) { o.budget = costTo(o, wc.works, o.unitsTotal); settle(s, o); }
+  for (const o of touched) { o.budget = costTo(o, wc.works, o.unitsTotal); settle(s, o, wc.works); }
   if (touched.size) afterCancel(s, wc.params);
 }
 
@@ -364,7 +369,7 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
       } else if (o.kind === 'structure' && o.unitsDone === o.unitsTotal) {
         placeStructure(s, o.placement!);
       }
-      settle(s, o);
+      settle(s, o, W);
       if (used > 0 && area !== undefined) events.push({ step: 'construction', kind: 'crew', detail: { area, units: used } });
       return used;
     },

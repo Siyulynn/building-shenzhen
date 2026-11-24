@@ -114,7 +114,7 @@ export interface GrowthParams {
     min_utility_share: number;           // the area's utility share, with this firm and all sited ones open
     regime_factor: Record<string, number>;   // by fiscal regime id; `default` for the rest
   };
-  services: { spend_per_job_month: number; formal_share: number; m2_per_job: number };
+  services: { spend_per_job_month: number; formal_share: number; m2_per_job: number; tax_rate: number };
   residential: { min_crowding: number };
   village_shops: { m2_per_job: number };
 }
@@ -141,8 +141,9 @@ function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
   if (!share(I.min_utility_share)) throw new Error('params: growth.industrial.min_utility_share must be in [0, 1]');
   if (!(I.regime_factor?.default !== undefined)) throw new Error('params: growth.industrial.regime_factor needs a default');
   for (const [k, v] of Object.entries(I.regime_factor)) if (!(v >= 0)) throw new Error(`params: growth.industrial.regime_factor.${k} must be >= 0`);
-  if (!pos(g.services?.spend_per_job_month) || !share(g.services.formal_share) || !pos(g.services.m2_per_job)) {
-    throw new Error('params: growth.services needs spend_per_job_month > 0, formal_share in [0, 1] and m2_per_job > 0');
+  if (!pos(g.services?.spend_per_job_month) || !share(g.services.formal_share) || !pos(g.services.m2_per_job)
+    || !share(g.services.tax_rate)) {
+    throw new Error('params: growth.services needs spend_per_job_month > 0, formal_share and tax_rate in [0, 1] and m2_per_job > 0');
   }
   if (!(g.residential?.min_crowding >= 0)) throw new Error('params: growth.residential.min_crowding must be >= 0');
   if (!pos(g.village_shops?.m2_per_job)) throw new Error('params: growth.village_shops.m2_per_job must be > 0');
@@ -153,6 +154,7 @@ export interface StructureWorksParams { units: number; yuan: number; capacity: n
 export interface CellWorksParams { units_per_cell: number; yuan_per_cell: number }
 export interface WorksParams {
   crew_per_order: number;
+  maint_rate_year: number;           // R4 (phase1-slice §5.11): a done order's yearly maintenance, on its spending
   service: CellWorksParams; road: CellWorksParams; bridge: CellWorksParams;
   structures: { water_source: StructureWorksParams; power_source: StructureWorksParams };
   facilities: Record<string, StructureWorksParams>;
@@ -161,6 +163,7 @@ export interface WorksParams {
 function validateWorksParams(w: WorksParams): void {
   const whole = (n: unknown, min: number) => Number.isSafeInteger(n) && (n as number) >= min;
   if (!whole(w.crew_per_order, 1)) throw new Error('params: works.crew_per_order must be a whole number >= 1');
+  if (!(w.maint_rate_year >= 0 && w.maint_rate_year <= 1)) throw new Error('params: works.maint_rate_year must be in [0, 1]');
   for (const k of ['service', 'road', 'bridge'] as const) {
     if (!whole(w[k]?.units_per_cell, 1) || !whole(w[k]?.yuan_per_cell, 0)) {
       throw new Error(`params: works.${k} needs whole units_per_cell >= 1 and yuan_per_cell >= 0`);

@@ -209,6 +209,10 @@ describe('R4: construction jobs during works', () => {
       } else if (a.worksOrders[0]!.stage === 'done' && after < 0) after = construction(a);
     });
     expect(end.worksOrders[0]!.stage).toBe('done');
+    // finished works owe maintenance on what they cost (§5.11)
+    const o = end.worksOrders[0]!;
+    expect(end.fiscal.obligations.filter((x) => x.createdBy === `works.${o.id}`)).toMatchObject([
+      { kind: 'maintenance', perMonth: Math.round((o.spent * params.works!.maint_rate_year) / 12), from: o.completed! + 1 }]);
     expect(during).toBeGreaterThan(after);
     expect(after).toBeGreaterThanOrEqual(0);
     // the crews' holders are laid off when the works end (idle locals within road reach took the jobs, so no
@@ -240,5 +244,40 @@ describe('R4: saves', () => {
     expect(back.state.pops.map((g) => g.employed)).toEqual(mid.pops.map((g) => g.employed));
     walk(back.state, 3, back.rng, STEPS, (b, a, e) => checkInvariants(b, a, e));
     expect(SAVE_VERSION).toBe(5);
+  });
+});
+
+describe('R4: against an idle run', () => {
+  const months = 60;
+  const play = (s: GameState) => runMonths(s, months, new Rng(1), undefined, STEPS);
+  const total = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+  const employed = (s: GameState) => s.labour.jobs.reduce((n, r) => n + r.filled, 0);
+  /** Taxes and land fees posted in the last 12 months: the recurring revenue an occupied city adds. */
+  const recurring = (s: GameState) => s.fiscal.ledger.filter((l) => l.date >= s.date - 12 && (l.type === 'tax' || l.type === 'land_fee'))
+    .reduce((n, l) => n + l.amount, 0);
+
+  it('servicing and building on connected land gives more accessible vacancies, jobs, arrivals, beds and revenue', () => {
+    const busy = play(landed([{ use: 'industrial', runs: CONNECTED }, { use: 'commercial', runs: rect(365, 368, 347, 350) },
+      { use: 'residential', runs: rect(369, 372, 347, 350) }]));
+    const idle = play(landed([]));
+    expect(total(busy.history.vacancies)).toBeGreaterThan(total(idle.history.vacancies));
+    expect(employed(busy)).toBeGreaterThan(employed(idle));
+    expect(total(busy.history.inflow)).toBeGreaterThan(total(idle.history.inflow));
+    expect(busy.history.rentalBeds.at(-1)).toBeGreaterThanOrEqual(idle.history.rentalBeds.at(-1)!);
+    expect(recurring(busy)).toBeGreaterThan(recurring(idle));
+    // the occupied city's own lines: land fees on the zones, taxes on formal service posts
+    expect(busy.fiscal.ledger.some((l) => l.ref === 'land_fee')).toBe(true);
+    expect(busy.history.servicePosts.some((n) => n > 0)).toBe(true);
+  });
+
+  it('formal service posts pay tax; informal posts pay nothing', () => {
+    const s = landed([{ use: 'industrial', runs: CONNECTED }, { use: 'commercial', runs: rect(365, 368, 347, 350) }]);
+    const end = play(s);
+    expect(end.labour.servicePosts.some((x) => x.formal > 0)).toBe(true);
+    expect(end.fiscal.ledger.filter((l) => l.ref === 'tax.services' && l.date === end.date - 1)).toHaveLength(1);
+    // without formal posts there is no service tax
+    const none = play(landed([{ use: 'industrial', runs: CONNECTED }]));
+    expect(none.labour.servicePosts.every((x) => x.formal === 0)).toBe(true);
+    expect(none.fiscal.ledger.filter((l) => l.ref === 'tax.services')).toEqual([]);
   });
 });
