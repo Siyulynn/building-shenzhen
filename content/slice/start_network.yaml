@@ -1,0 +1,10 @@
+# Planning fixtures on the 100 m grid, not surveyed 1979 alignments.
+# Replace these core segments at the 3D map merge; retain the register IDs.
+max_frontage_depth: 6
+routes:
+  - site: site.kcr_line
+    placement: temporary
+    waypoints: [[385, 395], [385, 390], [385, 382], [382, 382], [382, 368], [383, 368], [383, 347]]
+  - site: site.guangshen_road
+    placement: temporary
+    waypoints: [[387, 377], [384, 377], [384, 363], [380, 363], [380, 352], [365, 352], [365, 346], [347, 346]]

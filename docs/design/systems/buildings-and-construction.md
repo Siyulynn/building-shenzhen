@@ -241,6 +241,18 @@ Pops are **not** assigned to individual buildings in the sim. The renderer sprea
 - **Not yet:** block assembly and developers (they arrive in Phase 4).
 - **Rendering:** none (2D only), but the records must already carry everything §9 needs.
 
+### 13.1 Map-first Phase 1 spatial layers
+
+| Layer | Authority and unit |
+|---|---|
+| Starting anchors (R1) | Read-only slice content, keyed by site ID, on the same `[x,y]` hectare grid as area runs. `town` and `village` identify settlements, `tracked_building` identifies a named landmark, other placed `land_use` is landscape. Sungang's village-and-farmland point marks a settlement without assigning all its land to housing. A point alone supplies no floor area, jobs, capacity or road edges. No new building serialization. |
+| Physical state (R1–R3 target) | Sparse road/bridge cells and placed structure footprints; structures own utility capacity or facility places. Zone ID/use references its cells; each worked cell owns its stage and remaining municipal work. Completed, occupied and under-construction floor are block stocks. Existing village/town stock is not a player zone. Allocate the existing area totals when refining stock: do not count them twice. Save changes to plans, networks, works and stock. |
+| Derived network and cell views | Four-neighbour road components, access from frontage through a bounded contiguous zone, reachable sources, allocated supply share, facility coverage and land value. Reach means a path exists; supply means connected capacity was allocated against demand. Recompute on topology, works, occupancy or capacity changes; caches and render geometry are never save authorities. |
+
+**Network preview (R1).** `start_network.yaml` holds `max_frontage_depth` (including the first cell touching a road as depth 1) and `routes: [{site, placement: temporary, waypoints: [[x,y], …]}]`. Expand orthogonal segments to ordered, four-connected cells. Roads form components named by their lowest cell index; rails do not join them. Measure depth into each individual zone from its nearest frontage, breaking tied distances by lowest component ID. A road cell is transport land, not zone interior. This is a planning preview, not a declaration that works have finished.
+
+For each utility independently, a placed source attaches at a road cell, and a consumer draws at a serviced cell with a frontage assignment. Pool integer capacity per road component and split it proportionally to demands, with remainder ties by cell index. A road connection can thus have zero supply. Until placed sources/loads exist, exercise allocation in headless fixtures; leave the M-series area ledger authoritative for monthly ticks. Start geometry and derived previews do not change save headers or golden hashes. Before any spatial input changes tick outcomes, include its content hash in saves/replays and version mutable state changes.
+
 ## 14. Open questions
 - How large the tracked tier needs to be, and whether block stocks are fine-grained enough for postcards (measured in Spike B).
 - How to source m² per bed for dormitories and urban-village rentals by era.

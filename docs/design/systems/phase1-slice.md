@@ -1,5 +1,5 @@
 # System spec: the Phase 1 slice ("Luohu and Shekou, 1979–1984")
-**Status:** draft v0.3. Decisions taken:
+**Status:** map-first revision. [§1.1](#11-map-first-play) and §12's R milestones are the new target. The M sections describe the runnable demo and its regression baseline; in particular §5.3's template action and §5.5's routine offers are baseline mechanics. Decisions taken:
 - start 1979-Q1, with a six-quarter prologue (§2.1), and end at the January 1984 visit;
 - seven playable areas from Luohu to Shangbu, with Shekou and Nantou by cards only;
 - quarterly turns;
@@ -29,6 +29,22 @@ Phase 1 tests the core triangle: **growth vs fiscal survival vs politics and rev
 **Out of scope** (later phases): the authority layer beyond one climate value; villages as full actors; the informal economy beyond one illegal-floor value per area; block assembly and developers; reclamation; title reviews; rotation of leaders; 3D; strict evidence gating.
 
 ---
+
+### 1.1 Map-first play
+
+One simulation cell is **100 m × 100 m (1 ha)** at every zoom. The 931 × 686 rectangle is the grid extent; area runs and terrain determine playable and buildable land. The top-down municipal view shows relief, water, trunk connections and districts. At core zoom the same cell can show several roofs, yards and internal lanes. These are render-only symbols of stock and use: zooming never creates parcels, changes capacity, advances the RNG or reveals a surveyed village footprint.
+
+The player plans a quarter on the map, previews its cost and crew time, then advances **three monthly steps**. A typical decision is whether to connect and service another industrial block or spend that crew-quarter on homes or a water source. The next quarter should show *where* work finished, which premises filled, and which constraint held the rest back.
+
+- **Plan.** Paint industrial, residential, commercial or public land; replace or cancel unworked cells. Developed settlements are existing stock, not freely erasable zoning. Lay outbound roads and place trunk utilities, facilities and approved landmarks. Internal lanes and distribution hookups are municipal work. A master plan such as Shangbu is a guide: showing it creates no order, reservation or bill. Only the cells the player commits enter the queue.
+- **Build.** Each queued cell goes `planned → servicing → serviced`. Crews consume funded work on clearing, levelling, internal streets and hookups over months. Finish accessible frontage before advancing inward; break equal priorities by queue order then cell index. The first finished cell can develop while its neighbours wait. Show progress, pause and remaining cost by cell; record sunk work separately from future commitments.
+- **Occupy.** On serviced, reachable land, ordinary private or public builders respond to policy and demand without a decision card. Industrial demand draws on orders and access; worker spending supports commercial premises; housing pressure attracts dormitories and flats. Existing villages can add rental floor and shops without a municipal servicing order. Keep cards for exceptional deals, major works, policy, crises and reviews.
+- **Employ and finance.** Occupied floor and utility supply limit operating jobs; active builds post construction jobs. Match reachable vacancies after keeping incumbents. Wage income supports service jobs; vacancies pull migrants, who need beds. Crowding and tolerated additions carry review and fire costs. Taxes and land receipts compete with maintenance, payroll and debt. Headless comparisons must distinguish planned area from occupied floor and approved projects from active work.
+- **Inspect.** The map is the primary workspace. A cell inspector distinguishes source/proxy location, proposed use, work remaining, road access, supplied share, jobs and beds. Keep the End Quarter control, demand and fiscal summary visible; detailed ledgers and political decisions can open over the map.
+
+**R1 spatial contract.** `buildings-and-construction.md` §13.1 owns the layers. The first increment compiles `sites_1979.yaml` with `data/starts/slice_site_cells.json` through `compileSlice` for both CLI and browser. Each playable point has its register ID, bilingual name, kind, area, proxy source/confidence, claims with their uses, projected `[x,y]` and nearest in-city land `[x,y]` for area validation. Rebuild the projection with `python -I pipeline/m1b_sites.py` using the M1b inputs. Draw the projected point, even at the border; never treat the validation cell as a road, serviced hectare or extra population. Card-only sites have no playable marker. Unplaced sites stay in the register; no straight lines inferred between endpoints. `site.shangbu_land` is a landscape point, distinct from `precedent.zone.shangbu_industrial`.
+
+**Temporary routes.** The researched alignments of `site.kcr_line` and `site.guangshen_road` remain unplaced. For play, `content/slice/start_network.yaml` explicitly supplies temporary orthogonal waypoints for their core segments. Names and existence claims come from those register IDs; the waypoints carry no geometry claim. The map keys the two line styles as temporary. At the 3D branch merge replace these paths against the shared grid, keeping the IDs; importing a mesh is not required. The road can demonstrate frontage in the planning view; the railway is a separate transport layer and confers no municipal utility access.
 
 ## 2. Time and turns
 - **Start:** 1979-Q1, when the area is still Bao'an County. **End:** 1984-Q1, with the January 1984 visit by Deng Xiaoping as the closing event. That is 21 quarterly turns of three monthly sub-steps each (PLAN §2). Quarterly turns are kept.
@@ -1625,6 +1641,19 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 ---
 
 ## 12. Build order (small commits, one system at a time)
+
+**Map-first milestones (current order).** The M table below records the original demo. Keep its golden policies as a comparison while introducing the new loop; §5.10's growth shortfall is a baseline, not a target to reproduce.
+
+| Step | Playable result and acceptance check |
+|---|---|
+| R1 · Spatial foundations (in progress) | CLI and browser share point anchors and temporary road/rail placements. The planning view derives road frontage from committed zones; synthetic network checks cover interior reach, severed links and capacity shared across consumers. Next: persistent cell works and placed source/facility records, then rebuild the derived views from loaded state. |
+| R2 · Placement and municipal works | Road/bridge paths, infrastructure placement and zone edits validate playable terrain and preview crew time and cost. Test that displaying a guide spends nothing; phasing it develops the first frontage without funding the whole guide; cancelling unstarted work and pausing a queue conserve funds and work. |
+| R3 · Organic growth | Under favourable policy, serviced I/C/R land can gain occupied floor without routine investor cards. Compare an isolated zone with connected land, and a pressured village with a quiet one. Charge stock, crews and costs to the responsible builder. |
+| R4 · Jobs and migration | Trace construction jobs during works, industrial jobs after occupancy, then service jobs as wages are spent. Compare accessible vacancies, arrivals, housing and recurring revenue against an idle run. Preserve population and money accounting through layoffs and departures. |
+| R5 · Planning-map UI | Complete a quarter using map tools, read the limiting constraint at a cell and recognise the change at the next turn. Show sub-block detail at core zoom, network overlays, compact HUD, inspector and ledger/review drawers. |
+| R6 · Calibration | Run phased headless policies at the §9 checkpoints. Report population definitions, occupied floor, vacancies, housing, servicing and debt by policy; explain changed goldens and evidence gaps. No growth multiplier is an achieved result until measured. |
+
+**M-series build record:**
 | Milestone | Contents | Done when |
 |---|---|---|
 | M1 | `sim-core` package: state, seeded RNG, `step()`, the action log, save and load. Also: `content/slice/areas.yaml` from whole proxy subdistricts, with the area invariant checked by `m1b_sites.py`; the map viewer's slice overlay synced to it (playable vs card-only, replacing the hard-coded Luohu + Shekou sets in `apps/map-spike/src/main.ts`) | The §5.1 tests pass (save, load and continue matches an uninterrupted 63-month run; replay from the log; the pause contract); the area invariant passes. *Status:* done. Rebuild the areas with `pipeline/m1_areas.py`, then run `pipeline/m1b_sites.py` (the invariant); sim-core's tests run in `npm run check` |

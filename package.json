@@ -14,6 +14,7 @@
     "evidence:compile": "tsx packages/evidence/src/cli.ts compile --draft",
     "evidence:compile:strict": "tsx packages/evidence/src/cli.ts compile --strict",
     "check": "npm run typecheck && npm test && npm run evidence:validate",
+    "spike:location": "vitest run packages/sim-core/test/location-choice.test.ts",
     "spike:grid": "pipeline/.venv/Scripts/python -I pipeline/spike_a_grid.py",
     "spike:map": "vite apps/map-spike --port 5173 --strictPort",
     "slice": "tsx apps/cli/src/main.ts",

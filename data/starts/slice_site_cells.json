@@ -1,0 +1,166 @@
+{
+  "format": 1,
+  "register_sha256": "04ea3fa66a6bdf9e8e39ea370a06c8b0cb8d5d3d9572df5d50d1a62b01018a8d",
+  "grid": {
+    "width": 931,
+    "height": 686,
+    "cell_m": 100.0,
+    "origin_top_left": [
+      164400.0,
+      2533900.0
+    ],
+    "crs": "EPSG:32650"
+  },
+  "placements": {
+    "site.shenzhen_market_town": {
+      "cell": [
+        387,
+        377
+      ],
+      "landCell": [
+        387,
+        377
+      ]
+    },
+    "site.luohu_crossing": {
+      "cell": [
+        386,
+        395
+      ],
+      "landCell": [
+        385,
+        395
+      ]
+    },
+    "site.shenzhen_station": {
+      "cell": [
+        385,
+        390
+      ],
+      "landCell": [
+        385,
+        390
+      ]
+    },
+    "site.wenjindu_crossing": {
+      "cell": [
+        400,
+        381
+      ],
+      "landCell": [
+        400,
+        381
+      ]
+    },
+    "site.caiwuwei": {
+      "cell": [
+        375,
+        383
+      ],
+      "landCell": [
+        375,
+        383
+      ]
+    },
+    "site.yumin": {
+      "cell": [
+        380,
+        388
+      ],
+      "landCell": [
+        380,
+        388
+      ]
+    },
+    "site.huangbeiling": {
+      "cell": [
+        407,
+        373
+      ],
+      "landCell": [
+        407,
+        373
+      ]
+    },
+    "site.hubei": {
+      "cell": [
+        397,
+        372
+      ],
+      "landCell": [
+        397,
+        372
+      ]
+    },
+    "site.xiangxi": {
+      "cell": [
+        394,
+        378
+      ],
+      "landCell": [
+        394,
+        378
+      ]
+    },
+    "site.sungang": {
+      "cell": [
+        383,
+        350
+      ],
+      "landCell": [
+        383,
+        350
+      ]
+    },
+    "site.shenzhen_reservoir": {
+      "cell": [
+        428,
+        335
+      ],
+      "landCell": [
+        428,
+        335
+      ]
+    },
+    "site.shangbu_land": {
+      "cell": [
+        351,
+        372
+      ],
+      "landCell": [
+        351,
+        372
+      ]
+    },
+    "site.nantou_old_town": {
+      "cell": [
+        183,
+        373
+      ],
+      "landCell": [
+        183,
+        373
+      ]
+    },
+    "site.shekou_fishing_harbour": {
+      "cell": [
+        191,
+        439
+      ],
+      "landCell": [
+        191,
+        439
+      ]
+    },
+    "site.chiwan": {
+      "cell": [
+        146,
+        450
+      ],
+      "landCell": [
+        147,
+        448
+      ]
+    }
+  }
+}

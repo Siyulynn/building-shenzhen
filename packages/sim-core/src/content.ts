@@ -7,6 +7,7 @@ import { compileFiscal } from './fiscal.js';
 import { compileBuildable, compileInvestors, type BuildableContent } from './investors.js';
 import { validateParams, type SliceParams } from './params.js';
 import type { SaveContent } from './save.js';
+import { compileStartNetwork, compileStartSites, type StartNetwork, type StartSite } from './sites.js';
 import { compileLeaders, type AreasContent, type LeaderContent, type ScenarioContent, type StartContent } from './state.js';
 import { compileTargets } from './systems/reviews.js';
 import type { TickContent } from './ticks.js';
@@ -16,6 +17,9 @@ import { compilePrecedents } from './zones.js';
 export const SLICE_FILES = Object.freeze({
   areas: 'data/starts/slice_areas.json',
   buildable: 'data/starts/slice_buildable.json',
+  sites: 'content/slice/sites_1979.yaml',
+  siteCells: 'data/starts/slice_site_cells.json',
+  network: 'content/slice/start_network.yaml',
   scenario: 'content/slice/scenario.yaml',
   start: 'content/slice/start_1979.yaml',
   params: 'params/slice.yaml',
@@ -34,6 +38,8 @@ export interface InitialContent {
   scenario: ScenarioContent; areas: AreasContent; start: StartContent; params: SliceParams; leaders: readonly LeaderContent[];
 }
 export interface Slice {
+  startNetwork: StartNetwork;
+  startSites: readonly StartSite[];       // fixed map anchors; no simulation stocks
   init: InitialContent;                  // createInitialState's input
   tick: TickContent & { events: EventContent };   // createTickSteps' content, all of it
   params: SliceParams;
@@ -57,7 +63,10 @@ export function compileSlice(read: (path: string) => string, parse: (text: strin
   const events = compileEvents(parse(text.events), params, investors, fiscal);
   const targets = compileTargets(parse(text.targets));
   const leaders = compileLeaders(parse(text.leaders));
+  const sites = parse(text.sites);
   return {
+    startSites: compileStartSites(sites, JSON.parse(text.siteCells), areas, hash(text.sites)),
+    startNetwork: compileStartNetwork(parse(text.network), sites, areas),
     init: { scenario: parse(text.scenario) as ScenarioContent, areas, start: parse(text.start) as StartContent, params, leaders },
     tick: { precedents, investors, buildable, fiscal, events, targets },
     params,

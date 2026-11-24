@@ -4,6 +4,7 @@ Input:  content/slice/sites_1979.yaml       the register (phase1-slice.md §3.1)
         build/evidence/claims.json           from `npm run evidence:compile` (claim statuses)
         apps/map-spike/public/grid/meta.json, water1979.bin, coast_change.bin  (Spike A grid, m1b_landsat_1979.py)
 Output: apps/map-spike/public/grid/sites.json (git-ignored)
+        data/starts/slice_site_cells.json (committed projection for the playable slice)
 
 Each site gets:
   evidence_status  the weakest status among its own claims cited for `encyclopedia` or `geometry`
@@ -13,6 +14,7 @@ Each site gets:
 The area invariant (phase1-slice.md §3): every placed site's `area` equals the area of content/slice/areas.yaml
 whose cells contain its point. A point on no land cell inside the city takes the nearest one. A mismatch fails the run.
 """
+import hashlib
 import json
 from pathlib import Path
 
@@ -34,7 +36,8 @@ CHANGE = {0: "same as now", 1: "sea in 1979 (land now)", 2: "land in 1979 (water
 
 
 def main():
-    sites = yaml.safe_load((ROOT / "content/slice/sites_1979.yaml").read_text(encoding="utf-8"))
+    register = (ROOT / "content/slice/sites_1979.yaml").read_text(encoding="utf-8")
+    sites = yaml.safe_load(register)
     claims = json.loads((ROOT / "build/evidence/claims.json").read_text(encoding="utf-8"))["claims"]
     meta = json.loads((GRID / "meta.json").read_text(encoding="utf-8"))
     W, H, cell = meta["width"], meta["height"], meta["cell_m"]
@@ -50,6 +53,7 @@ def main():
     mismatches = []
 
     out = []
+    placements = {}
     for s in sites:
         cited = []
         for c in s.get("claims", []):
@@ -70,9 +74,12 @@ def main():
             lon, lat = geom["lonlat"]
             x, y = to_utm.transform(lon, lat)
             cx, cy = int((x - x0) // cell), int((y1 - y) // cell)
+            if not (0 <= cx < W and 0 <= cy < H):
+                raise SystemExit(f"{s['id']}: projected point outside grid")
             rec["cell"] = [cx, cy]
             ly, lx = int(near_y[cy, cx]), int(near_x[cy, cx])
             got = int(areas[ly, lx]) or None
+            placements[s["id"]] = {"cell": [cx, cy], "landCell": [lx, ly]}
             if s.get("area") != got:
                 mismatches.append(f"{s['id']}: area {s.get('area')} in the register, but its point lies in area {got}"
                                   f" (cell {lx},{ly})")
@@ -87,6 +94,11 @@ def main():
         print(f"{r['id']:<32} {r['evidence_status']:<8} {str(r['cell']):<12} {r['landsat_check']}")
     if mismatches:
         raise SystemExit("area invariant failed:" + "".join(f"\n  {m}" for m in mismatches))
+    projection = {"format": 1, "register_sha256": hashlib.sha256(register.encode()).hexdigest(),
+                  "grid": {k: meta[k] for k in ("width", "height", "cell_m", "origin_top_left", "crs")},
+                  "placements": placements}
+    (ROOT / "data/starts/slice_site_cells.json").write_text(
+        json.dumps(projection, indent=2) + "\n", encoding="utf-8")
     print(f"area invariant ok: {sum(r['cell'] is not None for r in out)} placed sites in their areas")
 
 
