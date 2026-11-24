@@ -6,7 +6,7 @@ import { SHORTCUT_CARD } from './investors.js';
 import type { SliceParams } from './params.js';
 import { Rng } from './rng.js';
 import { runsOfCells } from './zones.js';
-import type { CardInstance, GameState, PlayerAction } from './state.js';
+import { isFinished, type CardInstance, type GameState, type PlayerAction } from './state.js';
 import { firstOption, type DecisionPolicy } from './step.js';
 
 /** The co-financing card of the prologue's briefing, and the prologue's first-project card (content/slice/events.yaml). */
@@ -121,7 +121,8 @@ export function aggressive(p: SliceParams): DecisionPolicy {
       if (isInvestor(c) || c.card === SHORTCUT_CARD) return answer(c, firstAccept(c) ?? pick(c));
       return answer(c, pick(c, AGGRESSIVE_CHOICES[c.card]));
     });
-    if (s.subStep !== 0) return out;
+    // past the last turn only answers are accepted (§5.1): a closing card can still be pending
+    if (s.subStep !== 0 || isFinished(s)) return out;
     if (s.turn === 0 && s.zones.length === 0) {
       const zone = s.nextZoneId;
       const runs = (id: number) => runsOfCells([...s.areas.find((a) => a.id === id)!.cells.slice(0, 24)], s.grid.width);
