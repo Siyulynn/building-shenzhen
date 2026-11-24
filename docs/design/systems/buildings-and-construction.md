@@ -289,6 +289,64 @@ interface PlacedStructure {   // GameState.structures, id order; ids from GameSt
 
 The views are never saved. After save and load they must be identical, and they are rebuilt again after any change to topology, works, zones or structures.
 
+### 13.2 Municipal works orders (R2)
+
+The player's map edits become **works orders** in one queue (`packages/sim-core/src/works.ts`). An order is paid as its work is done, from the same accounts and crew pool as M4's projects (phase1-slice §5.6). Committing an order reserves nothing and pays nothing. Its unspent budget counts in `unspentCommitments`, so the project-loan offer sees it.
+
+```ts
+interface WorksOrder {        // GameState.worksOrders, id order; ids from GameState.nextOrderId, never reused
+  id: number;
+  kind: 'service' | 'road' | 'structure';
+  priority: Priority;         // phase1-slice §5.6's 'high' | 'normal' | 'low'
+  paused: boolean;
+  committed: YM; completed?: YM;
+  stage: 'queued' | 'working' | 'done' | 'cancelled';
+  waiting?: 'paused' | 'capacity' | 'finance' | 'access' | 'frozen';   // this month's reason it got less than its pace
+  unitsTotal: number; unitsDone: number;   // integer work units; unitsTotal shrinks only when cells are cancelled
+  budget: number; spent: number;           // yuan; spent is sunk, budget − spent the commitment
+  zone?: number;                           // service: its cells are the CellWork records with this order id
+  path?: { cell: number; units: number; bridge: boolean }[];   // road: build order, nearest the network first
+  placement?: StructurePlacement;          // structure: becomes a PlacedStructure when done
+}
+// CellWork gains `order?: number` (absent: committed outside the queue, as in R1's fixtures).
+// GameState gains `roads: number[]`: built road cells, sorted. Start-network roads stay content.
+```
+
+**Actions.** Turn actions, validated when applied, logged and replayed like any other. They need the fiscal content and the compiled start network in the tick content. Without either, they are refused.
+
+| Action | Validates | Creates |
+|---|---|---|
+| `commit_works { zone, cells?, priority? }` | The zone exists. The cells (all of the zone's eligible cells when absent) are in it, have no works, are outside `servicedLand` and outside every live site-preparation project. | A `service` order and one `planned` CellWork per cell. |
+| `build_road { path, priority? }` | `path` holds orthogonal `[x,y]` waypoints, expanded like `start_network.yaml`. Every cell is on a playable area. No cell is already a road (start, built or in a live road order), a structure footprint or a cell with works. The first cell touches a road or a live road order's path. | A `road` order. A cell outside the buildable layer is a bridge. |
+| `place_structure { kind, cell: [x,y], attach: [x,y], facility?, priority? }` | As `placeStructure` (§13.1). The footprint is not a road, nor another structure's or a live order's footprint. A facility names a type in params. | A `structure` order. Its params give its units, budget, capacity and any forex, which is drawn at commit as for a project. |
+| `cancel_works { order, cells? }` | The order is live. | Removes its unstarted cells (all of them when `cells` is absent): their works, path cells or structure, and their units and budget. Started cells and sunk spending stay. An order left with nothing to do is `cancelled`, or `done` if its remaining work is finished. No penalty: nothing was contracted. |
+| `set_works_paused { order, paused }` | The order is live. | A paused order takes no crew and no money. |
+| `set_works_priority { order, priority }` | The order is live. | |
+
+**Zone edits.** When an edit or removal takes a cell out of a zone, that cell's unstarted service work is cancelled as above. Started work keeps its record and its sunk work (§13.1).
+
+**Monthly work (tick step 4).** Live, unpaused orders join `allocatePool`'s single queue as a third job type, after firm cohorts and projects with the same priority and start month.
+- Each order wants up to `works.crew_per_order` units a month, no more than it can use. A service order can use units only on works with road reach; a road order, on its path; a structure, when its attach cell is a road or the footprint has reach.
+- It is paid like a project. The cost of `k` units is `round(budget × (unitsDone + k) ÷ unitsTotal) − spent`. Payment comes from debt, then land, then general above the reserve floor, and it is posted as `project` with ref `works.<id>`. A fall from grace freezes orders as it freezes projects.
+- A service order pours its units into its own cells, using `advanceCellWorks`' order. A road order builds its path in order, and each finished cell joins `roads` at once. A structure order becomes a `PlacedStructure` when its units are done.
+- Units an order cannot use pass down the queue.
+
+**Preview.** `previewWorks(state, steps, actions)` applies the actions to a clone, through the same validation, and reads off the orders they would create: cells, bridges, units, budget, forex, the most crew a month can take, and the months the work needs at full pace. The state is untouched, so showing a guide (a precedent's template) or previewing its cost spends nothing. A refused action comes back as its reason instead of an estimate.
+
+**Params** (`params/slice.yaml` `works`): placeholders taken from the M4 templates' rates (phase1-slice §5.6), not sourced.
+- `crew_per_order`;
+- `service` and `road`: `units_per_cell` and `yuan_per_cell`;
+- `bridge`: four times a road cell, a guess;
+- `structures.water_source` and `structures.power_source`: `units`, `yuan`, `capacity` and optional `forex_usd`;
+- `facilities.<type>`: the same fields.
+
+**Not yet:**
+- maintenance and staffing obligations on finished works (R4's finance);
+- footprints larger than one cell;
+- removing a built road.
+
+**Saves.** Version 3 adds `roads`, `worksOrders` and `nextOrderId`, and its migration defaults them to empty. Because spatial input now changes outcomes, the header's content gains `network_sha256` (`start_network.yaml`).
+
 ## 14. Open questions
 - How large the tracked tier needs to be, and whether block stocks are fine-grained enough for postcards (measured in Spike B).
 - How to source m² per bed for dormitories and urban-village rentals by era.
