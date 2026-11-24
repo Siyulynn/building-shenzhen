@@ -47,7 +47,12 @@ function drive(policyName: string, seed = 1): { x: Session; rec: PlayRecord; vie
   let viewed = 0;
   for (let guard = 0; x.mode !== 'over' && guard < 200; guard++) {
     see(x.state);
-    viewed += cardStack(x.state, slice).length;            // every pending card renders on a real state
+    for (const c of cardStack(x.state, slice)) {            // every pending card renders on a real state, all of it named
+      viewed += 1;
+      for (const l of [c.title, ...c.options.map((o) => o.label), ...c.lines.map((n) => n.label)]) {
+        expect(l.zh.trim() && l.en.trim() && l.zh !== l.en, `${c.card}: ${l.en}`).toBeTruthy();
+      }
+    }
     for (const a of policy(x.state, x.state.pendingCards)) {
       if (a.type === 'answer_card') x = choose(x, a.instance, a.option);
       else if (x.mode === 'turn') x = enqueue(x, a);
@@ -148,6 +153,12 @@ describe('M6c: zones, a throwing action, the panels and the overlays', () => {
     expect(areaView(s, 7)!.pops.reduce((a, p) => a + p.size, 0)).toBe(s.pops.filter((g) => g.area === 7).reduce((a, g) => a + g.size, 0));
     expect(leadersView(s, slice).leaders.length).toBe(s.leadership.leaders.length);
     expect(reviewView(s, slice).held.length).toBe(s.reviews.held.length);
+    const m = leadersView(s, slice).mandate;
+    expect(m.priority).toBeDefined();                          // named by the SEZ card's option in content
+    expect(m.met).toBe(s.events.unlocked.includes('mandate.met'));
+    const named = [...ledgerView(s, slice).loans.map((l) => l.kind), ...leadersView(s, slice).falls.flatMap((f) => [f.leader, f.replacedBy])];
+    expect(named.length).toBeGreaterThan(0);
+    for (const l of named) expect(l.zh).not.toBe(l.en);         // a raw id would read the same in both
   });
 
   it('each overlay\'s colour for a cell reads its area\'s value; land use paints the zones', () => {

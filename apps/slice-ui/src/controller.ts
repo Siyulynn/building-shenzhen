@@ -1,12 +1,14 @@
 /**
  * The UI's turn protocol (phase1-slice.md §11.1): pure, shaped like playQuarters. The session holds the state, the
  * run's Rng, the player's answers and queued turn actions, and the turn's start for the briefing. Nothing here calls
- * step to preview; submit is the only way into the sim.
+ * step to preview; submit is the only way into the sim. Its own messages are bilingual; an error thrown by sim-core is
+ * shown as sim-core wrote it, in English, after the bilingual 'Could not apply' (§11.1).
  */
 import {
   Rng, createInitialState, createTickSteps, isFinished, runQuarter,
   type GameState, type PlayerAction, type Slice, type TickStep,
 } from '@sz/sim-core';
+import { T, bi } from './strings.js';
 
 export type Mode = 'turn' | 'paused' | 'over';
 export interface Session {
@@ -35,8 +37,8 @@ export function newSession(slice: Slice, seed = 1): Session {
 /** Pick an option for a pending card (or clear it with undefined). */
 export function choose(x: Session, instance: string, option: string | undefined): Session {
   const card = x.state.pendingCards.find((c) => c.id === instance);
-  if (!card) return { ...x, error: `no pending card ${instance}` };
-  if (option !== undefined && !card.options.includes(option)) return { ...x, error: `card ${instance} has no option ${option}` };
+  if (!card) return { ...x, error: `${bi(T.noSuchCard)}: ${instance}` };
+  if (option !== undefined && !card.options.includes(option)) return { ...x, error: `${bi(T.noSuchOption)}: ${option}` };
   const answers = { ...x.answers };
   if (option === undefined) delete answers[instance]; else answers[instance] = option;
   const { error: _e, ...rest } = x;
@@ -45,7 +47,7 @@ export function choose(x: Session, instance: string, option: string | undefined)
 
 /** Queue a turn action for End turn. Only at a turn's start (§11.1). */
 export function enqueue(x: Session, a: PlayerAction): Session {
-  if (x.mode !== 'turn') return { ...x, error: 'turn actions are given at a turn\'s start' };
+  if (x.mode !== 'turn') return { ...x, error: bi(T.turnStartOnly) };
   if (a.type === 'answer_card') return choose(x, a.instance, a.option);
   const { error: _e, ...rest } = x;
   return { ...rest, queue: [...x.queue, a] };
@@ -70,9 +72,9 @@ export function outgoing(x: Session): PlayerAction[] {
  * status; a call that throws leaves the session as it was, with its Rng restored and the error shown.
  */
 export function submit(x: Session): Session {
-  if (x.mode === 'over') return { ...x, error: 'the slice is over' };
+  if (x.mode === 'over') return { ...x, error: bi(T.ended) };
   const left = unanswered(x);
-  if (left.length) return { ...x, error: `answer first: ${left.map((c) => c.id).join(', ')}` };
+  if (left.length) return { ...x, error: `${bi(T.answerFirst)}: ${left.map((c) => c.id).join(', ')}` };
   const saved = x.rng.save();
   let r: ReturnType<typeof runQuarter>;
   try {

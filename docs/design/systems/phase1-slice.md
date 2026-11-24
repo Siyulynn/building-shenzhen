@@ -1581,17 +1581,21 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
   - They describe mechanics, never history: no dates, figures, names or claims.
   - The briefing shows the sim's own deltas and content names only.
 - **An option with an argument** (`accept:zone:<id>`, `accept:premises:<area>`) is labelled with that zone's label or area's name.
+- **Errors:** the controller's own messages are bilingual. An error thrown by sim-core shows as sim-core wrote it, in English, after the bilingual "Could not apply".
 
 **The screens** (`src/views.ts`, pure, tested; `src/main.ts` only renders them):
 - **The turn screen:**
-  - the briefing: the quarter, then residents, present non-locals, firm jobs, the quarter's GDP and money for projects, each with its change since the turn's start;
+  - the briefing: the quarter, then residents, present non-locals, firm jobs, the quarter's GDP, money for projects and scrutiny, each with its change since the previous turn's start;
   - the card stack, each card with its options and, for investors, the preview;
   - the queued actions, each removable;
   - End turn or Continue.
 - **The panels of §11:**
   - **the ledger:** `fiscalViews`' three views, obligations by kind, each loan's outstanding principal and schedule, and the forex quota;
   - **the area panel:** pops by kind, beds and occupants, jobs and filled posts by sector, utilities, facilities and the illegal floor share;
-  - **the leaders panel:** names, roles, traits, rapport, standing, discipline risk shown as low, medium or high, and the shortcuts on record;
+  - **the leaders panel:**
+    - the mandate: the SEZ's chosen priority, named by its card's option in content, and whether content's `mandate.met` key is set;
+    - for each leader: a placeholder portrait (the first character of the name), name, role, traits, rapport, standing, discipline risk shown as low, medium or high, and the shortcuts on record;
+    - the falls, by name;
   - **the review panel:** this year's targets against `indicatorValue`, and each review held.
 - **Controls:**
   - enforcement and the permit regime;
@@ -1614,7 +1618,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 **Tests** (`apps/slice-ui/test/`):
 - `sha256.ts` matches `node:crypto` on test vectors, and the browser loader's `slice.content` equals the node loader's.
 - The controller, driven by each golden policy (its turn actions at each turn's start, its answers when paused), ends with a `runSummary` equal to its golden file.
-- Every card and option raised in the five golden policies and seeds 1–5 has a non-empty zh and en label.
+- Every card and option raised in the golden policies, `aggressive` and `random`, over seeds 1–5, has a non-empty zh and en label. Every pending card in the controller's golden runs renders with each title, option and line label in both languages.
 - A drawn zone's preview equals the zone's runs after End turn. A throwing action leaves the session as it was.
 - Each overlay's colour for a cell reads its area's value.
 

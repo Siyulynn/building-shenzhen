@@ -64,7 +64,7 @@ function cardLines(s: GameState, slice: Slice, c: CardInstance): Line[] {
   const out: Line[] = [];
   if (pl.offer) {
     const v = previewOffer(s, c, p, slice.tick);
-    out.push({ label: S.T.firmJobs, value: num(v.jobs) }, { label: S.T.powerNeed, value: `${num(v.powerKw)} kW` });
+    out.push({ label: S.T.offerJobs, value: num(v.jobs) }, { label: S.T.powerNeed, value: `${num(v.powerKw)} kW` });
     for (const site of v.sites) {
       const lbl = optionLabel(s, slice, c.card, site.option) ?? raw(site.option);
       const f = site.fiscal;
@@ -93,7 +93,8 @@ function cardLines(s: GameState, slice: Slice, c: CardInstance): Line[] {
   if (c.card === FAILURE_CARD) out.push({ label: S.T.scrutiny, value: num(pl.scrutiny) });
   if (pl.report) {
     const r = pl.report as { bar: number; roads: number; servicedLand: number; waterPower: number; forecastCards: number };
-    out.push({ label: S.T.bar, value: `${pct(r.bar)} (roads ${pct(r.roads)} · land ${pct(r.servicedLand)} · water/power ${pct(r.waterPower)})` },
+    out.push({ label: S.T.bar, value: pct(r.bar) }, { label: S.T.readyRoads, value: pct(r.roads) },
+      { label: S.T.readyLand, value: pct(r.servicedLand) }, { label: S.T.readyWaterPower, value: pct(r.waterPower) },
       { label: S.T.forecast, value: String(r.forecastCards) });
   }
   if (pl.grantFactor !== undefined) {
@@ -142,7 +143,7 @@ export function ledgerView(s: GameState, slice: Slice) {
     recurring: v.recurring, projects: v.projects, forexUsd: v.importAccessUSD, borrowing: v.borrowingCapacity,
     balances: { ...s.fiscal.balances },
     obligations: Object.entries(v.obligationsByKind).map(([k, x]) => ({ label: S.OBLIGATION[k] ?? raw(k), value: x })),
-    loans: v.loans.map((l) => ({ id: l.id, kind: l.kind, outstanding: l.outstanding,
+    loans: v.loans.map((l) => ({ id: l.id, kind: S.LOAN_KIND[l.kind] ?? raw(l.kind), outstanding: l.outstanding,
       next: l.schedule.filter((e) => e.date >= s.date).slice(0, 4).map((e) => ({ at: formatYM(e.date), principal: e.principal, interest: e.interest })) })),
     regime: named(slice.tick.fiscal?.regimes, s.fiscal.regime) ?? raw(s.fiscal.regime),
   };
@@ -170,14 +171,25 @@ export function riskBand(risk: number, slice: Slice): RiskBand {
   const year = 1 - Math.pow(1 - tripChance(risk, slice.params), 12);
   return year < 0.25 ? 'medium' : 'high';
 }
+/** The unlock key content sets when the mandate is met (content/slice/events.yaml, event.mandate_met). */
+export const MANDATE_MET = 'mandate.met';
+const SEZ_EVENT = 'event.sez_established';
+/** The mandate (§5.8): the SEZ's chosen priority, named by its card's option in content, and whether it is met. */
+export function mandateView(s: GameState, slice: Slice): { priority?: L; met: boolean } {
+  const priority = s.sez.priority ? optionLabel(s, slice, SEZ_EVENT, s.sez.priority) : undefined;
+  return { ...(priority ? { priority } : {}), met: s.events.unlocked.includes(MANDATE_MET) };
+}
+const leaderName = (s: GameState, slice: Slice, id: string): L =>
+  [...s.leadership.leaders, ...s.leadership.bench, ...slice.init.leaders].find((l) => l.id === id)?.name ?? raw(id);
 export function leadersView(s: GameState, slice: Slice) {
   return {
+    mandate: mandateView(s, slice),
     leaders: s.leadership.leaders.map((l) => ({
       id: l.id, name: l.name, role: S.ROLE[l.role] ?? raw(l.role), traits: l.traits.map((t) => S.TRAIT[t] ?? raw(t)),
       rapport: l.rapport, standing: l.standing, risk: S.RISK[riskBand(l.disciplineRisk, slice)],
       shortcuts: s.leadership.entangled.filter((e) => e.leader === l.id).length,
     })),
-    falls: s.falls.map((f) => ({ at: formatYM(f.date), leader: f.leader, replacedBy: f.replacedBy })),
+    falls: s.falls.map((f) => ({ at: formatYM(f.date), leader: leaderName(s, slice, f.leader), replacedBy: leaderName(s, slice, f.replacedBy) })),
   };
 }
 

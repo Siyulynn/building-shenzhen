@@ -87,7 +87,7 @@ function renderLedger(): string {
     <h2>${b(S.T.projectsView)}</h2><table>${tr(S.T.funds, yuan(l.projects.funds))}${tr(S.T.unspent, yuan(l.projects.unspent))}
       ${tr(S.T.available, yuan(l.projects.available))}${tr(S.T.borrowing, yuan(l.borrowing))}${tr(S.T.forex, `$${num(l.forexUsd)}`)}</table>
     <h2>${b(S.T.obligations)}</h2><table>${l.obligations.map((o) => tr(o.label, yuan(o.value))).join('')}</table>
-    <h2>${b(S.T.loans)}</h2>${l.loans.map((n) => `<div>#${n.id} ${esc(n.kind)} · ${b(S.T.outstanding)} ${yuan(n.outstanding)}
+    <h2>${b(S.T.loans)}</h2>${l.loans.map((n) => `<div>#${n.id} ${b(n.kind)} · ${b(S.T.outstanding)} ${yuan(n.outstanding)}
       <div class="muted">${n.next.map((e) => `${e.at}: ${yuan(e.principal)} + ${yuan(e.interest)}`).join(' · ')}</div></div>`).join('') || `<div class="muted">${b(S.T.noLoans)}</div>`}`;
 }
 
@@ -107,12 +107,13 @@ function renderArea(): string {
 }
 
 function renderLeaders(): string {
-  const v = leadersView(x.state, slice);
-  return v.leaders.map((l) => `<div class="card"><h3>${b(l.role)} · ${b(l.name)}</h3>
+  const v = leadersView(x.state, slice), m = v.mandate;
+  return `<h2>${b(S.T.mandate)}</h2><div>${m.priority ? `${b(m.priority)} · ${b(m.met ? S.T.mandateMet : S.T.mandateOpen)}` : `<span class="muted">${b(S.T.noMandate)}</span>`}</div>`
+    + v.leaders.map((l) => `<div class="card"><div class="portrait">${esc([...l.name.zh][0] ?? '?')}</div><h3>${b(l.role)} · ${b(l.name)}</h3>
       <div class="muted">${l.traits.map(b).join(' · ') || ''}</div>
       <table>${tr(S.T.rapport, String(Math.round(l.rapport)))}${tr(S.T.standing, String(Math.round(l.standing)))}
       ${tr(S.T.disciplineRisk, bi(l.risk))}${tr(S.T.shortcuts, String(l.shortcuts))}</table></div>`).join('')
-    + (v.falls.length ? `<h2>${b(S.T.falls)}</h2>${v.falls.map((f) => `<div class="muted">${f.at}: ${esc(f.leader)} → ${esc(f.replacedBy)}</div>`).join('')}` : '');
+    + (v.falls.length ? `<h2>${b(S.T.falls)}</h2>${v.falls.map((f) => `<div class="muted">${f.at}: ${b(f.leader)} → ${b(f.replacedBy)}</div>`).join('')}` : '');
 }
 
 function renderReview(): string {
@@ -130,7 +131,7 @@ function targets(): { value: string; label: L }[] {
   if (t?.target === 'zone') {
     const ids = queuedZoneIds(x.state, x.queue);
     return [...x.state.zones.map((z) => ({ value: `zone:${z.id}`, label: zoneName(x.state, slice, z.id) })),
-      ...[...ids.values()].map((id) => ({ value: `zone:${id}`, label: { zh: `新区块 #${id}`, en: `New zone #${id}` } }))];
+      ...[...ids.values()].map((id) => ({ value: `zone:${id}`, label: { zh: `${S.NEW_ZONE.zh} #${id}`, en: `${S.NEW_ZONE.en} #${id}` } }))];
   }
   return x.state.areas.filter((a) => a.access === 'playable').map((a) => ({ value: `area:${a.id}`, label: a.name }));
 }

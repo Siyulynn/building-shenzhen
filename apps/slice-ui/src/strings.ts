@@ -29,6 +29,8 @@ export const OPTIONS: Readonly<Record<string, L>> = {
 export const ACCEPT_ZONE = l('接受，落户', 'Accept, sited in');
 export const ACCEPT_PREMISES = l('接受，用现有厂房：', 'Accept, in existing premises in');
 export const ZONE = l('区块', 'Zone');
+export const NEW_ZONE = l('新区块', 'New zone');
+export const LOAN_KIND: Readonly<Record<string, L>> = { project: l('项目贷款', 'Project loan'), short: l('短期借款', 'Short-term loan') };
 export const AREA = l('片区', 'Area');
 
 export const LAND_USE: Readonly<Record<string, L>> = {
@@ -93,7 +95,7 @@ export const T = {
   error: l('无法执行', 'Could not apply'),
   residents: l('常住人口', 'Residents'),
   presentNonlocal: l('外来人口（在地）', 'Non-locals present'),
-  firmJobs: l('企业岗位', 'Firm jobs posted'),
+  firmJobs: l('企业岗位', 'Firm jobs posted'), offerJobs: l('提供岗位', 'Jobs offered'),
   gdpQuarter: l('本季度GDP（元）', "The quarter's GDP (yuan)"),
   gdpYear: l('全年GDP', "A year's GDP"),
   moneyForProjects: l('可用于项目的资金（元）', 'Money for projects (yuan)'),
@@ -138,7 +140,12 @@ export const T = {
   retained: l('每年留成税收', 'Retained tax a year'), newObligations: l('每年新增支出', 'New obligations a year'),
   shortfall: l('缺口', 'Shortfall'), capacity: l('可借', 'Can borrow'), principal: l('本金', 'Principal'),
   rate: l('月利率', 'Monthly rate'), grace: l('宽限期（月）', 'Grace (months)'), term: l('期限（月）', 'Term (months)'),
-  bar: l('准备程度', 'Readiness'), forecast: l('首批投资者预计', 'First wave forecast'), score: l('得分', 'Score'),
+  bar: l('准备程度', 'Readiness'), readyRoads: l('道路', 'Roads'), readyLand: l('三通一平用地', 'Serviced land'),
+  readyWaterPower: l('水电', 'Water and power'),
+  mandate: l('任务', 'The mandate'), mandateMet: l('已完成', 'met'), mandateOpen: l('未完成', 'not yet met'),
+  noMandate: l('特区成立后确定', 'Set when the zone is established'),
+  answerFirst: l('请先回答', 'Answer first'), turnStartOnly: l('指令只能在回合开始时下达', "Orders are given at a turn's start"),
+  noSuchCard: l('没有这张卡片', 'No such card'), noSuchOption: l('没有这个选项', 'No such option'), forecast: l('首批投资者预计', 'First wave forecast'), score: l('得分', 'Score'),
   grantFactor: l('补助系数', 'Grant factor'), warning: l('补助将削减', 'The grant will be cut'),
   seed: l('随机种子', 'Seed'), restart: l('重新开始', 'Start again'),
   months: l('个月', 'months'), none: l('无', 'none'),
