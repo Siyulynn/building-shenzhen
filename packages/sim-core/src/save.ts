@@ -6,7 +6,7 @@ import { Rng, type RngState } from './rng.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 /** The content a save was made with (§5.1, §5.3). */
 export interface SaveContent {
@@ -19,8 +19,12 @@ export interface SaveContent {
 export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed: number; content: SaveContent }
 export interface Save { header: SaveHeader; body: { state: unknown; rng: RngState }; arrays: Record<string, Uint32Array> }
 
-/** Migration from version v to v + 1, keyed by v. Version 1 is the first: none yet. */
-const MIGRATIONS: Record<number, (s: Save) => Save> = {};
+/** Migration from version v to v + 1, keyed by v. */
+const MIGRATIONS: Record<number, (s: Save) => Save> = {
+  // R1 (buildings-and-construction §13.1): cell works and placed structures, empty before they existed
+  1: (s) => ({ ...s, header: { ...s.header, version: 2 },
+    body: { ...s.body, state: { ...(s.body.state as object), cellWorks: [], structures: [], nextStructureId: 1 } } }),
+};
 
 /** JSON turns NaN and Infinity into null without a word: a save must fail instead. */
 function finiteOnly(key: string, value: unknown): unknown {

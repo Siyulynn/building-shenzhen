@@ -8,6 +8,7 @@ import { cloneFiscal, initialFiscal, type FiscalState, type Priority, type TeamM
 import type { SliceParams } from './params.js';
 import { bedsByPool } from './systems/common.js';
 import { parseYM, type YM } from './ym.js';
+import type { CellWork, PlacedStructure } from './works.js';
 
 export interface LocalizedString { zh: string; en: string }
 
@@ -169,6 +170,9 @@ export interface GameState {
   nextFirmId: number;
   fiscal: FiscalState;        // M4 (§5.6)
   servicedLand: CellRuns;     // serviced cells (三通一平), sorted runs
+  cellWorks: CellWork[];      // R1 (b&c §13.1): one per committed cell, sorted by cell; empty until R2 writes them
+  structures: PlacedStructure[];   // R1: placed sources and facilities, id order
+  nextStructureId: number;
   events: EventsState;        // M5a (§5.7)
   sez: SezState;
   shekou: ShekouState;
@@ -370,6 +374,9 @@ export function createInitialState(content: {
     nextFirmId: 1,
     fiscal: initialFiscal(params),
     servicedLand: [],
+    cellWorks: [],
+    structures: [],
+    nextStructureId: 1,
     events: { fired: [], unlocked: [] },
     sez: {},
     shekou: { captured: 0, jobs: 0, carry: 0 },
@@ -424,6 +431,8 @@ export function cloneState(s: GameState): GameState {
     firms: s.firms.map((f) => ({ ...f, ...(f.terms ? { terms: { ...f.terms } } : {}) })),
     fiscal: cloneFiscal(s.fiscal),
     servicedLand: s.servicedLand.map((r) => [...r] as CellRuns[number]),
+    cellWorks: s.cellWorks.map((w) => ({ ...w })),
+    structures: s.structures.map((x) => ({ ...x })),
     events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked] },   // fired entries are never changed
     sez: { ...s.sez },
     shekou: { ...s.shekou },

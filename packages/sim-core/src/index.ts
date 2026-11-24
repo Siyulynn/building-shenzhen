@@ -17,6 +17,7 @@ export * from './policies.js';
 export * from './content.js';
 export * from './sites.js';
 export * from './network.js';
+export * from './works.js';
 export * from './calibration.js';
 export * from './play.js';
 export * from './summary.js';

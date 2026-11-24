@@ -4,7 +4,7 @@
  */
 import {
   ENFORCEMENT_LEVELS, LAND_USES, PERMIT_REGIMES, PRIORITIES, formatYM, templateZoneAction,
-  cellsOfRuns, roadNetwork, zoneFrontage, type Frontage, type LandUse, type PlayerAction, type Priority, type StartSite,
+  spatialViews, type LandUse, type PlayerAction, type Priority, type StartSite,
 } from '@sz/sim-core';
 import { choose, dequeue, enqueue, newSession, submit, unanswered, type Session } from './controller.js';
 import { loadSlice } from './load.js';
@@ -30,9 +30,9 @@ const ui = { layer: 'areas' as OverlayLayer, tab: 'ledger', area: 7, drawUse: nu
 
 const siteAt = (c: { x: number; y: number }) => slice.startSites.find((s) => s.cell[0] === c.x && s.cell[1] === c.y);
 const { routes, maxFrontageDepth } = slice.startNetwork;
-const roads = roadNetwork(x.state.grid, routes.filter((r) => r.kind === 'road').flatMap((r) => r.cells));
-const frontage = new Map<number, Frontage>();
-let mappedZones: typeof x.state.zones | undefined;
+/** The derived views (b&c §13.1), rebuilt from the state whenever its zones or works change; never saved. */
+let views = spatialViews(x.state, slice.startNetwork);
+let mapped: [typeof x.state.zones, typeof x.state.cellWorks] | undefined;
 let selectedSite: StartSite | undefined;
 const map = new SliceMap($('map') as HTMLCanvasElement, x.state, slice.startSites, routes, {
   hover: (c) => {
@@ -43,8 +43,8 @@ const map = new SliceMap($('map') as HTMLCanvasElement, x.state, slice.startSite
     if (site) $('hover').textContent += ` · ≈ ${bi(site.name)} · 近似位置 Proxy location`;
     const index = c.y * x.state.grid.width + c.x;
     for (const r of routes) if (r.cells.includes(index)) $('hover').textContent += ` · ${bi(r.name)} · 临时走线 Temporary alignment`;
-    if (z && !roads.component.has(index)) {
-      const reach = frontage.get(index);
+    if (z && !views.roads.component.has(index)) {
+      const reach = views.frontage.get(index);
       $('hover').textContent += reach ? ` · 道路可达 Road access: ${reach.depth}/${maxFrontageDepth}`
         : ' · 无道路连接 No road access';
     }
@@ -222,12 +222,9 @@ function renderVerdict(): void {
 }
 
 function render(): void {
-  if (mappedZones !== x.state.zones) {
-    frontage.clear();
-    for (const z of x.state.zones) for (const [c, f] of zoneFrontage(roads, cellsOfRuns(z.runs, x.state.grid), maxFrontageDepth)) {
-      frontage.set(c, f);
-    }
-    mappedZones = x.state.zones;
+  if (mapped?.[0] !== x.state.zones || mapped[1] !== x.state.cellWorks) {
+    views = spatialViews(x.state, slice.startNetwork);
+    mapped = [x.state.zones, x.state.cellWorks];
   }
   $('left').innerHTML = renderTurn();
   $('right').innerHTML = `<div class="tabs">${TABS.map(([k, l]) => `<button data-act="tab" data-tab="${k}" class="${ui.tab === k ? 'sel' : ''}">${b(l)}</button>`).join('')}</div>${PANELS[ui.tab]!()}`;
