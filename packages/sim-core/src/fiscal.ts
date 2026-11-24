@@ -247,7 +247,8 @@ export function projectFunds(s: GameState, p: SliceParams): { debt: number; land
   return { debt: b.debt, land: b.land, general: Math.max(0, b.general - reserveFloor(s, p)) };
 }
 export const unspentCommitments = (s: GameState) =>
-  s.fiscal.projects.reduce((a, x) => a + (liveProject(x) ? x.budget - x.spent : 0), 0);
+  s.fiscal.projects.reduce((a, x) => a + (liveProject(x) ? x.budget - x.spent : 0), 0)
+  + s.worksOrders.reduce((a, o) => a + (o.stage === 'queued' || o.stage === 'working' ? o.budget - o.spent : 0), 0);   // R2 (b&c §13.2)
 export function moneyForProjects(s: GameState, p: SliceParams): number {
   const f = projectFunds(s, p);
   return f.debt + f.land + f.general - unspentCommitments(s);
@@ -327,6 +328,7 @@ export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalConten
       // neither serviced nor already being serviced by a live site-preparation project
       const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
       for (const x of F.projects) if (x.cells && liveProject(x)) for (const c of cellsOfRuns(x.cells, s.grid)) served.add(c);
+      for (const w of s.cellWorks) served.add(w.cell);     // R2 (b&c §13.2): cells with works belong to their orders
       const todo = buildableCells(s, z.runs, buildable).filter((c) => !served.has(c));
       if (!todo.length) throw new Error(`zone ${z.id} has no buildable cells left to service`);
       area = z.area; zone = z.id; cells = runsOfCells(todo, s.grid.width);

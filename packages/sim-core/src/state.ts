@@ -8,7 +8,7 @@ import { cloneFiscal, initialFiscal, type FiscalState, type Priority, type TeamM
 import type { SliceParams } from './params.js';
 import { bedsByPool } from './systems/common.js';
 import { parseYM, type YM } from './ym.js';
-import { cloneOrder, type CellWork, type PlacedStructure, type WorksOrder } from './works.js';
+import { cloneOrder, type CellWork, type PlacedStructure, type StructureKind, type WorksOrder } from './works.js';
 
 export interface LocalizedString { zh: string; en: string }
 
@@ -134,7 +134,14 @@ export type PlayerAction =
   | { type: 'commit_project'; template: string; area?: number; zone?: number; priority?: Priority }
   | { type: 'set_project_priority'; project: number; priority: Priority }
   | { type: 'cancel_project'; project: number }
-  | { type: 'contract_team'; team: string; mode: TeamMode; project?: number };
+  | { type: 'contract_team'; team: string; mode: TeamMode; project?: number }
+  // R2 (buildings-and-construction §13.2): owned by the construction step, with works params, fiscal and network
+  | { type: 'commit_works'; zone: number; cells?: CellRuns; priority?: Priority }
+  | { type: 'build_road'; path: [number, number][]; priority?: Priority }
+  | { type: 'place_structure'; kind: StructureKind; cell: [number, number]; attach: [number, number]; facility?: string; priority?: Priority }
+  | { type: 'cancel_works'; order: number; cells?: CellRuns }
+  | { type: 'set_works_paused'; order: number; paused: boolean }
+  | { type: 'set_works_priority'; order: number; priority: Priority };
 export type SubStep = 0 | 1 | 2;
 export interface ActionLogEntry { date: YM; subStep: SubStep; action: PlayerAction }
 

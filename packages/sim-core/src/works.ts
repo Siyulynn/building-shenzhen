@@ -105,9 +105,10 @@ export function commitCellWorks(s: GameState, zoneId: number, cells: readonly nu
  * filled before the next starts. A cell that finishes joins servicedLand in the same call. Returns the units nobody
  * could take. `frontage` is spatialViews(…).frontage for this state.
  */
-export function advanceCellWorks(s: GameState, units: number, frontage: ReadonlyMap<number, Frontage>): number {
+export function advanceCellWorks(s: GameState, units: number, frontage: ReadonlyMap<number, Frontage>,
+  only: (w: CellWork) => boolean = () => true): number {
   if (!isCount(units, 0)) throw new Error(`invalid work units: ${units}`);
-  const order = s.cellWorks.filter((w) => w.stage !== 'serviced' && frontage.has(w.cell))
+  const order = s.cellWorks.filter((w) => w.stage !== 'serviced' && frontage.has(w.cell) && only(w))
     .sort((a, b) => frontage.get(a.cell)!.depth - frontage.get(b.cell)!.depth || a.cell - b.cell);
   const finished: number[] = [];
   for (const w of order) {
@@ -124,7 +125,8 @@ export function advanceCellWorks(s: GameState, units: number, frontage: Readonly
 export interface StructurePlacement { kind: StructureKind; cell: number; attach: number; capacity: number; facility?: string }
 
 /** Record a placed source or facility. The attach cell's road is checked only when supply is derived. */
-export function placeStructure(s: GameState, p: StructurePlacement): PlacedStructure {
+/** placeStructure's checks alone: throws on a bad placement, changes nothing. */
+export function checkPlacement(s: GameState, p: StructurePlacement): void {
   if (!(STRUCTURE_KINDS as readonly string[]).includes(p.kind)) throw new Error(`unknown structure kind ${p.kind}`);
   if (!onGrid(s, p.cell) || !onGrid(s, p.attach)) throw new Error('structure cell off the grid');
   if (!s.areas.some((a) => a.access === 'playable' && inSorted(a.cells, p.cell))) throw new Error(`cell ${p.cell} is not playable land`);
@@ -135,6 +137,10 @@ export function placeStructure(s: GameState, p: StructurePlacement): PlacedStruc
   if ((p.kind === 'facility') !== (typeof p.facility === 'string' && p.facility.length > 0)) {
     throw new Error('a facility, and only a facility, names its facility type');
   }
+}
+
+export function placeStructure(s: GameState, p: StructurePlacement): PlacedStructure {
+  checkPlacement(s, p);
   const x: PlacedStructure = { id: s.nextStructureId++, kind: p.kind, cell: p.cell, attach: p.attach, capacity: p.capacity,
     ...(p.kind === 'facility' ? { facility: p.facility } : {}), placed: s.date };
   s.structures = [...s.structures, x];
@@ -148,7 +154,7 @@ export interface SpatialViews {
   supply: Record<Utility, Map<number, number>>;    // demand cell → allocated supply, by cell
 }
 export interface SpatialInputs {
-  roads?: Iterable<number>;                     // extra road cells (R2: built roads) beside the start network's
+  roads?: Iterable<number>;                     // extra road cells beside the start network's and the built ones
   demand?: Partial<Record<Utility, ReadonlyMap<number, number>>>;   // per consumer cell (R3: from occupancy)
 }
 
@@ -157,7 +163,7 @@ const sortedMap = (m: Map<number, number>) => new Map([...m].sort((a, b) => a[0]
 /** The derived views (§13.1), from loaded state and content alone. Never saved; equal for equal inputs. */
 export function spatialViews(s: GameState, network: StartNetwork, inputs: SpatialInputs = {}): SpatialViews {
   const roadCells = network.routes.filter((r) => r.kind === 'road').flatMap((r) => r.cells);
-  const roads = roadNetwork(s.grid, [...roadCells, ...(inputs.roads ?? [])]);
+  const roads = roadNetwork(s.grid, [...roadCells, ...s.roads, ...(inputs.roads ?? [])]);
   const frontage = new Map<number, Frontage>();
   for (const z of s.zones) {
     for (const [c, f] of zoneFrontage(roads, cellsOfRuns(z.runs, s.grid), network.maxFrontageDepth)) if (!frontage.has(c)) frontage.set(c, f);

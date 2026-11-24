@@ -8,7 +8,9 @@ import { VILLAGE_ARCHETYPES } from '../enums.js';
 import {
   PRIORITIES, addObligation, addServicedLand, liveProject, payProject, projectFunds, type Project,
 } from '../fiscal.js';
+import { orderMonth, type WorksContent } from '../orders.js';
 import type { SliceParams } from '../params.js';
+import { liveOrder, type WorksOrder } from '../works.js';
 import type { Cohort } from '../state.js';
 import type { TickContext } from '../step.js';
 
@@ -93,11 +95,11 @@ function complete(ctx: TickContext, p: SliceParams, x: Project): void {
  * Allocate this month's pool (§5.6) and work the city's projects. Returns the crew units given to each firm cohort;
  * the construction step banks them. Order: priority, start month, firm cohorts before projects, id, then cohort order.
  */
-export function allocatePool(ctx: TickContext, p: SliceParams): Map<Cohort, number> {
+export function allocatePool(ctx: TickContext, p: SliceParams, wc?: WorksContent): Map<Cohort, number> {
   const s = ctx.state;
   // one queue in priority order: firm cohorts and pooled projects share the pool; dedicated projects draw only cash,
   // but in the same order, so a low-priority dedicated project never pays ahead of a high-priority pooled one
-  type Job = { pri: number; start: number; type: number; id: number; ord: number; cohort?: Cohort; project?: Project };
+  type Job = { pri: number; start: number; type: number; id: number; ord: number; cohort?: Cohort; project?: Project; order?: WorksOrder };
   const jobs: Job[] = [];
   let ord = 0;
   for (const b of s.blocks) for (const c of b.cohorts) {
@@ -111,11 +113,30 @@ export function allocatePool(ctx: TickContext, p: SliceParams): Map<Cohort, numb
     if (x.stage === 'stalled') x.stage = x.workDone > 0 || x.crewBank > 0 ? 'building' : 'committed';
     jobs.push({ pri: PRIORITIES.indexOf(x.priority), start: x.committed, type: 1, id: x.id, ord: ord++, project: x });
   }
+  // R2 (b&c §13.2): works orders are the third job type; their views are computed once, before any work this month
+  const month = wc && s.worksOrders.some(liveOrder) ? orderMonth(s, wc) : undefined;
+  if (month) for (const o of s.worksOrders) {
+    if (!liveOrder(o)) continue;
+    delete o.waiting;
+    jobs.push({ pri: PRIORITIES.indexOf(o.priority), start: o.committed, type: 2, id: o.id, ord: ord++, order: o });
+  }
   jobs.sort((a, b) => a.pri - b.pri || a.start - b.start || a.type - b.type || a.id - b.id || a.ord - b.ord);
 
   const out = new Map<Cohort, number>();
   let left = poolSupply(ctx, p);
   for (const j of jobs) {
+    if (j.order) {
+      const o = j.order;
+      if (o.paused) { o.waiting = 'paused'; continue; }
+      if (s.fiscal.frozenUntil !== undefined && s.date <= s.fiscal.frozenUntil) { o.waiting = 'frozen'; continue; }
+      const usable = month!.usable(o);
+      if (usable === 0) { o.waiting = 'access'; continue; }
+      const pace = Math.min(wc!.works.crew_per_order, usable), want = Math.min(pace, left);
+      const got = month!.affordable(o, want);
+      if (got < pace) o.waiting = got < want ? 'finance' : 'capacity';
+      left -= month!.work(o, got, ctx.events);
+      continue;
+    }
     if (j.cohort) {
       const c = j.cohort, crew = cohortCrew(c, p);
       // no more than the work left, so a final partial month passes its spare units down the queue

@@ -1,0 +1,252 @@
+/** R2: municipal works orders, placement and the preview (buildings-and-construction §13.2; phase1-slice §12 R2). */
+import { describe, expect, it } from 'vitest';
+import {
+  Rng, applyTurnAction, cellsOfRuns, createTickSteps, firstOption, liveOrder, loadGame, post, previewWorks, replay,
+  runMonths, saveFromJson, saveGame, saveToJson, spatialViews, templateZoneAction, unspentCommitments,
+  type CellRuns, type GameState, type PlayerAction, type WorksOrder,
+} from '../src/index.js';
+import { content, initial, params, slice } from './fixtures.js';
+
+// A pace that does not divide a cell's units, so months end with cells part-serviced
+const WORKS = { ...params.works!, crew_per_order: 30 };
+const STEPS = createTickSteps({ ...params, works: WORKS }, slice.tick);
+const W = slice.init.areas.grid.width;
+const at = (x: number, y: number) => y * W + x;
+const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
+const SHANGBU = slice.tick.precedents!.find((p) => p.id === 'precedent.zone.shangbu_industrial')!;
+// The guide sits at rows 370–375, x 349–354; the temporary Guangshen road runs along row 346. A spur south down
+// x 360 from (360,346), with a bridge over the unbuildable cell (360,347), then west along row 369 fronts the guide's
+// top row: 23 + 10 cells. The phase is that top row.
+const SPUR: [number, number][] = [[360, 347], [360, 369], [350, 369]];
+const SPUR_CELLS = 33;
+const PHASE: CellRuns = [[370, 349, 354]];
+const FUND = 5_000_000;
+const copy = (s: GameState) => loadGame(saveFromJson(saveToJson(saveGame(s, new Rng(0), content)))).state;
+
+/** Months of play, answering every card with its first option; `first` are turn actions in the first month. */
+function play(s: GameState, months: number, rng: Rng, first: PlayerAction[] = []): GameState {
+  let todo = first;
+  return runMonths(s, months, rng, (st, cards) => { const a = [...firstOption(st, cards), ...todo]; todo = []; return a; }, STEPS);
+}
+/** A start with money for works, granted through the ledger so the accounts stay whole. */
+function funded(): GameState {
+  const s = initial();
+  post(s, 'grant', 'general', FUND, 'test.fund');
+  return s;
+}
+const worksPaid = (s: GameState, id: number) => -s.fiscal.ledger
+  .filter((l) => l.ref === `works.${id}` && l.type === 'project').reduce((n, l) => n + l.amount, 0);
+
+/** §13.2's invariants: sunk spending is the ledger's; no stock negative; serviced works are serviced land. */
+function checkOrders(s: GameState): void {
+  const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
+  for (const o of s.worksOrders) {
+    expect(o.unitsDone).toBeGreaterThanOrEqual(0);
+    expect(o.unitsDone).toBeLessThanOrEqual(o.unitsTotal);
+    expect(o.spent).toBe(worksPaid(s, o.id));
+    expect(o.spent).toBeLessThanOrEqual(o.budget);
+    if (o.stage === 'done') expect(o.unitsDone).toBe(o.unitsTotal);
+  }
+  const sunk = s.worksOrders.filter((o) => o.kind === 'service').reduce((n, o) => n + o.unitsDone, 0);
+  expect(s.cellWorks.reduce((n, w) => n + w.workDone, 0)).toBe(sunk);
+  for (const w of s.cellWorks) expect(served.has(w.cell)).toBe(w.stage === 'serviced');
+  expect(s.roads).toEqual([...new Set(s.roads)].sort((a, b) => a - b));
+}
+
+const guide = (s: GameState) => templateZoneAction(s, SHANGBU);
+
+describe('R2 placement validates the map', () => {
+  it('refuses a road that starts off the network, leaves playable land, or runs over a road', () => {
+    const s = funded();
+    expect(() => apply(s, { type: 'build_road', path: [[362, 360], [362, 365]] })).toThrow(/start next to a road/);
+    expect(() => apply(s, { type: 'build_road', path: [[352, 347], [352, 349]] })).toThrow(/not playable/);
+    expect(() => apply(s, { type: 'build_road', path: [[356, 345], [356, 346], [356, 347]] })).toThrow(/already a road/);
+    expect(() => apply(s, { type: 'build_road', path: [[355, 347], [357, 349]] })).toThrow(/orthogonal/);
+    expect(() => apply(s, { type: 'build_road', path: [[0, 0], [0, 1]] })).toThrow(/not playable/);
+    expect(s.worksOrders).toEqual([]);
+  });
+
+  it('prices a road by its cells, bridges where the path leaves buildable land', () => {
+    const s = funded();
+    apply(s, { type: 'build_road', path: SPUR });
+    const o = s.worksOrders[0]!;
+    const bridges = o.path!.filter((c) => c.bridge).length, cells = o.path!.length;
+    expect(cells).toBe(SPUR_CELLS);
+    expect(o.path![0]).toMatchObject({ cell: at(360, 347), bridge: true });
+    expect(o.unitsTotal).toBe((cells - bridges) * WORKS.road.units_per_cell + bridges * WORKS.bridge.units_per_cell);
+    expect(o.budget).toBe(Math.round(o.unitsTotal * WORKS.road.yuan_per_cell / WORKS.road.units_per_cell));
+    for (const c of o.path!) expect(c.bridge).toBe(!slice.tick.buildable!.cells.includes(c.cell));
+    expect(() => apply(s, { type: 'build_road', path: [[361, 350], [362, 350]] })).not.toThrow();   // may branch off a queued road
+    expect(() => apply(s, { type: 'build_road', path: [[360, 348], [361, 348]] })).toThrow(/already a road/);
+  });
+
+  it('places a structure only on playable, unoccupied land attached beside it, and draws its forex at commit', () => {
+    const s = funded();
+    const forex = s.fiscal.balances.forex;
+    expect(() => apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 345], attach: [358, 345] })).toThrow(/does not touch/);
+    expect(() => apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 346], attach: [356, 346] })).toThrow(/a road/);
+    expect(() => apply(s, { type: 'place_structure', kind: 'facility', facility: 'clinic', cell: [356, 345], attach: [356, 346] }))
+      .toThrow(/no facility type/);
+    apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 345], attach: [356, 346] });
+    expect(s.fiscal.balances.forex).toBe(forex - WORKS.structures.power_source.forex_usd!);
+    expect(() => apply(s, { type: 'place_structure', kind: 'water_source', cell: [356, 345], attach: [356, 346] })).toThrow(/already holds/);
+  });
+
+  it('builds a placed source once its attach cell is a road, and its capacity then supplies along the network', () => {
+    const rng = new Rng(2);
+    const s0 = funded();
+    const s = play(s0, 12, rng, [{ type: 'place_structure', kind: 'water_source', cell: [356, 345], attach: [356, 346], priority: 'high' }]);
+    expect(s.worksOrders[0]).toMatchObject({ stage: 'done', unitsDone: 150 });
+    expect(s.structures).toMatchObject([{ kind: 'water_source', cell: at(356, 345), attach: at(356, 346), capacity: 200 }]);
+    expect(spatialViews(s, slice.startNetwork).sources.water).toEqual(new Map([[at(356, 346), 200]]));
+    checkOrders(s);
+  });
+
+  it('keeps M4 site preparation off cells that have works', () => {
+    const s = funded();
+    apply(s, guide(s));
+    apply(s, { type: 'commit_works', zone: 1, cells: PHASE });
+    apply(s, { type: 'commit_project', template: 'project.site_preparation', zone: 1 });
+    const project = s.fiscal.projects.at(-1)!;
+    const prepared = new Set(cellsOfRuns(project.cells!, s.grid));
+    for (const c of cellsOfRuns(PHASE, s.grid)) expect(prepared.has(c)).toBe(false);
+    expect(prepared.size).toBe(30);
+  });
+});
+
+describe('R2 guides and phasing', () => {
+  it('showing a guide and previewing its cost spends nothing and changes nothing', () => {
+    const s = funded();
+    const before = saveToJson(saveGame(s, new Rng(1), content));
+    const all = previewWorks(s, WORKS, [guide(s), { type: 'commit_works', zone: s.nextZoneId }], apply);
+    const phase = previewWorks(s, WORKS, [guide(s), { type: 'build_road', path: SPUR },
+      { type: 'commit_works', zone: s.nextZoneId, cells: PHASE }], apply);
+    expect(saveToJson(saveGame(s, new Rng(1), content))).toBe(before);
+    expect(all).toMatchObject({ ok: true, orders: [{ kind: 'service', cells: 36, units: 36 * 40, budget: 36 * 100000 }] });
+    expect(phase.ok && phase.orders.map((o) => [o.kind, o.cells, o.bridges])).toEqual([['road', SPUR_CELLS, 1], ['service', 6, 0]]);
+    expect(phase.ok && phase.orders[1]).toMatchObject({ crewPerMonth: 30, months: 8, units: 240, budget: 600000 });
+    expect(previewWorks(s, WORKS, [{ type: 'commit_works', zone: 99 }], apply)).toEqual({ ok: false, error: 'no zone 99' });
+  });
+
+  it('phasing the guide develops its first frontage without funding the rest', () => {
+    const rng = new Rng(3);
+    const s0 = funded();
+    const s = play(s0, 26, rng, [guide(s0), { type: 'build_road', path: SPUR, priority: 'high' },
+      { type: 'commit_works', zone: 1, cells: PHASE, priority: 'high' }]);
+    checkOrders(s);
+    const [road, phase] = s.worksOrders as [WorksOrder, WorksOrder];
+    expect(road.stage).toBe('done');
+    expect(phase.stage).toBe('done');
+    expect(s.roads.length).toBe(SPUR_CELLS);
+    const phaseCells = cellsOfRuns(PHASE, s.grid), served = new Set(cellsOfRuns(s.servicedLand, s.grid));
+    for (const c of phaseCells) expect(served.has(c)).toBe(true);
+    const rest = cellsOfRuns(s.zones[0]!.runs, s.grid).filter((c) => !phaseCells.includes(c));
+    expect(rest.length).toBe(30);
+    for (const c of rest) expect(served.has(c) || s.cellWorks.some((w) => w.cell === c)).toBe(false);
+    expect(road.spent + phase.spent).toBe(road.budget + phase.budget);
+    expect(road.spent + phase.spent).toBeLessThan(36 * WORKS.service.yuan_per_cell);   // the whole guide's servicing alone
+    // the phase's frontage is the new road's, and the next row inward is now reachable from it
+    const v = spatialViews(s, slice.startNetwork);
+    expect(v.frontage.get(at(352, 370))?.depth).toBe(1);
+    expect(v.frontage.get(at(352, 371))?.depth).toBe(2);
+    expect(v.frontage.get(at(349, 370))?.depth).toBe(2);   // (349,369) is off playable land: reached from its neighbour
+  });
+
+  it('a service order waits for access until its road is built, then works', () => {
+    const rng = new Rng(4);
+    const s0 = funded();
+    let s = play(s0, 1, rng, [guide(s0), { type: 'commit_works', zone: 1, cells: PHASE, priority: 'high' }]);
+    expect(s.worksOrders[0]).toMatchObject({ waiting: 'access', unitsDone: 0, spent: 0 });
+    s = play(s, 18, rng, [{ type: 'build_road', path: SPUR, priority: 'high' }]);
+    checkOrders(s);
+    expect(s.worksOrders[0]!.unitsDone).toBeGreaterThan(0);
+  });
+});
+
+describe('R2 cancel and pause conserve funds and work', () => {
+  it('cancelling unstarted cells releases their commitment and keeps sunk work and spending', () => {
+    const rng = new Rng(5);
+    const s0 = funded();
+    const s = play(s0, 18, rng, [guide(s0), { type: 'build_road', path: SPUR, priority: 'high' },
+      { type: 'commit_works', zone: 1, priority: 'high' }]);
+    const o = s.worksOrders[1]!;
+    expect(o.unitsDone).toBeGreaterThan(0);
+    const started = s.cellWorks.filter((w) => w.order === o.id && w.workDone > 0);
+    const unstarted = s.cellWorks.filter((w) => w.order === o.id && w.workDone === 0).length;
+    expect(started.some((w) => w.stage === 'servicing')).toBe(true);
+    expect(unstarted).toBeGreaterThan(0);
+    const c = copy(s);
+    apply(c, { type: 'cancel_works', order: o.id });
+    const after = c.worksOrders[1]!;
+    expect(c.fiscal.balances).toEqual(s.fiscal.balances);                 // no refund, no penalty
+    expect(c.fiscal.ledger.length).toBe(s.fiscal.ledger.length);
+    expect(after).toMatchObject({ unitsDone: o.unitsDone, spent: o.spent, stage: 'working' });
+    expect(o.budget - after.budget).toBe(unstarted * WORKS.service.yuan_per_cell);
+    expect(unspentCommitments(s) - unspentCommitments(c)).toBe(unstarted * WORKS.service.yuan_per_cell);
+    expect(c.cellWorks.filter((w) => w.order === o.id)).toEqual(started);
+    expect(() => apply(c, { type: 'cancel_works', order: o.id })).toThrow(/no unstarted work/);
+    const end = runMonths(c, 6, rng, firstOption, STEPS);
+    expect(end.worksOrders[1]).toMatchObject({ stage: 'done', spent: after.budget });
+    checkOrders(end);
+  });
+
+  it('a paused order takes no crew and no money, and resumes where it stopped', () => {
+    const rng = new Rng(6);
+    const s0 = funded();
+    let s = play(s0, 4, rng, [guide(s0), { type: 'build_road', path: SPUR, priority: 'high' }]);
+    const id = s.worksOrders[0]!.id;
+    const mid = { ...s.worksOrders[0]! }, roads = [...s.roads];
+    expect(mid.unitsDone).toBeGreaterThan(0);
+    s = play(s, 3, rng, [{ type: 'set_works_paused', order: id, paused: true }]);
+    expect(s.worksOrders[0]).toMatchObject({ unitsDone: mid.unitsDone, spent: mid.spent, paused: true, waiting: 'paused' });
+    expect(s.roads).toEqual(roads);
+    expect(worksPaid(s, id)).toBe(mid.spent);
+    s = play(s, 2, rng, [{ type: 'set_works_paused', order: id, paused: false }]);
+    expect(s.worksOrders[0]!.unitsDone).toBe(mid.unitsDone + 2 * 30);
+    checkOrders(s);
+  });
+
+  it('a zone removal cancels unstarted work, detaches started work, and a new commit adopts it', () => {
+    const rng = new Rng(7);
+    const s0 = funded();
+    let s = play(s0, 18, rng, [guide(s0), { type: 'build_road', path: SPUR, priority: 'high' },
+      { type: 'commit_works', zone: 1, priority: 'high' }]);
+    const o = s.worksOrders[1]!;
+    const started = s.cellWorks.filter((w) => w.order === o.id && w.workDone > 0).map((w) => w.cell);
+    const partial = s.cellWorks.filter((w) => w.order === o.id && w.stage === 'servicing').map((w) => w.cell);
+    expect(partial.length).toBeGreaterThan(0);
+    s = play(s, 1, rng, [{ type: 'remove_zone', zone: 1 }]);
+    const closed = s.worksOrders[1]!;
+    expect(liveOrder(closed)).toBe(false);
+    expect(s.cellWorks.filter((w) => w.order === undefined).map((w) => w.cell)).toEqual(started);
+    expect(unspentCommitments(s)).toBe(0);
+    checkOrders(s);
+    s = play(s, 1, rng, [guide(s), { type: 'commit_works', zone: s.nextZoneId }]);
+    const adopted = s.worksOrders.at(-1)!;
+    expect(s.cellWorks.filter((w) => partial.includes(w.cell)).every((w) => w.order === adopted.id)).toBe(true);
+    expect(adopted.unitsTotal).toBeLessThan(36 * WORKS.service.units_per_cell);
+  });
+});
+
+describe('R2 works are saved and replayed', () => {
+  it('matches an uninterrupted run after save, load and continue, and replays from the action log', () => {
+    const run = (k: number) => {
+      const rng = new Rng(9);
+      const s0 = funded();
+      const mid = play(s0, k, rng, [guide(s0), { type: 'build_road', path: SPUR, priority: 'high' },
+        { type: 'commit_works', zone: 1, cells: PHASE }]);
+      return { mid, rng };
+    };
+    const full = run(20);
+    const text = saveToJson(saveGame(full.mid, full.rng, content));
+    const half = run(8);
+    expect(half.mid.worksOrders.some((o) => o.stage === 'working')).toBe(true);
+    const loaded = loadGame(saveFromJson(saveToJson(saveGame(half.mid, half.rng, content))));
+    expect(loaded.header.content.network_sha256).toBe(content.network_sha256);
+    const end = play(loaded.state, 12, loaded.rng);
+    expect(saveToJson(saveGame(end, loaded.rng, content))).toBe(text);
+    const rng = new Rng(9);
+    const again = replay(funded(), full.mid.actionLog, 20, rng, STEPS);
+    expect(saveToJson(saveGame(again, rng, content))).toBe(text);
+  });
+});

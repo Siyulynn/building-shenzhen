@@ -22,7 +22,11 @@ export interface TickContext {
  * A tick step. `act`, if present, owns turn actions beyond the core ones (§5.6): it returns true when it applied one,
  * and throws when the action is its kind but invalid.
  */
-export interface TickStep { name: string; run(ctx: TickContext): void; act?(state: GameState, action: PlayerAction): boolean }
+export interface TickStep {
+  name: string; run(ctx: TickContext): void; act?(state: GameState, action: PlayerAction): boolean;
+  /** R2 (b&c §13.2): called after every applied turn action, so a step can follow edits it does not own */
+  afterAction?(state: GameState, action: PlayerAction): void;
+}
 
 export type StepResult =
   | { status: 'advanced'; state: GameState; events: SimEvent[]; stats: MonthStats }
@@ -68,8 +72,8 @@ export const TICK_STEPS: readonly TickStep[] = Object.freeze([
 const log = (s: GameState, action: PlayerAction) =>
   s.actionLog.push({ date: s.date, subStep: s.subStep, action: JSON.parse(JSON.stringify(action)) as PlayerAction });
 
-/** A turn action (§4, §5.1): validated, applied and logged. */
-function applyTurnAction(s: GameState, action: PlayerAction, steps: readonly TickStep[]): void {
+/** A turn action (§4, §5.1): validated, applied and logged. Exported for previews, which apply to a clone. */
+export function applyTurnAction(s: GameState, action: PlayerAction, steps: readonly TickStep[]): void {
   if (action.type === 'set_enforcement') {
     if (!(ENFORCEMENT_LEVELS as readonly string[]).includes(action.level)) throw new Error(`unknown enforcement ${action.level}`);
     s.policy.enforcement = action.level;
@@ -81,6 +85,7 @@ function applyTurnAction(s: GameState, action: PlayerAction, steps: readonly Tic
   } else if (!steps.some((st) => st.act?.(s, action))) {
     throw new Error(`unknown action type ${(action as { type: string }).type}`);
   }
+  for (const st of steps) st.afterAction?.(s, action);
   log(s, action);
 }
 
