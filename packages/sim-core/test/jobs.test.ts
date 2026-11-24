@@ -221,6 +221,18 @@ describe('R4: construction jobs during works', () => {
   });
 });
 
+describe('R4: at rest', () => {
+  it('the start on the map stays at rest: no one moves, nobody is turned away, no post appears', () => {
+    const s0 = initial();
+    const end = walk(s0, 36, new Rng(6), createTickSteps(params, { network: TICK.network!, buildable: TICK.buildable! }), checkInvariants);
+    expect(end.pops.map((g) => g.size)).toEqual(s0.pops.map((g) => g.size));
+    expect(end.history.turnedAway.every((n) => n === 0)).toBe(true);
+    expect(end.history.servicePosts.every((n) => n === 0)).toBe(true);
+    expect(end.history.vacancies.every((n) => n === 0)).toBe(true);
+    expect(end.labour.wage).toEqual(s0.labour.wage);
+  });
+});
+
 describe('R4: saves', () => {
   it('save, load and continue matches an uninterrupted run; a version 4 save loads and rematches', () => {
     const s = landed([{ use: 'industrial', runs: CONNECTED }]);
