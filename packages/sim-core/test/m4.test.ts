@@ -102,7 +102,7 @@ describe('M4: the ledger', () => {
       expect(F.ledger.filter((e) => e.account === 'general').reduce((a, e) => a + e.amount, params.fiscal.start_balances.general))
         .toBe(F.balances.general);
     }
-  });
+  }, 20_000);   // three 63-month runs: about 2 s alone, near the 5 s default while the whole suite runs in parallel
 
   it('never deadlocks: with no revenue, no reserve and no capacity, the month closes in arrears', () => {
     const p = withFiscal({ county_base_revenue_per_month: 0, provincial_base_grant_per_year: 0,
