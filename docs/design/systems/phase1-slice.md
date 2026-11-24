@@ -1548,6 +1548,76 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 - **The leaders panel:** the two portraits (placeholders), rapport, the mandate, hints of discipline risk.
 - **The review panel:** targets vs actuals during the year.
 
+### 11.1 The browser app (M6c)
+`apps/slice-ui` is a Vite app in plain TypeScript, the DOM and one canvas. Run it with `npm run slice:ui` (port 5174; Spike A keeps 5173).
+- **The canvas:** it copies Spike A's technique rather than its code. Each layer is an offscreen ImageData at one pixel per 100 m cell, drawn under one pan-and-zoom transform. `apps/map-spike` stays as it is.
+- **Loading:** the same `compileSlice` as the CLI and the tests (§5.9).
+  - Vite imports each `SLICE_FILES` path as raw text.
+  - It parses with `yaml` and hashes with a pure-JS sha256 (`src/sha256.ts`).
+  - The browser's `slice.content` equals the node loader's.
+- **The base map** draws from committed data only: the areas file (`data/starts/slice_areas.json`) and the buildable layer, fitted to the slice's bounding box.
+  - Terrain and water draw under it only when the git-ignored Spike A grid (`apps/map-spike/public/grid/grid.bin`) is there. Without it the map draws on a flat ground.
+  - The 1979 site register and the imagery stay in Spike A.
+
+**The turn protocol** (`src/controller.ts`, pure, shaped like `playQuarters`). A session holds the state, the run's `Rng` (seed 1 unless the URL gives `?seed=`), the queued turn actions, and the state at the turn's start, for the briefing's deltas.
+- **At a turn's start** (sub-step 0):
+  - the player answers cards and queues turn actions;
+  - **End turn** sends the answers and the queue to `runQuarter`.
+- **`paused`:** a card that interrupts mid-quarter takes the screen. Only answers are sent, and **Continue** finishes the quarter. Turn actions are queued only at a turn's start. §5.1 refuses them while an interrupting card is pending, and the UI keeps them for the next turn's start.
+- **`turn_end`:** the next turn's start. Cards from the quarter's last month are in the stack.
+- **The end:** after the visit's month, the cards it raised are answered, and then the verdict screen shows `verdict()` and the reviews.
+- **On every status the session adopts the returned state.** A call that throws (an illegal action) leaves the session as it was, and the error shows. The queue is kept, so the player can remove the action at fault.
+- **Non-interrupting cards** wait in the stack until answered, or lapse (§5.8).
+- **Nothing calls `step` to preview.** Previews use sim-core's pure functions:
+  - `zoneCellsAllowed` for a drawn zone;
+  - `previewOffer` on an investor or shortcut card;
+  - `fiscalViews` and `moneyForProjects` for money;
+  - the readiness card's payload for the report.
+- **A zone drawn this turn** is known by the id it will get, `nextZoneId + k` for the k-th queued zone, as `cautious` does. Site preparation on it names that id.
+
+**Strings.** Each string has its English and Simplified Chinese side by side.
+- **Content names come from content:** events and their options, investors, projects, teams, regimes, areas, leaders, and zones through `zoneLabel`.
+- **The UI's own strings are in `src/strings.ts`:** the system cards (investor, shortcut, loan, deficit, review, failure) and their options, and the panel labels.
+  - They describe mechanics, never history: no dates, figures, names or claims.
+  - The briefing shows the sim's own deltas and content names only.
+- **An option with an argument** (`accept:zone:<id>`, `accept:premises:<area>`) is labelled with that zone's label or area's name.
+
+**The screens** (`src/views.ts`, pure, tested; `src/main.ts` only renders them):
+- **The turn screen:**
+  - the briefing: the quarter, then residents, present non-locals, firm jobs, the quarter's GDP and money for projects, each with its change since the turn's start;
+  - the card stack, each card with its options and, for investors, the preview;
+  - the queued actions, each removable;
+  - End turn or Continue.
+- **The panels of §11:**
+  - **the ledger:** `fiscalViews`' three views, obligations by kind, each loan's outstanding principal and schedule, and the forex quota;
+  - **the area panel:** pops by kind, beds and occupants, jobs and filled posts by sector, utilities, facilities and the illegal floor share;
+  - **the leaders panel:** names, roles, traits, rapport, standing, discipline risk shown as low, medium or high, and the shortcuts on record;
+  - **the review panel:** this year's targets against `indicatorValue`, and each review held.
+- **Controls:**
+  - enforcement and the permit regime;
+  - drawing a zone: pick a use, drag a rectangle, and the queue holds `zoneCellsAllowed`'s clip of it;
+  - applying a zone of the historical template (`templateZoneAction`);
+  - removing a zone;
+  - committing a project to an area or a zone, at a priority;
+  - cancelling a project;
+  - contracting a team in pool mode.
+- **Map overlays:**
+  - land use (zones by use, the queued zones outlined);
+  - the real illegal floor share, by area;
+  - occupancy (rental crowding, by area);
+  - the service gap;
+  - buildable and serviced land.
+
+  `serviceGap` is never set in Phase 1, so its overlay reads zero, and the area panel lists the facilities instead.
+- **Out of M6c:** save and load, replay, renaming and editing zones (remove one and draw it again), the imagery layers, animation and phone layouts.
+
+**Tests** (`apps/slice-ui/test/`):
+- `sha256.ts` matches `node:crypto` on test vectors, and the browser loader's `slice.content` equals the node loader's.
+- The controller, driven by each golden policy (its turn actions at each turn's start, its answers when paused), ends with a `runSummary` equal to its golden file.
+- Every card and option raised in the five golden policies and seeds 1–5 has a non-empty zh and en label.
+- A drawn zone's preview equals the zone's runs after End turn. A throwing action leaves the session as it was.
+- Each overlay's colour for a cell reads its area's value.
+
 ---
 
 ## 12. Build order (small commits, one system at a time)
@@ -1565,7 +1635,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 | M6 | The CLI, golden runs, the plausibility report; the 2D UI on the Spike A canvas. Built in three parts | All five exit criteria can be checked |
 | M6a | One way to load the slice, the bands and measures, the `cautious`, `aggressive` and random policies, the CLI and its report, the golden runs, the property and speed tests (§5.9) | The §5.9 tests pass; the report checks criteria 1–5 on any run. No balance changes. *Status:* done. Run `npm run slice -- run --policy <name>` for a report and `npm run golden:update` after a change that moves a golden run. Code: `packages/sim-core/src/{content,calibration,play,summary,policies}.ts`, `apps/cli/`; tests: `test/m6a.test.ts`, `apps/cli/test/cli.test.ts` |
 | M6b | The balance pass: named params only, with a tuning log, driven by M6a's report | The report's findings are fixed or recorded as structural. M5b's calibration properties still hold (§5.8). *Status:* findings recorded (§5.10); held for decisions on the slice's scale (options A–C) |
-| M6c | The 2D UI on the Spike A canvas (§11) | A person can play all 21 quarters in the browser, from the first card to the visit's verdict |
+| M6c | The 2D UI on the Spike A canvas (§11, §11.1) | The §11.1 tests pass. A person can play all 21 quarters in the browser, from the first card to the visit's verdict |
 | Playtest | Several full playthroughs; notes in `docs/playtests/` | You want to play it again |
 
 ---
