@@ -9,7 +9,7 @@
   kind: snapshot
   at_end_of: 1980-Q2
   roles: [prologue_goal, start_1980q3]
-  start_note: A 1980-Q3 start enters with the SEZ announcement card on top of the stack.
+  start_note: A 1980-Q3 start enters at 1980-07; the SEZ announcement card arrives in its second month (1980-08).
   save:
     placeholder: true                       # no file is checked in: packages/sim-core/test/m5b.test.ts generates the
                                             # save with sim-core's format and checks every band below (§5.8)

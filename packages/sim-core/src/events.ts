@@ -56,7 +56,8 @@ export type EventTrigger =
   | { monthOfYear: number }                                        // recurring: every year in that month
   | { hazard: number; monthsOfYear?: number[]; fromTurn?: number; guaranteedByTurn?: number; condition?: EventCondition }
   | { condition: EventCondition };
-export interface EventCard { interrupting: boolean; options: { id: string; name: LocalizedString }[] }
+/** lapse: the option taken when a non-interrupting card expires unanswered (§5.8); without it, nothing happens. */
+export interface EventCard { interrupting: boolean; options: { id: string; name: LocalizedString }[]; lapse?: string }
 /** One record of content/slice/events.yaml, compiled. Content, never state. */
 export interface EventDef {
   id: string; name: LocalizedString; family: 'anchor' | 'scripted' | 'recurring' | 'emergent' | 'milestone';
@@ -117,6 +118,9 @@ function triggerOf(r: Record<string, any>): { trigger: EventTrigger; recurring: 
         throw new Error(`${r.id}: months_of_year must list months 0..11`);
       }
       for (const k of ['from_turn', 'guaranteed_by_turn']) if (t[k] !== undefined && !wholeOk(t[k])) throw new Error(`${r.id}: ${k} must be a whole number`);
+      if (t.guaranteed_by_turn !== undefined && t.from_turn !== undefined && t.guaranteed_by_turn < t.from_turn) {
+        throw new Error(`${r.id}: guaranteed_by_turn must not come before from_turn`);
+      }
       return { trigger: { hazard: t.hazard,
         ...(t.months_of_year ? { monthsOfYear: [...t.months_of_year] } : {}),
         ...(t.from_turn !== undefined ? { fromTurn: t.from_turn } : {}),
@@ -162,6 +166,11 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
       }
       if (typeof r.card.interrupting !== 'boolean') throw new Error(`${r.id}: card.interrupting must be true or false`);
       card = { interrupting: r.card.interrupting, options: opts.map((o: any) => ({ id: o.id, name: { zh: o.name.zh, en: o.name.en } })) };
+      if (r.card.lapse !== undefined) {
+        if (card.interrupting) throw new Error(`${r.id}: an interrupting card never lapses`);
+        if (!card.options.some((o) => o.id === r.card.lapse)) throw new Error(`${r.id}: card.lapse ${r.card.lapse} is not an option`);
+        card.lapse = r.card.lapse;
+      }
     }
     const effects = effectsOf(r.effects, r.id, 'effects');
     const onAnswer = effectsOf(r.on_answer, r.id, 'on_answer');
@@ -176,6 +185,9 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
       if (e.kind === 'offer') {
         if (!investors.some((a) => a.id === e.archetype)) throw new Error(`${r.id}: unknown archetype ${e.archetype}`);
         if (!num?.jobs) throw new Error(`${r.id}: params.events.${r.id}.jobs is not set`);
+        if (e.terms && num.tax_holiday_months === undefined && num.land_fee_factor === undefined) {
+          throw new Error(`${r.id}: an offer with terms needs params.events.${r.id}.tax_holiday_months or land_fee_factor`);
+        }
       }
       if (fiscal) {
         if (e.kind === 'set_regime' && !fiscal.regimes.some((x) => x.id === e.regime)) throw new Error(`${r.id}: unknown regime ${e.regime}`);
@@ -221,17 +233,20 @@ export function readinessReport(s: GameState, p: SliceParams, buildable?: Builda
 }
 
 /**
- * The budget card (§5.8): this year's grant factor and the recurring balance at last month's rate, with the
- * four-quarter warning when the regime's grant schedule changes within the next 12 months. Read from content.
+ * The budget card (§5.8): this year's grant factor and the recurring balance at last month's rate with this month's
+ * grant, plus the four-quarter warning when the regime's grant schedule cuts the factor within the next 12 months:
+ * the coming factor and the balance at that grant. The card fires before this month's finance, so last month's grant
+ * (the ledger's) is swapped for this month's (the schedule's). Read from content.
  */
 export function budgetReport(s: GameState, p: SliceParams, fc: FiscalContent) {
   const r = regimeOf(s, fc), now = grantFactor(r, s.date);
-  const recurring = fiscalViews(s, p).recurring.available;
+  const perMonth = p.fiscal.provincial_base_grant_per_year / 12;
+  const grantNow = perMonth * now;
+  const lastGrant = s.fiscal.ledger.reduce((a, e) => a + (e.date === s.date - 1 && e.type === 'grant' ? e.amount : 0), 0);
+  const recurring = s.history.months.length ? fiscalViews(s, p).recurring.available - lastGrant + grantNow : 0;
   const cut = r.grantSchedule.find((e) => e.from > s.date && e.from <= s.date + 12 && e.factor < now);
-  const grantNow = (p.fiscal.provincial_base_grant_per_year / 12) * now;
   return { grantFactor: now, recurring,
-    ...(cut ? { warning: { from: cut.from, factor: cut.factor,
-      recurringAfter: recurring - (now > 0 ? grantNow * (1 - cut.factor / now) : 0) } } : {}) };
+    ...(cut ? { warning: { from: cut.from, factor: cut.factor, recurringAfter: recurring - grantNow + perMonth * cut.factor } } : {}) };
 }
 
 /** Tick step 2 (§5.7, §5.8): expire event cards, apply this month's answers, then fire the events that are due. */
@@ -248,6 +263,7 @@ export function events(p: SliceParams, content: {
     const ev = (kind: string, detail: Record<string, unknown>) => ctx.events.push({ step: 'events', kind, detail });
     const num = (d: EventDef, f: string) => (p.events[d.id] as Record<string, number>)[f]!;
     const expiry = () => s.date + (3 - s.subStep);                // a non-interrupting card stays to the next turn
+    let cofinanced: number | undefined;                           // set by cofinance, taken by the next offer
 
     /** Apply one effect; a card-report effect returns its piece of the card's payload. */
     const apply = (d: EventDef, e: EventEffect, option?: string): Record<string, unknown> | undefined => {
@@ -256,6 +272,8 @@ export function events(p: SliceParams, content: {
           const a = archetypes.find((x) => x.id === e.archetype);
           if (!a) throw new Error(`${d.id}: no investor archetype ${e.archetype}`);
           const inst = raiseOffer(ctx, 'events', a, num(d, 'jobs'), p, content.buildable);
+          // the co-financed project of the same answer is the deal's: declining the investor withdraws it
+          if (cofinanced !== undefined) { inst.payload = { ...inst.payload, cofinanced }; cofinanced = undefined; }
           if (e.terms) {
             const terms: FirmTerms = {};
             const n = p.events[d.id]!;
@@ -314,7 +332,8 @@ export function events(p: SliceParams, content: {
           return undefined;
         case 'cofinance':
           if (!fc) return undefined;
-          ev('cofinanced', { project: commitCofinanced(s, p, fc, e.template, e.area).id, by: d.id });
+          cofinanced = commitCofinanced(s, p, fc, e.template, e.area).id;
+          ev('cofinanced', { project: cofinanced, by: d.id });
           return undefined;
         case 'contract_team':
           if (fc) tryFiscal(d, { type: 'contract_team', team: e.team, mode: 'pool' });
@@ -332,7 +351,7 @@ export function events(p: SliceParams, content: {
           addObligation(s, { kind: 'transfer', perMonth: p.sweep.cash_cost, index: 'none', from: s.date, until: s.date,
             createdBy: d.id });
           for (const g of s.pops) if (g.registration === 'nonlocal') g.mood = Math.max(0, g.mood - p.sweep.mood_penalty);
-          s.sweep = { active: true, monthsLeft: p.sweep.campaign_months };
+          s.sweep = { until: s.date + p.sweep.campaign_months - 1 };
           ev('sweep', { months: p.sweep.campaign_months });
           return undefined;
         case 'veto':
@@ -345,7 +364,7 @@ export function events(p: SliceParams, content: {
       }
     };
     const tryFiscal = (d: EventDef, a: Parameters<typeof applyFiscalAction>[3]) => {
-      try { applyFiscalAction(s, p, fc!, a, content.buildable); ev('event_action', { action: a.type, by: d.id }); }
+      try { applyFiscalAction(s, p, fc!, a, content.buildable, true); ev('event_action', { action: a.type, by: d.id }); }
       catch (err) { ev('event_action_failed', { action: a.type, by: d.id, reason: (err as Error).message }); }
     };
 
@@ -368,12 +387,18 @@ export function events(p: SliceParams, content: {
       ev('first_wave', { cards: raisedCards, readiness: bar, by: d.id });
     };
 
-    // 1. event cards past their expiry leave
+    // 1. event cards past their expiry leave; a card with a lapse option takes it, so ignoring a crisis is a choice
+    const lapsed: { d: EventDef; option: string }[] = [];
     s.pendingCards = s.pendingCards.filter((c: CardInstance) => {
       if (!byId.has(c.card) || c.expires === undefined || s.date < c.expires) return true;
-      ev('event_card_lapsed', { card: c.id });
+      const d = byId.get(c.card)!;
+      ev('event_card_lapsed', { card: c.id, ...(d.card?.lapse ? { option: d.card.lapse } : {}) });
+      if (d.card?.lapse) lapsed.push({ d, option: d.card.lapse });
       return false;
     });
+    for (const { d, option } of lapsed) {
+      for (const e of d.onAnswer) if (e.option === undefined || e.option === option) apply(d, e, option);
+    }
 
     // 2. this month's answers: on_answer effects in order, a per-option effect only for its option
     for (const { card, option } of s.answered) {

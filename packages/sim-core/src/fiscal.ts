@@ -69,7 +69,8 @@ export interface Regime {
   grantSchedule: { from: YM; factor: number }[];
 }
 export interface ProjectTemplate { id: string; name: LocalizedString; kind: ProjectKind; target: 'area' | 'zone' }
-export interface TeamTemplate { id: string; name: LocalizedString; modes: TeamMode[] }
+/** eventOnly: contracted only by an event (§5.8), never by the player's contract_team. */
+export interface TeamTemplate { id: string; name: LocalizedString; modes: TeamMode[]; eventOnly?: true }
 /** content/slice/fiscal_regimes.yaml, projects.yaml and teams.yaml, compiled. Content, never state. */
 export interface FiscalContent { regimes: Regime[]; projects: ProjectTemplate[]; teams: TeamTemplate[] }
 
@@ -131,7 +132,8 @@ export function compileFiscal(raw: { regimes: unknown; projects: unknown; teams:
     const modes = Array.isArray(r.modes) ? r.modes : [];
     if (!modes.length || modes.some((m: string) => m !== 'pool' && m !== 'dedicated')) throw new Error(`${r.id}: modes must be pool and/or dedicated`);
     if (!p.teams[r.id]) throw new Error(`${r.id}: params.teams has no entry for it`);
-    return { id: r.id, name: nameOf(r, r.id), modes: [...modes] };
+    if (r.event_only !== undefined && typeof r.event_only !== 'boolean') throw new Error(`${r.id}: event_only must be true or false`);
+    return { id: r.id, name: nameOf(r, r.id), modes: [...modes], ...(r.event_only ? { eventOnly: true as const } : {}) };
   });
   return { regimes, projects, teams };
 }
@@ -311,7 +313,7 @@ const findProject = (s: GameState, id: number) => {
 
 /** Validate and apply a project or team action; throws on an invalid one, like a zone action. */
 export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalContent, a: PlayerAction,
-  buildable?: { cells: Uint32Array }): void {
+  buildable?: { cells: Uint32Array }, fromEvent = false): void {
   const F = s.fiscal;
   if (a.type === 'commit_project') {
     const t = fc.projects.find((x) => x.id === a.template);
@@ -361,6 +363,7 @@ export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalConten
   } else if (a.type === 'contract_team') {
     const t = fc.teams.find((x) => x.id === a.team);
     if (!t) throw new Error(`no team ${a.team}`);
+    if (t.eventOnly && !fromEvent) throw new Error(`${t.id} arrives only with its event`);
     if (!t.modes.includes(a.mode)) throw new Error(`${t.id} does not work in ${a.mode} mode`);
     if (F.contracts.some((c) => c.team === t.id && contractLive(s, c))) throw new Error(`${t.id} already has a live contract`);
     const tp = p.teams[t.id]!;
@@ -401,6 +404,16 @@ export function commitCofinanced(s: GameState, p: SliceParams, fc: FiscalContent
     cofinanced: true };
   F.projects.push(x);
   return x;
+}
+
+/** Withdraw a co-financed project whose investor walked away (§5.8): cancelled, with no penalty, as it cost nothing. */
+export function withdrawCofinanced(s: GameState, project: number): boolean {
+  const x = s.fiscal.projects.find((q) => q.id === project);
+  if (!x || !x.cofinanced || !liveProject(x)) return false;
+  x.stage = 'cancelled';
+  delete x.waiting;
+  for (const c of s.fiscal.contracts) if (c.project === x.id && c.ends === undefined) c.ends = s.date;
+  return true;
 }
 
 /** A contract is live from signing until it ends (a dedicated one until its project is done or cancelled). */

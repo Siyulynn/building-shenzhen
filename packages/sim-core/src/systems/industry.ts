@@ -45,7 +45,7 @@ export function firmTerms(p: SliceParams, archetype: string, shortcut?: string, 
   const holiday = base + (shortcut ? p.shortcut.extra_tax_holiday_months : 0);
   if (holiday > 0) t.taxHolidayMonths = holiday;
   if (concession?.landFeeFactor !== undefined) t.landFeeFactor = concession.landFeeFactor;
-  if (shortcut) { t.landFeeFactor = p.shortcut.land_fee_factor; t.shortcut = shortcut; }
+  if (shortcut) { t.landFeeFactor = Math.min(t.landFeeFactor ?? 1, p.shortcut.land_fee_factor); t.shortcut = shortcut; }
   return Object.keys(t).length ? t : undefined;
 }
 

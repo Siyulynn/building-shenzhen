@@ -5,7 +5,8 @@
 # { condition: c } for a milestone. Never a year in code. requires / until: an unlock key that must be set, or not yet.
 # effects apply when the event fires; on_answer effects apply the month after its card is answered, an effect with
 # option: only for that option. Effect numbers are in params/slice.yaml under events.<id>.
-# Card options: the headless default first. A card that only reports offers `noted`.
+# Card options: the headless default first. A card that only reports offers `noted`. card.lapse: the option a
+# non-interrupting card takes when it expires unanswered (a crisis cannot be ignored for free).
 
 - id: event.first_processing_contract
   name: { zh: 第一份来料加工合同, en: Our first processing contract }
@@ -34,7 +35,7 @@
   effects:
     - { kind: readiness_check }          # the card carries the report and the first wave's forecast
   card:
-    interrupting: false
+    interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:
       - { id: noted, name: { zh: 知道了, en: Noted } }
       - { id: rush, name: { zh: 抢工期, en: Rush the works } }
@@ -69,7 +70,7 @@
   family: scripted
   trigger: { prologue_turn: 0 }          # 1979-Q1: meet the pair, choose the first project toward Luohu (§2.1)
   card:
-    interrupting: false
+    interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:
       - { id: project.road_link, name: { zh: 修通往罗湖的路, en: A road toward Luohu } }
       - { id: project.water_main, name: { zh: 铺设供水管道, en: A water main } }
@@ -108,7 +109,7 @@
   effects:
     - { kind: unlock, key: scrutiny.gauge }
   card:
-    interrupting: false
+    interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:
       - { id: standard, name: { zh: 照章审批, en: Standard approvals } }
       - { id: loose, name: { zh: 先建后批, en: "Build first, approve later" } }
@@ -123,6 +124,7 @@
   trigger: { hazard: 0.15, months_of_year: [6, 7, 8], from_turn: 2, guaranteed_by_turn: 2, recurring: true }
   card:
     interrupting: false
+    lapse: defer                         # ignored, it is that choice
     options:
       - { id: repair, name: { zh: 立即抢修, en: Repair now } }
       - { id: defer, name: { zh: 暂缓修复, en: Leave it for now } }
@@ -139,7 +141,7 @@
   effects:
     - { kind: contract_team, team: team.corps_advance }
   card:
-    interrupting: false
+    interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:
       - { id: quarters, name: { zh: 盖临时营房, en: Build them quarters } }
       - { id: tents, name: { zh: 先住竹棚帐篷, en: Bamboo sheds and tents } }
@@ -157,7 +159,7 @@
   effects:
     - { kind: offer_loan }               # the state bank's project loan (§5.6), unless taken or pending
   card:
-    interrupting: false
+    interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:
       - { id: decline, name: { zh: 婉拒, en: Decline } }
       - { id: accept, name: { zh: 接受合作建设, en: Accept the co-financing } }
@@ -321,6 +323,7 @@
     - { kind: veto, reason: order_check }   # that year's review fails its order check
   card:
     interrupting: false
+    lapse: noted                         # ignored, it is that choice
     options:
       - { id: compensate, name: { zh: 抚恤整改, en: Compensate and refit } }
       - { id: noted, name: { zh: 低调处理, en: Keep it quiet } }
@@ -336,6 +339,7 @@
   until: investors.sez                   # before the SEZ; the outflow itself is not modelled (§5.8)
   card:
     interrupting: false
+    lapse: noted                         # ignored, it is that choice
     options:
       - { id: patrols, name: { zh: 加强边防巡逻, en: More border patrols } }
       - { id: noted, name: { zh: 不予声张, en: Say nothing } }
@@ -351,6 +355,7 @@
   trigger: { hazard: 0.05, condition: site_preparation_committed, recurring: true }
   card:
     interrupting: false
+    lapse: noted                         # ignored, it is that choice
     options:
       - { id: compensate, name: { zh: 补足补偿, en: Top up the compensation } }
       - { id: noted, name: { zh: 按原方案, en: Keep to the plan } }

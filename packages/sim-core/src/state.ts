@@ -109,7 +109,7 @@ export interface LeaderContent { id: string; name: LocalizedString; role: Leader
 
 /** M5b (§5.8): the climate, the sweep, the reviews, falls from grace and the Hong Kong order shock. */
 export interface Climate { reformWind: number; scrutiny: number; overQuarters: number }
-export interface Sweep { active: boolean; monthsLeft: number }
+export interface Sweep { until?: YM }                 // a campaign runs from its answer's month through until
 export interface ReviewRecord { index: number; date: YM; lightweight: boolean; score: number; pass: boolean; caught: boolean;
   vetoed?: string; items: { indicator: string; value: number; score: number }[] }
 export interface ReviewsState { held: ReviewRecord[]; vetoes: { date: YM; reason: string }[] }
@@ -244,7 +244,7 @@ export function emptyHistory(): History {
 export function compileLeaders(raw: unknown): LeaderContent[] {
   if (!Array.isArray(raw)) throw new Error('leaders: expected a list');
   const seen = new Set<string>();
-  return raw.map((r: Record<string, any>, i) => {
+  const out = raw.map((r: Record<string, any>, i): LeaderContent => {
     if (typeof r?.id !== 'string' || !r.id) throw new Error(`leaders[${i}]: id is missing`);
     if (seen.has(r.id)) throw new Error(`leaders: duplicate id ${r.id}`);
     seen.add(r.id);
@@ -254,12 +254,17 @@ export function compileLeaders(raw: unknown): LeaderContent[] {
     const traits = Array.isArray(r.traits) ? r.traits : [];
     for (const t of traits) if (!(LEADER_TRAITS as readonly string[]).includes(t)) throw new Error(`${r.id}: unknown trait ${t}`);
     if (!(typeof r.rapport === 'number' && r.rapport >= -100 && r.rapport <= 100)) throw new Error(`${r.id}: rapport must be in [-100, 100]`);
-    if (r.replacement_for !== undefined && r.replacement_for !== 'secretary' && r.replacement_for !== 'mayor') {
-      throw new Error(`${r.id}: replacement_for must be secretary or mayor`);
+    if (r.replacement_for !== undefined && r.replacement_for !== r.role) {
+      throw new Error(`${r.id}: replacement_for must be its own role (${r.role})`);
     }
     return { id: r.id, name: { zh: r.name.zh, en: r.name.en }, role: r.role as LeaderRole, traits: [...traits], rapport: r.rapport,
       ...(r.replacement_for ? { replacementFor: r.replacement_for as LeaderRole } : {}) };
   });
+  // one Secretary and one Mayor in office (leadership §6); the bench holds the rest
+  for (const role of ['secretary', 'mayor'] as const) {
+    if (out.filter((l) => l.role === role && !l.replacementFor).length > 1) throw new Error(`leaders: more than one ${role} in office`);
+  }
+  return out;
 }
 
 export function createInitialState(content: {
@@ -374,7 +379,7 @@ export function createInitialState(content: {
       bench: (content.leaders ?? []).filter((l) => l.replacementFor).map(toLeader),
     },
     climate: { reformWind: params.climate.reform_wind, scrutiny: 0, overQuarters: 0 },
-    sweep: { active: false, monthsLeft: 0 },
+    sweep: {},
     reviews: { held: [], vetoes: [] },
     falls: [],
     orders: { factor: 1 },

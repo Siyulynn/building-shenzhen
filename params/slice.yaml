@@ -193,7 +193,7 @@ shortcut:                                # the deal-maker's shortcut card (leade
 
 # ---- M5b (§5.8): the climate, the sweep, the annual review and the fall from grace. Placeholder design guesses ----
 climate:
-  reform_wind: 50                        # §6.9's backdrop; flat in the slice
+  reform_wind: 0                         # §5's exogenous series in -1..1 (§6.9); flat and neutral in the slice
   scrutiny_decay: 0.05                   # share of scrutiny that fades each month
   failure_threshold: 80                  # quarters ending above this count toward the failure state
   failure_quarters: 4

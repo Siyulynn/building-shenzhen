@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import {
   LOAN_CARD, REVIEW_CARD, Rng, baselineDue, createInitialState, createTickSteps, debtServiceAt, declineAll, dueNextYear,
   historicalPrologue, isFinished, isLive, loadGame, obligationDue, parseYM, readiness, realIllegalShare, regimeOf, replay,
-  runMonths, saveFromJson, saveGame, saveToJson, step, validateParams, visibleIllegalShare, FAILURE_CARD,
+  runMonths, runQuarter, saveFromJson, saveGame, saveToJson, step, sweepActive, validateParams, visibleIllegalShare, FAILURE_CARD,
   type CardInstance, type DecisionPolicy, type GameState, type PlayerAction, type SimEvent, type SliceParams, type TickStep,
 } from '../src/index.js';
 import {
@@ -245,8 +245,9 @@ describe('M5b: each year\'s review forces a trade-off', () => {
   it('the sweep lowers the visible share and migrant mood, at a cost', () => {
     const r = sweepRun(params);
     const before = r.states[october]!, after = r.states[october + 1]!;
-    expect(before.sweep.active).toBe(false);
-    expect(after.sweep.active).toBe(true);
+    expect(sweepActive(before)).toBe(false);
+    expect(sweepActive(after)).toBe(true);
+    expect(after.sweep.until).toBe(START + october + params.sweep.campaign_months);
     expect(realIllegalShare(after)).toBeGreaterThan(0);
     expect(visibleIllegalShare(after, params)).toBeCloseTo(realIllegalShare(after) * (1 - params.sweep.visible_cut), 12);
     for (const g of after.pops.filter((x) => x.registration === 'nonlocal')) {
@@ -409,6 +410,10 @@ describe('M5b: the closing visit', () => {
       expect(r.states.length).toBe(LAST + 1);
       expect(r.state.ended).toEqual({ date: START + LAST, reason: 'visit' });
       expect(isFinished(r.state)).toBe(true);
+      // the visit's month stops at the events step: the final state is end-1983, with no card from later steps
+      expect(r.state.date).toBe(START + LAST);
+      expect(r.state.history.months.at(-1)).toBe(START + LAST - 1);
+      expect(r.state.pendingCards.filter((c) => c.interrupting).map((c) => c.card)).toEqual(['event.deng_visit']);
       const card = r.state.pendingCards.find((c) => c.card === 'event.deng_visit')!;
       expect(card.interrupting).toBe(true);
       const v = card.payload!.verdict as { fiscalTest: { revenuePerYear: number; dueNext12: number; balance: number; grantFactor: number } };

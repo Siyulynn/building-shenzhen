@@ -117,6 +117,10 @@ export function step(state: GameState, actions: readonly PlayerAction[], rng: Rn
 
   const events: SimEvent[] = [];
   let raised = 0;
+  // an end set by the events step (the closing visit, §5.8) stops the month there: the final state is the previous
+  // month's, its date stays, and only the cards raised so far are left to answer
+  const endedBefore = s.ended !== undefined;
+  let halted = false;
   for (const st of steps) {
     const ctx: TickContext = {
       state: s, rng: rng.stream(st.name), events,
@@ -130,10 +134,12 @@ export function step(state: GameState, actions: readonly PlayerAction[], rng: Rn
       },
     };
     st.run(ctx);
+    if (st.name === 'events' && !endedBefore && s.ended !== undefined) { halted = true; break; }
   }
   s.answered = [];                                       // every system has seen this month's answers
 
   const stats: MonthStats = { date: s.date };
+  if (halted) return { status: 'advanced', state: s, events, stats };
   s.date += 1;
   if (s.subStep === 2) { s.subStep = 0; s.turn += 1; } else s.subStep = (s.subStep + 1) as SubStep;
   return { status: 'advanced', state: s, events, stats };

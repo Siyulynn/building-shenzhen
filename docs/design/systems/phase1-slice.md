@@ -210,7 +210,7 @@ interface PopGroup { area: number; kind: PopKind;
 // size === stayedSixMonths + Σ underSix, always (§5.2)
 interface Climate { reformWind: number /* −1..1, exogenous series */; scrutiny: number /* 0..100 */ }
 interface Readiness { roads: number; servicedLand: number; waterPower: number }   // each 0..1; the bar is their weighted mean (§7.1)
-interface Sweep { active: boolean; monthsLeft: number }  // the visible vs real gap itself is leadership §4.4's
+interface Sweep { until?: YM }  // active from its answer through until; the visible vs real gap itself is leadership §4.4's
 ```
 - **The five pop kinds** are fixed combinations of PLAN §3.2's attributes. Villagers hold local rural hukou and village membership. Urban residents hold local hukou (state units, the town). Factory and construction migrants hold non-local hukou. Hong Kong managers are `hmt`. The three population counts (registered, resident, present) are filtered sums, as in PLAN §3.2.
 - **Six building archetypes:** village house, village rental block, standard factory (标准厂房), dormitory, state-unit flats, shop or market. Public facilities are tracked as facility capacity on the area.
@@ -994,16 +994,16 @@ M5b fills the slice's calendar on M5a's events step: the prologue beats, the rem
   - `set_permit`: the answered option is a permit regime;
   - `commit_choice { area }`: the answered option is a project template, committed in that area. An option that is not a template commits nothing;
   - `offer_loan`: raise the project loan's card (§5.6) unless it is taken or pending;
-  - `cofinance { template, area }`: commit that project with a budget of 0, paid by the investor: no forex, no spending, no maintenance;
+  - `cofinance { template, area }`: commit that project with a budget of 0, paid by the investor: no forex, no spending, no maintenance. The next `offer` of the same answer carries the project: if that investor declines, lapses or fails, the project is withdrawn (cancelled, with no penalty);
   - `offer` gains `terms: true`: a concession (`params.events.<id>.tax_holiday_months`, `land_fee_factor`) carried in the offer's payload and given to its firm. It replaces the archetype's tax holiday;
-  - `contract_team { team }`: sign a pool contract for that team (§5.6);
+  - `contract_team { team }`: sign a pool contract for that team (§5.6). A team marked `event_only` in `teams.yaml` (the corps' advance units) is contracted only this way, never by the player. If the team already has a live contract, nothing is signed;
   - `rush`: every live project becomes `high` priority;
   - `orders`: Hong Kong orders × `factor` for `months` months (`industry.order_index` × the factor in M3b's orders cap). The cap is never above a firm's jobs, so only a slump binds;
   - `budget_report`: the budget card's payload (below);
   - `sweep`: the sweep's campaign (below);
   - `veto { reason }`: that year's review fails (the fire's order check);
-  - `end_run`: the scenario ends after this month (`ended`), and the card carries the verdict. Its cards can still be answered, as for the last turn (§5.1).
-- **Cards.** A non-interrupting event card lapses at the start of the next turn, as M5a's. A card that only reports offers `noted`.
+  - `end_run`: the scenario ends (`ended`), and the card carries the verdict. **The month stops at the events step:** steps 3–14 do not run and the date does not advance, so the final state is the previous month's, and no later step raises a card (no deficit card from the zero grant). Its cards can still be answered, as for the last turn (§5.1).
+- **Cards.** A non-interrupting event card lapses at the start of the next turn, as M5a's. With `card.lapse: <option>`, a lapse takes that option's effects, so a crisis cannot be ignored for free (the typhoon lapses to `defer`; the fire, escapes and petition to `noted`). The prologue's decisions (the first project, the permit choice, the corps' advance, the co-financing, the readiness check) interrupt, so under quarterly turns each is answered in the quarter that raises it. A card that only reports offers `noted`.
 
 **The prologue beats** (§2.1). Each prologue quarter raises at least one card whose options lead to different states:
 
@@ -1031,13 +1031,13 @@ M5b fills the slice's calendar on M5a's events step: the prologue beats, the rem
   - escapes to Hong Kong before the SEZ (`cost` of patrols, or scrutiny). The escapes' population outflow is not modelled: it waits for an outflow channel in the migration step;
   - a village petition over compensation, once site preparation is committed (`cost`, or scrutiny);
   - Shekou poaching an investor: M5a's capture, shown as a card the first time it happens.
-- **The budget card** (`event.budget`, `month_of_year: 0`, recurring): this year's grant factor and the recurring balance at last month's rate. It carries **the four-quarter warning** when the regime's grant schedule cuts the factor in the next 12 months (after this month, up to 12 months on): the coming factor, and the recurring balance without the part of the grant that goes. Both are read from content (§6.7), so the warning appears on the 1982-Q1 card, and again in 1983-Q1.
+- **The budget card** (`event.budget`, `month_of_year: 0`, recurring): this year's grant factor and the recurring balance at last month's rate, with this month's grant in place of last month's (the card fires before this month's finance, so the year's first cut shows at once). It carries **the four-quarter warning** when the regime's grant schedule cuts the factor in the next 12 months (after this month, up to 12 months on): the coming factor, and the recurring balance at that factor's grant. Both are read from content (§6.7), so the warning appears on the 1982-Q1 card, and again in 1983-Q1.
 - **The closing visit** (`event.deng_visit`, anchor `date: 1984-01`, `phase1.event.deng_first_visit`). It fires in the events step of 1984-01, before that month's finance. So its scorecard is read from the end-1983 state. Its effects are `end_run`, then an interrupting card (`noted`) that shows only the documented fact of the visit (§7.2, PLAN §11) beside the game's own verdict.
 
 **State added by M5b.**
 ```ts
 interface Climate { reformWind: number; scrutiny: number; overQuarters: number }   // §5; reformWind is params.climate.reform_wind
-interface Sweep { active: boolean; monthsLeft: number }                             // §5
+interface Sweep { until?: YM }                       // §5; active while date <= until
 interface ReviewRecord { index: number; date: YM; lightweight: boolean; score: number; pass: boolean;
   caught: boolean; vetoed?: string; items: { indicator: string; value: number; score: number }[] }
 interface FallRecord { date: YM; leader: string; replacedBy: string; entangled: boolean }
@@ -1062,17 +1062,16 @@ interface ReviewsState { held: ReviewRecord[]; vetoes: { date: YM; reason: strin
   - the `scrutiny` effects of events.
 - **Reviews** move scrutiny too (below).
 - **The gains are read from this month's events** (`land_for_recurring` when not sanctioned, `offer_accepted` with a shortcut), so they need no state.
-- **The failure state:** at the end of each quarter, `overQuarters` counts the consecutive quarters ending above `failure_threshold`. At `failure_quarters` the run ends with `ended.reason = 'failure'` and the card `climate.failure` ("the experiment is declared a failure").
-- **The sweep's clock** runs here too: a campaign is active for `campaign_months` months from the month it is answered.
+- **The failure state:** at the end of each quarter, `overQuarters` counts the consecutive quarters ending above `failure_threshold`. At `failure_quarters` the run ends with `ended.reason = 'failure'` and the interrupting card `climate.failure` ("the experiment is declared a failure").
 
 **The sweep** (§6.8, leadership §4.4).
 - **The card:** `event.sweep`, a recurring event in October with options `no_sweep` (the default) or `sweep`. It interrupts, so its answer lands in November, before the review. Sweeping costs `sweep.cash_cost` (a one-month transfer) and lowers every migrant group's `mood` by `sweep.mood_penalty`.
-- **What it hides:** for `sweep.campaign_months` the *visible* illegal-floor share is the real share × (1 − `sweep.visible_cut`). The block stocks and the real share do not change.
+- **What it hides:** from the month it is answered through `until = that month + campaign_months − 1`, the *visible* illegal-floor share is the real share × (1 − `sweep.visible_cut`). The block stocks and the real share do not change. A two-month sweep answered in November still covers December's review.
 - **The unannounced team** at the review catches it with `p_caught = min(1, sweep.base_p × (real − visible))`, drawn from the `reviews` stream.
 
 **The annual review** (§6.8, leadership §3; tick step 14, in December, with `targets`).
 - **The review k** is the k-th entry of `targets.yaml`, so no year is read. Each entry is `lightweight` or not, with weighted indicators, each with a `floor` and a `target` (leadership §4.3's convention: when `floor > target`, lower is better).
-- **The indicators:**
+- **The indicators** (trailing windows end at the last month the history recorded, so a view between turns reads the review's own values):
   - `exports_usd` and `forex_earned_usd` (the last 12 months);
   - `foreign_firm_jobs` (jobs posted now by firms of foreign or Hong Kong origin);
   - `projects_completed` (city projects finished in the last 12 months);
@@ -1091,7 +1090,8 @@ interface ReviewsState { held: ReviewRecord[]; vetoes: { date: YM; reason: strin
 - the leader is replaced by the bench record for that role in `leaders.yaml` (`replacement_for`; cautious, fictional), with risk 0. With no bench record left, the leader stays at risk 0;
 - city projects freeze for the next `fall.freeze_months` months (`frozenUntil`; `waiting: 'frozen'`, no work, no spending);
 - scrutiny rises by `fall.scrutiny`;
-- that year's review is vetoed if any entangled shortcut is the fallen leader's.
+- that year's review is vetoed if any entangled shortcut is the fallen leader's;
+- the fallen leader's pending shortcut cards are withdrawn in the next investment step.
 
 A player who accepts no shortcut never trips: the risk stays 0.
 
@@ -1132,6 +1132,7 @@ A player who accepts no shortcut never trips: the risk stays 0.
 - **The briefing:** the loan card and the co-financing card arrive in turn 4; accepting the co-financing builds a power line that costs the city nothing, and its investor's firm gets the concession.
 - **The visit:** it fires in 1984-01 and ends the run, and the verdict's fiscal test equals its formula on the end-1983 state.
 - **No effect without the content,** and determinism (save, load and continue, and replay, through a whole 21-quarter run).
+- **The branches** (`test/m5b-branches.test.ts`): `runQuarter` through the whole slice, with each prologue decision answered in its quarter and the failure card pausing it; a lapsed crisis takes its lapse option; the budget card's numbers; declining the co-financing investor withdraws its power line; event-only teams; the milestones; an orders slump caps posts; a fire vetoes its review; the Corps deployment; the climate's event gains; a two-month sweep covers December; indicators between turns; and the compilers' error paths.
 
 ---
 

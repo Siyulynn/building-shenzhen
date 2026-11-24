@@ -9,7 +9,7 @@ import type { AreasContent, CardInstance, FirmTerms, GameState, LocalizedString,
 import type { TickContext } from './step.js';
 import { createFirm, firmTerms, sizeOffer, type FirmOffer } from './systems/industry.js';
 import { cellsOfRuns } from './zones.js';
-import { landFeeRate, regimeOf, type FiscalContent } from './fiscal.js';
+import { landFeeRate, regimeOf, withdrawCofinanced, type FiscalContent } from './fiscal.js';
 
 /**
  * One record of content/slice/investors.yaml, compiled. Its numbers are params.investors.archetypes[id].
@@ -152,6 +152,9 @@ export function offers(p: SliceParams, content: InvestorContent) {
     const ev = (kind: string, detail: Record<string, unknown>) => ctx.events.push({ step: 'investment', kind, detail });
     /** An investor left without a firm: Shekou may take it (§5.7). Deterministic, no draw. */
     const lost = (card: CardInstance) => {
+      // a co-financing investor who walks away takes the power line with it (§5.8)
+      const cof = card.payload?.cofinanced;
+      if (typeof cof === 'number' && withdrawCofinanced(s, cof)) ev('cofinance_withdrawn', { card: card.id, project: cof });
       if (!s.events.unlocked.includes(SHEKOU_COMPETES)) return;
       const K = s.shekou;
       K.carry = Math.round((K.carry + p.shekou.capture_share) * 1e9) / 1e9;
@@ -217,8 +220,10 @@ export function offers(p: SliceParams, content: InvestorContent) {
     }
 
     // 3. withdraw shortcuts whose offer has gone; refresh the options of pending offers and shortcuts
+    // withdraw shortcuts whose offer has gone, or whose leader is no longer in office (a fall from grace, §5.8)
     s.pendingCards = s.pendingCards.filter((c) => {
-      if (c.card !== SHORTCUT_CARD || s.pendingCards.some((x) => x.id === c.payload?.offerCard)) return true;
+      if (c.card !== SHORTCUT_CARD || (s.pendingCards.some((x) => x.id === c.payload?.offerCard)
+        && s.leadership.leaders.some((l) => l.id === c.payload?.leader))) return true;
       ev('shortcut_withdrawn', { card: c.id });
       return false;
     });

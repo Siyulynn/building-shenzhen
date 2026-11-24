@@ -2,6 +2,7 @@
 # are lead, and each crew size, mobilisation and cost is a placeholder in params/slice.yaml under the same id.
 # modes: pool (adds time-limited capacity to the shared pool) or dedicated (delivers one project outside the pool).
 # A contract takes one mode: a crew is never both a pool bonus and a project exemption.
+# event_only: true: contracted only by its event (§5.8), never by the player's contract_team.
 
 - id: team.county_crew
   name: { zh: 外县施工队, en: Contracted county crew }
@@ -25,6 +26,7 @@
 - id: team.corps_advance
   name: { zh: 基建工程兵先遣队, en: Engineering corps advance units }
   modes: [pool]
+  event_only: true                       # paid centrally: it arrives with event.corps_advance, never by contract
   # M5b's prologue beat (§5.8): the advance and survey units before the main deployment; crews are a placeholder
   claims:
     - { id: phase1.event.construction_corps_first_units, use: design_note }

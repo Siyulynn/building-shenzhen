@@ -31,8 +31,8 @@ export function compileTargets(raw: unknown): ReviewTarget[] {
     if (!Array.isArray(r.indicators) || !r.indicators.length) throw new Error(`${r.id}: indicators must be a non-empty list`);
     const indicators = r.indicators.map((x: Record<string, any>) => {
       if (!(REVIEW_INDICATORS as readonly string[]).includes(x?.indicator)) throw new Error(`${r.id}: unknown indicator ${x?.indicator}`);
-      if (!(x.weight > 0)) throw new Error(`${r.id}: ${x.indicator}'s weight must be > 0`);
-      if (typeof x.floor !== 'number' || typeof x.target !== 'number' || x.floor === x.target) {
+      if (!(Number.isFinite(x.weight) && x.weight > 0)) throw new Error(`${r.id}: ${x.indicator}'s weight must be > 0`);
+      if (!Number.isFinite(x.floor) || !Number.isFinite(x.target) || x.floor === x.target) {
         throw new Error(`${r.id}: ${x.indicator} needs a floor and a different target`);
       }
       return { indicator: x.indicator as ReviewIndicator, weight: x.weight, floor: x.floor, target: x.target };
@@ -50,18 +50,23 @@ export function realIllegalShare(s: GameState): number {
 }
 /** What inspectors see (§5.8): during a sweep, the real share × (1 − visible_cut). */
 export const visibleIllegalShare = (s: GameState, p: SliceParams) =>
-  realIllegalShare(s) * (s.sweep.active ? 1 - p.sweep.visible_cut : 1);
+  realIllegalShare(s) * (sweepActive(s) ? 1 - p.sweep.visible_cut : 1);
+/** A sweep's campaign runs from the month it is answered through `until` (§5.8). */
+export const sweepActive = (s: GameState) => s.sweep.until !== undefined && s.date <= s.sweep.until;
+/** The last month the history has recorded: in step 14 it is this month; between turns, the month before the date. */
+const lastRecorded = (s: GameState) => s.history.months[s.history.months.length - 1] ?? s.date;
 
 /** An indicator's value now (§5.8): trailing flows over the last 12 months of history. */
 export function indicatorValue(s: GameState, p: SliceParams, k: ReviewIndicator): number {
   const h = s.history;
   if (k === 'exports_usd') return h.exports.slice(-12).reduce((a, x) => a + x, 0) / p.fiscal.forex.yuan_per_usd;
+  const end = lastRecorded(s);                                   // the same 12 months as the history's flows
   if (k === 'forex_earned_usd') {
-    return s.fiscal.ledger.reduce((a, e) => a + (e.type === 'retention' && e.date > s.date - 12 ? e.amount : 0), 0);
+    return s.fiscal.ledger.reduce((a, e) => a + (e.type === 'retention' && e.date > end - 12 && e.date <= end ? e.amount : 0), 0);
   }
   if (k === 'foreign_firm_jobs') return s.firms.reduce((a, f) => a + (f.ownership !== 'inland_soe' ? f.posted : 0), 0);
   if (k === 'projects_completed') {
-    return s.fiscal.projects.filter((x) => x.completed !== undefined && x.completed > s.date - 12).length;
+    return s.fiscal.projects.filter((x) => x.completed !== undefined && x.completed > end - 12 && x.completed <= end).length;
   }
   return visibleIllegalShare(s, p);
 }
@@ -78,7 +83,7 @@ export function scoreReview(s: GameState, p: SliceParams, t: ReviewTarget): { sc
   return { score: num / den, items };
 }
 
-/** Tick step 12 (§5.8): scrutiny's decay and gains, the sweep's clock, and the failure state at a quarter's end. */
+/** Tick step 12 (§5.8): scrutiny's decay and gains, and the failure state at a quarter's end. */
 export function climate(p: SliceParams) {
   return (ctx: TickContext): void => {
     const s = ctx.state, C = p.climate;
@@ -89,15 +94,11 @@ export function climate(p: SliceParams) {
       if (e.kind === 'offer_accepted' && e.detail?.shortcut !== undefined) gains += C.gain.shortcut;
     }
     s.climate.scrutiny = clamp(s.climate.scrutiny * (1 - C.scrutiny_decay) + C.permit_factor[s.policy.permitRegime] * gains, 0, 100);
-    if (s.sweep.active) {
-      s.sweep.monthsLeft -= 1;
-      if (s.sweep.monthsLeft <= 0) s.sweep = { active: false, monthsLeft: 0 };
-    }
     if (s.subStep !== 2) return;
     s.climate.overQuarters = s.climate.scrutiny > C.failure_threshold ? s.climate.overQuarters + 1 : 0;
     if (s.climate.overQuarters >= C.failure_quarters && !s.ended) {
       s.ended = { date: s.date, reason: 'failure' };
-      const inst = ctx.raise({ card: FAILURE_CARD, options: ['noted'], interrupting: false });
+      const inst = ctx.raise({ card: FAILURE_CARD, options: ['noted'], interrupting: true });
       inst.payload = { scrutiny: s.climate.scrutiny, quarters: s.climate.overQuarters };
       ctx.events.push({ step: 'stability', kind: 'run_ended', detail: { reason: 'failure' } });
     }
@@ -139,7 +140,7 @@ export function reviews(p: SliceParams, targets?: TargetContent) {
     const { score, items } = scoreReview(s, p, t);
     // the unannounced team: it catches a sweep in progress with p = min(1, base_p × (real − visible))
     let caught = false;
-    if (s.sweep.active) {
+    if (sweepActive(s)) {
       const hidden = realIllegalShare(s) - visibleIllegalShare(s, p);
       caught = ctx.rng.float() < Math.min(1, p.sweep.base_p * hidden);
       if (caught) s.reviews.vetoes.push({ date: s.date, reason: 'sweep_caught' });

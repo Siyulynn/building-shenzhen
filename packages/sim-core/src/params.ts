@@ -196,12 +196,19 @@ function validateM5bParams(p: SliceParams): void {
   if (!(C.scrutiny_decay >= 0 && C.scrutiny_decay <= 1)) throw new Error('params: climate.scrutiny_decay must be in [0, 1]');
   if (!(C.failure_threshold > 0 && C.failure_threshold <= 100)) throw new Error('params: climate.failure_threshold must be in (0, 100]');
   if (!posIntM5(C.failure_quarters)) throw new Error('params: climate.failure_quarters must be a positive integer');
+  need(C.gain, ['loose_permit', 'illegal_share', 'grey_land_per_100k', 'shortcut'], 'climate.gain');
   for (const [k, v] of Object.entries(C.gain)) if (!(v >= 0)) throw new Error(`params: climate.gain.${k} must be >= 0`);
+  for (const r of PERMIT_REGIMES) if (!(C.permit_factor[r] >= 0)) throw new Error(`params: climate.permit_factor.${r} must be >= 0`);
+  if (!(C.reform_wind >= -1 && C.reform_wind <= 1)) throw new Error('params: climate.reform_wind must be in [-1, 1]');
   if (!posIntM5(S.campaign_months)) throw new Error('params: sweep.campaign_months must be a positive integer');
   if (!(S.visible_cut >= 0 && S.visible_cut <= 1) || !(S.cash_cost >= 0) || !(S.mood_penalty >= 0) || !(S.base_p >= 0)) {
     throw new Error('params: sweep has a bad cost, penalty, cut or base_p');
   }
   if (!(R.pass_mark > 0 && R.pass_mark <= 1)) throw new Error('params: review.pass_mark must be in (0, 1]');
+  for (const k of ['standing_pass', 'standing_fail', 'scrutiny_relief', 'scrutiny_fail'] as const) {
+    if (!(R[k] >= 0)) throw new Error(`params: review.${k} must be >= 0`);
+  }
+  if (!(F.scrutiny >= 0) || !(F.threshold >= 0)) throw new Error('params: fall.scrutiny and fall.threshold must be >= 0');
   if (!(F.base >= 0 && F.base <= 1) || !(F.k > 0) || !posIntM5(F.freeze_months)) throw new Error('params: fall needs base in [0, 1], k > 0, whole freeze_months');
 }
 const posIntM5 = (n: unknown) => Number.isInteger(n) && (n as number) >= 1;
@@ -211,6 +218,13 @@ function validateM5aParams(p: SliceParams): void {
   if (!p.events || !R || !Z || !K || !S) throw new Error('params: events, readiness, sez, shekou and shortcut must be set (§5.7)');
   for (const [id, e] of Object.entries(p.events)) {
     if (e.jobs !== undefined && !(Number.isInteger(e.jobs) && e.jobs >= 1)) throw new Error(`params: events.${id}.jobs must be a positive integer`);
+    const bad = (k: string) => { throw new Error(`params: events.${id}.${k} is out of range`); };
+    if (e.cost !== undefined && !(e.cost >= 0)) bad('cost');
+    if (e.factor !== undefined && !(e.factor >= 0)) bad('factor');
+    if (e.months !== undefined && !posIntM5(e.months)) bad('months');
+    if (e.tax_holiday_months !== undefined && !(Number.isInteger(e.tax_holiday_months) && e.tax_holiday_months >= 0)) bad('tax_holiday_months');
+    if (e.land_fee_factor !== undefined && !(e.land_fee_factor >= 0 && e.land_fee_factor <= 1)) bad('land_fee_factor');
+    for (const k of ['scrutiny', 'standing'] as const) if (e[k] !== undefined && !Number.isFinite(e[k])) bad(k);
   }
   if (!R.areas?.length || R.areas.some((a) => !Number.isInteger(a))) throw new Error('params: readiness.areas must list area ids');
   for (const k of ['roads', 'serviced_land', 'water_power'] as const) {
