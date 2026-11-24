@@ -1,11 +1,13 @@
 /**
  * Headless decision policies (phase1-slice.md §5.8, §10): they answer every pending card, so a run never pauses.
  */
-import { LOAN_CARD } from './fiscal.js';
+import { DEFICIT_CARD, LOAN_CARD, moneyForProjects } from './fiscal.js';
 import { SHORTCUT_CARD } from './investors.js';
+import type { SliceParams } from './params.js';
+import { Rng } from './rng.js';
 import { runsOfCells } from './zones.js';
 import type { CardInstance, GameState, PlayerAction } from './state.js';
-import type { DecisionPolicy } from './step.js';
+import { firstOption, type DecisionPolicy } from './step.js';
 
 /** The co-financing card of the prologue's briefing, and the prologue's first-project card (content/slice/events.yaml). */
 export const COFINANCING_CARD = 'event.cofinancing';
@@ -46,3 +48,113 @@ export const historicalPrologue: DecisionPolicy = (s: GameState, pending) => {
   }
   return out;
 };
+
+// ---- M6a (§5.9): the CLI's policies ----
+
+/** The option `want` if the card has it, else its first option. */
+const pick = (c: CardInstance, want?: string) => (want !== undefined && c.options.includes(want) ? want : c.options[0]!);
+const firstAccept = (c: CardInstance) => c.options.find((o) => o.startsWith('accept:'));
+
+/** Cards the cautious player answers against the first option: it never borrows, never takes a grey option. */
+export const CAUTIOUS_CHOICES: Readonly<Record<string, string>> = Object.freeze({
+  'event.permit_choice': 'strict', 'event.temporary_residence': 'strict', 'event.sweep': 'no_sweep',
+  [LOAN_CARD]: 'decline', [COFINANCING_CARD]: 'decline', [DEFICIT_CARD]: 'austerity',
+});
+
+/**
+ * Never borrows and never takes a grey option: declines the loan, the shortcut and the co-financing; investors go into
+ * existing premises, else into a fully serviced zone, else are declined; strict permits and high enforcement, no
+ * sweep, austerity on a deficit card; otherwise the first option. In its first month it draws the same 12-cell
+ * industrial zone in Shangbu as historicalPrologue and commits its site preparation.
+ */
+export const cautious: DecisionPolicy = (s: GameState, pending) => {
+  const out = pending.map((c) => {
+    if (isInvestor(c)) {
+      const zoneOk = (o: string) => {
+        const z = s.zones.find((x) => `accept:zone:${x.id}` === o);
+        return !!z && (z.servicedShare ?? 1) >= 1;
+      };
+      return answer(c, c.options.find((o) => o.startsWith('accept:premises:')) ?? c.options.find(zoneOk) ?? 'decline');
+    }
+    if (c.card === SHORTCUT_CARD) return answer(c, 'decline');
+    return answer(c, pick(c, CAUTIOUS_CHOICES[c.card]));
+  });
+  if (s.turn === 0 && s.subStep === 0 && s.zones.length === 0) {
+    const area = s.areas.find((a) => a.id === 7)!;
+    out.push(
+      { type: 'set_enforcement', level: 'high' },
+      { type: 'create_zone', use: 'industrial', runs: runsOfCells([...area.cells.slice(0, 12)], s.grid.width) },
+      { type: 'commit_project', template: 'project.site_preparation', zone: s.nextZoneId },
+    );
+  }
+  return out;
+};
+
+/** Cards the aggressive player answers against the first option: every grey option, every loan. */
+export const AGGRESSIVE_CHOICES: Readonly<Record<string, string>> = Object.freeze({
+  'event.permit_choice': 'loose', 'event.temporary_residence': 'standard', 'event.typhoon': 'defer',
+  'event.corps_advance': 'tents', 'event.fire': 'noted', 'event.escapes': 'noted', 'event.petition': 'noted',
+  'event.readiness_check': 'rush', 'event.sweep': 'sweep', 'event.corps_deployment': 'accept',
+  [COFINANCING_CARD]: 'accept', [LOAN_CARD]: 'take', [DEFICIT_CARD]: 'borrow_short',
+});
+/** The aggressive player's build list, committed one a turn while money for projects covers it (§5.9). */
+export const AGGRESSIVE_BUILDS: readonly { template: string; area: number }[] = Object.freeze([7, 5, 2, 1].flatMap((area) =>
+  ['project.road_link', 'project.water_main', 'project.power_line'].map((template) => ({ template, area }))));
+
+/**
+ * Takes every grey option: the loan and the co-financing; every investor and shortcut at its first site; loose
+ * permits and low enforcement; a sweep every October; borrow_short on a deficit card. In its first month it draws
+ * 24-cell industrial zones in Shangbu (area 7) and Sungang (area 5) and commits site preparation in both; at each
+ * turn's start it commits the next project of AGGRESSIVE_BUILDS while money for projects and the forex quota cover it.
+ */
+export function aggressive(p: SliceParams): DecisionPolicy {
+  return (s: GameState, pending) => {
+    const out = pending.map((c) => {
+      if (isInvestor(c) || c.card === SHORTCUT_CARD) return answer(c, firstAccept(c) ?? pick(c));
+      return answer(c, pick(c, AGGRESSIVE_CHOICES[c.card]));
+    });
+    if (s.subStep !== 0) return out;
+    if (s.turn === 0 && s.zones.length === 0) {
+      const zone = s.nextZoneId;
+      const runs = (id: number) => runsOfCells([...s.areas.find((a) => a.id === id)!.cells.slice(0, 24)], s.grid.width);
+      out.push(
+        { type: 'set_enforcement', level: 'low' },
+        { type: 'create_zone', use: 'industrial', runs: runs(7) },
+        { type: 'create_zone', use: 'industrial', runs: runs(5) },
+        { type: 'commit_project', template: 'project.site_preparation', zone },
+        { type: 'commit_project', template: 'project.site_preparation', zone: zone + 1 },
+      );
+      return out;
+    }
+    const next = AGGRESSIVE_BUILDS.find((b) => !s.fiscal.projects.some((x) =>
+      x.template === b.template && x.area === b.area && x.stage !== 'cancelled'));
+    if (next) {
+      const pp = p.projects[next.template]!;
+      if (moneyForProjects(s, p) >= (pp.budget ?? 0) && (pp.forex_usd ?? 0) <= s.fiscal.balances.forex) {
+        out.push({ type: 'commit_project', template: next.template, area: next.area });
+      }
+    }
+    return out;
+  };
+}
+
+/** A uniformly random option for each pending card, from its own generator (never the sim's streams). */
+export function randomPolicy(seed: number): DecisionPolicy {
+  const rng = new Rng(seed).stream('random_policy');
+  return (_s, pending) => pending.map((c) => answer(c, c.options[rng.int(c.options.length)]!));
+}
+
+export const POLICY_NAMES = ['default', 'decline_all', 'historical_prologue', 'cautious', 'aggressive', 'random'] as const;
+export type PolicyName = (typeof POLICY_NAMES)[number];
+/** §10's policies by name. A random policy draws from `seed`. */
+export function policyNamed(name: string, p: SliceParams, seed = 1): DecisionPolicy {
+  switch (name as PolicyName) {
+    case 'default': return firstOption;
+    case 'decline_all': return declineAll;
+    case 'historical_prologue': return historicalPrologue;
+    case 'cautious': return cautious;
+    case 'aggressive': return aggressive(p);
+    case 'random': return randomPolicy(seed);
+    default: throw new Error(`unknown policy ${name}; one of ${POLICY_NAMES.join(', ')}`);
+  }
+}

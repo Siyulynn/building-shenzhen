@@ -1,0 +1,236 @@
+{
+  "policy": "default",
+  "seed": 1,
+  "quarters": 21,
+  "content": {
+    "areas_sha256": "fc9003de49cb0d274f25b2b21ac1028c4dd8cb0c51f334af2e4caa9ad70212a6",
+    "params_sha256": "93f0e9d284781bf79041db6ec829cd72652425f5731ad179dc4f94dbb62fa018",
+    "precedents_sha256": "d54f17661a4348d98d655754b9e42dea47173e09d8f6d19566de79d2094104f4",
+    "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
+    "buildable_sha256": "93a4651ce4e9e6dc32928e79da812babc22842aa8407c389dc633bdac21fc4d1",
+    "fiscal_sha256": "7f52bc2bab3d93a40cef10762ae77b061bb0a04a41d558ce3e833e50afd42ca0",
+    "events_sha256": "b9a66192213730ee6feb9a2623157a91e60abdac0352686de14bce2981ec3249",
+    "leaders_sha256": "5bf3fe0aa081c85e6f538add149d93852b4fc6f34142656fd5dd599e8c520467",
+    "targets_sha256": "0765576245b271083f2ef6ed448e1fe5afb2e03abdc03a5f8cd7a379356e3fd3"
+  },
+  "years": [
+    {
+      "at": "1979-12",
+      "residents": 30340,
+      "registered": 30000,
+      "presentNonlocal": 320,
+      "migrants": 320,
+      "firmJobs": 120,
+      "gdp": 7893120,
+      "exports": 153600,
+      "revenue": 2942457,
+      "obligationsPaid": 3270535,
+      "projectSpend": 600000,
+      "reserve": 0,
+      "debt": 3111572,
+      "arrears": 0,
+      "scrutiny": 0,
+      "illegalShare": 0
+    },
+    {
+      "at": "1980-12",
+      "residents": 30340,
+      "registered": 30000,
+      "presentNonlocal": 320,
+      "migrants": 320,
+      "firmJobs": 228,
+      "gdp": 7752208,
+      "exports": 504640,
+      "revenue": 2947440,
+      "obligationsPaid": 3192018,
+      "projectSpend": 0,
+      "reserve": 0,
+      "debt": 3154735,
+      "arrears": 0,
+      "scrutiny": 10,
+      "illegalShare": 0
+    },
+    {
+      "at": "1981-12",
+      "residents": 30340,
+      "registered": 30000,
+      "presentNonlocal": 320,
+      "migrants": 320,
+      "firmJobs": 357,
+      "gdp": 7850016,
+      "exports": 1354880,
+      "revenue": 2957339,
+      "obligationsPaid": 3922828,
+      "projectSpend": 0,
+      "reserve": 0,
+      "debt": 3261961,
+      "arrears": 84096,
+      "scrutiny": 0,
+      "illegalShare": 0
+    },
+    {
+      "at": "1982-12",
+      "residents": 30340,
+      "registered": 30000,
+      "presentNonlocal": 320,
+      "migrants": 320,
+      "firmJobs": 457,
+      "gdp": 7876200,
+      "exports": 1704000,
+      "revenue": 2961812,
+      "obligationsPaid": 4068570,
+      "projectSpend": 0,
+      "reserve": 0,
+      "debt": 2650843,
+      "arrears": 414572,
+      "scrutiny": 0,
+      "illegalShare": 0
+    },
+    {
+      "at": "1983-12",
+      "residents": 30340,
+      "registered": 30000,
+      "presentNonlocal": 320,
+      "migrants": 320,
+      "firmJobs": 557,
+      "gdp": 7883304,
+      "exports": 1798720,
+      "revenue": 2273024,
+      "obligationsPaid": 3186761,
+      "projectSpend": 0,
+      "reserve": 0,
+      "debt": 1904207,
+      "arrears": 1674971,
+      "scrutiny": 10,
+      "illegalShare": 0
+    }
+  ],
+  "reviews": [
+    {
+      "index": 0,
+      "at": "1979-12",
+      "score": 0.8373,
+      "pass": true
+    },
+    {
+      "index": 1,
+      "at": "1980-12",
+      "score": 0.4055,
+      "pass": false
+    },
+    {
+      "index": 2,
+      "at": "1981-12",
+      "score": 0.7414,
+      "pass": true
+    },
+    {
+      "index": 3,
+      "at": "1982-12",
+      "score": 0.603,
+      "pass": true
+    },
+    {
+      "index": 4,
+      "at": "1983-12",
+      "score": 0.3937,
+      "pass": false
+    }
+  ],
+  "sez": {
+    "opened": "1980-09",
+    "readiness": 0.263,
+    "waveCards": 2
+  },
+  "verdict": {
+    "growth": {
+      "residents": 1,
+      "gdp": 0.9988
+    },
+    "ledger": {
+      "reserve": 0,
+      "debtOutstanding": 1904207,
+      "arrears": 1674971
+    },
+    "lastReview": {
+      "index": 4,
+      "date": 23807,
+      "lightweight": false,
+      "score": 0.3937,
+      "pass": false,
+      "caught": false,
+      "items": [
+        {
+          "indicator": "exports_usd",
+          "value": 1199147,
+          "score": 0.3997
+        },
+        {
+          "indicator": "forex_earned_usd",
+          "value": 119912,
+          "score": 0.3997
+        },
+        {
+          "indicator": "foreign_firm_jobs",
+          "value": 557,
+          "score": 0.2785
+        },
+        {
+          "indicator": "projects_completed",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "indicator": "order_check",
+          "value": 0,
+          "score": 1
+        }
+      ]
+    },
+    "scrutiny": 10,
+    "illegalShare": 0,
+    "fiscalTest": {
+      "grantFactor": 0,
+      "revenuePerYear": 1584704,
+      "dueNext12": 5686868,
+      "balance": -4102164
+    }
+  },
+  "fired": [
+    "event.first_project@1979-01",
+    "event.budget@1979-01",
+    "event.shenzhen_city@1979-03",
+    "event.first_processing_contract@1979-04",
+    "event.shekou_command@1979-04",
+    "event.escapes@1979-04",
+    "event.shekou_works@1979-07",
+    "event.permit_choice@1979-07",
+    "event.typhoon@1979-07",
+    "event.typhoon@1979-08",
+    "event.corps_advance@1979-10",
+    "event.sweep@1979-10",
+    "event.cofinancing@1980-01",
+    "event.budget@1980-01",
+    "event.readiness_check@1980-04",
+    "event.sez_established@1980-08",
+    "event.shekou_poach@1980-08",
+    "event.sweep@1980-10",
+    "event.orders_surge@1980-10",
+    "event.budget@1981-01",
+    "event.bamboo_garden@1981-01",
+    "event.typhoon@1981-07",
+    "event.typhoon@1981-08",
+    "event.sweep@1981-10",
+    "event.budget@1982-01",
+    "event.land_rules@1982-01",
+    "event.second_line@1982-06",
+    "event.corps_deployment@1982-09",
+    "event.sweep@1982-10",
+    "event.budget@1983-01",
+    "event.temporary_residence@1983-07",
+    "event.sweep@1983-10",
+    "event.budget@1984-01",
+    "event.deng_visit@1984-01"
+  ],
+  "ended": "visit@1984-01"
+}

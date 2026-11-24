@@ -1,0 +1,6 @@
+{
+  "name": "@sz/cli",
+  "private": true,
+  "type": "module",
+  "bin": { "slice": "src/main.ts" }
+}

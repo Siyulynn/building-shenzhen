@@ -1,9 +1,16 @@
 /** The M2 invariants (phase1-slice.md §5.2) and M3b's firm sums (§5.5), shared by the test files. */
 import { expect } from 'vitest';
-import { Rng, isMigrant, step, type GameState, type SimEvent, type TickStep } from '../src/index.js';
+import {
+  ACCOUNTS, Rng, debtServiceAt, isLive, isMigrant, obligationDue, principalOutstanding, step, type GameState, type SimEvent,
+  type TickStep,
+} from '../src/index.js';
 import { bedsByPool, illegalShare, villageM2 } from '../src/systems/common.js';
 import { labourForce } from '../src/systems/labour.js';
-import { initial, params } from './fixtures.js';
+import { initial as freshInitial, params } from './fixtures.js';
+
+/** The start state never changes: built once, read by the checks below. */
+let start0: GameState | undefined;
+const initial = () => (start0 ??= freshInitial());
 
 /** Run month by month, calling check after each with the month's events. */
 export function walk(s0: GameState, months: number, rng: Rng, steps: readonly TickStep[],
@@ -78,4 +85,27 @@ export function checkFirms(s: GameState): void {
     expect(staffed).toBeLessThanOrEqual(r.filled);
     expect(r.filled - staffed).toBeLessThanOrEqual(r.jobs - posted);     // base staffing within the base jobs
   }
+}
+
+/** M4 (§5.6): no stock negative, and per account Σ new entries = Δ balance; dues add up; stalls wait for money. */
+export function checkLedger(before: GameState, after: GameState): void {
+  const added = after.fiscal.ledger.slice(before.fiscal.ledger.length);
+  for (const acc of ACCOUNTS) {
+    const sum = added.reduce((a, e) => a + (e.account === acc ? e.amount : 0), 0);
+    expect(after.fiscal.balances[acc] - before.fiscal.balances[acc]).toBe(sum);
+    expect(after.fiscal.balances[acc]).toBeGreaterThanOrEqual(0);
+  }
+  for (const e of added) expect(Number.isInteger(e.amount) && e.amount !== 0).toBe(true);
+  for (const l of after.fiscal.loans) expect(principalOutstanding(l, after.date)).toBeGreaterThanOrEqual(0);
+  // obligations due = baselines + live obligations (arrears among them) + debt service. A month the closing visit
+  // halts at its events step (§5.8) runs no finance and records no history: there is nothing to add up
+  const d = before.date, h = after.history, n = h.obligationsDue.length - 1;
+  if (h.months.length > before.history.months.length) {
+    let lines = 0;
+    for (const o of after.fiscal.obligations) if (isLive(o, d)) lines += obligationDue(o, after);
+    for (const l of after.fiscal.loans) lines += debtServiceAt(l, d);
+    expect(h.obligationsDue[n]).toBe(h.baselineDue[n]! + lines);
+  }
+  // a project is stalled only while it waits for money
+  for (const x of after.fiscal.projects) if (x.stage === 'stalled') expect(x.waiting).toBe('finance');
 }

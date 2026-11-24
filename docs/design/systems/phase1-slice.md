@@ -1130,6 +1130,8 @@ A player who accepts no shortcut never trips: the risk stays 0.
 - **The fall from grace:** no shortcuts, no fall; a forced trip replaces the Mayor, freezes projects and vetoes the review when entangled.
 - **The budget card and the warning:** the warning appears exactly on the cards whose next 12 months hold a grant cut, read from content.
 - **The briefing:** the loan card and the co-financing card arrive in turn 4; accepting the co-financing builds a power line that costs the city nothing, and its investor's firm gets the concession.
+- **The branches** (`test/m5b-branches.test.ts`): `runQuarter` through the whole slice, with each prologue decision answered in its quarter and the failure card pausing it; a lapsed crisis takes its lapse option; the budget card's numbers; declining the co-financing investor withdraws its power line; event-only teams; the milestones; an orders slump caps posts; a fire vetoes its review; the Corps deployment; the climate's event gains; a two-month sweep covers December; indicators between turns; and the compilers' error paths.
+
 - **The visit:** it fires in 1984-01 and ends the run, and the verdict's fiscal test equals its formula on the end-1983 state.
 - **No effect without the content,** and determinism (save, load and continue, and replay, through a whole 21-quarter run).
 ### 5.9 The headless runner, golden runs and the plausibility report (M6a)
@@ -1163,7 +1165,7 @@ The report says pass or fail honestly. A failing band is a finding for M6b, neve
   - `growth`: the value's multiple over the base checkpoint, within (claim `to` ÷ claim `from`) × `growth_band`;
   - `upper_bound_and_growth`: both `upper_bound` (with `bound`) and `growth` (from `growth_from` to `bound`).
 - **The base checkpoint** for growth is end-1979: the state after the scenario's twelfth month. A stock is read at that state; a flow is that state's trailing year.
-- **Where bands are read at:** the `band.1979q4.*` bands at month 12, the `band.1980q2.*` bands at month 18, and the `band.1983q4.*` bands at the visit's state. Each checkpoint's month is the end of its `at_end_of` quarter, counted from the scenario's start, so no year appears in code.
+- **Where bands are read at:** the `band.1979q4.*` bands after month 12, the `band.1980q2.*` bands after month 18, and the `band.1983q4.*` bands after month 60, the end of 1983-Q4 (the visit's state). A band's month is the end of the quarter its id names (`band.<year>q<n>.…`), counted from the scenario's start, so no year appears in code. A run that ends before a band's month fails it.
 - **`checkBands(bands, claims, at)`** returns per band: the id, the measure, the kind, the value, the range, pass or fail, and each claim's status. A claim below `verified` is tagged `[UNVERIFIED]`, as in the draft compile.
 - **The design bands** of §9.2 are records in `checkpoint_1983q4.yaml` (`applies_as: design_band`, a `check` id and its numbers). They are computed from the run's history:
   - `residents_multiply`: the end-1983 ÷ end-1979 residents multiple lies within `range`;
@@ -1175,17 +1177,17 @@ The report says pass or fail honestly. A failing band is a finding for M6b, neve
 
 **Policies** (`src/policies.ts`; §10's names, used by the CLI):
 - `default` is `firstOption`, `decline_all` is `declineAll`, and `historical_prologue` is `historicalPrologue` (§5.8).
-- **`cautious`** never borrows and never takes a grey option:
-  - it declines the loan, the shortcut and the co-financing;
+- **`cautious`** never takes the project loan and never takes a grey option:
+  - it declines the loan, the shortcut and the co-financing. The deficit rule may still borrow short when austerity does not cover a shortfall (§5.6);
   - investors go into existing premises, else into a zone already fully serviced, else they are declined;
   - permits are strict and enforcement high, there is no sweep, and a deficit card is answered `austerity`;
   - every other card takes its first option;
   - in its first month it draws the same 12-cell industrial zone in Shangbu as `historical_prologue` and commits its site preparation.
-- **`aggressive`** takes every grey option:
+- **`aggressive(params)`** takes every grey option (it reads project budgets, so it is made from the params):
   - it takes the loan and the co-financing;
   - it accepts every investor and every shortcut at the first site;
   - permits are loose and enforcement low, it sweeps every October, and a deficit card is answered `borrow_short`;
-  - in its first month it draws an industrial zone of 24 buildable cells in Shangbu (area 7) and one of 24 in Sungang (area 5), and commits site preparation in both;
+  - in its first month it draws an industrial zone of the area's first 24 cells in Shangbu (area 7) and in Sungang (area 5), as `historical_prologue` draws its 12, and commits site preparation in both;
   - at each turn's start it commits the next project in a fixed list (a road, water main and power line in areas 7, 5, 2 and 1), while money for projects is above that project's budget and the forex quota covers it.
 - **`randomPolicy(seed)`** answers each pending card with a uniformly random option. It draws from its own sfc32 generator, seeded from `seed`, never from the sim's streams, and takes no turn actions. It exists for the property tests.
 
@@ -1200,19 +1202,20 @@ A policy's turn actions are legal by construction: zones are clipped with `zoneC
   It writes two files to DIR (default `build/slice/<policy>-seed<N>/`):
   - `run.json`: the content hashes, the monthly series, the cards raised and answered per quarter, the reviews, the verdict, the bands and the exit-criteria checks. Its only input is seed, policy and content, so the same arguments give the same bytes;
   - `report.html`: one self-contained page with inline SVG charts (residents and present non-locals, GDP and exports, revenue against obligations due, the reserve and debt, scrutiny), the band table with `[UNVERIFIED]` tags, the exit-criteria table and the wall time of the run. The wall time is printed and shown in the report, never written to `run.json`.
-- **`slice golden [--update]`** runs the golden set and compares each run with `data/golden/slice/<policy>-seed<N>.json`. With `--update` it rewrites the files.
+- **`slice golden [--update]`** runs the golden set and compares each run with `data/golden/slice/<policy>-seed<N>.json`. With `--update` (`npm run golden:update`) it rewrites the files. It also prints the set's cross-run checks (`crossRunChecks`): criterion 1's response to choices, and `readiness_moves_wave`.
 - The CLI reads claims with `@sz/evidence`'s loader and tags them with its `meetsMinimum` for `calibration_target`.
 
 **Golden runs** (§10). The set is `default`, `cautious`, `aggressive`, `decline_all` and `historical_prologue`, each with seed 1, for 21 quarters through `runQuarter`.
 - **Each file is a readable summary:**
   - the content hashes;
+  - the SEZ's opening: its month, the readiness bar and the first-wave cards;
   - for each year end, and at the visit: residents, registered, present non-locals, migrants, firm jobs posted, the year's GDP, exports, revenue, obligations paid and project spending, the reserve, debt outstanding, arrears, scrutiny and the real illegal-floor share;
   - each review's score and result;
   - the verdict;
   - the events fired, with their months.
 
   Money and people are rounded to integers, and shares to four decimals.
-- **The test** (`test/golden.test.ts`) recomputes each summary and compares it whole. A change that moves a golden number regenerates the files with `npm run golden:update`, and its commit message says what moved and why (AGENTS.md).
+- **The test** (`apps/cli/test/cli.test.ts`) recomputes each summary with the CLI's code and compares it whole. A change that moves a golden number regenerates the files with `npm run golden:update`, and its commit message says what moved and why (AGENTS.md).
 
 **The exit-criteria checks** (§1). Criterion 6 is judged by playtests. Criteria 1–5 are checked by the CLI's report, over one run or the golden set, and by tests:
 
@@ -1227,14 +1230,12 @@ A policy's turn actions are legal by construction: zones are clipped with `zoneC
 **M6a's tests:**
 - **Content:** `compileSlice` gives the same `init`, `tick` and hashes as the old fixtures, so every M2–M5 run is unchanged.
 - **Bands:** each band kind passes and fails at its edges on fixture values. A claim below `verified` is tagged. A measure that is unknown, or a band whose claim has no numeric value, throws.
-- **Policies:** a whole run under each of `cautious`, `aggressive` and `randomPolicy(1..5)` reaches the visit, with no action thrown. `aggressive` takes the loan and accepts a shortcut. `cautious` never borrows, and never accepts a shortcut or the co-financing.
+- **Policies:** a whole run under each of `cautious`, `aggressive` and `randomPolicy(1..5)` reaches the visit, with no action thrown. `aggressive` takes the loan and accepts a shortcut. `cautious` never takes the project loan, and never accepts a shortcut or the co-financing.
 - **Golden runs:** each summary matches its file.
 - **Invariants** (§10), as property tests: for seeds 1–5, under `randomPolicy` and the three main policies, every month of a whole run passes M2's population and stock checks, M3b's firm sums and M4's ledger check.
 - **Speed:** 21 quarters of `aggressive` under 5 s.
 - **The CLI:** the same arguments give a byte-identical `run.json`; the report names every band.
 - **The 1983 checkpoint's notes:** `aggressive` ends the fiscal test negative and `cautious` ends it above `aggressive`. This replaces the note's "cautious near or above zero", which is M6b's target.
-
-- **The branches** (`test/m5b-branches.test.ts`): `runQuarter` through the whole slice, with each prologue decision answered in its quarter and the failure card pausing it; a lapsed crisis takes its lapse option; the budget card's numbers; declining the co-financing investor withdraws its power line; event-only teams; the milestones; an orders slump caps posts; a fire vetoes its review; the Corps deployment; the climate's event gains; a two-month sweep covers December; indicators between turns; and the compilers' error paths.
 
 ---
 

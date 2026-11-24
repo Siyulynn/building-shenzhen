@@ -56,3 +56,43 @@
       Golden runs with the aggressive policy should end it negative, and with the cautious policy near or above zero."
   claims:
     - { id: phase1.fiscal.provincial_base.1984, use: fiscal_rule }
+
+# --- M6a (§5.9): the exit-criteria report's trade-off margin and §9.2's remaining plausibility bands ------------
+# Design notes, each replaced by a real target when a claim reaches verified. The checks are named in sim-core's
+# calibration (DESIGN_CHECKS); their numbers live here. The report shows a failing band as a finding (M6b).
+- id: check.tradeoff
+  use: design_note
+  margin: 0.15                              # a review failed, or passed by less than this, counts as close
+  claims: []
+
+- id: band.1983q4.design.residents_multiply
+  applies_as: design_band
+  check: residents_multiply
+  range: [1.5, 5]                           # roughly multiplies, rather than staying flat or exploding
+  claims: []
+
+- id: band.1983q4.design.exports_outgrow_gdp
+  applies_as: design_band
+  check: exports_outgrow_gdp
+  factor: 2                                 # exports ÷ GDP at least doubles from the first year to the last
+  claims: []
+
+- id: band.1983q4.design.village_outgrows_planned
+  applies_as: design_band
+  check: village_outgrows_planned           # village rental floor grows more than state flats and dormitories
+  claims: []
+
+- id: band.1983q4.design.deficit_before_visit
+  applies_as: design_band
+  check: deficit_before_visit               # at least one recurring deficit before 1984, most likely in 1983
+  claims: []
+
+- id: band.1983q4.design.readiness_moves_wave
+  applies_as: design_band
+  check: readiness_moves_wave               # across the golden runs: more readiness, a bigger first wave
+  claims: []
+
+- id: band.1983q4.design.stall_after_credit
+  applies_as: design_band
+  check: stall_after_credit                 # not checkable: the slice has no credit series (tick step 1 is off)
+  claims: []

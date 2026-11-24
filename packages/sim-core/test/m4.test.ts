@@ -14,7 +14,7 @@ import {
 } from '../src/index.js';
 import { cohortCrew } from '../src/systems/projects.js';
 import { ROOT, areasJson, buildable, content, fiscal, initial, investors, params, precedents } from './fixtures.js';
-import { checkInvariants } from './invariants.js';
+import { checkInvariants, checkLedger } from './invariants.js';
 
 const HK = 'investor.hk_processing', SOE = 'investor.inland_state_unit';
 const BUILD = params.investors.archetypes[HK]!.build_months;
@@ -30,26 +30,6 @@ const start = (p: SliceParams = params): GameState => {
   s.fiscal.balances = { general: b.general, land: b.land, debt: b.debt, forex: b.forex_usd };
   return s;
 };
-
-/** No stock negative, and per account Σ new entries = Δ balance (§5.6). */
-function checkLedger(before: GameState, after: GameState): void {
-  const added = after.fiscal.ledger.slice(before.fiscal.ledger.length);
-  for (const acc of ACCOUNTS) {
-    const sum = added.reduce((a, e) => a + (e.account === acc ? e.amount : 0), 0);
-    expect(after.fiscal.balances[acc] - before.fiscal.balances[acc]).toBe(sum);
-    expect(after.fiscal.balances[acc]).toBeGreaterThanOrEqual(0);
-  }
-  for (const e of added) expect(Number.isInteger(e.amount) && e.amount !== 0).toBe(true);
-  for (const l of after.fiscal.loans) expect(principalOutstanding(l, after.date)).toBeGreaterThanOrEqual(0);
-  // obligations due = baselines + live obligations (arrears among them) + debt service
-  const d = before.date, h = after.history, n = h.obligationsDue.length - 1;
-  let lines = 0;
-  for (const o of after.fiscal.obligations) if (isLive(o, d)) lines += obligationDue(o, after);
-  for (const l of after.fiscal.loans) lines += debtServiceAt(l, d);
-  expect(h.obligationsDue[n]).toBe(h.baselineDue[n]! + lines);
-  // a project is stalled only while it waits for money
-  for (const x of after.fiscal.projects) if (x.stage === 'stalled') expect(x.waiting).toBe('finance');
-}
 
 interface Run { state: GameState; events: SimEvent[][] }
 /** Run month by month: scripted actions by month index, cards answered by `answers` (else the first option). */
