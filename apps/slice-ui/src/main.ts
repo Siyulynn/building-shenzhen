@@ -4,7 +4,7 @@
  */
 import {
   ENFORCEMENT_LEVELS, LAND_USES, PERMIT_REGIMES, PRIORITIES, formatYM, templateZoneAction,
-  type LandUse, type PlayerAction, type Priority,
+  cellsOfRuns, roadNetwork, zoneFrontage, type Frontage, type LandUse, type PlayerAction, type Priority, type StartSite,
 } from '@sz/sim-core';
 import { choose, dequeue, enqueue, newSession, submit, unanswered, type Session } from './controller.js';
 import { loadSlice } from './load.js';
@@ -28,13 +28,33 @@ let x: Session = newSession(slice, seed);
 const ui = { layer: 'areas' as OverlayLayer, tab: 'ledger', area: 7, drawUse: null as LandUse | null,
   project: slice.tick.fiscal?.projects[0]?.id ?? '', target: '', priority: 'normal' as Priority };
 
-const map = new SliceMap($('map') as HTMLCanvasElement, x.state, {
+const siteAt = (c: { x: number; y: number }) => slice.startSites.find((s) => s.cell[0] === c.x && s.cell[1] === c.y);
+const { routes, maxFrontageDepth } = slice.startNetwork;
+const roads = roadNetwork(x.state.grid, routes.filter((r) => r.kind === 'road').flatMap((r) => r.cells));
+const frontage = new Map<number, Frontage>();
+let mappedZones: typeof x.state.zones | undefined;
+let selectedSite: StartSite | undefined;
+const map = new SliceMap($('map') as HTMLCanvasElement, x.state, slice.startSites, routes, {
   hover: (c) => {
     if (!c) { $('hover').textContent = ''; return; }
     const z = x.state.zones.find((q) => q.runs.some(([y, x0, x1]) => y === c.y && c.x >= x0 && c.x <= x1));
     $('hover').textContent = `${c.x},${c.y}${c.area ? ` · ${bi(areaName(x.state, c.area))}` : ''}${z ? ` · ${bi(zoneName(x.state, slice, z.id))}` : ''}`;
+    const site = siteAt(c);
+    if (site) $('hover').textContent += ` · ≈ ${bi(site.name)} · 近似位置 Proxy location`;
+    const index = c.y * x.state.grid.width + c.x;
+    for (const r of routes) if (r.cells.includes(index)) $('hover').textContent += ` · ${bi(r.name)} · 临时走线 Temporary alignment`;
+    if (z && !roads.component.has(index)) {
+      const reach = frontage.get(index);
+      $('hover').textContent += reach ? ` · 道路可达 Road access: ${reach.depth}/${maxFrontageDepth}`
+        : ' · 无道路连接 No road access';
+    }
   },
-  click: (c) => { if (c.area) { ui.area = c.area; ui.tab = 'area'; render(); } },
+  click: (c) => {
+    selectedSite = siteAt(c);
+    const area = selectedSite?.area ?? c.area;
+    if (area) { ui.area = area; ui.tab = 'area'; }
+    render();
+  },
   drawing: (x0, y0, x1, y1) => previewZone(x.state, x.queue, x0, y0, x1, y1),
   drew: (x0, y0, x1, y1) => {
     const runs = previewZone(x.state, x.queue, x0, y0, x1, y1);
@@ -95,7 +115,10 @@ function renderArea(): string {
   const v = areaView(x.state, ui.area);
   if (!v) return `<div class="muted">${b(S.T.pickArea)}</div>`;
   const h = v.housing;
-  return `<h2>${b(v.name)} <span class="muted">#${ui.area}</span></h2><div class="muted">${b(S.T.pickArea)}</div>
+  const site = selectedSite?.area === ui.area ? selectedSite : undefined;
+  const flag = site ? `<h2>≈ ${b(site.name)}</h2><div>近似位置 Proxy location · ${esc(site.proxy)}</div>
+    <details><summary>证据 Evidence</summary>${site.claims.map((c) => `<div>${esc(c.id)}</div>`).join('')}</details>` : '';
+  return `${flag}<h2>${b(v.name)} <span class="muted">#${ui.area}</span></h2><div class="muted">${b(S.T.pickArea)}</div>
     <h2>${b(S.T.pops)}</h2><table><tr><td></td><td class="n">${b(S.T.size)}</td><td class="n">${b(S.T.present)}</td></tr>
       ${v.pops.map((p) => `<tr><td>${b(p.label)}</td><td class="n">${num(p.size)}</td><td class="n">${num(p.present)}</td></tr>`).join('')}</table>
     ${h ? `<h2>${b(S.T.beds)}</h2><table>${tr(S.T.localBeds, `${num(h.occupants.local)} / ${num(h.beds.local)}`)}
@@ -199,9 +222,18 @@ function renderVerdict(): void {
 }
 
 function render(): void {
+  if (mappedZones !== x.state.zones) {
+    frontage.clear();
+    for (const z of x.state.zones) for (const [c, f] of zoneFrontage(roads, cellsOfRuns(z.runs, x.state.grid), maxFrontageDepth)) {
+      frontage.set(c, f);
+    }
+    mappedZones = x.state.zones;
+  }
   $('left').innerHTML = renderTurn();
   $('right').innerHTML = `<div class="tabs">${TABS.map(([k, l]) => `<button data-act="tab" data-tab="${k}" class="${ui.tab === k ? 'sel' : ''}">${b(l)}</button>`).join('')}</div>${PANELS[ui.tab]!()}`;
   $('overlays').innerHTML = OVERLAY_LAYERS.map((k) => `<button data-act="layer" data-layer="${k}" class="${ui.layer === k ? 'sel' : ''}">${b(S.OVERLAYS[k]!)}</button>`).join('');
+  $('overlays').insertAdjacentHTML('beforeend', `<div class="route-key">临时走线 Temporary alignments${routes.map((r) =>
+    `<div><i class="${r.kind}"></i>${b(r.name)}</div>`).join('')}</div>`);
   const queued = x.queue.flatMap((a) => (a.type === 'create_zone' ? [{ runs: a.runs, color: 'rgba(120,230,255,.6)' }] : []));
   const zones = ui.layer === 'land_use' ? queued : [...x.state.zones.map((z) => ({ runs: z.runs, color: 'rgba(255,255,255,.22)' })), ...queued];
   map.setState(x.state, overlayRgba(x.state, slice, ui.layer), zones);

@@ -32,6 +32,8 @@ describe('M6c: the browser loader', () => {
   it('bundles every slice file, and compiles the slice the node loader compiles', () => {
     const node = loadNode();
     expect(slice.content).toEqual(node.content);
+    expect(slice.startSites).toEqual(node.startSites);
+    expect(slice.startNetwork).toEqual(node.startNetwork);
     expect(JSON.stringify(slice.params)).toBe(JSON.stringify(node.params));
     expect(Object.keys(RAW)).toEqual(expect.arrayContaining(['params/slice.yaml', 'content/slice/events.yaml', 'data/starts/slice_areas.json']));
   });

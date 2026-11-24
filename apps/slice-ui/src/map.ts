@@ -3,7 +3,8 @@
  * pixel per 100 m cell, drawn under one pan-and-zoom transform. The base is the committed slice areas on a flat
  * ground; terrain draws under it only when the git-ignored Spike A grid is served.
  */
-import type { CellRuns, GameState } from '@sz/sim-core';
+import type { CellRuns, GameState, StartSite, StartRoute } from '@sz/sim-core';
+import { bi } from './strings.js';
 import { areaAt, sliceBox } from './views.js';
 
 export interface MapHandlers {
@@ -70,7 +71,8 @@ export class SliceMap {
   private pending = false;
   drawMode = false;
 
-  constructor(private canvas: HTMLCanvasElement, private s: GameState, private h: MapHandlers) {
+  constructor(private canvas: HTMLCanvasElement, private s: GameState, private sites: readonly StartSite[],
+    private routes: readonly StartRoute[], private h: MapHandlers) {
     this.ctx = canvas.getContext('2d')!;
     this.lines = outlines(s);
     void terrain(s.grid.width, s.grid.height).then((t) => { this.ground = t; this.request(); });
@@ -111,7 +113,54 @@ export class SliceMap {
       for (const [y, x0, x1] of runs) ctx.fillRect(x0, y, x1 - x0 + 1, 1);
     };
     for (const z of this.zones) fillRuns(z.runs, z.color);
+    this.drawRoutes();
+    this.drawSites();
     if (this.rect) fillRuns(this.rect.runs, 'rgba(120,230,255,.75)');
+  }
+
+  private drawRoutes() {
+    const { ctx, view } = this, px = devicePixelRatio / view.scale, width = this.s.grid.width;
+    ctx.save();
+    ctx.lineJoin = 'round';
+    for (const r of this.routes) {
+      const rail = r.kind === 'railway', weight = Math.max(.28, 2 * px);
+      ctx.beginPath();
+      r.cells.forEach((c, i) => {
+        const x = c % width + .5, y = Math.floor(c / width) + .5;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.setLineDash([]); ctx.lineWidth = weight + px; ctx.strokeStyle = '#312e31'; ctx.stroke();
+      if (rail) ctx.setLineDash([weight * 2, weight]);
+      ctx.lineWidth = weight; ctx.strokeStyle = rail ? '#c6d9ef' : '#eab977'; ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /** Fixed point symbols at overview; at core zoom the lanes between roofs are purely illustrative. */
+  private drawSites() {
+    const { ctx, view } = this, px = devicePixelRatio / view.scale;
+    ctx.save();
+    for (const s of this.sites) {
+      const [x, y] = s.cell;
+      const size = Math.max(.9, 3 * px);
+      ctx.fillStyle = s.layer === 'settlement' ? '#ffc78e' : s.layer === 'landmark' ? '#a3e7ff' : '#c3df92';
+      if (s.layer === 'settlement' && px <= 1 / 16) {
+        ctx.fillStyle = '#57473d'; ctx.fillRect(x, y, 1, 1);
+        ctx.fillStyle = '#ffc78e';
+        ctx.fillRect(x + .07, y + .08, .34, .29); ctx.fillRect(x + .54, y + .12, .36, .35);
+        ctx.fillRect(x + .09, y + .54, .38, .32); ctx.fillRect(x + .6, y + .59, .26, .29);
+      } else {
+        ctx.fillRect(x + (1 - size) / 2, y + (1 - size) / 2, size, size);
+      }
+      if (px <= 1 / 20) {
+        ctx.font = `${11 * px}px sans-serif`;
+        ctx.strokeStyle = '#19232a'; ctx.lineWidth = 3 * px;
+        const label = `≈ ${bi(s.name)}`;
+        ctx.strokeText(label, x + 1.1, y + .7);
+        ctx.fillStyle = '#fff'; ctx.fillText(label, x + 1.1, y + .7);
+      }
+    }
+    ctx.restore();
   }
 
   private cellAt(e: PointerEvent | WheelEvent) {
@@ -163,4 +212,3 @@ export class SliceMap {
 
   setDrawMode(on: boolean) { this.drawMode = on; this.canvas.classList.toggle('drawing', on); }
 }
-
