@@ -61,10 +61,10 @@ export function createTickSteps(params: SliceParams, content: TickContent = {}):
     construction: construction(params, !!fc, content.buildable, wc, gc),
     labour: labour(params, content.network, content.buildable),
     housing: housing(params),
-    migration: migration(params),
+    migration: migration(params, content.network),
     production: production(params),
     ...(fc ? { finance: finance(params, fc) } : {}),
-    statistics: statistics(params),
+    statistics: statistics(params, content.network),
   };
   // the finance step owns the project and team actions (§5.6)
   const act = fc ? (s: GameState, a: PlayerAction): boolean => {

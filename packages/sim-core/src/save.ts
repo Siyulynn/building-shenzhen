@@ -31,12 +31,15 @@ const MIGRATIONS: Record<number, (s: Save) => Save> = {
   // R3 (§13.3): the organic firms' banked demand. The new cohort and firm fields are optional
   3: (s) => ({ ...s, header: { ...s.header, version: 4 },
     body: { ...s.body, state: { ...(s.body.state as object), growth: { carry: 0 } } } }),
-  // R4 (phase1-slice §5.11): who holds which jobs (empty, so the next labour step matches once from scratch) and
-  // the month's service posts
+  // R4 (phase1-slice §5.11): who holds which jobs (empty, so the next labour step matches once from scratch),
+  // the month's service posts, no one turned away, and the new series as zeros
   4: (s) => {
-    const st = s.body.state as { labour: object };
+    const st = s.body.state as { labour: object; housing: object[]; history: { months: unknown[] } };
+    const zeros = () => st.history.months.map(() => 0);
     return { ...s, header: { ...s.header, version: 5 },
-      body: { ...s.body, state: { ...st, labour: { ...st.labour, held: [], servicePosts: [] } } } };
+      body: { ...s.body, state: { ...st, labour: { ...st.labour, held: [], servicePosts: [] },
+        housing: st.housing.map((m) => ({ ...m, turnedAway: 0 })),
+        history: { ...st.history, vacancies: zeros(), turnedAway: zeros(), servicePosts: zeros(), constructionPosts: zeros() } } } };
   },
 };
 

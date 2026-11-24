@@ -29,6 +29,9 @@ migration:
   inland_wage: 45                        # the reference wage migrants compare with
   base: { migrant_factory: 600, migrant_construction: 300 }   # people per month at gap 1, full pull, network 1
   sector: { migrant_factory: factory, migrant_construction: construction }
+  pull_sectors:                          # R4 (§5.11): the sectors whose vacancies pull each kind (fill_order lets them in)
+    migrant_factory: [factory, services]
+    migrant_construction: [construction]
   K_vac: 500                             # vacancies at which the pull is one half
   network_alpha: 0.5
   K_net: 1000

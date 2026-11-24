@@ -1,10 +1,10 @@
 /** R4: jobs, labour and migration on the map (phase1-slice §5.11, §12 R4). */
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, addServicedLand, applyZoneAction, createTickSteps, inducedServiceJobs, placeStructure, runMonths,
-  type CellRuns, type GameState, type TickContent,
+  Rng, SAVE_VERSION, addServicedLand, applyTurnAction, applyZoneAction, createTickSteps, inducedServiceJobs, loadGame, placeStructure,
+  post, runMonths, saveFromJson, saveGame, saveToJson, type CellRuns, type GameState, type TickContent,
 } from '../src/index.js';
-import { initial, params, slice } from './fixtures.js';
+import { content, initial, params, slice } from './fixtures.js';
 import { checkInvariants, checkLedger, walk } from './invariants.js';
 
 const SEZ = 'regime.contracting_1980s';
@@ -98,5 +98,147 @@ describe('R4: service jobs as wages are spent', () => {
   it('the idle start posts none', () => {
     const end = walk(initial(), 36, new Rng(1), STEPS, checkInvariants);
     expect(end.labour.servicePosts).toEqual([]);
+  });
+});
+
+describe('R4: matching keeps incumbents and reaches only by road', () => {
+  /** Factory jobs added to an area's base jobs, as a stand-in for new posts. */
+  const shock = (s: GameState, area: number, n: number) => { s.labour.baseJobs.find((j) => j.area === area && j.sector === 'factory')!.jobs += n; };
+  const holders = (s: GameState, f: (h: GameState['labour']['held'][number]) => boolean) =>
+    s.labour.held.reduce((n, h) => n + (f(h) ? h.n : 0), 0);
+
+  it('a vacancy in an area no road joins to another is not filled from that area; without the network it is', () => {
+    const s = run(initial(), 2);
+    shock(s, 2, 500);                                                  // area 2 has no road at the start
+    const onMap = run(s, 1);
+    expect(holders(onMap, (h) => h.area === 2 && h.home !== 2)).toBe(0);
+    const offMap = run(s, 1, createTickSteps(params));                 // M2's fixtures: every area reaches every other
+    expect(holders(offMap, (h) => h.area === 2 && h.home !== 2)).toBeGreaterThan(0);
+  });
+
+  it("a job shock in one sector leaves the other sectors' holders in place and pulls migrants into the vacancy", () => {
+    const s = run(initial(), 2);
+    const before = (sec: string) => holders(s, (h) => h.area === 7 && h.sector === sec);
+    shock(s, 7, 1500);
+    let inflow = 0;
+    const end = walk(s, 6, new Rng(2), STEPS, (b, a, e) => {
+      checkInvariants(b, a, e); checkLedger(b, a);
+      for (const x of e) if (x.kind === 'flow' && x.step === 'migration') inflow += (x.detail as { inflow: number }).inflow;
+    });
+    for (const sec of ['state', 'farming_fishing', 'services'] as const) {
+      expect(holders(end, (h) => h.area === 7 && h.sector === sec)).toBe(before(sec));
+    }
+    expect(inflow).toBeGreaterThan(0);
+    const migrantsIn = (t: GameState) => holders(t, (h) => h.area === 7 && h.sector === 'factory' && h.kind === 'migrant_factory');
+    expect(migrantsIn(end)).toBeGreaterThan(migrantsIn(s));
+
+    // the posts go: their holders are laid off, and the laid-off migrants leave, people and money conserved
+    shock(end, 7, -1500);
+    let outflow = 0;
+    const later = walk(end, 12, new Rng(5), STEPS, (b, a, e) => {
+      checkInvariants(b, a, e); checkLedger(b, a);
+      for (const x of e) if (x.kind === 'flow' && x.step === 'migration') outflow += (x.detail as { outflow: number }).outflow;
+    });
+    const migrants = (t: GameState) => t.pops.reduce((n, g) => n + (g.kind === 'migrant_factory' ? g.size : 0), 0);
+    expect(migrantsIn(later)).toBeLessThan(migrantsIn(end));
+    expect(outflow).toBeGreaterThan(0);
+    expect(migrants(later)).toBeLessThan(migrants(end));
+  });
+
+  it('turnover is deterministic and draws nothing: the same seed gives the same holders', () => {
+    const a = run(initial(), 6, STEPS, 4), b = run(initial(), 6, STEPS, 4);
+    expect(a.labour.held).toEqual(b.labour.held);
+  });
+});
+
+describe('R4: arrivals who find no bed', () => {
+  /** Every rental bed taken by idle construction migrants, and factory jobs open in area 7. */
+  const full = () => {
+    const s = run(initial(), 2);
+    for (const m of s.housing) {
+      const g = s.pops.find((x) => x.area === m.area && x.kind === 'migrant_construction');
+      const here = s.pops.reduce((n, x) => n + (x.area === m.area && (x.kind === 'migrant_factory' || x.kind === 'migrant_construction') ? x.size : 0), 0);
+      const add = Math.floor(params.housing.crowding_max * m.beds.rental) - here;
+      if (!g || add <= 0) continue;
+      g.size += add; g.stayedSixMonths += add; g.present += add;
+    }
+    s.labour.baseJobs.find((j) => j.area === 7 && j.sector === 'factory')!.jobs += 3000;
+    return s;
+  };
+
+  it('are recorded, not people; the rent target and the villages answer them a month later', () => {
+    let found: GameState | undefined;
+    walk(full(), 6, new Rng(3), STEPS, (b, a, e) => {
+      checkInvariants(b, a, e);                                        // the turned away are no flow
+      if (!found && a.housing.some((m) => m.turnedAway > 0)) found = a;
+    });
+    expect(found).toBeDefined();
+    const s = found!;
+    expect(s.history.turnedAway.at(-1)).toBe(s.housing.reduce((n, m) => n + m.turnedAway, 0));
+    const area = [...s.housing].sort((x, y) => y.turnedAway - x.turnedAway)[0]!.area;
+    const none = structuredClone(s);
+    for (const m of none.housing) m.turnedAway = 0;
+    const a = run(s, 1, STEPS, 9), b = run(none, 1, STEPS, 9);
+    const rent = (t: GameState) => t.housing.find((m) => m.area === area)!.rent;
+    expect(rent(a)).toBeGreaterThan(rent(b));
+    const villageStarts = (t: GameState) => t.blocks.find((x) => x.area === area)!.cohorts
+      .reduce((n, c) => n + (c.archetype === 'village_rental' && c.stage === 'under_construction' ? c.m2 : 0), 0);
+    expect(villageStarts(a)).toBeGreaterThanOrEqual(villageStarts(b));
+  });
+});
+
+describe('R4: construction jobs during works', () => {
+  const WORKS_STEPS = createTickSteps({ ...params, works: { ...params.works!, crew_per_order: 30 } }, TICK);
+
+  it('a funded works order posts construction jobs where it works, and they go when it is done', () => {
+    const s = initial();
+    post(s, 'grant', 'general', 5_000_000, 'test.fund');
+    applyZoneAction(s, { type: 'create_zone', use: 'industrial', runs: CONNECTED });
+    applyTurnAction(s, { type: 'commit_works', zone: 1 }, WORKS_STEPS);
+    const area = s.zones[0]!.area;
+    const construction = (t: GameState) => t.labour.jobs.find((r) => r.area === area && r.sector === 'construction')!.jobs;
+    let during = 0, after = -1, peak = 0;
+    const builders = (t: GameState) => t.pops.reduce((n, g) => n + (g.kind === 'migrant_construction' ? g.size : 0), 0);
+    const end = walk(s, 30, new Rng(1), WORKS_STEPS, (b, a, e) => {
+      checkInvariants(b, a, e); checkLedger(b, a);
+      peak = Math.max(peak, builders(a));
+      const crew = e.filter((x) => x.kind === 'crew').reduce((n, x) => n + (x.detail!.area === area ? (x.detail!.units as number) : 0), 0);
+      if (crew > 0) {
+        expect(a.history.constructionPosts.at(-1)).toBeGreaterThanOrEqual(crew);
+        during = Math.max(during, construction(a));
+      } else if (a.worksOrders[0]!.stage === 'done' && after < 0) after = construction(a);
+    });
+    expect(end.worksOrders[0]!.stage).toBe('done');
+    expect(during).toBeGreaterThan(after);
+    expect(after).toBeGreaterThanOrEqual(0);
+    // the crews' holders are laid off when the works end (idle locals within road reach took the jobs, so no
+    // construction migrant came: the departures are traced in the job-shock test)
+    expect(peak).toBeGreaterThanOrEqual(builders(s));
+  });
+});
+
+describe('R4: saves', () => {
+  it('save, load and continue matches an uninterrupted run; a version 4 save loads and rematches', () => {
+    const s = landed([{ use: 'industrial', runs: CONNECTED }]);
+    const rng = new Rng(7);
+    const whole = runMonths(s, 20, rng, undefined, STEPS);
+    const rngA = new Rng(7);
+    const mid = runMonths(s, 9, rngA, undefined, STEPS);
+    const loaded = loadGame(saveFromJson(saveToJson(saveGame(mid, rngA, content))));
+    const cont = runMonths(loaded.state, 11, loaded.rng, undefined, STEPS);
+    expect(saveToJson(saveGame(cont, loaded.rng, content))).toBe(saveToJson(saveGame(whole, rng, content)));
+
+    const save = saveFromJson(saveToJson(saveGame(mid, new Rng(3), content)));
+    const state = structuredClone(save.body.state) as Record<string, any>;
+    delete state.labour.held; delete state.labour.servicePosts;
+    for (const m of state.housing) delete m.turnedAway;
+    for (const k of ['vacancies', 'turnedAway', 'servicePosts', 'constructionPosts']) delete state.history[k];
+    const back = loadGame({ ...save, header: { ...save.header, version: 4 }, body: { ...save.body, state } });
+    expect(back.state.labour.held).toEqual([]);
+    expect(back.state.history.vacancies.length).toBe(back.state.history.months.length);
+    // employment stays as saved until the next labour step, which matches once from scratch
+    expect(back.state.pops.map((g) => g.employed)).toEqual(mid.pops.map((g) => g.employed));
+    walk(back.state, 3, back.rng, STEPS, (b, a, e) => checkInvariants(b, a, e));
+    expect(SAVE_VERSION).toBe(5);
   });
 });

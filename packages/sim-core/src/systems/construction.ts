@@ -71,7 +71,8 @@ export function construction(p: SliceParams, pool = false, buildable?: { cells: 
         if (value - cost - risk > vb.hurdle * cost) {
           const perBed = p.housing.m2_per_bed.village_rental;
           // every rental archetype's pipeline (b&c §13.3): work-unit dormitories answer the same shortfall
-          const unmet = Math.max(0, market.occupants.rental - bedsByPool(b, p).rental - pipelineRentalBeds(b, p));
+          // R4 (§5.11): last month's turned-away arrivals want beds too
+          const unmet = Math.max(0, market.occupants.rental + market.turnedAway - bedsByPool(b, p).rental - pipelineRentalBeds(b, p));
           const want = Math.min(villagers * vb.max_start_m2_per_villager_month, unmet * perBed * vb.response);
           const era = b.cohorts[0]?.era ?? 0;              // M2 has one era (§5.2); era changes arrive with content
           const maxFloors = Math.min(p.eras[era]!.structural_max_floors, vb.enforcement_max_floors[s.policy.enforcement]);

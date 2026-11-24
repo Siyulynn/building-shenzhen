@@ -29,7 +29,9 @@ export function housing(p: SliceParams) {
       }
       m.occupants = { local: groups.filter((g) => !isMigrant(g.kind)).reduce((a, g) => a + g.size, 0), rental };
       m.crowding = rental / Math.max(1, m.beds.rental);
-      const target = H.base_rent * Math.pow(Math.max(m.crowding, H.crowding_floor), H.rent_elasticity);
+      // R4 (§5.11): the rent answers demand, the occupants and last month's turned-away arrivals
+      const demand = (rental + m.turnedAway) / Math.max(1, m.beds.rental);
+      const target = H.base_rent * Math.pow(Math.max(demand, H.crowding_floor), H.rent_elasticity);
       m.rent += H.rent_speed * (target - m.rent);
     }
   };

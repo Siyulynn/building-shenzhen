@@ -72,6 +72,7 @@ export interface HousingMarket {
   occupants: { local: number; rental: number };
   crowding: number;
   rent: number;
+  turnedAway: number;         // R4 (§5.11): this month's arrivals who found no bed, split by vacancies; not people
 }
 export interface MigrationState { stockLag: Record<MigrantKind, number[]> }
 export interface PolicyLevers { permitRegime: PermitRegime; enforcement: Enforcement }
@@ -166,6 +167,8 @@ export interface History {
   // M4 (§5.6): nominal yuan per month
   gdp: number[]; revenue: number[]; obligationsDue: number[]; baselineDue: number[]; obligationsPaid: number[];
   projectSpend: number[]; reserve: number[]; debtOutstanding: number[]; austerity: number[];
+  // R4 (§5.11): accessible vacancies, turned-away arrivals, service posts and crew construction posts
+  vacancies: number[]; turnedAway: number[]; servicePosts: number[]; constructionPosts: number[];
 }
 
 export interface GameState {
@@ -263,7 +266,7 @@ export function emptyHistory(): History {
     employed: seriesBySector(), rentalBeds: [], crowding: [], rent: [], underConstructionM2: [], illegalShare: [],
     inflow: [], outflow: [], firmJobs: [], firmStaffed: [], output: [], exports: [], valueAdded: [],
     gdp: [], revenue: [], obligationsDue: [], baselineDue: [], obligationsPaid: [], projectSpend: [], reserve: [],
-    debtOutstanding: [], austerity: [] };
+    debtOutstanding: [], austerity: [], vacancies: [], turnedAway: [], servicePosts: [], constructionPosts: [] };
 }
 
 /** content/slice/leaders.yaml (§5.7): the pair, fictional, with the Phase 1 traits. */
@@ -367,7 +370,7 @@ export function createInitialState(content: {
     const crowding = occupants.rental / Math.max(1, beds.rental);
     const H = params.housing;
     housing.push({ area: area.id, beds, occupants, crowding,
-      rent: H.base_rent * Math.pow(Math.max(crowding, H.crowding_floor), H.rent_elasticity) });
+      rent: H.base_rent * Math.pow(Math.max(crowding, H.crowding_floor), H.rent_elasticity), turnedAway: 0 });
   }
   for (const s of start.areas) if (!seen.has(s.area)) throw new Error(`start names unknown area ${s.area}`);
 
@@ -489,6 +492,8 @@ export function cloneState(s: GameState): GameState {
       gdp: [...h.gdp], revenue: [...h.revenue], obligationsDue: [...h.obligationsDue], baselineDue: [...h.baselineDue],
       obligationsPaid: [...h.obligationsPaid], projectSpend: [...h.projectSpend], reserve: [...h.reserve],
       debtOutstanding: [...h.debtOutstanding], austerity: [...h.austerity],
+      vacancies: [...h.vacancies], turnedAway: [...h.turnedAway], servicePosts: [...h.servicePosts],
+      constructionPosts: [...h.constructionPosts],
     },
   };
 }

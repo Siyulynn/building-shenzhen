@@ -18,6 +18,7 @@ export interface SliceParams {
     inland_wage: number;
     base: Record<MigrantKind, number>;
     sector: Record<MigrantKind, Sector>;
+    pull_sectors: Record<MigrantKind, Sector[]>;   // R4 (§5.11)
     K_vac: number; network_alpha: number; K_net: number; network_lag_months: number;
     permit_factor: Record<PermitRegime, number>;
     base_exit: number; unemployment_push: number; housing_push: number;
@@ -214,6 +215,11 @@ export function validateParams(raw: unknown): SliceParams {
   if (!(p.labour.jobs_per_crew_unit >= 0)) throw new Error('params: labour.jobs_per_crew_unit must be >= 0');
   need(p.migration.base, MIGRANT_KINDS, 'migration.base');
   need(p.migration.sector, MIGRANT_KINDS, 'migration.sector');
+  need(p.migration.pull_sectors, MIGRANT_KINDS, 'migration.pull_sectors');
+  for (const k of MIGRANT_KINDS) for (const sec of p.migration.pull_sectors[k]) {
+    if (!(SECTORS as readonly string[]).includes(sec)) throw new Error(`params: migration.pull_sectors.${k} names ${sec}`);
+    if (!p.labour.fill_order[sec].includes(k)) throw new Error(`params: migration.pull_sectors.${k}: ${k} may not fill ${sec}`);
+  }
   need(p.migration.permit_factor, PERMIT_REGIMES, 'migration.permit_factor');
   need(p.housing.m2_per_bed, HOUSING_ARCHETYPES, 'housing.m2_per_bed');
   for (const a of HOUSING_ARCHETYPES) if (p.housing.m2_per_bed[a] <= 0) throw new Error(`params: housing.m2_per_bed.${a} must be > 0`);

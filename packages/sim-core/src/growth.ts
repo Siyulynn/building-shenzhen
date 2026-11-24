@@ -234,13 +234,14 @@ export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): 
 
   // 3. residential: work units answer rental pressure in their own area with dormitories
   for (const m of s.housing) {
-    if (m.crowding < G.residential.min_crowding) continue;
+    // demand crowding (phase1-slice §5.11): the occupants and last month's turned-away arrivals
+    if ((m.occupants.rental + m.turnedAway) / Math.max(1, m.beds.rental) < G.residential.min_crowding) continue;
     const zones = s.zones.filter((z) => z.use === 'residential' && z.area === m.area).map((z) => ({ z, room: room(z) }))
       .filter((x) => x.room > 0);
     if (!zones.length) continue;
     const b = s.blocks.find((x) => x.area === m.area);
     if (!b) continue;
-    const unmet = Math.max(0, m.occupants.rental - bedsByPool(b, p).rental - pipelineRentalBeds(b, p));
+    const unmet = Math.max(0, m.occupants.rental + m.turnedAway - bedsByPool(b, p).rental - pipelineRentalBeds(b, p));
     const m2 = Math.floor(Math.min(unmet * p.housing.m2_per_bed.dormitory * G.response, zones.reduce((n, x) => n + x.room, 0)));
     if (m2 > 0) startInZones(ctx, zones, m2, 'dormitory', 'work_unit', G);
   }

@@ -1343,10 +1343,10 @@ Finished works now owe maintenance: a done order adds `spent × works.maint_rate
 - `works.maint_rate_year`.
 
 **R4's tests** (`test/jobs.test.ts`):
-- **Construction jobs during works.** A funded works order raises its area's construction jobs while it works, and they go when it is done. The construction migrants laid off then leave, with people and money conserved every month.
+- **Construction jobs during works.** A funded works order raises its area's construction jobs while it works, and they go when it is done, with people and money conserved every month. (Idle locals within road reach take the crews' jobs at the start, so the departures are traced in the next test.)
 - **Industrial jobs after occupancy.** Organic firms post jobs only once open. A placed power source on the zone's road raises the share and the posts.
 - **Service jobs as wages are spent.** New factory wages raise service posts: formal posts on occupied shop floor, informal posts where the workers live.
-- **Incumbents stay.** A job shock in one sector leaves the other sectors' holders in place and pulls migrants into the vacancy.
+- **Incumbents stay, layoffs and departures.** A job shock in one sector leaves the other sectors' holders in place and pulls migrants into the vacancy. When the posts go, their holders are laid off and the laid-off migrants leave, with people and money conserved every month.
 - **Reach.** A vacancy in an area that no road joins to another is not filled from that other area.
 - **Turned away.** With no free bed, arrivals are recorded, the rent target rises with them, and villages build.
 - **Against an idle run.** A run that services and builds on connected land ends with more accessible vacancies, filled jobs, arrivals, rental beds and recurring revenue than the same start left idle.

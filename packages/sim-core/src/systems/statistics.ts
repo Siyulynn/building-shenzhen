@@ -5,9 +5,12 @@ import type { TickContext } from '../step.js';
 import { illegalShare, underConstructionM2, villageM2 } from './common.js';
 import { industryTotals } from './industry.js';
 import { principalOutstanding } from '../fiscal.js';
+import { reachClasses } from '../reach.js';
+import type { StartNetwork } from '../sites.js';
+import { accessibleAreas } from './migration.js';
 
 /** Without params (the M1 pipeline) there are no firms, and the industry series are zero. */
-export function statistics(p?: SliceParams) {
+export function statistics(p?: SliceParams, network?: StartNetwork) {
   return (ctx: TickContext): void => {
     const s = ctx.state;
     const h = s.history;
@@ -67,5 +70,16 @@ export function statistics(p?: SliceParams) {
     h.projectSpend.push(spend);
     h.reserve.push(s.fiscal.balances.general);
     h.debtOutstanding.push(s.fiscal.loans.reduce((a, l) => a + principalOutstanding(l, s.date + 1), 0));
+
+    // R4 (§5.11): accessible vacancies, the turned away, service posts and the crews' construction posts
+    const open = accessibleAreas(s, reachClasses(s, network));
+    h.vacancies.push(s.labour.jobs.reduce((a, r) => a + (open.has(r.area) ? Math.max(0, r.jobs - r.filled) : 0), 0));
+    h.turnedAway.push(s.housing.reduce((a, m) => a + m.turnedAway, 0));
+    h.servicePosts.push(s.labour.servicePosts.reduce((a, x) => a + x.formal + x.informal, 0));
+    const crew = new Map<number, number>();
+    for (const e of ctx.events) if (e.step === 'construction' && e.kind === 'crew') {
+      crew.set(e.detail!.area as number, (crew.get(e.detail!.area as number) ?? 0) + (e.detail!.units as number));
+    }
+    h.constructionPosts.push(p ? [...crew.values()].reduce((a, u) => a + Math.floor(u * p.labour.jobs_per_crew_unit), 0) : 0);
   };
 }
