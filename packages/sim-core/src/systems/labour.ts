@@ -7,7 +7,8 @@ import type { GameState, HeldJobs, JobRow, PopGroup } from '../state.js';
 import type { TickContext } from '../step.js';
 import { largestRemainder, stochRound } from '../round.js';
 import { labourForce, removeNewestFirst, sortHeld, underConstructionM2 } from './common.js';
-import { firmPosts, postFirmJobs, staffFirms } from './industry.js';
+import { firmPosts, isOpen, postFirmJobs, staffFirms } from './industry.js';
+import { placedSupply } from '../growth.js';
 
 export { labourForce };
 
@@ -143,7 +144,7 @@ function match(s: GameState, p: SliceParams, jobs: JobRow[], avail: Map<PopGroup
   }
 }
 
-export function labour(p: SliceParams, network?: StartNetwork) {
+export function labour(p: SliceParams, network?: StartNetwork, buildable?: { cells: Uint32Array }) {
   return (ctx: TickContext): void => {
     const s = ctx.state;
     const L = p.labour;
@@ -151,7 +152,7 @@ export function labour(p: SliceParams, network?: StartNetwork) {
 
     // jobs this month: the start economy, construction work and the firms' posts (§5.5). Construction work is the
     // floor under construction and, from R4 (§5.11), the crew units projects and works orders used this month
-    postFirmJobs(s, p);
+    postFirmJobs(s, p, network ? placedSupply(s, { network, ...(buildable ? { buildable } : {}) }, (f) => isOpen(f, s.date)) : undefined);
     const crew = new Map<number, number>();
     for (const e of ctx.events) {
       if (e.step === 'construction' && e.kind === 'crew') {

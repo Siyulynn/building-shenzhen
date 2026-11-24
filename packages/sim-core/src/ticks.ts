@@ -59,7 +59,7 @@ export function createTickSteps(params: SliceParams, content: TickContent = {}):
     } : {}),
     investment: investment(params, content),
     construction: construction(params, !!fc, content.buildable, wc, gc),
-    labour: labour(params, content.network),
+    labour: labour(params, content.network, content.buildable),
     housing: housing(params),
     migration: migration(params),
     production: production(params),

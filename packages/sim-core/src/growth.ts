@@ -51,6 +51,44 @@ export function developableCells(s: GameState, g: GrowthContent): Map<number, nu
   return out;
 }
 
+/** A utility amount by area: the placed sources' supply to the firms there (phase1-slice §5.11). */
+export type AreaSupply = Map<number, { power: number; water: number }>;
+
+/**
+ * What placed sources deliver to each area's firms (phase1-slice §5.11). Each zone with firms that `counts` demands
+ * their need (and `extra`'s, for a firm not yet sited), spread evenly over its developable cells; supply is
+ * allocated on the road components (b&c §13.1) and each zone's share is summed into its area. Without a placed
+ * source this is empty, and nothing is computed.
+ */
+export function placedSupply(s: GameState, g: GrowthContent, counts: (f: GameState['firms'][number]) => boolean,
+  extra?: { zone: number; kw: number; m3: number }): AreaSupply {
+  const out: AreaSupply = new Map();
+  if (!s.structures.some((x) => x.kind === 'power_source' || x.kind === 'water_source')) return out;
+  const cells = developableCells(s, g);
+  const demand = { power: new Map<number, number>(), water: new Map<number, number>() };
+  for (const z of s.zones) {
+    const cs = cells.get(z.id) ?? [];
+    if (!cs.length) continue;
+    let kw = 0, m3 = 0;
+    for (const f of s.firms) if (f.zone === z.id && counts(f)) { kw += f.powerKw; m3 += f.waterM3Day; }
+    if (extra?.zone === z.id) { kw += extra.kw; m3 += extra.m3; }
+    for (const [u, need] of [['power', kw], ['water', m3]] as const) {
+      const split = largestRemainder(Math.ceil(need), cs.map(() => 1));
+      cs.forEach((c, i) => { if (split[i]! > 0) demand[u].set(c, split[i]!); });
+    }
+  }
+  if (!demand.power.size && !demand.water.size) return out;
+  const views = spatialViews(s, g.network, { demand });
+  for (const z of s.zones) {
+    let power = 0, water = 0;
+    for (const c of cells.get(z.id) ?? []) { power += views.supply.power.get(c) ?? 0; water += views.supply.water.get(c) ?? 0; }
+    if (!power && !water) continue;
+    const a = out.get(z.area) ?? { power: 0, water: 0 };
+    out.set(z.area, { power: a.power + power, water: a.water + water });
+  }
+  return out;
+}
+
 /** A zone's room for organic floor (§13.3): developable cells × 10,000 m² × far, less what is built or building. */
 export function zoneRoomM2(s: GameState, z: Zone, cells: number, G: GrowthParams): number {
   if (!isGrowthUse(z.use) || cells === 0) return 0;
@@ -150,7 +188,8 @@ export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): 
       if (z.use !== 'industrial') continue;
       const r = room(z);
       // a builder puts up no factory its area could not supply: every firm there open, this one too
-      if (r >= need && r > bestRoom && prospectiveShare(s, z.area, offer.powerKw, offer.waterM3Day) >= I.min_utility_share) {
+      if (r >= need && r > bestRoom && prospectiveShare(s, z.area, offer.powerKw, offer.waterM3Day,
+        placedSupply(s, g, () => true, { zone: z.id, kw: offer.powerKw, m3: offer.waterM3Day }).get(z.area)) >= I.min_utility_share) {
         best = z; bestRoom = r;
       }
     }

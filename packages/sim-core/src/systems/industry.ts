@@ -89,13 +89,16 @@ export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site:
 
 export const isOpen = (f: Firm, date: number) => f.opens !== undefined && date >= f.opens;
 
-/** The area's utility share for its open firms: min(1, capacity ÷ needs), the lower of power and water. */
-export function utilityShare(s: GameState, area: number): number {
+/**
+ * The area's utility share for its open firms: min(1, (capacity + placed supply) ÷ needs), the lower of power and
+ * water. The placed supply is what placed sources deliver to the area's zones (§5.11); it never adds to capacity.
+ */
+export function utilityShare(s: GameState, area: number, supply = { power: 0, water: 0 }): number {
   const a = s.areas.find((x) => x.id === area);
   let power = 0, water = 0;
   for (const f of s.firms) if (f.area === area && isOpen(f, s.date)) { power += f.powerKw; water += f.waterM3Day; }
   const share = (cap: number, need: number) => (need > 0 ? Math.min(1, Math.max(0, cap) / need) : 1);
-  return Math.min(share(a?.utilities.powerCap ?? 0, power), share(a?.utilities.waterCap ?? 0, water));
+  return Math.min(share((a?.utilities.powerCap ?? 0) + supply.power, power), share((a?.utilities.waterCap ?? 0) + supply.water, water));
 }
 
 /**
@@ -115,12 +118,12 @@ export const orderFactor = (s: GameState) =>
   s.orders.until !== undefined && s.date <= s.orders.until ? s.orders.factor : 1;
 
 /** Tick step 5, before matching: each open firm posts min(ramp, floor, utilities, orders) jobs (§5.5). */
-export function postFirmJobs(s: GameState, p: SliceParams): void {
+export function postFirmJobs(s: GameState, p: SliceParams, supply?: ReadonlyMap<number, { power: number; water: number }>): void {
   const shares = new Map<number, number>();
   for (const f of s.firms) {
     f.staffed = 0;
     if (!isOpen(f, s.date)) { f.posted = 0; continue; }
-    if (!shares.has(f.area)) shares.set(f.area, utilityShare(s, f.area));
+    if (!shares.has(f.area)) shares.set(f.area, utilityShare(s, f.area, supply?.get(f.area)));
     const monthsOpen = s.date - f.opens! + 1;
     const ramp = Math.floor(f.jobs * Math.min(1, monthsOpen / archetypeParams(p, f.archetype).ramp_months));
     const floor = f.jobs;                                    // an open firm's floor is complete (or existing)
