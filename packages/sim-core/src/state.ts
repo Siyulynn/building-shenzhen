@@ -62,7 +62,10 @@ export interface LabourMarket {
   jobs: JobRow[];
   baseJobs: { area: number; sector: Sector; jobs: number }[];
   held: HeldJobs[];
+  servicePosts: ServicePosts[];   // R4 (§5.11): this month's service posts by area, in area order
 }
+/** R4 (§5.11): service posts from spending, added to an area's services row. */
+export interface ServicePosts { area: number; formal: number; informal: number }
 export interface HousingMarket {
   area: number;
   beds: { local: number; rental: number };
@@ -380,7 +383,7 @@ export function createInitialState(content: {
     pops,
     blocks,
     villagePlots,
-    labour: { wage: { ...params.labour.wage_start }, jobs: [], baseJobs, held: [] },
+    labour: { wage: { ...params.labour.wage_start }, jobs: [], baseJobs, held: [], servicePosts: [] },
     housing,
     migration: { stockLag: {
       migrant_factory: Array(lagLen).fill(stockOf('migrant_factory')),
@@ -446,7 +449,7 @@ export function cloneState(s: GameState): GameState {
       rightsSummary: b.rightsSummary.map((r) => ({ ...r })) })),
     villagePlots: s.villagePlots.map((v) => ({ ...v })),
     labour: { wage: { ...s.labour.wage }, jobs: s.labour.jobs.map((j) => ({ ...j })), baseJobs: s.labour.baseJobs.map((j) => ({ ...j })),
-      held: s.labour.held.map((h) => ({ ...h })) },
+      held: s.labour.held.map((h) => ({ ...h })), servicePosts: s.labour.servicePosts.map((x) => ({ ...x })) },
     housing: s.housing.map((m) => ({ ...m, beds: { ...m.beds }, occupants: { ...m.occupants } })),
     migration: { stockLag: { migrant_factory: [...s.migration.stockLag.migrant_factory],
       migrant_construction: [...s.migration.stockLag.migrant_construction] } },

@@ -123,10 +123,11 @@ describe('R3: the builder pays', () => {
 });
 
 describe('R3: shops, dormitories and villages', () => {
-  /** Spending raised through the service wage, as new jobs would raise it; the base jobs' reference stays. */
-  function spending(s: GameState, wage = 100): GameState {
+  /** Spending raised through the factory wage, as new jobs would raise it; the base jobs' reference stays. Service
+   *  wages are not spending from R4 on (§13.3's basic-sector rule). */
+  function spending(s: GameState, wage = 120): GameState {
     const t = run(s, 1);
-    t.labour.wage.services = wage;
+    t.labour.wage.factory = wage;
     return t;
   }
 

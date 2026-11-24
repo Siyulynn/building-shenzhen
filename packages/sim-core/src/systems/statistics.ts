@@ -53,6 +53,11 @@ export function statistics(p?: SliceParams) {
       const row = s.labour.jobs.find((r) => r.area === j.area && r.sector === j.sector);
       if (row && row.jobs > 0) base += j.jobs * (row.filled / row.jobs) * p.gdp.base_va_per_job_month[j.sector];
     }
+    // R4 (§5.11): service posts add value as base jobs do, at the services row's fill
+    if (p) for (const sp of s.labour.servicePosts) {
+      const row = s.labour.jobs.find((r) => r.area === sp.area && r.sector === 'services');
+      if (row && row.jobs > 0) base += (sp.formal + sp.informal) * (row.filled / row.jobs) * p.gdp.base_va_per_job_month.services;
+    }
     h.gdp.push(p ? t.valueAdded + base + work * p.gdp.construction_va_ratio : 0);
     h.revenue.push(fin?.revenue ?? 0);
     h.obligationsDue.push(fin?.due ?? 0);

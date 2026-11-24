@@ -8,7 +8,7 @@ import type { TickContext } from '../step.js';
 import { largestRemainder, stochRound } from '../round.js';
 import { labourForce, removeNewestFirst, sortHeld, underConstructionM2 } from './common.js';
 import { firmPosts, isOpen, postFirmJobs, staffFirms } from './industry.js';
-import { placedSupply } from '../growth.js';
+import { placedSupply, servicePosts } from '../growth.js';
 
 export { labourForce };
 
@@ -160,8 +160,14 @@ export function labour(p: SliceParams, network?: StartNetwork, buildable?: { cel
         crew.set(a, (crew.get(a) ?? 0) + (e.detail!.units as number));
       }
     }
+    // service posts from last month's spending (§5.11), with the growth params and the start network
+    s.labour.servicePosts = p.growth && network ? servicePosts(s, p) : [];
     const jobs: JobRow[] = s.labour.baseJobs.map((j) => {
       let n = j.jobs + (j.sector === 'factory' ? firmPosts(s, j.area, j.sector) : 0);
+      if (j.sector === 'services') {
+        const sp = s.labour.servicePosts.find((x) => x.area === j.area);
+        if (sp) n += sp.formal + sp.informal;
+      }
       if (j.sector === 'construction') {
         const b = s.blocks.find((x) => x.area === j.area);
         if (b) n += Math.floor(underConstructionM2(b) * L.construction_jobs_per_m2);

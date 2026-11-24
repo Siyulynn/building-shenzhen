@@ -8,7 +8,7 @@ import { SECTORS, USE_OF } from './enums.js';
 import type { GrowthParams, SliceParams } from './params.js';
 import { largestRemainder } from './round.js';
 import type { StartNetwork } from './sites.js';
-import type { BlockStock, Cohort, GameState, OrganicBuilder, Zone } from './state.js';
+import type { BlockStock, Cohort, GameState, OrganicBuilder, ServicePosts, Zone } from './state.js';
 import type { TickContext } from './step.js';
 import { bedsByPool, villageM2 } from './systems/common.js';
 import { createFirm, orderFactor, prospectiveShare, sizeOffer } from './systems/industry.js';
@@ -103,13 +103,14 @@ export function inducedServiceJobs(s: GameState, p: SliceParams): Map<number, nu
   const G = p.growth!;
   const spend = new Map<number, number>();
   let total = 0, ref = 0;
+  // wages earned outside services only (the basic-sector rule, R4): service posts come from this spending
   for (const g of s.pops) {
     let w = 0;
-    for (const sec of SECTORS) w += g.employed[sec] * s.labour.wage[sec];
+    for (const sec of SECTORS) if (sec !== 'services') w += g.employed[sec] * s.labour.wage[sec];
     spend.set(g.area, (spend.get(g.area) ?? 0) + w * G.spend_share);
     total += w * G.spend_share;
   }
-  for (const j of s.labour.baseJobs) ref += j.jobs * p.labour.wage_start[j.sector] * G.spend_share;
+  for (const j of s.labour.baseJobs) if (j.sector !== 'services') ref += j.jobs * p.labour.wage_start[j.sector] * G.spend_share;
   const jobs = Math.floor(Math.max(0, total - ref) / G.services.spend_per_job_month + 1e-9);
   const areas = s.areas.filter((a) => a.access === 'playable').map((a) => a.id);
   const split = largestRemainder(jobs, areas.map((a) => Math.max(0, spend.get(a) ?? 0)));
@@ -143,6 +144,27 @@ export function shopOccupancy(s: GameState, target: number): Map<number, number>
     const take = Math.min(m2, Math.max(0, left));
     out.set(zone, take);
     left -= take;
+  }
+  return out;
+}
+
+/**
+ * Service posts by area (phase1-slice §5.11), from last month's matching: formal posts on the area's occupied private
+ * shop floor, informal posts where the spenders live. Neither exceeds its share of the induced service jobs.
+ */
+export function servicePosts(s: GameState, p: SliceParams): ServicePosts[] {
+  const G = p.growth!;
+  const induced = inducedServiceJobs(s, p);
+  const occupied = shopOccupancy(s, commercialTargetM2(induced, G));
+  const areaOfZone = new Map<number, number>();
+  for (const b of s.blocks) for (const c of b.cohorts) if (c.zone !== undefined && isPrivateShop(c)) areaOfZone.set(c.zone, b.area);
+  const formalM2 = new Map<number, number>();
+  for (const [z, m2] of occupied) { const a = areaOfZone.get(z)!; formalM2.set(a, (formalM2.get(a) ?? 0) + m2); }
+  const out: ServicePosts[] = [];
+  for (const [area, n] of induced) {
+    const formal = Math.floor((formalM2.get(area) ?? 0) / G.services.m2_per_job + 1e-9);
+    const informal = Math.floor(n * (1 - G.services.formal_share) + 1e-9);
+    if (formal || informal) out.push({ area, formal, informal });
   }
   return out;
 }

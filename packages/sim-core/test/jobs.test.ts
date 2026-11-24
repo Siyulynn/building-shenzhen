@@ -1,7 +1,7 @@
 /** R4: jobs, labour and migration on the map (phase1-slice §5.11, §12 R4). */
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, addServicedLand, applyZoneAction, createTickSteps, placeStructure, runMonths,
+  Rng, addServicedLand, applyZoneAction, createTickSteps, inducedServiceJobs, placeStructure, runMonths,
   type CellRuns, type GameState, type TickContent,
 } from '../src/index.js';
 import { initial, params, slice } from './fixtures.js';
@@ -63,5 +63,40 @@ describe('R4: industrial jobs after occupancy', () => {
     expect(area(eb).utilities.powerCap).toBe(area(ea).utilities.powerCap);   // no double count
     expect(organic(eb).length).toBeGreaterThan(organic(ea).length);
     expect(posted(eb)).toBeGreaterThan(posted(ea));
+  });
+});
+
+describe('R4: service jobs as wages are spent', () => {
+  // a commercial block east of the industrial one, on the same road
+  const SHOPS = rect(365, 368, 347, 350);
+  const sum = (s: GameState, k: 'formal' | 'informal') => s.labour.servicePosts.reduce((n, x) => n + x[k], 0);
+
+  it('new factory wages raise service posts: formal on occupied shop floor, informal where the workers live', () => {
+    let formal = 0, informal = 0;
+    const end = walk(landed([{ use: 'industrial', runs: CONNECTED }, { use: 'commercial', runs: SHOPS }]), 60, new Rng(1), STEPS,
+      (b, a, e) => {
+        checkInvariants(b, a, e);
+        // never more than the induced jobs from last month's non-service wages
+        const induced = [...inducedServiceJobs(b, params).values()].reduce((x, y) => x + y, 0);
+        expect(sum(a, 'formal') + sum(a, 'informal')).toBeLessThanOrEqual(induced);
+        expect(sum(a, 'formal')).toBeLessThanOrEqual(Math.floor(induced * G.services.formal_share + 1e-9));
+        formal = Math.max(formal, sum(a, 'formal')); informal = Math.max(informal, sum(a, 'informal'));
+      });
+    expect(posted(end)).toBeGreaterThan(0);
+    expect(formal).toBeGreaterThan(0);
+    expect(informal).toBeGreaterThan(0);
+    // formal posts sit where the shops are: the commercial zone's area
+    const shopArea = end.zones.find((z) => z.use === 'commercial')!.area;
+    expect(end.labour.servicePosts.filter((x) => x.formal > 0).every((x) => x.area === shopArea)).toBe(true);
+    // they are jobs: the services rows carry them
+    for (const x of end.labour.servicePosts) {
+      const base = end.labour.baseJobs.find((j) => j.area === x.area && j.sector === 'services')!.jobs;
+      expect(end.labour.jobs.find((r) => r.area === x.area && r.sector === 'services')!.jobs).toBe(base + x.formal + x.informal);
+    }
+  });
+
+  it('the idle start posts none', () => {
+    const end = walk(initial(), 36, new Rng(1), STEPS, checkInvariants);
+    expect(end.labour.servicePosts).toEqual([]);
   });
 });

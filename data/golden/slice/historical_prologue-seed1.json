@@ -19,89 +19,89 @@
       "at": "1979-12",
       "residents": 30356,
       "registered": 30000,
-      "presentNonlocal": 405,
-      "migrants": 405,
+      "presentNonlocal": 415,
+      "migrants": 415,
       "firmJobs": 120,
-      "gdp": 8498599,
-      "exports": 149440,
-      "revenue": 2942391,
-      "obligationsPaid": 3344634,
+      "gdp": 8500706,
+      "exports": 149120,
+      "revenue": 2942386,
+      "obligationsPaid": 3344653,
       "projectSpend": 2200000,
       "reserve": 0,
-      "debt": 3162441,
+      "debt": 3162463,
       "arrears": 0,
       "scrutiny": 0,
       "illegalShare": 0
     },
     {
       "at": "1980-12",
-      "residents": 30541,
+      "residents": 30554,
       "registered": 30000,
       "presentNonlocal": 895,
       "migrants": 895,
       "firmJobs": 850,
-      "gdp": 8222501,
-      "exports": 1477360,
-      "revenue": 2957074,
-      "obligationsPaid": 3698232,
+      "gdp": 8233170,
+      "exports": 1445440,
+      "revenue": 2956645,
+      "obligationsPaid": 3698765,
       "projectSpend": 100000,
       "reserve": 0,
-      "debt": 3477206,
+      "debt": 3477935,
       "arrears": 0,
       "scrutiny": 0,
       "illegalShare": 0
     },
     {
       "at": "1981-12",
-      "residents": 31156,
+      "residents": 31203,
       "registered": 30000,
-      "presentNonlocal": 1250,
-      "migrants": 1250,
+      "presentNonlocal": 1331,
+      "migrants": 1331,
       "firmJobs": 1041,
-      "gdp": 8844749,
-      "exports": 4021360,
-      "revenue": 2984637,
-      "obligationsPaid": 4180044,
+      "gdp": 8874019,
+      "exports": 3934080,
+      "revenue": 2983524,
+      "obligationsPaid": 4178595,
       "projectSpend": 0,
       "reserve": 0,
-      "debt": 3148486,
-      "arrears": 228089,
+      "debt": 3148192,
+      "arrears": 230952,
       "scrutiny": 0,
       "illegalShare": 0
     },
     {
       "at": "1982-12",
-      "residents": 31361,
+      "residents": 31468,
       "registered": 30000,
-      "presentNonlocal": 1366,
-      "migrants": 1366,
+      "presentNonlocal": 1496,
+      "migrants": 1496,
       "firmJobs": 1161,
-      "gdp": 8663770,
-      "exports": 4922160,
-      "revenue": 3000578,
-      "obligationsPaid": 4155049,
+      "gdp": 8734537,
+      "exports": 4912720,
+      "revenue": 3000449,
+      "obligationsPaid": 4154826,
       "projectSpend": 0,
       "reserve": 0,
-      "debt": 2553930,
-      "arrears": 548669,
+      "debt": 2553903,
+      "arrears": 553669,
       "scrutiny": 0,
       "illegalShare": 0
     },
     {
       "at": "1983-12",
-      "residents": 31376,
+      "residents": 31505,
       "registered": 30000,
-      "presentNonlocal": 1369,
-      "migrants": 1369,
+      "presentNonlocal": 1501,
+      "migrants": 1501,
       "firmJobs": 1161,
-      "gdp": 8650726,
-      "exports": 5017920,
-      "revenue": 2314229,
-      "obligationsPaid": 3250281,
+      "gdp": 8717944,
+      "exports": 5018400,
+      "revenue": 2314237,
+      "obligationsPaid": 3250293,
       "projectSpend": 0,
       "reserve": 0,
-      "debt": 1812743,
-      "arrears": 1810640,
+      "debt": 1812750,
+      "arrears": 1818985,
       "scrutiny": 0,
       "illegalShare": 0
     }
@@ -110,13 +110,13 @@
     {
       "index": 0,
       "at": "1979-12",
-      "score": 0.8327,
+      "score": 0.8324,
       "pass": true
     },
     {
       "index": 1,
       "at": "1980-12",
-      "score": 0.995,
+      "score": 0.9879,
       "pass": true
     },
     {
@@ -145,13 +145,13 @@
   },
   "verdict": {
     "growth": {
-      "residents": 1.0336,
-      "gdp": 1.0179
+      "residents": 1.0379,
+      "gdp": 1.0256
     },
     "ledger": {
       "reserve": 0,
-      "debtOutstanding": 1812743,
-      "arrears": 1810640
+      "debtOutstanding": 1812750,
+      "arrears": 1818985
     },
     "lastReview": {
       "index": 4,
@@ -163,12 +163,12 @@
       "items": [
         {
           "indicator": "exports_usd",
-          "value": 3345280,
+          "value": 3345600,
           "score": 1
         },
         {
           "indicator": "forex_earned_usd",
-          "value": 334529,
+          "value": 334560,
           "score": 1
         },
         {
@@ -192,9 +192,9 @@
     "illegalShare": 0,
     "fiscalTest": {
       "grantFactor": 0,
-      "revenuePerYear": 1624280,
-      "dueNext12": 5884265,
-      "balance": -4259985
+      "revenuePerYear": 1624272,
+      "dueNext12": 5896696,
+      "balance": -4272424
     }
   },
   "fired": [
