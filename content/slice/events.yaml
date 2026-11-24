@@ -231,8 +231,8 @@
 
 - id: event.corps_deployment
   name: { zh: 基建工程兵大部队调深, en: The main engineering corps deployment }
-  family: anchor
-  trigger: { date: 1982-09 }             # the claim gives the year and says autumn: the month is a design choice
+  family: scripted                       # not an anchor: the claim gives the year and says autumn, so the month
+  trigger: { date: 1982-09 }             # is a design choice within that season; it needs a source to be an anchor
   card:
     interrupting: true
     options:
@@ -241,7 +241,7 @@
   on_answer:
     - { kind: contract_team, team: team.engineering_corps, option: accept }
   claims:
-    - { id: phase1.event.construction_corps_arrival, use: anchor_date }
+    - { id: phase1.event.construction_corps_arrival, use: design_note }
 
 - id: event.temporary_residence
   name: { zh: 特区暂住证暂行规定, en: The temporary-residence rules }

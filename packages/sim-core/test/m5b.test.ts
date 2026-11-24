@@ -357,12 +357,17 @@ describe('M5b: the budget card and the warning', () => {
       const r = regimeOf(s, fiscal);
       const now = r.grantSchedule.filter((e) => e.from <= c.raisedAt).at(-1)!.factor;
       const cut = r.grantSchedule.some((e) => e.from > c.raisedAt && e.from <= c.raisedAt + 12 && e.factor < now);
-      const budget = c.payload!.budget as { grantFactor: number; warning?: { factor: number } };
+      const budget = c.payload!.budget as { grantFactor: number; recurring: number; warning?: { factor: number } };
       expect(budget.grantFactor).toBe(now);
+      expect(Number.isFinite(budget.recurring), `card ${c.id}`).toBe(true);
       expect(budget.warning !== undefined, `card ${c.id}`).toBe(cut);
       if (cut) warned++;
     }
     expect(warned).toBe(2);
+    // the first card comes before any history: it saves, with every number finite
+    const first = declined.states[0]!;
+    expect(first.pendingCards.some((c) => c.card === 'event.budget')).toBe(true);
+    expect(() => saveToJson(saveGame(first, new Rng(0), content))).not.toThrow();
   });
 });
 
