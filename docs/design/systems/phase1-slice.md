@@ -1591,13 +1591,17 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
   - the readiness card's payload for the report.
 - **A zone drawn this turn** is known by the id it will get, `nextZoneId + k` for the k-th queued zone, as `cautious` does. Site preparation on it names that id.
 
-**Strings.** Each string has its English and Simplified Chinese side by side.
+**Strings and the language.** Content and data keep both languages (`LocalizedString` `{zh, en}`), and so do the views (`src/views.ts` returns `{zh, en}`). The UI shows one language, chosen at render time; choosing it is a display choice only.
+- **The choice:** English (`en`) or Simplified Chinese (`zh`). The URL's `?lang=en|zh` wins, then the viewer's stored choice (`localStorage`, every access in try/catch), then English. An in-app switch changes it: it stores the choice, rewrites `?lang` in place (keeping `?seed`) and re-renders. The language never enters the `Session`, so switching changes no sim state.
+- **One language:** all the UI's chrome shows only the chosen language: the HUD, the panels and tabs, buttons, card titles, options and lines, ledger labels, the queue, the verdict screen, the map's hover readout and route key, the page's `<title>` and `<html lang>`, and the errors the UI writes.
+- **Place labels stay bilingual** in both languages, wherever they appear (the map, the hover readout, panels, selects, card options and the queue): the names of areas, the 1979 sites, the routes, and precedent (historical) zones, e.g. 深圳火车站 Shenzhen Station. `place()` in `src/strings.ts` marks one: both its fields read `zh en`. A zone without a precedent name (`zoneLabel`'s `area · use #id`) is chrome and shows in one language.
+- **The other exceptions:** the language switch names each language in its own script (English, 中文); ids (claim ids, the proxy's source id, card ids in a diagnostic), units (kW, USD, ¥) and numbers are not words of either language.
 - **Content names come from content:** events and their options, investors, projects, teams, regimes, areas, leaders, and zones through `zoneLabel`.
-- **The UI's own strings are in `src/strings.ts`:** the system cards (investor, shortcut, loan, deficit, review, failure) and their options, and the panel labels.
+- **The UI's own strings are in `src/strings.ts`,** each with an `en` and a `zh` entry: the system cards (investor, shortcut, loan, deficit, review, failure) and their options, the panel labels and the map's own words.
   - They describe mechanics, never history: no dates, figures, names or claims.
   - The briefing shows the sim's own deltas and content names only.
 - **An option with an argument** (`accept:zone:<id>`, `accept:premises:<area>`) is labelled with that zone's label or area's name.
-- **Errors:** the controller's own messages are bilingual. An error thrown by sim-core shows as sim-core wrote it, in English, after the bilingual "Could not apply".
+- **Errors:** the controller keeps an error as a string-table entry plus a detail and renders it in the chosen language, so a switch re-renders it. An error thrown by sim-core is a diagnostic: it shows as sim-core wrote it, in English, after "Could not apply" in the chosen language. sim-core's messages stay out of the string table.
 
 **The screens** (`src/views.ts`, pure, tested; `src/main.ts` only renders them):
 - **The turn screen:**
@@ -1635,6 +1639,11 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 - `sha256.ts` matches `node:crypto` on test vectors, and the browser loader's `slice.content` equals the node loader's.
 - The controller, driven by each golden policy (its turn actions at each turn's start, its answers when paused), ends with a `runSummary` equal to its golden file.
 - Every card and option raised in the golden policies, `aggressive` and `random`, over seeds 1–5, has a non-empty zh and en label. Every pending card in the controller's golden runs renders with each title, option and line label in both languages.
+- **The language:**
+  - every entry in `src/strings.ts` has a non-empty `en` with no Han character and a `zh` with one;
+  - the pure renderers (`src/render.ts`), run in each language on every state of the controller's golden runs, show no string from the other language once place labels and the switch are removed: no Han character in English, and no English string-table or content name in Chinese;
+  - the golden runs, rendered in alternating languages at every step, still equal their golden files, and rendering leaves the session unchanged;
+  - `resolveLang` takes the URL first, then the stored choice, then English.
 - A drawn zone's preview equals the zone's runs after End turn. A throwing action leaves the session as it was.
 - Each overlay's colour for a cell reads its area's value.
 

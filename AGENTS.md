@@ -25,7 +25,7 @@ A historical city-builder: Shenzhen, 1979–2009. Master plan: `PLAN.md`. Pillar
 - **Every historical statement in content cites claim IDs** from `data/evidence/claims/`.
 - **AI may set a claim to `lead` or `sourced`** (with a locator, a quote and `extracted_by: ai:...`). **Only a person sets `verified`, `rejected` or `superseded`.**
 - **Never average conflicting figures.** Open a conflict record instead (protocol §6).
-- **Write English and Simplified Chinese strings side by side.**
+- **Content and data keep both English and Simplified Chinese** (`{zh, en}`). The UI shows one chosen language; place labels (areas, sites, routes, historical zones) stay bilingual in both. Rules: `phase1-slice.md` §11.1.
 - **Sensitive themes** follow PLAN §11. Leaders and their scandals are fictional composites.
 
 ## Working habits
