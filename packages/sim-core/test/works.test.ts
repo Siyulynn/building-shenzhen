@@ -114,13 +114,19 @@ describe('R1 derived views', () => {
 
   it('rebuilds identical views after save and load, and again after a stepped quarter', () => {
     const { s } = built();
+    // a power source on the start road itself: its split needs nothing beyond the save and the content
+    placeStructure(s, { kind: 'power_source', cell: at(386, 376), attach: at(386, 377), capacity: 5 });
+    const power = { power: new Map([[at(384, 378), 3], [at(385, 378), 3], [at(383, 378), 3]]) };
     const inputs = { roads: [LINK, ...SPUR], demand: DEMAND };
     const rng = new Rng(7);
     const text = saveToJson(saveGame(s, rng, content));
     const loaded = loadGame(saveFromJson(text));
     expect(loaded.state.cellWorks).toEqual(s.cellWorks);
     expect(loaded.state.structures).toEqual(s.structures);
-    expect(loaded.state.nextStructureId).toBe(3);
+    expect(loaded.state.nextStructureId).toBe(4);
+    expect(spatialViews(loaded.state, NET, { demand: power }).supply.power)
+      .toEqual(new Map([[at(383, 378), 0], [at(384, 378), 3], [at(385, 378), 2]]));   // (383,378) is still planned
+    expect(spatialViews(loaded.state, NET, { demand: power })).toEqual(spatialViews(s, NET, { demand: power }));
     expect(spatialViews(loaded.state, NET, inputs)).toEqual(spatialViews(s, NET, inputs));
 
     const steps = createTickSteps(params, slice.tick);
