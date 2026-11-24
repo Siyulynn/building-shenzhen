@@ -93,6 +93,38 @@ export interface SliceParams {
   projects: Record<string, ProjectParams>;
   teams: Record<string, { crew: number; mobilization_months: number; duration_months: number; cost_per_month: number }>;
   gdp: { base_va_per_job_month: Record<Sector, number>; construction_va_ratio: number };
+  works?: WorksParams;                   // R2 (buildings-and-construction §13.2): absent = no works actions
+}
+
+/** A structure's or facility's works numbers (§13.2). */
+export interface StructureWorksParams { units: number; yuan: number; capacity: number; forex_usd?: number }
+export interface CellWorksParams { units_per_cell: number; yuan_per_cell: number }
+export interface WorksParams {
+  crew_per_order: number;
+  service: CellWorksParams; road: CellWorksParams; bridge: CellWorksParams;
+  structures: { water_source: StructureWorksParams; power_source: StructureWorksParams };
+  facilities: Record<string, StructureWorksParams>;
+}
+
+function validateWorksParams(w: WorksParams): void {
+  const whole = (n: unknown, min: number) => Number.isSafeInteger(n) && (n as number) >= min;
+  if (!whole(w.crew_per_order, 1)) throw new Error('params: works.crew_per_order must be a whole number >= 1');
+  for (const k of ['service', 'road', 'bridge'] as const) {
+    if (!whole(w[k]?.units_per_cell, 1) || !whole(w[k]?.yuan_per_cell, 0)) {
+      throw new Error(`params: works.${k} needs whole units_per_cell >= 1 and yuan_per_cell >= 0`);
+    }
+  }
+  // one road order mixes road and bridge cells: the same yuan per unit keeps its pro-rata cost exact after a cancel
+  if (w.road.yuan_per_cell * w.bridge.units_per_cell !== w.bridge.yuan_per_cell * w.road.units_per_cell) {
+    throw new Error('params: works.road and works.bridge must cost the same per unit');
+  }
+  const kinds: [string, StructureWorksParams | undefined][] = [['structures.water_source', w.structures?.water_source],
+    ['structures.power_source', w.structures?.power_source], ...Object.entries(w.facilities ?? {}).map(([k, v]) => [`facilities.${k}`, v] as [string, StructureWorksParams])];
+  for (const [k, v] of kinds) {
+    if (!v || !whole(v.units, 1) || !whole(v.yuan, 0) || !whole(v.capacity, 0) || (v.forex_usd !== undefined && !whole(v.forex_usd, 0))) {
+      throw new Error(`params: works.${k} needs whole units >= 1, yuan, capacity and any forex_usd >= 0`);
+    }
+  }
 }
 
 /** A project template's numbers (§5.6). Site preparation has budget_per_cell and crew_per_cell instead of budget and crew. */
@@ -184,6 +216,7 @@ export function validateParams(raw: unknown): SliceParams {
   }
   for (const m of p.migration.spring.away_months) if (!Number.isInteger(m) || m < 0 || m > 11) throw new Error('params: spring.away_months are 0..11');
   validateFiscalParams(p);
+  if (p.works !== undefined) validateWorksParams(p.works);
   validateM5aParams(p);
   validateM5bParams(p);
   return p;

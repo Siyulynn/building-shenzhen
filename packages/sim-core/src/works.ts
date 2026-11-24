@@ -5,6 +5,7 @@
  */
 import { addServicedLand } from './fiscal.js';
 import { allocateUtility, roadNetwork, zoneFrontage, type Frontage, type RoadNetwork } from './network.js';
+import type { Priority } from './fiscal.js';
 import type { StartNetwork } from './sites.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
@@ -18,6 +19,7 @@ export interface CellWork {
   workTotal: number;          // integer work units, fixed at commit (≥ 1)
   workDone: number;           // sunk work, 0 ≤ workDone ≤ workTotal; never refunded or reset
   stage: WorkStage;
+  order?: number;             // R2: the live works order that owns it; absent = detached, or committed outside the queue
 }
 
 export const STRUCTURE_KINDS = ['water_source', 'power_source', 'facility'] as const;
@@ -31,6 +33,28 @@ export interface PlacedStructure {
   facility?: string;          // facility type key, facility only
   placed: YM;
 }
+
+export const ORDER_KINDS = ['service', 'road', 'structure'] as const;
+export type OrderKind = (typeof ORDER_KINDS)[number];
+export interface PathCell { cell: number; units: number; bridge: boolean }
+/** A municipal works order (b&c §13.2). */
+export interface WorksOrder {
+  id: number;
+  kind: OrderKind;
+  priority: Priority;
+  paused: boolean;
+  committed: YM; completed?: YM;
+  stage: 'queued' | 'working' | 'done' | 'cancelled';
+  waiting?: 'paused' | 'capacity' | 'finance' | 'access' | 'frozen';   // this month's reason it got less than its pace
+  unitsTotal: number; unitsDone: number;   // integer work units; unitsTotal shrinks only when cells are cancelled or detached
+  budget: number; spent: number;           // yuan; spent is sunk, budget − spent the commitment
+  zone?: number;                           // service
+  path?: PathCell[];                       // road: build order, nearest the network first
+  placement?: StructurePlacement;          // structure
+}
+export const liveOrder = (o: WorksOrder) => o.stage === 'queued' || o.stage === 'working';
+export const cloneOrder = (o: WorksOrder): WorksOrder => ({ ...o,
+  ...(o.path ? { path: o.path.map((c) => ({ ...c })) } : {}), ...(o.placement ? { placement: { ...o.placement } } : {}) });
 
 export const UTILITIES = ['water', 'power'] as const;
 export type Utility = (typeof UTILITIES)[number];

@@ -8,7 +8,7 @@ import { cloneFiscal, initialFiscal, type FiscalState, type Priority, type TeamM
 import type { SliceParams } from './params.js';
 import { bedsByPool } from './systems/common.js';
 import { parseYM, type YM } from './ym.js';
-import type { CellWork, PlacedStructure } from './works.js';
+import { cloneOrder, type CellWork, type PlacedStructure, type WorksOrder } from './works.js';
 
 export interface LocalizedString { zh: string; en: string }
 
@@ -173,6 +173,9 @@ export interface GameState {
   cellWorks: CellWork[];      // R1 (b&c §13.1): one per committed cell, sorted by cell; empty until R2 writes them
   structures: PlacedStructure[];   // R1: placed sources and facilities, id order
   nextStructureId: number;
+  roads: number[];            // R2 (b&c §13.2): built road cells, sorted; start-network roads stay content
+  worksOrders: WorksOrder[];  // R2: municipal works orders, id order
+  nextOrderId: number;
   events: EventsState;        // M5a (§5.7)
   sez: SezState;
   shekou: ShekouState;
@@ -377,6 +380,9 @@ export function createInitialState(content: {
     cellWorks: [],
     structures: [],
     nextStructureId: 1,
+    roads: [],
+    worksOrders: [],
+    nextOrderId: 1,
     events: { fired: [], unlocked: [] },
     sez: {},
     shekou: { captured: 0, jobs: 0, carry: 0 },
@@ -433,6 +439,8 @@ export function cloneState(s: GameState): GameState {
     servicedLand: s.servicedLand.map((r) => [...r] as CellRuns[number]),
     cellWorks: s.cellWorks.map((w) => ({ ...w })),
     structures: s.structures.map((x) => ({ ...x })),
+    roads: [...s.roads],
+    worksOrders: s.worksOrders.map(cloneOrder),
     events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked] },   // fired entries are never changed
     sez: { ...s.sez },
     shekou: { ...s.shekou },

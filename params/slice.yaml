@@ -142,6 +142,18 @@ teams:                                   # by team id (content/slice/teams.yaml)
   team.outside_soe:       { crew: 120, mobilization_months: 2, duration_months: 12, cost_per_month: 30000 }
   team.corps_advance:     { crew: 60, mobilization_months: 0, duration_months: 9, cost_per_month: 0 }   # M5b: paid centrally
 
+works:                                   # R2 municipal works orders (buildings-and-construction §13.2). Placeholders taken
+                                         # from the M4 templates' rates above, not sourced. Units are crew units (worker-months)
+  crew_per_order: 40                     # the most units one order takes in a month
+  service: { units_per_cell: 40, yuan_per_cell: 100000 }   # project.site_preparation: 10 crew × 4 months; budget_per_cell
+  road:    { units_per_cell: 12, yuan_per_cell: 30000 }    # project.road_link over its 2 km (20 cells): 40 × 6 ÷ 20; 600,000 ÷ 20
+  bridge:  { units_per_cell: 48, yuan_per_cell: 120000 }   # a guess: four road cells, at a road's yuan per unit
+  structures:
+    water_source: { units: 150, yuan: 400000, capacity: 200 }                     # project.water_main: 30 × 5; m³/day
+    power_source: { units: 150, yuan: 500000, capacity: 500, forex_usd: 20000 }   # project.power_line: 25 × 6; kW
+  facilities:
+    school: { units: 160, yuan: 300000, capacity: 400 }                           # project.school: 20 × 8; places
+
 gdp:                                     # nominal value added (fiscal §8.2)
   base_va_per_job_month: { farming_fishing: 30, factory: 50, construction: 50, services: 40, state: 45 }
   construction_va_ratio: 0.35            # fiscal §12's starting guess

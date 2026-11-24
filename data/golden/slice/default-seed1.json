@@ -4,14 +4,15 @@
   "quarters": 21,
   "content": {
     "areas_sha256": "fc9003de49cb0d274f25b2b21ac1028c4dd8cb0c51f334af2e4caa9ad70212a6",
-    "params_sha256": "93f0e9d284781bf79041db6ec829cd72652425f5731ad179dc4f94dbb62fa018",
+    "params_sha256": "7cb42c4e512e85c3f2ce0775772c9c30c9ed8e6c69b95c9467819847ecf7e63b",
     "precedents_sha256": "d54f17661a4348d98d655754b9e42dea47173e09d8f6d19566de79d2094104f4",
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
     "buildable_sha256": "93a4651ce4e9e6dc32928e79da812babc22842aa8407c389dc633bdac21fc4d1",
     "fiscal_sha256": "7f52bc2bab3d93a40cef10762ae77b061bb0a04a41d558ce3e833e50afd42ca0",
     "events_sha256": "b9a66192213730ee6feb9a2623157a91e60abdac0352686de14bce2981ec3249",
     "leaders_sha256": "5bf3fe0aa081c85e6f538add149d93852b4fc6f34142656fd5dd599e8c520467",
-    "targets_sha256": "0765576245b271083f2ef6ed448e1fe5afb2e03abdc03a5f8cd7a379356e3fd3"
+    "targets_sha256": "0765576245b271083f2ef6ed448e1fe5afb2e03abdc03a5f8cd7a379356e3fd3",
+    "network_sha256": "c77ed840b7f74822097ca134d1624da1ef6de526adba8f2bf9cb54ea47971898"
   },
   "years": [
     {

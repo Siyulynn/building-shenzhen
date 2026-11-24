@@ -1,6 +1,7 @@
 /** The tick pipeline with the systems filled in from validated params (phase1-slice.md §5.2, §6). */
 import { applyFiscalAction, isFiscalAction, refreshServicedShares, type FiscalContent } from './fiscal.js';
 import type { SliceParams } from './params.js';
+import type { StartNetwork } from './sites.js';
 import type { GameState, PlayerAction } from './state.js';
 import { TICK_STEPS, type TickContext, type TickStep } from './step.js';
 import { construction } from './systems/construction.js';
@@ -26,6 +27,7 @@ export interface TickContent {
   precedents?: readonly Precedent[]; investors?: readonly InvestorArchetype[]; buildable?: Buildable;
   fiscal?: FiscalContent; events?: EventContent;
   targets?: TargetContent;                       // M5b (§5.8): the annual reviews; read only with events
+  network?: StartNetwork;                        // R2 (b&c §13.2): with fiscal, enables works orders
 }
 
 /** Tick step 3: serviced shares (with the fiscal content), zone names, then investors look for sites (§5.3, §5.5, §5.6). */

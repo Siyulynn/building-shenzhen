@@ -1,7 +1,7 @@
 /** R1's persistent records and derived views (buildings-and-construction §13.1; phase1-slice §12 R1). */
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, advanceCellWorks, applyZoneAction, cellsOfRuns, cloneState, commitCellWorks, createTickSteps, loadGame, placeStructure,
+  Rng, SAVE_VERSION, advanceCellWorks, applyZoneAction, cellsOfRuns, cloneState, commitCellWorks, createTickSteps, loadGame, placeStructure,
   runMonths, saveFromJson, saveGame, saveToJson, spatialViews, type GameState, type Save, type StartNetwork,
 } from '../src/index.js';
 import { content, initial, params, slice } from './fixtures.js';
@@ -151,12 +151,12 @@ describe('R1 derived views', () => {
   it('migrates a version 1 save to empty records', () => {
     const s = initial();
     const save = saveFromJson(saveToJson(saveGame(s, new Rng(3), content)));
-    expect(save.header.version).toBe(2);
+    expect(save.header.version).toBe(SAVE_VERSION);
     const state = { ...(save.body.state as Record<string, unknown>) };
     delete state.cellWorks; delete state.structures; delete state.nextStructureId;
     const v1: Save = { ...save, header: { ...save.header, version: 1 }, body: { ...save.body, state } };
     const back = loadGame(v1);
-    expect(back.header.version).toBe(2);
+    expect(back.header.version).toBe(SAVE_VERSION);
     expect(back.state).toEqual(loadGame(save).state);
   });
 });

@@ -64,17 +64,19 @@ export function compileSlice(read: (path: string) => string, parse: (text: strin
   const targets = compileTargets(parse(text.targets));
   const leaders = compileLeaders(parse(text.leaders));
   const sites = parse(text.sites);
+  const network = compileStartNetwork(parse(text.network), sites, areas);
   return {
     startSites: compileStartSites(sites, JSON.parse(text.siteCells), areas, hash(text.sites)),
-    startNetwork: compileStartNetwork(parse(text.network), sites, areas),
+    startNetwork: network,
     init: { scenario: parse(text.scenario) as ScenarioContent, areas, start: parse(text.start) as StartContent, params, leaders },
-    tick: { precedents, investors, buildable, fiscal, events, targets },
+    tick: { precedents, investors, buildable, fiscal, events, targets, network },
     params,
     content: {
       areas_sha256: areas.areas_sha256, params_sha256: hash(text.params), precedents_sha256: hash(text.precedents),
       investors_sha256: hash(text.investors), buildable_sha256: hash(text.buildable),
       fiscal_sha256: hash([text.regimes, text.projects, text.teams].join('\n---\n')),
       events_sha256: hash(text.events), leaders_sha256: hash(text.leaders), targets_sha256: hash(text.targets),
+      network_sha256: hash(text.network),
     },
   };
 }

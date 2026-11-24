@@ -6,7 +6,7 @@ import { Rng, type RngState } from './rng.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /** The content a save was made with (§5.1, §5.3). */
 export interface SaveContent {
@@ -15,6 +15,7 @@ export interface SaveContent {
   fiscal_sha256: string;                                  // M4, §5.6: regimes, projects and teams together
   events_sha256: string; leaders_sha256: string;          // M5a, §5.7
   targets_sha256: string;                                 // M5b, §5.8
+  network_sha256: string;                                 // R2, b&c §13.2: content/slice/start_network.yaml
 }
 export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed: number; content: SaveContent }
 export interface Save { header: SaveHeader; body: { state: unknown; rng: RngState }; arrays: Record<string, Uint32Array> }
@@ -24,6 +25,9 @@ const MIGRATIONS: Record<number, (s: Save) => Save> = {
   // R1 (buildings-and-construction §13.1): cell works and placed structures, empty before they existed
   1: (s) => ({ ...s, header: { ...s.header, version: 2 },
     body: { ...s.body, state: { ...(s.body.state as object), cellWorks: [], structures: [], nextStructureId: 1 } } }),
+  // R2 (§13.2): built roads and works orders. A version 2 header has no network hash: the start network then was R1's
+  2: (s) => ({ ...s, header: { ...s.header, version: 3 },
+    body: { ...s.body, state: { ...(s.body.state as object), roads: [], worksOrders: [], nextOrderId: 1 } } }),
 };
 
 /** JSON turns NaN and Infinity into null without a word: a save must fail instead. */
