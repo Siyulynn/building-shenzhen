@@ -14,7 +14,9 @@ import { place, type L } from './strings.js';
 
 const sum = (xs: readonly number[]) => xs.reduce((a, x) => a + x, 0);
 const last = (xs: readonly number[]) => xs[xs.length - 1] ?? 0;
-const cat = (a: L, b: L, sep = ' '): L => ({ zh: `${a.zh}${b.zh}`, en: `${a.en}${sep}${b.en}` });
+/** Chinese separators for the English ones: a full-width colon, and no space between words. */
+const ZH_SEP: Readonly<Record<string, string>> = { ': ': '：', ' ': '' };
+const cat = (a: L, b: L, sep = ' ', zhSep = ZH_SEP[sep] ?? sep): L => ({ zh: `${a.zh}${zhSep}${b.zh}`, en: `${a.en}${sep}${b.en}` });
 const raw = (t: string): L => ({ zh: t, en: t });
 /** A label then a value, as one localized string. */
 const lv = (l: L, v: string): L => ({ zh: `${l.zh} ${v}`, en: `${l.en} ${v}` });
@@ -282,7 +284,7 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
       const cells = a.runs.reduce((t, [, x0, x1]) => t + x1 - x0 + 1, 0);
       const tplName = a.template ? named(slice.tick.precedents, a.template) : undefined;
       const tpl = tplName ? place(tplName) : undefined;
-      return cat(cat(S.LAND_USE[a.use] ?? raw(a.use), tpl ?? raw(`#${queuedZoneIds(s, queue).get(k)}`), ' '),
+      return cat(cat(S.LAND_USE[a.use] ?? raw(a.use), tpl ?? raw(`#${queuedZoneIds(s, queue).get(k)}`), ' ', ' '),
         { zh: `（${cells}${S.T.cells.zh}）`, en: ` (${cells} ${S.T.cells.en})` }, '');
     }
     case 'remove_zone': return cat(S.T.removeZone, zoneName(s, slice, a.zone), ': ');
@@ -293,7 +295,7 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
     }
     case 'cancel_project': return cat(S.T.cancel, raw(` #${a.project}`), '');
     case 'contract_team': return cat(S.T.contract, named(slice.tick.fiscal?.teams, a.team) ?? raw(a.team), ': ');
-    case 'set_project_priority': return cat(S.T.priority, raw(` #${a.project} ${a.priority}`), '');
+    case 'set_project_priority': return cat(cat(S.T.priority, raw(` #${a.project}`), ''), S.PRIORITY[a.priority] ?? raw(a.priority), ': ');
     default: return raw(a.type);
   }
 }

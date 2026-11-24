@@ -16,8 +16,8 @@ import { LANGS, LANG_NAME, STORAGE_KEY, readStoredLang, resolveLang, storeLang, 
 import {
   PANELS, errorText, hoverText, pageTitle, renderOverlays, renderRight, renderTurn, renderVerdict, type UiState, type View,
 } from '../src/render.js';
-import { TABLES, T, bi, place } from '../src/strings.js';
-import { areaName, clipZone, previewZone, zoneName } from '../src/views.js';
+import { ENFORCEMENT, TABLES, T, bi, place } from '../src/strings.js';
+import { actionLabel, areaName, clipZone, previewZone, zoneName } from '../src/views.js';
 
 const slice: Slice = loadSlice();
 const HAN = /\p{Script=Han}/u;
@@ -189,6 +189,35 @@ describe('each language shows only itself, except place labels', () => {
     expect(() => checkLang('full-width', 'Turn（1）', 'en')).toThrow();
     expect(() => checkLang('place', `${T.area.en}: ${PLACES[0]}`, 'en')).not.toThrow();
     expect(() => checkLang('place', `${T.area.zh}: ${PLACES[0]} · claim.x_1 · 5 kW`, 'zh')).not.toThrow();
+  });
+
+  it('a queue holding every kind of order reads in one language, with that language\'s separators', () => {
+    let x = newSession(slice);
+    const pr = (slice.tick.precedents ?? []).find((p) => p.cells.length)!;
+    const c = x.state.areas.find((q) => q.id === 7)!.cells[0]!, W = x.state.grid.width;
+    const team = (slice.tick.fiscal?.teams ?? []).find((m) => !m.eventOnly && m.modes.includes('pool'))!;
+    const project = slice.tick.fiscal!.projects[0]!.id;
+    x = enqueue(x, { type: 'set_enforcement', level: 'high' });
+    x = enqueue(x, { type: 'set_permit_regime', regime: 'strict' });
+    x = enqueue(x, { type: 'create_zone', use: 'industrial', runs: previewZone(x.state, x.queue, c % W - 2, Math.floor(c / W), c % W + 4, Math.floor(c / W) + 4) });
+    const a = templateZoneAction(x.state, pr);
+    x = enqueue(x, { ...a, runs: clipZone(x.state, x.queue, a.runs) });
+    x = enqueue(x, { type: 'remove_zone', zone: x.state.nextZoneId });
+    x = enqueue(x, { type: 'commit_project', template: project, area: 7, priority: 'high' });
+    x = enqueue(x, { type: 'commit_project', template: 'project.site_preparation', zone: x.state.nextZoneId + 1, priority: 'normal' });
+    x = enqueue(x, { type: 'cancel_project', project: 1 });
+    x = enqueue(x, { type: 'contract_team', team: team.id, mode: 'pool' });
+    x = enqueue(x, { type: 'set_project_priority', project: 1, priority: 'low' });
+    expect(x.error).toBeUndefined();
+    expect(x.queue.length).toBe(10);
+    for (const lang of LANGS) {
+      const v: View = { slice, x, lang, spatial: spatialViews(x.state, slice.startNetwork),
+        ui: { layer: 'areas', tab: 'ledger', area: 7, drawUse: null, project, target: '', priority: 'normal' } };
+      checkLang('queue', renderTurn(v), lang);
+    }
+    expect(actionLabel(x.state, slice, x.queue, 0).zh).toBe(`${T.enforcement.zh}：${ENFORCEMENT.high!.zh}`);
+    expect(actionLabel(x.state, slice, x.queue, 0).en).toBe(`${T.enforcement.en}: ${ENFORCEMENT.high!.en}`);
+    expect(actionLabel(x.state, slice, x.queue, 3).zh).toContain(bi(pr.name));
   });
 
   it('place labels read both names in both languages', () => {

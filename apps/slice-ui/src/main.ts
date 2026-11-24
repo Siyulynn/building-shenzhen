@@ -19,6 +19,7 @@ const $ = (id: string) => document.getElementById(id)!;
 const slice = loadSlice();
 const seed = Number(new URLSearchParams(location.search).get('seed') ?? 1) || 1;
 let lang: Lang = resolveLang(location.search, readStoredLang());
+storeLang(lang);                                   // a ?lang visit is remembered too
 let x: Session = newSession(slice, seed);
 const ui: UiState = { layer: 'areas', tab: 'ledger', area: 7, drawUse: null,
   project: slice.tick.fiscal?.projects[0]?.id ?? '', target: '', priority: 'normal' };

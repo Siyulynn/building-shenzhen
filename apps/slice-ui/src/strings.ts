@@ -148,7 +148,7 @@ export const T = {
   noSuchCard: l('没有这张卡片', 'No such card'), noSuchOption: l('没有这个选项', 'No such option'), forecast: l('首批投资者预计', 'First wave forecast'), score: l('得分', 'Score'),
   grantFactor: l('补助系数', 'Grant factor'), warning: l('补助将削减', 'The grant will be cut'),
   seed: l('随机种子', 'Seed'), restart: l('重新开始', 'Start again'),
-  months: l('个月', 'months'), none: l('无', 'none'),
+  month: l('月', 'month'), none: l('无', 'none'),
   proxyLocation: l('近似位置', 'Proxy location'), temporaryAlignment: l('临时走线', 'Temporary alignment'),
   temporaryAlignments: l('临时走线', 'Temporary alignments'), roadAccess: l('道路可达', 'Road access'),
   noRoadAccess: l('无道路连接', 'No road access'), evidence: l('证据', 'Evidence'), language: l('语言', 'Language'),

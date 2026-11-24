@@ -177,7 +177,7 @@ function renderBuild(v: View): string {
     <h2>${t(S.T.projectsList)}</h2>${live.map((p) => `<div class="card"><b>#${p.id}</b> ${t(p.name)} · ${t(p.where)}
       <div class="muted">${t(p.stage)}${p.waiting ? ` · ${t(p.waiting)}` : ''} · ${yuan(p.spent)} / ${yuan(p.budget)}</div>${bar(p.progress)}
       <button data-act="cancel" data-id="${p.id}" ${x.mode !== 'turn' ? 'disabled' : ''}>${t(S.T.cancel)}</button></div>`).join('') || `<div class="muted">${t(S.T.none)}</div>`}
-    <h2>${t(S.T.teams)}</h2>${teamsView(x.state, slice).map((m) => `<div class="q"><span>${t(m.name)} <span class="muted">${num(m.crew)} · ${yuan(m.costPerMonth)}/${t(S.T.months)}</span></span>
+    <h2>${t(S.T.teams)}</h2>${teamsView(x.state, slice).map((m) => `<div class="q"><span>${t(m.name)} <span class="muted">${num(m.crew)} · ${yuan(m.costPerMonth)}/${t(S.T.month)}</span></span>
       ${m.live ? `<span class="muted">${t(S.T.live)}</span>` : `<button data-act="team" data-id="${esc(m.id)}" ${x.mode !== 'turn' ? 'disabled' : ''}>${t(S.T.contract)}</button>`}</div>`).join('')}`;
 }
 
