@@ -2,10 +2,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   Rng, applyTurnAction, cellsOfRuns, createTickSteps, firstOption, liveOrder, loadGame, post, previewWorks, replay,
-  runMonths, saveFromJson, saveGame, saveToJson, spatialViews, templateZoneAction, unspentCommitments,
+  runMonths, saveFromJson, saveGame, saveToJson, spatialViews, step, templateZoneAction, unspentCommitments,
   type CellRuns, type GameState, type PlayerAction, type WorksOrder,
 } from '../src/index.js';
 import { content, initial, params, slice } from './fixtures.js';
+import { checkInvariants, checkLedger } from './invariants.js';
 
 // A pace that does not divide a cell's units, so months end with cells part-serviced
 const WORKS = { ...params.works!, crew_per_order: 30 };
@@ -34,7 +35,7 @@ function funded(): GameState {
   post(s, 'grant', 'general', FUND, 'test.fund');
   return s;
 }
-const worksPaid = (s: GameState, id: number) => -s.fiscal.ledger
+const worksPaid = (s: GameState, id: number) => 0 - s.fiscal.ledger
   .filter((l) => l.ref === `works.${id}` && l.type === 'project').reduce((n, l) => n + l.amount, 0);
 
 /** §13.2's invariants: sunk spending is the ledger's; no stock negative; serviced works are serviced land. */
@@ -225,6 +226,79 @@ describe('R2 cancel and pause conserve funds and work', () => {
     const adopted = s.worksOrders.at(-1)!;
     expect(s.cellWorks.filter((w) => partial.includes(w.cell)).every((w) => w.order === adopted.id)).toBe(true);
     expect(adopted.unitsTotal).toBeLessThan(36 * WORKS.service.units_per_cell);
+  });
+});
+
+describe('R2 queue rules and accounts', () => {
+  it('keeps population and money whole, month by month, through a works run (the shared invariants)', () => {
+    const rng = new Rng(11);
+    let s = funded();
+    let first: PlayerAction[] = [guide(s), { type: 'build_road', path: SPUR, priority: 'high' },
+      { type: 'commit_works', zone: 1, cells: PHASE, priority: 'high' },
+      { type: 'place_structure', kind: 'water_source', cell: [356, 345], attach: [356, 346] }];
+    for (let m = 0; m < 24; m++) {
+      const r = step(s, [...firstOption(s, s.pendingCards), ...first], rng, STEPS);
+      first = [];
+      if (r.status !== 'advanced') throw new Error(r.status);
+      checkInvariants(s, r.state, r.events);
+      checkLedger(s, r.state);
+      checkOrders(r.state);
+      s = r.state;
+    }
+    expect(s.worksOrders.every((o) => o.stage === 'done')).toBe(true);
+  });
+
+  it('serves the higher priority first on a scarce pool, and the other waits for capacity', () => {
+    const scarce = { ...params, works: WORKS, capacity: { ...params.capacity, local_crew: 30 } };
+    const steps = createTickSteps(scarce, slice.tick);
+    const rng = new Rng(12);
+    const go = (s: GameState, acts: PlayerAction[]) =>
+      runMonths(s, 1, rng, (st, cards) => { const a = [...firstOption(st, cards), ...acts]; acts = []; return a; }, steps);
+    let s = go(funded(), [{ type: 'build_road', path: SPUR, priority: 'high' },
+      { type: 'place_structure', kind: 'water_source', cell: [356, 345], attach: [356, 346], priority: 'high' }]);
+    expect(s.worksOrders.map((o) => [o.unitsDone, o.waiting ?? null])).toEqual([[30, null], [0, 'capacity']]);
+    s = go(s, [{ type: 'set_works_priority', order: 1, priority: 'low' }]);
+    expect(s.worksOrders.map((o) => [o.unitsDone, o.waiting ?? null])).toEqual([[30, 'capacity'], [30, null]]);
+    expect(() => go(s, [{ type: 'set_works_priority', order: 1, priority: 'urgent' as 'high' }])).toThrow(/unknown priority/);
+  });
+
+  it('a commit beyond the money raises the loan flag, and cancelling it clears the flag', () => {
+    const s = initial();
+    expect(s.fiscal.loanWanted).toBe(false);
+    apply(s, { type: 'build_road', path: SPUR });
+    expect(s.fiscal.loanWanted).toBe(true);
+    apply(s, { type: 'cancel_works', order: 1 });
+    expect(s.worksOrders[0]!.stage).toBe('cancelled');
+    expect(s.fiscal.loanWanted).toBe(false);
+    expect(unspentCommitments(s)).toBe(0);
+  });
+
+  it('cancelling an unstarted structure returns its forex quota', () => {
+    const s = funded();
+    const forex = s.fiscal.balances.forex;
+    apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 345], attach: [356, 346] });
+    apply(s, { type: 'cancel_works', order: 1 });
+    expect(s.fiscal.balances.forex).toBe(forex);
+    expect(s.worksOrders[0]).toMatchObject({ stage: 'cancelled', spent: 0 });
+  });
+
+  it('services only buildable cells, as M4 site preparation does', () => {
+    const s = funded();
+    // (359,347) and (360,347) are playable but unbuildable; (361,347) is buildable
+    apply(s, { type: 'create_zone', use: 'industrial', runs: [[347, 359, 361]] });
+    expect(() => apply(s, { type: 'commit_works', zone: 1, cells: [[347, 360, 360]] })).toThrow(/not buildable/);
+    apply(s, { type: 'commit_works', zone: 1 });
+    expect(s.cellWorks.map((w) => w.cell)).toEqual([at(361, 347)]);
+  });
+
+  it('migrates a version 2 save to empty roads and orders', () => {
+    const save = saveFromJson(saveToJson(saveGame(initial(), new Rng(3), content)));
+    const state = { ...(save.body.state as Record<string, unknown>) };
+    delete state.roads; delete state.worksOrders; delete state.nextOrderId;
+    const v2 = { ...save, header: { ...save.header, version: 2 }, body: { ...save.body, state } };
+    const back = loadGame(v2);
+    expect(back.header.version).toBe(3);
+    expect(back.state).toEqual(loadGame(save).state);
   });
 });
 

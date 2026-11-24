@@ -161,15 +161,18 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
     const w = works.get(c);
     return !served.has(c) && !roads.has(c) && !queued.has(c) && (!w || (w.stage !== 'serviced' && (w.order === undefined || !live.has(w.order))));
   };
+  // as M4's site preparation: an unbuildable cell adds no capacity, so it is never serviced (§5.5, §13.2)
+  const buildable = (c: number) => !wc.buildable || inSorted(wc.buildable.cells, c);
   let cells: number[];
   if (a.cells !== undefined) {
     const zc = new Set(inZone);
     cells = [...new Set(cellsOfRuns(a.cells, s.grid))].sort((x, y) => x - y);
     for (const c of cells) {
       if (!zc.has(c)) throw new Error(`cell ${c} is not in zone ${z.id}`);
+      if (!buildable(c)) throw new Error(`cell ${c} is not buildable: servicing it adds no capacity`);
       if (!eligible(c)) throw new Error(`cell ${c} is serviced, a road, or already has works`);
     }
-  } else cells = inZone.filter(eligible);
+  } else cells = inZone.filter((c) => buildable(c) && eligible(c));
   if (!cells.length) throw new Error(`zone ${z.id} has no cells left to service`);
   const id = s.nextOrderId++;
   let units = 0;
@@ -258,7 +261,12 @@ function cancelWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
     }
     for (const c of o.path!.slice(cut)) units += c.units;
     o.path = o.path!.slice(0, cut);
-  } else if (o.unitsDone === 0 && (!only || only.has(o.placement!.cell))) units = o.unitsTotal;
+  } else if (o.unitsDone === 0 && (!only || only.has(o.placement!.cell))) {
+    units = o.unitsTotal;
+    // nothing was contracted: the forex quota drawn at commit goes back
+    const fx = -s.fiscal.ledger.filter((l) => l.ref === `works.${o.id}` && l.account === 'forex').reduce((n, l) => n + l.amount, 0);
+    if (fx > 0) post(s, 'import', 'forex', fx, `cancel:works.${o.id}`);
+  }
   if (units === 0) throw new Error(`works order ${o.id} has no unstarted work to cancel there`);
   shrink(s, o, wc.works, units);
   afterCancel(s, wc.params);
