@@ -253,6 +253,42 @@ Pops are **not** assigned to individual buildings in the sim. The renderer sprea
 
 For each utility independently, a placed source attaches at a road cell, and a consumer draws at a serviced cell with a frontage assignment. Pool integer capacity per road component and split it proportionally to demands, with remainder ties by cell index. A road connection can thus have zero supply. Until placed sources/loads exist, exercise allocation in headless fixtures; leave the M-series area ledger authoritative for monthly ticks. Start geometry and derived previews do not change save headers or golden hashes. Before any spatial input changes tick outcomes, include its content hash in saves/replays and version mutable state changes.
 
+**Persistent records (R1).** Two sparse records join `GameState` (`packages/sim-core/src/works.ts`). Both start empty, so a new game and every M-series golden run are unchanged. Save version 2 adds them; the 1 → 2 migration defaults them to empty.
+
+```ts
+interface CellWork {          // GameState.cellWorks: one per committed cell, sorted by cell
+  cell: number;               // y · width + x
+  zone: number;               // the zone it was committed under, kept as a record if that zone is later edited or removed
+  workTotal: number;          // integer work units, fixed at commit (≥ 1)
+  workDone: number;           // sunk work, 0 ≤ workDone ≤ workTotal; never refunded or reset
+  stage: 'planned' | 'servicing' | 'serviced';   // workDone = 0 | 0 < workDone < workTotal | workDone = workTotal
+}
+interface PlacedStructure {   // GameState.structures, id order; ids from GameState.nextStructureId, never reused
+  id: number;
+  kind: 'water_source' | 'power_source' | 'facility';
+  cell: number;               // its one-cell footprint in R1, on a playable area
+  attach: number;             // the road cell it connects at: its footprint or a four-neighbour of it
+  capacity: number;           // integer ≥ 0: m³/day (water), kW (power) or places (facility)
+  facility?: string;          // facility type key, facility only
+  placed: YM;
+}
+```
+
+- **Units, not yuan.** Work is counted in integer work units. The caller sets units per cell and units per month. R2 sets both from crews and cost params; R1 names no rate. Spending money on works is R2's job, and it goes through the ledger.
+- **One authority for "serviced".** `servicedLand` stays the set of serviced cells that the M-series tick reads. When a work reaches `serviced`, its cell joins `servicedLand` in the same call. So every serviced work cell is in `servicedLand`, and this is tested. M4's site-preparation projects still add whole zones at completion, without works records.
+- **Commit.** Commit takes the cells of one current zone that have no work and are not yet in `servicedLand`. Each new record starts at `planned`.
+- **Advance.** Work units go to unfinished works with road reach, in this order: frontage depth (shallower first), then cell index. Each work is filled before the next one starts, so the first cell can finish while its neighbours wait. A work without reach (a removed zone, deeper than `max_frontage_depth`, or a severed road) keeps its stage and sunk work and takes no units. Units left over when nothing can take them are returned unused. R2 adds the queue's priority and pause and its order ahead of cell index, and it adds cancellation.
+- **Placement.** The footprint must lie on a playable area and the attach cell must be the footprint or one of its neighbours. Whether the attach cell is a road is checked only when supply is derived. A source whose road was severed keeps its record and supplies nothing. R2 adds terrain checks and footprints larger than one cell.
+- **Not in the tick.** No action and no tick step reads or writes these records in R1. `step` and `cloneState` carry them unchanged, and saves round-trip them. R2's placement actions are the first writers in play, and the action log replays them like any other action.
+
+**Derived views (R1).** `spatialViews(state, network, demand?)` is one pure function of loaded state, the compiled `StartNetwork` and any extra road cells the caller supplies (R2: built roads). It never reads a cache.
+- `roads`: the components over the start network's road cells (rails excluded).
+- `frontage`: reach into each current zone from its nearest road frontage, up to `max_frontage_depth`.
+- `sources`: integer capacity per utility, summed at each attach cell.
+- `supply`: per utility, `allocateUtility` over caller-supplied demand (R3 derives it from occupancy). Only `serviced` cells can draw; any other cell that has demand gets 0.
+
+The views are never saved. After save and load they must be identical, and they are rebuilt again after any change to topology, works, zones or structures.
+
 ## 14. Open questions
 - How large the tracked tier needs to be, and whether block stocks are fine-grained enough for postcards (measured in Spike B).
 - How to source m² per bed for dormitories and urban-village rentals by era.
