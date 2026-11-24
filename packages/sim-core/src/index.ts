@@ -18,6 +18,7 @@ export * from './content.js';
 export * from './sites.js';
 export * from './network.js';
 export * from './works.js';
+export * from './growth.js';
 export * from './orders.js';
 export * from './calibration.js';
 export * from './play.js';

@@ -87,16 +87,18 @@ industry:                                # M3b (§5.5): firms, production and va
 
 investors:                               # M3b (§5.5): offers by archetype (content/slice/investors.yaml). Placeholders
   offer_months: 6                        # an offer outlives a quarter: runQuarter does not stop between months
+  # R3 (b&c §13.3): routine cards are rarer, exceptional deals; ordinary firms now come without a card (growth below).
+  # Every rate was cut to about a third of its M3b/M5a value (0.4, 0.1, 0.3, 0.15, 0.25 a quarter). Placeholders
   archetypes:
-    investor.hk_processing:     { rate_per_quarter: 0.4, jobs: [60, 200], dorm_beds_per_job: 0.3, build_months: 9, ramp_months: 3 }
-    investor.inland_state_unit: { rate_per_quarter: 0.1, jobs: [100, 400], dorm_beds_per_job: 0.5, build_months: 12, ramp_months: 6 }
-    # M5a (§5.7): arrive only once the SEZ unlocks them. With the two above, about one card a quarter (§6.5).
+    investor.hk_processing:     { rate_per_quarter: 0.12, jobs: [60, 200], dorm_beds_per_job: 0.3, build_months: 9, ramp_months: 3 }
+    investor.inland_state_unit: { rate_per_quarter: 0.04, jobs: [100, 400], dorm_beds_per_job: 0.5, build_months: 12, ramp_months: 6 }
+    # M5a (§5.7): arrive only once the SEZ unlocks them.
     # tax_holiday_months: no value-added tax in a firm's first months open (absent = 0)
-    investor.joint_venture:     { rate_per_quarter: 0.3, jobs: [100, 400], dorm_beds_per_job: 0.4, build_months: 12, ramp_months: 6,
+    investor.joint_venture:     { rate_per_quarter: 0.1, jobs: [100, 400], dorm_beds_per_job: 0.4, build_months: 12, ramp_months: 6,
                                   tax_holiday_months: 24 }
-    investor.foreign_owned:     { rate_per_quarter: 0.15, jobs: [150, 500], dorm_beds_per_job: 0.3, build_months: 12, ramp_months: 6,
+    investor.foreign_owned:     { rate_per_quarter: 0.05, jobs: [150, 500], dorm_beds_per_job: 0.3, build_months: 12, ramp_months: 6,
                                   tax_holiday_months: 24 }
-    investor.overseas_chinese:  { rate_per_quarter: 0.25, jobs: [60, 250], dorm_beds_per_job: 0.3, build_months: 9, ramp_months: 3,
+    investor.overseas_chinese:  { rate_per_quarter: 0.08, jobs: [60, 250], dorm_beds_per_job: 0.3, build_months: 9, ramp_months: 3,
                                   tax_holiday_months: 12 }
 
 # ---- M4 (§5.6): fiscal, projects, construction capacity and GDP. Every number is a placeholder design guess ----
@@ -126,7 +128,7 @@ capacity:                                # the construction-capacity pool (§5.6
   crew_per_m2: 0.02                      # a firm cohort's crew at full pace, per m²
 
 construction:
-  cost_per_m2: { standard_factory: 120, dormitory: 100, state_flats: 110 }   # value of the work, for GDP
+  cost_per_m2: { standard_factory: 120, dormitory: 100, state_flats: 110, shop_market: 110 }   # value of the work, for GDP
 
 projects:                                # by template id (content/slice/projects.yaml)
   project.road_link:        { budget: 600000, crew: 40, work_months: 6, maint_rate_year: 0.02, road_km: 2 }
@@ -153,6 +155,30 @@ works:                                   # R2 municipal works orders (buildings-
     power_source: { units: 150, yuan: 500000, capacity: 500, forex_usd: 20000 }   # project.power_line: 25 × 6; kW
   facilities:
     school: { units: 160, yuan: 300000, capacity: 400 }                           # project.school: 20 × 8; places
+
+growth:                                  # R3 organic growth (buildings-and-construction §13.3). Placeholder design guesses,
+                                         # not sourced. None of these is a growth multiplier; R6 measures what they give
+  pool_priority: low                     # private and work-unit builds take the pool after the city's normal work
+  response: 0.5                          # share of a floor gap started in a month
+  build_months: 6                        # a shop or dormitory cohort's months of work
+  spend_share: 0.4                       # share of wages spent in the slice
+  far: { industrial: 1.0, commercial: 1.5, residential: 1.5 }   # floor m² per m² of developable land
+  industrial:                            # small Hong Kong processing firms that build and occupy their own premises
+    archetype: organic.small_processing  # the firms' archetype id; not an investor card
+    firm: { dorm_beds_per_job: 0.3, build_months: 6, ramp_months: 3 }   # as an investors.archetypes entry
+    ownership: hk_processing
+    firm_jobs: 100                       # one organic firm: 1,000 m² of factory and 150 m² of dormitory
+    floor_m2_per_month: 1500             # m² of demand a month at order index 1 and regime factor 1
+    min_utility_share: 0.5               # no firm builds where its area's supply would fall below this share
+    regime_factor: { default: 1, regime.county_1979: 0.3 }   # by fiscal regime id: the SEZ's regime favours firms
+  services:
+    spend_per_job_month: 100             # local spending that supports one service job (yuan a month)
+    formal_share: 0.5                    # share of new service jobs that want shop floor; the rest is informal
+    m2_per_job: 15                       # shop floor per formal service job
+  residential:
+    min_crowding: 1.0                    # work units build dormitories only where rental crowding is at least this
+  village_shops:
+    m2_per_job: 10                       # village shop floor per informal service job
 
 gdp:                                     # nominal value added (fiscal §8.2)
   base_va_per_job_month: { farming_fishing: 30, factory: 50, construction: 50, services: 40, state: 45 }

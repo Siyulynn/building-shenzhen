@@ -4,7 +4,7 @@
  * project outside the pool; village self-build never draws on it. Work stays in whole months: allocated crew units
  * go into a bank, and a full crew in the bank is a month of work.
  */
-import { VILLAGE_ARCHETYPES } from '../enums.js';
+import { isVillageFloor } from './common.js';
 import {
   PRIORITIES, addObligation, addServicedLand, liveProject, payProject, projectFunds, type Project,
 } from '../fiscal.js';
@@ -14,12 +14,15 @@ import { liveOrder, type WorksOrder } from '../works.js';
 import type { Cohort } from '../state.js';
 import type { TickContext } from '../step.js';
 
+/** Cohorts whose work comes from the pool (§5.6): firms', and private and work-unit builds (b&c §13.3). */
+export const pooledCohort = (c: Cohort) => c.firm !== undefined || c.builder === 'private' || c.builder === 'work_unit';
+
 /** A firm cohort's crew at full pace (§5.6). */
 export const cohortCrew = (c: Cohort, p: SliceParams) => Math.max(1, Math.ceil(c.m2 * p.capacity.crew_per_m2));
 
 /** The value of one month of work on a cohort, for GDP (§5.6): its m² × cost per m² ÷ its months of work. */
 export function cohortMonthValue(c: Cohort, p: SliceParams): number {
-  const per = VILLAGE_ARCHETYPES.includes(c.archetype) ? p.village_build.build_cost_per_m2
+  const per = isVillageFloor(c) ? p.village_build.build_cost_per_m2
     : (p.construction.cost_per_m2 as Record<string, number>)[c.archetype] ?? 0;
   return (c.m2 * per) / Math.max(1, c.workTotal ?? 1);
 }
@@ -102,10 +105,16 @@ export function allocatePool(ctx: TickContext, p: SliceParams, wc?: WorksContent
   type Job = { pri: number; start: number; type: number; id: number; ord: number; cohort?: Cohort; project?: Project; order?: WorksOrder };
   const jobs: Job[] = [];
   let ord = 0;
+  // R3 (b&c §13.3): organic builds, the organic firms' among them, take the pool at growth.pool_priority
+  const organic = PRIORITIES.indexOf(p.growth?.pool_priority ?? 'normal');
   for (const b of s.blocks) for (const c of b.cohorts) {
-    if (c.stage !== 'under_construction' || c.firm === undefined) continue;
+    if (c.stage !== 'under_construction' || !pooledCohort(c)) continue;
+    if (c.firm === undefined) {
+      jobs.push({ pri: organic, start: (c.due ?? s.date) - (c.workTotal ?? 0), type: 0, id: 0, ord: ord++, cohort: c });
+      continue;
+    }
     const f = s.firms.find((x) => x.id === c.firm);
-    jobs.push({ pri: 1, start: f?.accepted ?? s.date, type: 0, id: c.firm, ord: ord++, cohort: c });
+    jobs.push({ pri: f?.origin === 'organic' ? organic : 1, start: f?.accepted ?? s.date, type: 0, id: c.firm, ord: ord++, cohort: c });
   }
   for (const x of s.fiscal.projects) {
     if (!liveProject(x)) continue;

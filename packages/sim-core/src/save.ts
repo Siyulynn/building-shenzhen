@@ -6,7 +6,7 @@ import { Rng, type RngState } from './rng.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
 
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 /** The content a save was made with (§5.1, §5.3). */
 export interface SaveContent {
@@ -28,6 +28,9 @@ const MIGRATIONS: Record<number, (s: Save) => Save> = {
   // R2 (§13.2): built roads and works orders. A version 2 header has no network hash: the start network then was R1's
   2: (s) => ({ ...s, header: { ...s.header, version: 3 },
     body: { ...s.body, state: { ...(s.body.state as object), roads: [], worksOrders: [], nextOrderId: 1 } } }),
+  // R3 (§13.3): the organic firms' banked demand. The new cohort and firm fields are optional
+  3: (s) => ({ ...s, header: { ...s.header, version: 4 },
+    body: { ...s.body, state: { ...(s.body.state as object), growth: { carry: 0 } } } }),
 };
 
 /** JSON turns NaN and Infinity into null without a word: a save must fail instead. */

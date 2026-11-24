@@ -66,7 +66,8 @@ export function checkFirms(s: GameState): void {
   const start = initial();
   for (const b of s.blocks) {
     const here = s.firms.filter((f) => f.area === b.area);
-    const m2 = (a: string) => b.cohorts.reduce((t, c) => t + (c.archetype === a ? c.m2 : 0), 0);
+    // R3 (b&c §13.3): work units' dormitories and other organic cohorts are not firm floor
+    const m2 = (a: string) => b.cohorts.reduce((t, c) => t + (c.archetype === a && c.builder === undefined ? c.m2 : 0), 0);
     const startM2 = (a: string) => start.blocks.find((x) => x.area === b.area)!.cohorts
       .reduce((t, c) => t + (c.archetype === a ? c.m2 : 0), 0);
     expect(m2('standard_factory') - startM2('standard_factory')).toBe(here.reduce((t, f) => t + f.floorM2, 0));

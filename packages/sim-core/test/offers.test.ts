@@ -16,6 +16,10 @@ const fixed = (jobs: number, rate = 3) => validateParams({ ...params, investors:
   [SOE]: { ...params.investors.archetypes[SOE]!, rate_per_quarter: 0 },
 } } });
 const P100 = fixed(100), P200 = fixed(200), P600 = fixed(600);
+/** M3b's own cadence (§5.5): the rates before R3 cut routine cards to exceptional deals (b&c §13.3). */
+const M3B = validateParams({ ...params, investors: { ...params.investors, archetypes: { ...params.investors.archetypes,
+  [HK]: { ...params.investors.archetypes[HK]!, rate_per_quarter: 0.4 },
+  [SOE]: { ...params.investors.archetypes[SOE]!, rate_per_quarter: 0.1 } } } });
 const SMALL = createTickSteps(P100, { precedents, investors });   // small enough for existing premises (150 jobs an area)
 const stepsFor = (p = P200, extra?: (base: readonly TickStep[]) => TickStep[]) => {
   const base = createTickSteps(p, { precedents, investors });
@@ -46,7 +50,7 @@ describe('M3b offers: arrivals and options', () => {
   });
 
   it('draws arrivals from the seed: the same seed gives the same offers, sized within the range', () => {
-    const steps = createTickSteps(params, { precedents, investors });
+    const steps = createTickSteps(M3B, { precedents, investors });
     const raised = (seed: number) => {
       const out: string[] = [];
       walk(initial(), 63, new Rng(seed), steps, (_b, _s, events) => {
@@ -252,7 +256,7 @@ describe('M3b preview', () => {
 
 describe('M3b offers: determinism', () => {
   it('save, load and continue, and replay, with offers accepted by the default policy', () => {
-    const steps = createTickSteps(params, { precedents, investors });
+    const steps = createTickSteps(M3B, { precedents, investors });
     const rng = new Rng(13);
     const end = runMonths(initial(), 30, rng, undefined, steps);
     expect(end.firms.length).toBeGreaterThan(0);

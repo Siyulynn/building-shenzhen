@@ -43,7 +43,11 @@ export interface Cohort { era: number; use: FloorUse; stage: Stage; legality: Le
   archetype: BuildingArchetype; due?: YM;
   workDone?: number; workTotal?: number;   // months of work done and needed, while under construction
   crewBank?: number;                       // pool crew units banked toward its next month of work (M4, §5.6)
-  firm?: number }                         // the firm whose factory or dormitory this is, until completion
+  firm?: number;                           // the firm whose factory or dormitory this is, until completion
+  builder?: OrganicBuilder;                // R3 (b&c §13.3): an organic cohort's builder; absent: BUILDER_OF[archetype]
+  zone?: number }                          // R3: the zone an organic cohort was built in, kept if the zone is edited
+/** R3 (b&c §13.3): who built an organic cohort. Private and work-unit builds draw on the pool; village ones never do. */
+export type OrganicBuilder = 'private' | 'work_unit' | 'village_household';
 export interface BlockEvent { date: YM; kind: BlockEventKind; use?: FloorUse; m2: number; builder: string }
 export interface BlockStock {
   blockId: number; cell: number; area: number; village?: number;
@@ -90,6 +94,7 @@ export interface Firm {
   accepted: YM; opens?: YM;        // set when its factory completes (the month after acceptance in existing premises)
   posted: number; staffed: number; output: number;   // this month's: jobs posted, jobs filled, gross output (yuan)
   terms?: FirmTerms;               // M5a (§5.7): absent = no tax holiday, the full land-use fee
+  origin?: 'organic';              // R3 (b&c §13.3): built with no card; absent = a card or an event's offer
 }
 /** A firm's incentives (§5.7): its tax holiday, its land-use fee factor, and the leader whose shortcut sited it. */
 export interface FirmTerms { taxHolidayMonths?: number; landFeeFactor?: number; shortcut?: string }
@@ -183,6 +188,7 @@ export interface GameState {
   roads: number[];            // R2 (b&c §13.2): built road cells, sorted; start-network roads stay content
   worksOrders: WorksOrder[];  // R2: municipal works orders, id order
   nextOrderId: number;
+  growth: { carry: number };  // R3 (b&c §13.3): m² of industrial demand banked toward the next organic firm
   events: EventsState;        // M5a (§5.7)
   sez: SezState;
   shekou: ShekouState;
@@ -390,6 +396,7 @@ export function createInitialState(content: {
     roads: [],
     worksOrders: [],
     nextOrderId: 1,
+    growth: { carry: 0 },
     events: { fired: [], unlocked: [] },
     sez: {},
     shekou: { captured: 0, jobs: 0, carry: 0 },
@@ -448,6 +455,7 @@ export function cloneState(s: GameState): GameState {
     structures: s.structures.map((x) => ({ ...x })),
     roads: [...s.roads],
     worksOrders: s.worksOrders.map(cloneOrder),
+    growth: { ...s.growth },
     events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked] },   // fired entries are never changed
     sez: { ...s.sez },
     shekou: { ...s.shekou },

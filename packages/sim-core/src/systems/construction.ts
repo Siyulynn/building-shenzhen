@@ -10,7 +10,8 @@ import type { SliceParams } from '../params.js';
 import type { BlockStock, Cohort } from '../state.js';
 import type { TickContext } from '../step.js';
 import { bedsByPool, illegalShare, villageM2 } from './common.js';
-import { allocatePool, cohortCrew, cohortMonthValue } from './projects.js';
+import { allocatePool, cohortCrew, cohortMonthValue, pooledCohort } from './projects.js';
+import { growthPass, pipelineRentalBeds, type GrowthContent } from '../growth.js';
 
 const EVENT_KEEP_MONTHS = 24;
 const BUILDER = BUILDER_OF.village_rental;
@@ -19,14 +20,16 @@ function mergeCompleted(b: BlockStock): void {
   const out: Cohort[] = [];
   for (const c of b.cohorts) {
     const same = c.stage === 'completed'
-      ? out.find((o) => o.stage === 'completed' && o.era === c.era && o.use === c.use && o.legality === c.legality && o.archetype === c.archetype)
+      ? out.find((o) => o.stage === 'completed' && o.era === c.era && o.use === c.use && o.legality === c.legality && o.archetype === c.archetype
+        && o.builder === c.builder && o.zone === c.zone)
       : undefined;
     if (same) same.m2 += c.m2; else out.push(c);
   }
   b.cohorts = out;
 }
 
-export function construction(p: SliceParams, pool = false, buildable?: { cells: Uint32Array }, works?: WorksContent) {
+export function construction(p: SliceParams, pool = false, buildable?: { cells: Uint32Array }, works?: WorksContent,
+  growth?: GrowthContent) {
   return (ctx: TickContext): void => {
     const s = ctx.state;
     const vb = p.village_build;
@@ -37,14 +40,14 @@ export function construction(p: SliceParams, pool = false, buildable?: { cells: 
       //    firm's cohort banks its crew units and gains a month when a full crew is banked (§5.6)
       for (const c of b.cohorts) {
         if (c.stage !== 'under_construction') continue;
-        if (alloc && c.firm !== undefined) {
+        if (alloc && pooledCohort(c)) {
           const crew = cohortCrew(c, p);
           c.crewBank = (c.crewBank ?? 0) + (alloc.get(c) ?? 0);
           if (c.crewBank < crew) continue;
           c.crewBank -= crew;
         }
         c.workDone = (c.workDone ?? 0) + 1;
-        ctx.events.push({ step: 'construction', kind: 'work', detail: { value: cohortMonthValue(c, p) } });
+        ctx.events.push({ step: 'construction', kind: 'work', detail: { value: cohortMonthValue(c, p), builder: c.builder ?? BUILDER_OF[c.archetype] } });
         if (c.workDone >= (c.workTotal ?? 0)) {
           c.stage = 'completed';
           if (c.firm !== undefined && c.archetype === 'standard_factory') {
@@ -52,7 +55,7 @@ export function construction(p: SliceParams, pool = false, buildable?: { cells: 
             if (f) f.opens = s.date;
           }
           delete c.due; delete c.workDone; delete c.workTotal; delete c.firm; delete c.crewBank;
-          b.events.push({ date: s.date, kind: 'complete', use: c.use, m2: c.m2, builder: BUILDER_OF[c.archetype] });
+          b.events.push({ date: s.date, kind: 'complete', use: c.use, m2: c.m2, builder: c.builder ?? BUILDER_OF[c.archetype] });
         }
       }
       mergeCompleted(b);
@@ -67,9 +70,8 @@ export function construction(p: SliceParams, pool = false, buildable?: { cells: 
         const risk = vb.p_enforce[s.policy.enforcement] * cost;
         if (value - cost - risk > vb.hurdle * cost) {
           const perBed = p.housing.m2_per_bed.village_rental;
-          const pipelineBeds = Math.floor(b.cohorts.reduce((a, c) =>
-            a + (c.stage === 'under_construction' && c.archetype === 'village_rental' ? c.m2 : 0), 0) / perBed);
-          const unmet = Math.max(0, market.occupants.rental - bedsByPool(b, p).rental - pipelineBeds);
+          // every rental archetype's pipeline (b&c §13.3): work-unit dormitories answer the same shortfall
+          const unmet = Math.max(0, market.occupants.rental - bedsByPool(b, p).rental - pipelineRentalBeds(b, p));
           const want = Math.min(villagers * vb.max_start_m2_per_villager_month, unmet * perBed * vb.response);
           const era = b.cohorts[0]?.era ?? 0;              // M2 has one era (§5.2); era changes arrive with content
           const maxFloors = Math.min(p.eras[era]!.structural_max_floors, vb.enforcement_max_floors[s.policy.enforcement]);
@@ -91,5 +93,7 @@ export function construction(p: SliceParams, pool = false, buildable?: { cells: 
       const area = s.areas.find((a) => a.id === b.area);
       if (area) area.illegalFloorShare = illegalShare(b);
     }
+    // 3. R3 (b&c §13.3): organic builders, after the month's work and the village rental starts
+    if (growth && p.growth) growthPass(ctx, p, growth);
   };
 }

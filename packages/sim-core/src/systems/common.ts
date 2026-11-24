@@ -6,7 +6,7 @@ import { largestRemainder } from '../round.js';
 import { staffFirms } from './industry.js';
 import type { SliceParams } from '../params.js';
 import { REGISTRATION } from '../enums.js';
-import type { BlockStock, GameState, PopGroup, Queue6, Stage } from '../state.js';
+import type { BlockStock, Cohort, GameState, PopGroup, Queue6, Stage } from '../state.js';
 
 export function m2ByArchetype(b: BlockStock, stages: readonly Stage[]): Record<BuildingArchetype, number> {
   const out = Object.fromEntries(BUILDING_ARCHETYPES.map((a) => [a, 0])) as Record<BuildingArchetype, number>;
@@ -22,16 +22,18 @@ export function bedsByPool(b: BlockStock, p: SliceParams): { local: number; rent
   return beds;
 }
 
+/** Village floor (b&c §13.3): the village archetypes, plus anything village households built (their shops). */
+export const isVillageFloor = (c: Cohort) => VILLAGE_ARCHETYPES.includes(c.archetype) || c.builder === 'village_household';
+
 export function villageM2(b: BlockStock, stages: readonly Stage[]): number {
-  const m2 = m2ByArchetype(b, stages);
-  return VILLAGE_ARCHETYPES.reduce((s, a) => s + m2[a], 0);
+  return b.cohorts.reduce((s, c) => s + (stages.includes(c.stage) && isVillageFloor(c) ? c.m2 : 0), 0);
 }
 
 /** Illegal share of completed village floor (buildings §5); 0 when there is none. */
 export function illegalShare(b: BlockStock): number {
   let all = 0, illegal = 0;
   for (const c of b.cohorts) {
-    if (c.stage !== 'completed' || !VILLAGE_ARCHETYPES.includes(c.archetype)) continue;
+    if (c.stage !== 'completed' || !isVillageFloor(c)) continue;
     all += c.m2;
     if (c.legality !== 'permitted') illegal += c.m2;
   }

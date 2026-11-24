@@ -15,9 +15,11 @@ export interface FirmOffer {
 }
 export type FirmSite = { premises: 'new_factory'; area: number; zone: number } | { premises: 'existing'; area: number };
 
-const archetypeParams = (p: SliceParams, id: string) => {
-  const a = p.investors.archetypes[id];
-  if (!a) throw new Error(`params: investors.archetypes has no ${id}`);
+/** A firm archetype's numbers: an investor card's, or the organic firm's (b&c §13.3). */
+const archetypeParams = (p: SliceParams, id: string): { dorm_beds_per_job: number; build_months: number; ramp_months: number;
+  tax_holiday_months?: number } => {
+  const a = p.investors.archetypes[id] ?? (p.growth?.industrial.archetype === id ? p.growth.industrial.firm : undefined);
+  if (!a) throw new Error(`params: no firm archetype ${id} in investors.archetypes or growth.industrial`);
   return a;
 };
 
@@ -94,6 +96,18 @@ export function utilityShare(s: GameState, area: number): number {
   for (const f of s.firms) if (f.area === area && isOpen(f, s.date)) { power += f.powerKw; water += f.waterM3Day; }
   const share = (cap: number, need: number) => (need > 0 ? Math.min(1, Math.max(0, cap) / need) : 1);
   return Math.min(share(a?.utilities.powerCap ?? 0, power), share(a?.utilities.waterCap ?? 0, water));
+}
+
+/**
+ * The utility share an area's firms would have if every firm sited there were open and one more of `kw` and `m3`
+ * opened too: the test an organic firm makes before it builds (b&c §13.3).
+ */
+export function prospectiveShare(s: GameState, area: number, kw: number, m3: number, supply = { power: 0, water: 0 }): number {
+  const a = s.areas.find((x) => x.id === area);
+  let power = kw, water = m3;
+  for (const f of s.firms) if (f.area === area) { power += f.powerKw; water += f.waterM3Day; }
+  const share = (cap: number, need: number) => (need > 0 ? Math.min(1, Math.max(0, cap) / need) : 1);
+  return Math.min(share((a?.utilities.powerCap ?? 0) + supply.power, power), share((a?.utilities.waterCap ?? 0) + supply.water, water));
 }
 
 /** Hong Kong orders this month (§5.8): an event's surge or slump while it lasts, else 1. */

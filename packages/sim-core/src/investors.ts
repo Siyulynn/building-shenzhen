@@ -9,6 +9,7 @@ import type { AreasContent, CardInstance, FirmTerms, GameState, LocalizedString,
 import type { TickContext } from './step.js';
 import { createFirm, firmTerms, sizeOffer, type FirmOffer } from './systems/industry.js';
 import { cellsOfRuns } from './zones.js';
+import { zoneBuiltM2 } from './growth.js';
 import { landFeeRate, regimeOf, withdrawCofinanced, type FiscalContent } from './fiscal.js';
 
 /**
@@ -85,9 +86,8 @@ export function zoneCapacityM2(s: GameState, z: Zone, p: SliceParams, buildable?
   const n = buildable ? cells.filter((c) => has(buildable.cells, c)).length : cells.length;
   return n * (raw ? 1 : z.servicedShare ?? 1) * CELL_M2 * p.industry.max_far;
 }
-/** The floor and dormitory area of the firms sited in a zone. */
-export const zoneUsedM2 = (s: GameState, zone: number) =>
-  s.firms.reduce((a, f) => a + (f.zone === zone ? f.floorM2 + f.dormM2 : 0), 0);
+/** The floor and dormitory area of the firms sited in a zone, and of the organic cohorts built in it (b&c §13.3). */
+export const zoneUsedM2 = (s: GameState, zone: number) => zoneBuiltM2(s, zone);   // R3: its organic cohorts too
 
 const zoneFits = (s: GameState, z: Zone, o: FirmOffer, p: SliceParams, b?: Buildable, raw = false) =>
   z.use === 'industrial' && zoneUsedM2(s, z.id) + o.floorM2 + o.dormM2 <= zoneCapacityM2(s, z, p, b, raw);

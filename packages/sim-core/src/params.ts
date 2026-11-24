@@ -89,11 +89,60 @@ export interface SliceParams {
     cancel_penalty: number;
   };
   capacity: { local_crew: number; crew_per_m2: number };
-  construction: { cost_per_m2: { standard_factory: number; dormitory: number; state_flats: number } };
+  construction: { cost_per_m2: { standard_factory: number; dormitory: number; state_flats: number; shop_market: number } };
   projects: Record<string, ProjectParams>;
   teams: Record<string, { crew: number; mobilization_months: number; duration_months: number; cost_per_month: number }>;
   gdp: { base_va_per_job_month: Record<Sector, number>; construction_va_ratio: number };
   works?: WorksParams;                   // R2 (buildings-and-construction §13.2): absent = no works actions
+  growth?: GrowthParams;                 // R3 (buildings-and-construction §13.3): absent = no organic growth
+}
+
+/** R3 organic growth (b&c §13.3). Placeholders, not sourced. */
+export interface GrowthParams {
+  pool_priority: 'high' | 'normal' | 'low';
+  response: number;                      // share of a floor gap started in a month
+  build_months: number;                  // shop and dormitory cohorts
+  spend_share: number;                   // share of wages spent locally
+  far: { industrial: number; commercial: number; residential: number };
+  industrial: {
+    archetype: string; ownership: Ownership; firm_jobs: number;
+    firm: { dorm_beds_per_job: number; build_months: number; ramp_months: number };   // the archetype's numbers
+    floor_m2_per_month: number;
+    min_utility_share: number;           // the area's utility share, with this firm and all sited ones open
+    regime_factor: Record<string, number>;   // by fiscal regime id; `default` for the rest
+  };
+  services: { spend_per_job_month: number; formal_share: number; m2_per_job: number };
+  residential: { min_crowding: number };
+  village_shops: { m2_per_job: number };
+}
+
+function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
+  const pos = (n: unknown) => typeof n === 'number' && n > 0;
+  const share = (n: unknown) => typeof n === 'number' && n >= 0 && n <= 1;
+  if (!['high', 'normal', 'low'].includes(g.pool_priority)) throw new Error('params: growth.pool_priority must be high, normal or low');
+  if (!share(g.response) || !share(g.spend_share)) throw new Error('params: growth.response and growth.spend_share must be in [0, 1]');
+  if (!Number.isInteger(g.build_months) || g.build_months < 1) throw new Error('params: growth.build_months must be a positive integer');
+  need(g.far as unknown as Record<string, unknown>, ['industrial', 'commercial', 'residential'], 'growth.far');
+  for (const k of ['industrial', 'commercial', 'residential'] as const) if (!pos(g.far[k])) throw new Error(`params: growth.far.${k} must be > 0`);
+  const I = g.industrial;
+  if (typeof I.archetype !== 'string' || !I.archetype || p.investors.archetypes[I.archetype]) {
+    throw new Error('params: growth.industrial.archetype must be an id of its own, not an investor card archetype');
+  }
+  if (!(I.firm?.dorm_beds_per_job >= 0) || !Number.isInteger(I.firm.build_months) || I.firm.build_months < 1
+    || !Number.isInteger(I.firm.ramp_months) || I.firm.ramp_months < 1) {
+    throw new Error('params: growth.industrial.firm needs dorm_beds_per_job >= 0 and whole build_months and ramp_months >= 1');
+  }
+  if (!(OWNERSHIPS as readonly string[]).includes(I.ownership)) throw new Error(`params: growth.industrial.ownership ${I.ownership} is unknown`);
+  if (!Number.isInteger(I.firm_jobs) || I.firm_jobs < 1) throw new Error('params: growth.industrial.firm_jobs must be a positive integer');
+  if (!(I.floor_m2_per_month >= 0)) throw new Error('params: growth.industrial.floor_m2_per_month must be >= 0');
+  if (!share(I.min_utility_share)) throw new Error('params: growth.industrial.min_utility_share must be in [0, 1]');
+  if (!(I.regime_factor?.default !== undefined)) throw new Error('params: growth.industrial.regime_factor needs a default');
+  for (const [k, v] of Object.entries(I.regime_factor)) if (!(v >= 0)) throw new Error(`params: growth.industrial.regime_factor.${k} must be >= 0`);
+  if (!pos(g.services?.spend_per_job_month) || !share(g.services.formal_share) || !pos(g.services.m2_per_job)) {
+    throw new Error('params: growth.services needs spend_per_job_month > 0, formal_share in [0, 1] and m2_per_job > 0');
+  }
+  if (!(g.residential?.min_crowding >= 0)) throw new Error('params: growth.residential.min_crowding must be >= 0');
+  if (!pos(g.village_shops?.m2_per_job)) throw new Error('params: growth.village_shops.m2_per_job must be > 0');
 }
 
 /** A structure's or facility's works numbers (§13.2). */
@@ -217,6 +266,7 @@ export function validateParams(raw: unknown): SliceParams {
   for (const m of p.migration.spring.away_months) if (!Number.isInteger(m) || m < 0 || m > 11) throw new Error('params: spring.away_months are 0..11');
   validateFiscalParams(p);
   if (p.works !== undefined) validateWorksParams(p.works);
+  if (p.growth !== undefined) validateGrowthParams(p.growth, p);
   validateM5aParams(p);
   validateM5bParams(p);
   return p;
@@ -333,7 +383,7 @@ function validateFiscalParams(p: SliceParams): void {
     if (!posInt(t.crew) || !Number.isInteger(t.mobilization_months) || t.mobilization_months < 0 || !posInt(t.duration_months)
       || !(t.cost_per_month >= 0)) throw new Error(`params: teams.${id} has a bad crew, mobilization, duration or cost`);
   }
-  need(p.construction.cost_per_m2, ['standard_factory', 'dormitory', 'state_flats'], 'construction.cost_per_m2');
+  need(p.construction.cost_per_m2, ['standard_factory', 'dormitory', 'state_flats', 'shop_market'], 'construction.cost_per_m2');
   for (const [k, v] of Object.entries(p.construction.cost_per_m2)) {
     if (!(v >= 0)) throw new Error(`params: construction.cost_per_m2.${k} must be >= 0`);
   }

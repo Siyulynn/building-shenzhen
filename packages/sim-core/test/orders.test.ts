@@ -1,7 +1,7 @@
 /** R2: municipal works orders, placement and the preview (buildings-and-construction §13.2; phase1-slice §12 R2). */
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, applyTurnAction, cellsOfRuns, createTickSteps, firstOption, liveOrder, loadGame, post, previewWorks, replay,
+  Rng, SAVE_VERSION, applyTurnAction, cellsOfRuns, createTickSteps, firstOption, liveOrder, loadGame, post, previewWorks, replay,
   runMonths, saveFromJson, saveGame, saveToJson, spatialViews, step, templateZoneAction, unspentCommitments,
   type CellRuns, type GameState, type PlayerAction, type WorksOrder,
 } from '../src/index.js';
@@ -294,10 +294,10 @@ describe('R2 queue rules and accounts', () => {
   it('migrates a version 2 save to empty roads and orders', () => {
     const save = saveFromJson(saveToJson(saveGame(initial(), new Rng(3), content)));
     const state = { ...(save.body.state as Record<string, unknown>) };
-    delete state.roads; delete state.worksOrders; delete state.nextOrderId;
+    delete state.roads; delete state.worksOrders; delete state.nextOrderId; delete state.growth;
     const v2 = { ...save, header: { ...save.header, version: 2 }, body: { ...save.body, state } };
     const back = loadGame(v2);
-    expect(back.header.version).toBe(3);
+    expect(back.header.version).toBe(SAVE_VERSION);   // through every later migration (R3: version 4)
     expect(back.state).toEqual(loadGame(save).state);
   });
 });

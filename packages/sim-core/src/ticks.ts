@@ -1,6 +1,7 @@
 /** The tick pipeline with the systems filled in from validated params (phase1-slice.md §5.2, §6). */
 import { applyFiscalAction, isFiscalAction, refreshServicedShares, type FiscalContent } from './fiscal.js';
 import { worksHooks, type WorksContent } from './orders.js';
+import type { GrowthContent } from './growth.js';
 import type { SliceParams } from './params.js';
 import type { StartNetwork } from './sites.js';
 import type { GameState, PlayerAction } from './state.js';
@@ -47,6 +48,9 @@ export function createTickSteps(params: SliceParams, content: TickContent = {}):
   // works orders (R2, b&c §13.2) need their params, the fiscal content and the start network
   const wc: WorksContent | undefined = fc && content.network && params.works
     ? { params, works: params.works, network: content.network, ...(content.buildable ? { buildable: content.buildable } : {}) } : undefined;
+  // organic growth (R3, b&c §13.3) needs its params and the start network, for road reach
+  const gc: GrowthContent | undefined = params.growth && content.network
+    ? { network: content.network, ...(content.buildable ? { buildable: content.buildable } : {}) } : undefined;
   const impl: Record<string, (ctx: TickContext) => void> = {
     ...(content.events?.length ? {
       events: events(params, content),
@@ -54,7 +58,7 @@ export function createTickSteps(params: SliceParams, content: TickContent = {}):
       reviews: reviews(params, content.targets),
     } : {}),
     investment: investment(params, content),
-    construction: construction(params, !!fc, content.buildable, wc),
+    construction: construction(params, !!fc, content.buildable, wc, gc),
     labour: labour(params),
     housing: housing(params),
     migration: migration(params),

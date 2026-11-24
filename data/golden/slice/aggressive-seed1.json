@@ -4,7 +4,7 @@
   "quarters": 21,
   "content": {
     "areas_sha256": "fc9003de49cb0d274f25b2b21ac1028c4dd8cb0c51f334af2e4caa9ad70212a6",
-    "params_sha256": "7cb42c4e512e85c3f2ce0775772c9c30c9ed8e6c69b95c9467819847ecf7e63b",
+    "params_sha256": "86f461091dd2031450b1cafcb6419991fdcc6b187d18c14def517fbda5d1d507",
     "precedents_sha256": "d54f17661a4348d98d655754b9e42dea47173e09d8f6d19566de79d2094104f4",
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
     "buildable_sha256": "93a4651ce4e9e6dc32928e79da812babc22842aa8407c389dc633bdac21fc4d1",
@@ -22,7 +22,7 @@
       "presentNonlocal": 320,
       "migrants": 320,
       "firmJobs": 120,
-      "gdp": 8706870,
+      "gdp": 8725101,
       "exports": 153600,
       "revenue": 2942457,
       "obligationsPaid": 2996664,
@@ -37,72 +37,72 @@
       "at": "1980-12",
       "residents": 30340,
       "registered": 30000,
-      "presentNonlocal": 379,
-      "migrants": 379,
-      "firmJobs": 170,
-      "gdp": 7924929,
-      "exports": 411680,
-      "revenue": 2945776,
-      "obligationsPaid": 3143478,
+      "presentNonlocal": 415,
+      "migrants": 415,
+      "firmJobs": 329,
+      "gdp": 8111022,
+      "exports": 970080,
+      "revenue": 2953601,
+      "obligationsPaid": 3144088,
       "projectSpend": 147500,
       "reserve": 0,
-      "debt": 3024409,
+      "debt": 3017194,
       "arrears": 0,
-      "scrutiny": 48.9226,
+      "scrutiny": 28.9226,
       "illegalShare": 0
     },
     {
       "at": "1981-12",
-      "residents": 30607,
+      "residents": 30477,
       "registered": 30000,
-      "presentNonlocal": 841,
-      "migrants": 841,
-      "firmJobs": 289,
-      "gdp": 8069410,
-      "exports": 920880,
-      "revenue": 2951288,
-      "obligationsPaid": 3845190,
+      "presentNonlocal": 502,
+      "migrants": 502,
+      "firmJobs": 323,
+      "gdp": 8169089,
+      "exports": 1505310,
+      "revenue": 2954941,
+      "obligationsPaid": 3828189,
       "projectSpend": 0,
       "reserve": 0,
-      "debt": 3134526,
+      "debt": 3121824,
       "arrears": 0,
-      "scrutiny": 53.6378,
+      "scrutiny": 22.8306,
       "illegalShare": 0
     },
     {
       "at": "1982-12",
-      "residents": 30907,
+      "residents": 30513,
       "registered": 30000,
-      "presentNonlocal": 1065,
-      "migrants": 1065,
-      "firmJobs": 282,
-      "gdp": 8265865,
-      "exports": 833390,
-      "revenue": 2953010,
-      "obligationsPaid": 4054142,
+      "presentNonlocal": 493,
+      "migrants": 493,
+      "firmJobs": 316,
+      "gdp": 8213051,
+      "exports": 1232625,
+      "revenue": 2953528,
+      "obligationsPaid": 4061162,
       "projectSpend": 227500,
       "reserve": 0,
-      "debt": 2544426,
-      "arrears": 399726,
-      "scrutiny": 52.7729,
+      "debt": 2544174,
+      "arrears": 372563,
+      "scrutiny": 36.126,
       "illegalShare": 0
     },
     {
       "at": "1983-12",
-      "residents": 31084,
+      "residents": 30471,
       "registered": 30000,
-      "presentNonlocal": 1064,
-      "migrants": 1064,
-      "firmJobs": 268,
-      "gdp": 8758232,
-      "exports": 827950,
-      "revenue": 2263148,
-      "obligationsPaid": 3173895,
+      "presentNonlocal": 451,
+      "migrants": 451,
+      "firmJobs": 316,
+      "gdp": 7953574,
+      "exports": 1214215,
+      "revenue": 2265784,
+      "obligationsPaid": 3177792,
       "projectSpend": 0,
       "reserve": 0,
-      "debt": 1801904,
-      "arrears": 2072467,
-      "scrutiny": 45.519,
+      "debt": 1802302,
+      "arrears": 1714934,
+      "scrutiny": 36.5237,
       "illegalShare": 0
     }
   ],
@@ -116,25 +116,25 @@
     {
       "index": 1,
       "at": "1980-12",
-      "score": 0.5193,
-      "pass": false
+      "score": 0.7317,
+      "pass": true
     },
     {
       "index": 2,
       "at": "1981-12",
-      "score": 0.5197,
-      "pass": false
+      "score": 0.7642,
+      "pass": true
     },
     {
       "index": 3,
       "at": "1982-12",
-      "score": 0.3722,
+      "score": 0.4704,
       "pass": false
     },
     {
       "index": 4,
       "at": "1983-12",
-      "score": 0.2554,
+      "score": 0.3009,
       "pass": false
     }
   ],
@@ -145,36 +145,36 @@
   },
   "verdict": {
     "growth": {
-      "residents": 1.0245,
-      "gdp": 1.0059
+      "residents": 1.0043,
+      "gdp": 0.9116
     },
     "ledger": {
       "reserve": 0,
-      "debtOutstanding": 1801904,
-      "arrears": 2072467
+      "debtOutstanding": 1802302,
+      "arrears": 1714934
     },
     "lastReview": {
       "index": 4,
       "date": 23807,
       "lightweight": false,
-      "score": 0.2554,
+      "score": 0.3009,
       "pass": false,
       "caught": false,
       "items": [
         {
           "indicator": "exports_usd",
-          "value": 551967,
-          "score": 0.184
+          "value": 809477,
+          "score": 0.2698
         },
         {
           "indicator": "forex_earned_usd",
-          "value": 55200,
-          "score": 0.184
+          "value": 80948,
+          "score": 0.2698
         },
         {
           "indicator": "foreign_firm_jobs",
-          "value": 236,
-          "score": 0.118
+          "value": 297,
+          "score": 0.1485
         },
         {
           "indicator": "projects_completed",
@@ -188,13 +188,13 @@
         }
       ]
     },
-    "scrutiny": 45.519,
+    "scrutiny": 36.5237,
     "illegalShare": 0,
     "fiscalTest": {
       "grantFactor": 0,
-      "revenuePerYear": 1570660,
-      "dueNext12": 6434200,
-      "balance": -4863540
+      "revenuePerYear": 1577340,
+      "dueNext12": 5995532,
+      "balance": -4418192
     }
   },
   "fired": [
@@ -216,13 +216,13 @@
     "event.petition@1980-03",
     "event.readiness_check@1980-04",
     "event.escapes@1980-04",
+    "event.first_zone@1980-05",
     "event.sez_established@1980-08",
     "event.petition@1980-08",
+    "event.mandate_met@1980-09",
     "event.sweep@1980-10",
     "event.budget@1981-01",
     "event.bamboo_garden@1981-01",
-    "event.first_zone@1981-01",
-    "event.mandate_met@1981-01",
     "event.petition@1981-01",
     "event.sweep@1981-10",
     "event.budget@1982-01",
