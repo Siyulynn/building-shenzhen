@@ -61,6 +61,7 @@ function work(ctx: TickContext, p: SliceParams, x: Project, units: number): void
     ctx.events.push({ step: 'construction', kind: 'work', detail: { value: pay } });
   }
   x.spent += pay;
+  if (units > 0) ctx.events.push({ step: 'construction', kind: 'crew', detail: { area: x.area, units } });   // R4 (§5.11)
   x.crewBank += units;
   if (x.crewBank >= x.crew) { x.workDone += 1; x.crewBank -= x.crew; }
   x.stage = 'building';

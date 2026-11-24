@@ -11,7 +11,8 @@ export interface SliceParams {
     wage_floor: Record<Sector, number>;
     wage_speed: number;
     construction_jobs_per_m2: number;
-    turnover_month: number;          // R4 (§5.11): share of each job row's holders who quit to idle each month
+    turnover_month: number;          // R4 (§5.11): share of each job row's migrant holders who quit to idle each month
+    jobs_per_crew_unit: number;      // R4 (§5.11): construction jobs per crew unit a project or works order uses
   };
   migration: {
     inland_wage: number;
@@ -210,6 +211,7 @@ export function validateParams(raw: unknown): SliceParams {
     if (!(POP_KINDS as readonly string[]).includes(k)) throw new Error(`params: labour.fill_order.${s} names ${k}`);
   }
   if (!(p.labour.turnover_month >= 0 && p.labour.turnover_month <= 1)) throw new Error('params: labour.turnover_month must be in [0, 1]');
+  if (!(p.labour.jobs_per_crew_unit >= 0)) throw new Error('params: labour.jobs_per_crew_unit must be >= 0');
   need(p.migration.base, MIGRANT_KINDS, 'migration.base');
   need(p.migration.sector, MIGRANT_KINDS, 'migration.sector');
   need(p.migration.permit_factor, PERMIT_REGIMES, 'migration.permit_factor');

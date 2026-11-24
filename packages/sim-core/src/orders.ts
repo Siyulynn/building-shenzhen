@@ -336,6 +336,7 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
     },
     work(o, units, events) {
       if (units <= 0) return 0;
+      const area = workArea(s, o);                       // R4 (phase1-slice §5.11): where this month's crew works
       let used = units;
       if (o.kind === 'service') {
         const left = advanceCellWorks(s, units, views.frontage, (w) => w.order === o.id);
@@ -364,9 +365,30 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
         placeStructure(s, o.placement!);
       }
       settle(s, o);
+      if (used > 0 && area !== undefined) events.push({ step: 'construction', kind: 'crew', detail: { area, units: used } });
       return used;
     },
   };
+}
+
+/**
+ * The area an order's crew works in this month (phase1-slice §5.11): a service order's zone's area (or that of its
+ * first unfinished cell if the zone is gone), the road cell being built, or the structure's cell.
+ */
+function workArea(s: GameState, o: WorksOrder): number | undefined {
+  const areaOf = (c: number) => s.areas.find((a) => a.access === 'playable' && inSorted(a.cells, c))?.id;
+  if (o.kind === 'service') {
+    const z = s.zones.find((x) => x.id === o.zone);
+    if (z) return z.area;
+    const w = s.cellWorks.find((x) => x.order === o.id && x.stage !== 'serviced');
+    return w ? areaOf(w.cell) : undefined;
+  }
+  if (o.kind === 'road') {
+    let before = 0;
+    for (const c of o.path!) { if (before + c.units > o.unitsDone) return areaOf(c.cell); before += c.units; }
+    return undefined;
+  }
+  return areaOf(o.placement!.cell);
 }
 
 // ---- the step hooks and the preview ----

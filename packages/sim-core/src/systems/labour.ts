@@ -149,13 +149,22 @@ export function labour(p: SliceParams, network?: StartNetwork) {
     const L = p.labour;
     springFestival(ctx, p);
 
-    // jobs this month: the start economy, construction work and the firms' posts (§5.5)
+    // jobs this month: the start economy, construction work and the firms' posts (§5.5). Construction work is the
+    // floor under construction and, from R4 (§5.11), the crew units projects and works orders used this month
     postFirmJobs(s, p);
+    const crew = new Map<number, number>();
+    for (const e of ctx.events) {
+      if (e.step === 'construction' && e.kind === 'crew') {
+        const a = e.detail!.area as number;
+        crew.set(a, (crew.get(a) ?? 0) + (e.detail!.units as number));
+      }
+    }
     const jobs: JobRow[] = s.labour.baseJobs.map((j) => {
       let n = j.jobs + (j.sector === 'factory' ? firmPosts(s, j.area, j.sector) : 0);
       if (j.sector === 'construction') {
         const b = s.blocks.find((x) => x.area === j.area);
         if (b) n += Math.floor(underConstructionM2(b) * L.construction_jobs_per_m2);
+        n += Math.floor((crew.get(j.area) ?? 0) * L.jobs_per_crew_unit);
       }
       return { area: j.area, sector: j.sector, jobs: n, filled: 0 };
     });
