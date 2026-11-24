@@ -348,6 +348,76 @@ interface WorksOrder {        // GameState.worksOrders, id order; ids from GameS
 
 **Saves.** Version 3 adds `roads`, `worksOrders` and `nextOrderId`, and its migration defaults them to empty. Because spatial input now changes outcomes, the header's content gains `network_sha256` (`start_network.yaml`).
 
+### 13.3 Organic growth (R3)
+
+On serviced land that a road reaches, ordinary builders answer demand each month with no decision card (phase1-slice §1.1, "Occupy"). Three of them build on the player's zones; village households build on their own plots. **None is paid from the city's ledger.** Their crews come from the construction pool (phase1-slice §5.6) at `growth.pool_priority`, behind the city's work of a higher priority. Village self-build never draws on the pool, as in M2. The pass runs in tick step 4, after the month's cohort work and the village rental starts. It runs only when the tick content has `params.growth` and the compiled start network; without them, nothing in this section happens, so M2's no-content fixtures run as before.
+
+**Developable land.** A zone's developable cells are its buildable cells (every cell, without the layer) that are in `servicedLand` and in `spatialViews(…).frontage`. The views are computed once, at the start of the pass. A zone's **room** is its developable cells × 10,000 m² × `growth.far[use]`, less the floor of the firms sited in it and of the organic cohorts that name it, in every stage. A zone with no developable cell takes nothing, so a zone serviced by M4's site preparation but out of a road's reach stays empty. Card siting is unchanged (phase1-slice §5.5's `zoneCapacityM2`), except that a zone's used floor now counts the organic cohorts that name it.
+
+| Zone use | Builder | Demand | What it builds |
+|---|---|---|---|
+| industrial | small Hong Kong processing firms, which own and occupy their premises | orders and policy | a `Firm` with `origin: 'organic'`, through `createFirm` |
+| commercial | private builders, who let shops | worker spending | `shop_market` cohorts, builder `private` |
+| residential | work units (单位 danwei), for their staff and contract workers | rental pressure in the area | `dormitory` cohorts, builder `work_unit` |
+| (village plots) | village households | worker spending in the area | `shop_market` cohorts, builder `village_household`: informal shops |
+
+**Industrial.** Each month `growth.industrial.floor_m2_per_month` × `industry.order_index` × the order factor (phase1-slice §5.8) × `growth.industrial.regime_factor[regime]` m² of demand is added to `growth.carry`. The regime is `fiscal.regime`; one missing from the factors takes `default`. So the policy that favours firms is the regime the SEZ event switches to, never a date. While the carry covers one firm's floor, a firm is created in an industrial zone that has room for its floor and dormitory and whose area could still supply it: the area's utility share, with every firm sited there open and this one too, must be at least `growth.industrial.min_utility_share` (`prospectiveShare`). The firm has `growth.industrial.firm_jobs` jobs, of ownership `growth.industrial.ownership` and archetype `growth.industrial.archetype`: an id of its own, never an investor card's, whose build months, ramp and dormitory beds are `growth.industrial.firm`. It goes in the zone with the most room (ties: the lower id), and its floor is taken off the carry. When no zone fits, the carry is capped at one firm's floor: demand that finds no land is not banked. From then on the firm is like any other (phase1-slice §5.5–§5.7). Its factory and dormitory are built, and it opens when its factory completes. Its posts, utility share, output, taxes, tax holiday and land fee follow the usual rules, and its floor is occupied once it opens. Its cohorts draw on the pool at `growth.pool_priority`.
+
+**Worker spending.** For each playable area a, spending is computed from last month's matching (the state before tick step 5):
+```
+spend[a]   = Σ groups living in a, Σ sectors: employed × wage[sector] × growth.spend_share
+ref[a]     = Σ base jobs in a: jobs × wage_start[sector] × growth.spend_share
+induced[a] = max(0, spend[a] − ref[a]) ÷ growth.services.spend_per_job_month      // service jobs the new spending supports
+```
+At the start every base job is filled at its starting wage, so `induced` is 0 and the start stays at rest. A share `growth.services.formal_share` of the induced jobs wants formal shop floor; the rest is informal, in the town and the villages. R4 posts these jobs (phase1-slice §5.11). In R3 they only drive building.
+
+**Commercial.** The target is Σₐ induced[a] × `formal_share` × `growth.services.m2_per_job` m² over the slice, since shoppers cross areas. The stock is the private shop floor, completed and under construction. Each month's starts are `floor(min(max(0, target − stock) × growth.response, room))`, where room is that of all commercial zones together. They are split over those zones by their room (largest remainder, ties to the lower id), one cohort per zone. **Occupancy is derived, never stored:** completed private shop floor is occupied up to the target, zone by zone in id order.
+
+**Residential.** For each area with a residential zone that has room, when its rental crowding is at least `growth.residential.min_crowding`:
+- unmet = rental occupants − rental beds − beds under construction in every rental archetype;
+- starts = `floor(min(unmet × m2_per_bed.dormitory × growth.response, room))`;
+- they are split over that area's residential zones by room.
+
+The village rule (phase1-slice §5.2) now also counts dormitory beds under construction in its unmet beds, so two builders do not both answer the same shortfall. Flats wait for local housing pressure, which M2 reports but does not enforce.
+
+**Village shops.** In each area with village plots and villagers:
+- target = induced[a] × (1 − `formal_share`) × `growth.village_shops.m2_per_job`;
+- the stock is the village shop floor, completed and under construction;
+- starts = `floor(min(max(0, target − stock) × growth.response, plot room))`, where plot room is the footprint × max floors less the village floor, as for rental floors.
+
+Legality and enforcement are as in M2: floor up to `legal_floors` is permitted, and floor above it is `unpermitted_tolerated`. **Village floor** now means the village archetypes plus any cohort built by `village_household`. That one definition gives the footprint cap, `illegalFloorShare` and `villageM2`. Shops take `village_build.duration_months` and no pool crew.
+
+**Records.**
+```ts
+// Cohort (phase1-slice §5.2, §5.5) gains:
+builder?: 'private' | 'work_unit' | 'village_household';   // an organic cohort's builder; absent: BUILDER_OF[archetype]
+zone?: number;              // the zone an organic cohort was built in; kept if that zone is later edited or removed
+// Firm (§5.5) gains:
+origin?: 'organic';         // built with no card (R3); absent: an investor card or an event's offer
+// GameState gains:
+growth: { carry: number };  // m² of industrial demand banked toward the next organic firm
+```
+Completed cohorts merge only when their builder and zone match too. A block event names the cohort's builder. **Save version 4** adds `growth`; the 3 → 4 migration sets the carry to 0. The new cohort and firm fields are optional, so they need no migration.
+
+**Costs are the builder's.** A cohort's value of work is its m² × `construction.cost_per_m2[archetype]` (village floor at `village_build.build_cost_per_m2`) ÷ its months. It is the builder's money: nothing is posted to the city's ledger. Each month's `work` event names its builder, and GDP's construction value counts it, as before.
+
+**Investor cards.** The routine archetypes' `rate_per_quarter` values are cut to rarer, exceptional deals (params, placeholders). The guaranteed first contract, the first wave, the co-financing offer and every other event offer call `raiseOffer` directly, so they are unchanged.
+
+**Not in R3:**
+- commercial tenants, informal shops and active works post no jobs yet (R4, phase1-slice §5.11);
+- placed sources supply no firm (R4);
+- flats; developers; block assembly.
+
+**R3's tests** (`test/growth.test.ts`):
+- **An isolated zone against connected land.** Two serviced industrial zones, one fronting the temporary Guangshen road and one with no road in reach, under a favourable regime and with no investor content. Only the connected zone gains organic firms and floor.
+- **Policy.** The same land under the county regime builds less than under the SEZ's regime.
+- **Floor occupied with no cards.** Organic firms open and post jobs with no investor content.
+- **Utilities.** No organic firm builds where its area's prospective utility share would fall below `min_utility_share`.
+- **A pressured village against a quiet one.** With crowding and rent above the build test in one area only, only that area adds rental floor. Raised spending adds village shops, legal and tolerated, within the footprint cap.
+- **The builder pays.** Private building posts nothing to the ledger. A city project of normal priority takes the pool ahead of an organic cohort.
+- **At rest.** With no zones, 63 months build nothing organic.
+- **Saves.** Save, load and continue matches an uninterrupted run, and a version 3 save loads.
+
 ## 14. Open questions
 - How large the tracked tier needs to be, and whether block stocks are fine-grained enough for postcards (measured in Spike B).
 - How to source m² per bed for dormitories and urban-village rentals by era.
