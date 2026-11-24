@@ -1,7 +1,7 @@
 /**
  * Headless decision policies (phase1-slice.md §5.8, §10): they answer every pending card, so a run never pauses.
  */
-import { DEFICIT_CARD, LOAN_CARD, moneyForProjects } from './fiscal.js';
+import { DEFICIT_CARD, LOAN_CARD, contractLive, moneyForProjects } from './fiscal.js';
 import { SHORTCUT_CARD } from './investors.js';
 import type { SliceParams } from './params.js';
 import { Rng } from './rng.js';
@@ -97,9 +97,17 @@ export const AGGRESSIVE_CHOICES: Readonly<Record<string, string>> = Object.freez
   'event.readiness_check': 'rush', 'event.sweep': 'sweep', 'event.corps_deployment': 'accept',
   [COFINANCING_CARD]: 'accept', [LOAN_CARD]: 'take', [DEFICIT_CARD]: 'borrow_short',
 });
-/** The aggressive player's build list, committed one a turn while money for projects covers it (§5.9). */
-export const AGGRESSIVE_BUILDS: readonly { template: string; area: number }[] = Object.freeze([7, 5, 2, 1].flatMap((area) =>
-  ['project.road_link', 'project.water_main', 'project.power_line'].map((template) => ({ template, area }))));
+/**
+ * The aggressive player's build list, committed one a turn while money for projects covers it (§5.9): power and water
+ * for its two industrial zones first, then roads, then more power. An entry repeated n times is built n times.
+ */
+export const AGGRESSIVE_BUILDS: readonly { template: string; area: number }[] = Object.freeze([
+  ...[7, 5].flatMap((area) => ['project.power_line', 'project.water_main'].map((template) => ({ template, area }))),
+  ...[7, 5, 2].map((area) => ({ template: 'project.road_link', area })),
+  ...[7, 5, 7, 5].map((area) => ({ template: 'project.power_line', area })),
+]);
+/** The pool teams the aggressive player keeps under contract while money for projects covers a year of their cost. */
+export const AGGRESSIVE_TEAMS: readonly string[] = Object.freeze(['team.engineering_corps', 'team.outside_soe']);
 
 /**
  * Takes every grey option: the loan and the co-financing; every investor and shortcut at its first site; loose
@@ -126,12 +134,27 @@ export function aggressive(p: SliceParams): DecisionPolicy {
       );
       return out;
     }
-    const next = AGGRESSIVE_BUILDS.find((b) => !s.fiscal.projects.some((x) =>
-      x.template === b.template && x.area === b.area && x.stage !== 'cancelled'));
+    // the next entry not yet built as often as the list asks
+    const asked = new Map<string, number>();
+    const next = AGGRESSIVE_BUILDS.find((b) => {
+      const k = `${b.template}@${b.area}`;
+      asked.set(k, (asked.get(k) ?? 0) + 1);
+      return s.fiscal.projects.filter((x) => x.template === b.template && x.area === b.area && x.stage !== 'cancelled').length < asked.get(k)!;
+    });
+    let money = moneyForProjects(s, p);
     if (next) {
       const pp = p.projects[next.template]!;
-      if (moneyForProjects(s, p) >= (pp.budget ?? 0) && (pp.forex_usd ?? 0) <= s.fiscal.balances.forex) {
+      if (money >= (pp.budget ?? 0) && (pp.forex_usd ?? 0) <= s.fiscal.balances.forex) {
         out.push({ type: 'commit_project', template: next.template, area: next.area });
+        money -= pp.budget ?? 0;
+      }
+    }
+    for (const team of AGGRESSIVE_TEAMS) {
+      const tp = p.teams[team];
+      if (!tp || s.fiscal.contracts.some((c) => c.team === team && contractLive(s, c))) continue;
+      if (money >= 12 * tp.cost_per_month) {
+        out.push({ type: 'contract_team', team, mode: 'pool' });
+        money -= 12 * tp.cost_per_month;
       }
     }
     return out;

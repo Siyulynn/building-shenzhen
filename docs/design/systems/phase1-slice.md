@@ -1130,10 +1130,10 @@ A player who accepts no shortcut never trips: the risk stays 0.
 - **The fall from grace:** no shortcuts, no fall; a forced trip replaces the Mayor, freezes projects and vetoes the review when entangled.
 - **The budget card and the warning:** the warning appears exactly on the cards whose next 12 months hold a grant cut, read from content.
 - **The briefing:** the loan card and the co-financing card arrive in turn 4; accepting the co-financing builds a power line that costs the city nothing, and its investor's firm gets the concession.
-- **The branches** (`test/m5b-branches.test.ts`): `runQuarter` through the whole slice, with each prologue decision answered in its quarter and the failure card pausing it; a lapsed crisis takes its lapse option; the budget card's numbers; declining the co-financing investor withdraws its power line; event-only teams; the milestones; an orders slump caps posts; a fire vetoes its review; the Corps deployment; the climate's event gains; a two-month sweep covers December; indicators between turns; and the compilers' error paths.
-
 - **The visit:** it fires in 1984-01 and ends the run, and the verdict's fiscal test equals its formula on the end-1983 state.
 - **No effect without the content,** and determinism (save, load and continue, and replay, through a whole 21-quarter run).
+- **The branches** (`test/m5b-branches.test.ts`): `runQuarter` through the whole slice, with each prologue decision answered in its quarter and the failure card pausing it; a lapsed crisis takes its lapse option; the budget card's numbers; declining the co-financing investor withdraws its power line; event-only teams; the milestones; an orders slump caps posts; a fire vetoes its review; the Corps deployment; the climate's event gains; a two-month sweep covers December; indicators between turns; and the compilers' error paths.
+
 ### 5.9 The headless runner, golden runs and the plausibility report (M6a)
 M6 is built in three parts. **M6a** (this section) builds the instruments: one way to load the slice, the policies, the CLI, the golden runs, the plausibility report and the exit-criteria checks. It runs on M5's numbers and changes no balance. **M6b** is the balance pass, driven by M6a's report (§12). **M6c** is the 2D UI (§11).
 
@@ -1188,7 +1188,8 @@ The report says pass or fail honestly. A failing band is a finding for M6b, neve
   - it accepts every investor and every shortcut at the first site;
   - permits are loose and enforcement low, it sweeps every October, and a deficit card is answered `borrow_short`;
   - in its first month it draws an industrial zone of the area's first 24 cells in Shangbu (area 7) and in Sungang (area 5), as `historical_prologue` draws its 12, and commits site preparation in both;
-  - at each turn's start it commits the next project in a fixed list (a road, water main and power line in areas 7, 5, 2 and 1), while money for projects is above that project's budget and the forex quota covers it.
+  - at each turn's start it commits the next project in a fixed list (`AGGRESSIVE_BUILDS`: a power line and a water main in areas 7 and 5, roads in areas 7, 5 and 2, then two more power lines in each zone's area), while money for projects is above that project's budget and the forex quota covers it;
+  - it keeps `team.engineering_corps` and `team.outside_soe` under pool contracts while money for projects covers a year of their cost.
 - **`randomPolicy(seed)`** answers each pending card with a uniformly random option. It draws from its own sfc32 generator, seeded from `seed`, never from the sim's streams, and takes no turn actions. It exists for the property tests.
 
 A policy's turn actions are legal by construction: zones are clipped with `zoneCellsAllowed`, and a commit is made only when its checks pass.
@@ -1208,9 +1209,9 @@ A policy's turn actions are legal by construction: zones are clipped with `zoneC
 **Golden runs** (§10). The set is `default`, `cautious`, `aggressive`, `decline_all` and `historical_prologue`, each with seed 1, for 21 quarters through `runQuarter`.
 - **Each file is a readable summary:**
   - the content hashes;
-  - the SEZ's opening: its month, the readiness bar and the first-wave cards;
   - for each year end, and at the visit: residents, registered, present non-locals, migrants, firm jobs posted, the year's GDP, exports, revenue, obligations paid and project spending, the reserve, debt outstanding, arrears, scrutiny and the real illegal-floor share;
   - each review's score and result;
+  - the SEZ's opening: its month, the readiness bar and the first-wave cards;
   - the verdict;
   - the events fired, with their months.
 
@@ -1236,6 +1237,27 @@ A policy's turn actions are legal by construction: zones are clipped with `zoneC
 - **Speed:** 21 quarters of `aggressive` under 5 s.
 - **The CLI:** the same arguments give a byte-identical `run.json`; the report names every band.
 - **The 1983 checkpoint's notes:** `aggressive` ends the fiscal test negative and `cautious` ends it above `aggressive`. This replaces the note's "cautious near or above zero", which is M6b's target.
+
+### 5.10 The balance pass (M6b): findings
+M6a's report and a diagnosis of the five golden runs (2026-11-24) show the slice **does not grow under any policy**:
+- residents end 1983 between 30,340 and 31,084, against 30,340 at the start;
+- GDP grows ×0.93 to ×1.01;
+- spending ÷ revenue ends 1983 near 1.40;
+- the reviews after the first fail for every policy except `historical_prologue`.
+
+So the end-1983 growth bands fail, along with the spending-to-revenue band and two of the design bands. Four constraints hold the town flat. None is a single parameter, and together they set the slice's scale:
+
+1. **Money.** The county base brings in about ¥2.9M a year against ¥3–4M of obligations. One road costs ¥600k, one power line ¥500k, and site preparation ¥100k a cell. Firm taxes stay small (value added × the rate, after tax holidays), and land fees start only in 1982. No policy can fund the utilities and crews that new firms need. Money for projects is negative from 1980 under `aggressive`, and from 1982 the arrears roll over and grow (M4's note).
+2. **Construction capacity.** The pool is 120 local crew units, plus 60–200 for each team contracted. A firm's factory needs 0.02 crew units a m² at full pace, about 30–100 for a firm. Under `aggressive`, 22 firms are accepted by 1983, and 13 never finish building.
+3. **Utilities.** Spare power is 40–300 kW per area, and a power line adds 500 kW. Firms need 0.5–1.0 kW a job, so the firms that open post only about 8% of their jobs, capped by `utilityShare`.
+4. **Labour.** Matching runs each month from scratch (§5.2), so idle locals and service workers refill new factory posts before any migrant is pulled. Migrants come only once firm posts exceed that local slack. This is structural: changing it means changing §5.2's matching (for example, workers keep last month's job), not a parameter.
+
+**What it needs: decisions on scale, not tuning.** The bands ask for about ×1.17 to ×3.5 residents by 1983 (the SEZ's ×2.33 × [0.5, 1.5]), that is, 5,000 to 75,000 more people in the slice. One investor card is one firm of 60–500 jobs, at about one card a quarter, so even if every firm opened, firm jobs would reach about 5,000. Each of these options changes several placeholder sections together, so the choice needs a person:
+- **A. Scale a card.** A card is a batch of contracts: its jobs, floor, utilities and crews scale together. Alternatively, more cards arrive after the SEZ.
+- **B. Let growth pay for itself.** Firm taxes, land fees and retention grow with the firms; arrears are capped or forgiven by a provincial transfer; project costs are set against the county's budget.
+- **C. Fix the labour market.** Incumbency in matching, so a new post opens a vacancy that pulls migrants (a §5.2 change, with M2's rest test kept).
+
+M6b's only change so far is `aggressive`'s build list and its pool contracts (§5.9). They move only `aggressive`'s golden run, and slightly: its GDP ends ×1.006 rather than ×0.979, and its arrears are higher. Without money it hires no team.
 
 ---
 
@@ -1542,7 +1564,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 | M5b | The annual review and the sweep, the climate value, the remaining events and prologue beats, the budget cards and the grant warning, the briefing's loan and co-financing offers, and the closing visit (§5.8) | Each year's review forces a trade-off; the prologue tests pass; the 1980-Q2 snapshot is generated and passes its bands. *Status:* done. The snapshot is generated by the M5b test, not checked in as a file. The review targets, the climate and the event numbers are placeholders for M6's balance pass |
 | M6 | The CLI, golden runs, the plausibility report; the 2D UI on the Spike A canvas. Built in three parts | All five exit criteria can be checked |
 | M6a | One way to load the slice, the bands and measures, the `cautious`, `aggressive` and random policies, the CLI and its report, the golden runs, the property and speed tests (§5.9) | The §5.9 tests pass; the report checks criteria 1–5 on any run. No balance changes |
-| M6b | The balance pass: named params only, with a tuning log, driven by M6a's report | The report's findings are fixed or recorded as structural. M5b's calibration properties still hold (§5.8) |
+| M6b | The balance pass: named params only, with a tuning log, driven by M6a's report | The report's findings are fixed or recorded as structural. M5b's calibration properties still hold (§5.8). *Status:* findings recorded (§5.10); held for decisions on the slice's scale (options A–C) |
 | M6c | The 2D UI on the Spike A canvas (§11) | A person can play all 21 quarters in the browser, from the first card to the visit's verdict |
 | Playtest | Several full playthroughs; notes in `docs/playtests/` | You want to play it again |
 

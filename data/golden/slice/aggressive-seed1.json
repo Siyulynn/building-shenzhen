@@ -92,15 +92,15 @@
       "registered": 30000,
       "presentNonlocal": 1064,
       "migrants": 1064,
-      "firmJobs": 263,
-      "gdp": 8521508,
-      "exports": 825520,
-      "revenue": 2263210,
-      "obligationsPaid": 3173964,
+      "firmJobs": 268,
+      "gdp": 8758232,
+      "exports": 827950,
+      "revenue": 2263148,
+      "obligationsPaid": 3173895,
       "projectSpend": 0,
       "reserve": 0,
-      "debt": 1801911,
-      "arrears": 1760302,
+      "debt": 1801904,
+      "arrears": 2072467,
       "scrutiny": 45.519,
       "illegalShare": 0
     }
@@ -133,7 +133,7 @@
     {
       "index": 4,
       "at": "1983-12",
-      "score": 0.2541,
+      "score": 0.2554,
       "pass": false
     }
   ],
@@ -145,35 +145,35 @@
   "verdict": {
     "growth": {
       "residents": 1.0245,
-      "gdp": 0.9787
+      "gdp": 1.0059
     },
     "ledger": {
       "reserve": 0,
-      "debtOutstanding": 1801911,
-      "arrears": 1760302
+      "debtOutstanding": 1801904,
+      "arrears": 2072467
     },
     "lastReview": {
       "index": 4,
       "date": 23807,
       "lightweight": false,
-      "score": 0.2541,
+      "score": 0.2554,
       "pass": false,
       "caught": false,
       "items": [
         {
           "indicator": "exports_usd",
-          "value": 550347,
-          "score": 0.1834
+          "value": 551967,
+          "score": 0.184
         },
         {
           "indicator": "forex_earned_usd",
-          "value": 55038,
-          "score": 0.1835
+          "value": 55200,
+          "score": 0.184
         },
         {
           "indicator": "foreign_firm_jobs",
-          "value": 228,
-          "score": 0.114
+          "value": 236,
+          "score": 0.118
         },
         {
           "indicator": "projects_completed",
@@ -191,9 +191,9 @@
     "illegalShare": 0,
     "fiscalTest": {
       "grantFactor": 0,
-      "revenuePerYear": 1570908,
-      "dueNext12": 5821322,
-      "balance": -4250414
+      "revenuePerYear": 1570660,
+      "dueNext12": 6434200,
+      "balance": -4863540
     }
   },
   "fired": [
