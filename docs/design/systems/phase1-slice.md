@@ -1132,6 +1132,108 @@ A player who accepts no shortcut never trips: the risk stays 0.
 - **The briefing:** the loan card and the co-financing card arrive in turn 4; accepting the co-financing builds a power line that costs the city nothing, and its investor's firm gets the concession.
 - **The visit:** it fires in 1984-01 and ends the run, and the verdict's fiscal test equals its formula on the end-1983 state.
 - **No effect without the content,** and determinism (save, load and continue, and replay, through a whole 21-quarter run).
+### 5.9 The headless runner, golden runs and the plausibility report (M6a)
+M6 is built in three parts. **M6a** (this section) builds the instruments: one way to load the slice, the policies, the CLI, the golden runs, the plausibility report and the exit-criteria checks. It runs on M5's numbers and changes no balance. **M6b** is the balance pass, driven by M6a's report (§12). **M6c** is the 2D UI (§11).
+
+The report says pass or fail honestly. A failing band is a finding for M6b, never a reason to widen a band or a tolerance.
+
+**One way to load the slice** (`src/content.ts`, pure). Today the composition lives in `test/fixtures.ts`. M6a moves it into sim-core, so the tests, the CLI and the UI load the same slice.
+- `SLICE_FILES`: the repo-relative path of every file the slice reads (the areas and buildable JSON, the scenario, start, params, precedents, investors, fiscal regimes, projects, teams, events, targets and leaders).
+- `compileSlice(read, parse, hash)`: `read(path)` gives a file's text, `parse` is the caller's YAML parser, and `hash(text)` is the caller's sha256 of the text with LF endings. It returns:
+  - `init`, the input of `createInitialState`;
+  - `tick`, the full `TickContent`;
+  - `params`;
+  - `content`, the save header's hashes (§5.1).
+
+  sim-core still does no IO and imports no parser or hash. The CLI passes Node's `fs` and `crypto`; the UI passes its bundled texts and a pure-JS hash.
+
+**Measures and bands** (`src/calibration.ts`, pure).
+- **Measures** are named reads of a state. Trailing flows sum the last 12 months the history recorded:
+  - `slice.resident_pop`: Σ `stayedSixMonths` (常住);
+  - `slice.resident_pop.nonlocal`: the same, for groups with `nonlocal` registration;
+  - `slice.present_pop.temporary`: Σ `present` over `nonlocal` groups. This is the sim's analogue of the SEZ's temporary residents (暂住), a design choice. It is never added to usual residents;
+  - `slice.employed`: Σ filled jobs;
+  - `slice.gdp_nominal.year` (and `.trailing_4q`): trailing GDP;
+  - `slice.exports_usd.year` (and `.trailing_4q`): trailing exports ÷ `fiscal.forex.yuan_per_usd`;
+  - `city.general.spending_over_revenue.year` (and `.trailing_4q`): trailing (obligations paid + project spending) ÷ trailing revenue.
+- **Band kinds** (the claims' values are resolved at check time and never copied):
+  - `upper_bound`: value ≤ the claim;
+  - `ratio_band`: value within the ratio of two claims × `tolerance`;
+  - `between_ratios`: value within the two ratios' range × `tolerance`;
+  - `growth`: the value's multiple over the base checkpoint, within (claim `to` ÷ claim `from`) × `growth_band`;
+  - `upper_bound_and_growth`: both `upper_bound` (with `bound`) and `growth` (from `growth_from` to `bound`).
+- **The base checkpoint** for growth is end-1979: the state after the scenario's twelfth month. A stock is read at that state; a flow is that state's trailing year.
+- **Where bands are read at:** the `band.1979q4.*` bands at month 12, the `band.1980q2.*` bands at month 18, and the `band.1983q4.*` bands at the visit's state. Each checkpoint's month is the end of its `at_end_of` quarter, counted from the scenario's start, so no year appears in code.
+- **`checkBands(bands, claims, at)`** returns per band: the id, the measure, the kind, the value, the range, pass or fail, and each claim's status. A claim below `verified` is tagged `[UNVERIFIED]`, as in the draft compile.
+- **The design bands** of §9.2 are records in `checkpoint_1983q4.yaml` (`applies_as: design_band`, a `check` id and its numbers). They are computed from the run's history:
+  - `residents_multiply`: the end-1983 ÷ end-1979 residents multiple lies within `range`;
+  - `exports_outgrow_gdp`: the last year's exports ÷ GDP is at least `factor` × the first year's (or the first year's is 0 and the last is above 0);
+  - `village_outgrows_planned`: completed village rental floor grows more than planned housing (state flats and dormitories) between end-1979 and end-1983;
+  - `deficit_before_visit`: some month before the visit has revenue below obligations due. The report names the year;
+  - `readiness_moves_wave`: checked across runs. Golden runs whose readiness differs at the SEZ's opening also differ in first-wave cards;
+  - `stall_after_credit`: **not checkable** in the slice, because step 1 has no credit series. The report shows it as `not_checkable` with that reason.
+
+**Policies** (`src/policies.ts`; §10's names, used by the CLI):
+- `default` is `firstOption`, `decline_all` is `declineAll`, and `historical_prologue` is `historicalPrologue` (§5.8).
+- **`cautious`** never borrows and never takes a grey option:
+  - it declines the loan, the shortcut and the co-financing;
+  - investors go into existing premises, else into a zone already fully serviced, else they are declined;
+  - permits are strict and enforcement high, there is no sweep, and a deficit card is answered `austerity`;
+  - every other card takes its first option;
+  - in its first month it draws the same 12-cell industrial zone in Shangbu as `historical_prologue` and commits its site preparation.
+- **`aggressive`** takes every grey option:
+  - it takes the loan and the co-financing;
+  - it accepts every investor and every shortcut at the first site;
+  - permits are loose and enforcement low, it sweeps every October, and a deficit card is answered `borrow_short`;
+  - in its first month it draws an industrial zone of 24 buildable cells in Shangbu (area 7) and one of 24 in Sungang (area 5), and commits site preparation in both;
+  - at each turn's start it commits the next project in a fixed list (a road, water main and power line in areas 7, 5, 2 and 1), while money for projects is above that project's budget and the forex quota covers it.
+- **`randomPolicy(seed)`** answers each pending card with a uniformly random option. It draws from its own sfc32 generator, seeded from `seed`, never from the sim's streams, and takes no turn actions. It exists for the property tests.
+
+A policy's turn actions are legal by construction: zones are clipped with `zoneCellsAllowed`, and a commit is made only when its checks pass.
+
+**The CLI** (`apps/cli`, run with `npm run slice -- …`):
+- **`slice run --seed N --quarters Q --policy P [--out DIR]`** plays Q quarters (21 by default) through `runQuarter`, the path the UI shares:
+  - the policy answers the pending cards and gives its turn actions at each turn's start;
+  - it answers each `paused` result's cards before the quarter continues;
+  - the run stops at `finished`, or once the visit's card is answered.
+
+  It writes two files to DIR (default `build/slice/<policy>-seed<N>/`):
+  - `run.json`: the content hashes, the monthly series, the cards raised and answered per quarter, the reviews, the verdict, the bands and the exit-criteria checks. Its only input is seed, policy and content, so the same arguments give the same bytes;
+  - `report.html`: one self-contained page with inline SVG charts (residents and present non-locals, GDP and exports, revenue against obligations due, the reserve and debt, scrutiny), the band table with `[UNVERIFIED]` tags, the exit-criteria table and the wall time of the run. The wall time is printed and shown in the report, never written to `run.json`.
+- **`slice golden [--update]`** runs the golden set and compares each run with `data/golden/slice/<policy>-seed<N>.json`. With `--update` it rewrites the files.
+- The CLI reads claims with `@sz/evidence`'s loader and tags them with its `meetsMinimum` for `calibration_target`.
+
+**Golden runs** (§10). The set is `default`, `cautious`, `aggressive`, `decline_all` and `historical_prologue`, each with seed 1, for 21 quarters through `runQuarter`.
+- **Each file is a readable summary:**
+  - the content hashes;
+  - for each year end, and at the visit: residents, registered, present non-locals, migrants, firm jobs posted, the year's GDP, exports, revenue, obligations paid and project spending, the reserve, debt outstanding, arrears, scrutiny and the real illegal-floor share;
+  - each review's score and result;
+  - the verdict;
+  - the events fired, with their months.
+
+  Money and people are rounded to integers, and shares to four decimals.
+- **The test** (`test/golden.test.ts`) recomputes each summary and compares it whole. A change that moves a golden number regenerates the files with `npm run golden:update`, and its commit message says what moved and why (AGENTS.md).
+
+**The exit-criteria checks** (§1). Criterion 6 is judged by playtests. Criteria 1–5 are checked by the CLI's report, over one run or the golden set, and by tests:
+
+| # | Criterion | The check |
+|---|---|---|
+| 1 | Play all 21 quarters; the town grows plausibly in response to choices | The run reaches the visit through `runQuarter`. The end-1983 growth bands. Across the golden set, the policies end with different residents and GDP |
+| 2 | A hard trade-off every year; a loan squeezes a later year | For each year after the lightweight review, the report shows two things: the review's result, and the ledger's tightest month (the lowest money for projects, and any deficit card, austerity or arrears). A year counts as one with a trade-off when it has both a review that failed or passed by less than `tradeoff_margin`, and a tight ledger. The margin is in the `check.tradeoff` record of `checkpoint_1983q4.yaml`, a design_note. The loan check reruns the policy with the loan declined, and compares debt service and money for projects in the years after the grace period |
+| 3 | The plausibility bands and growth multiples at the 1980-Q2 snapshot and at end-1983 | `checkBands` over `snapshot_1980q2.yaml` and `checkpoint_1983q4.yaml`, plus the design bands |
+| 4 | No empty quarters in the prologue | For each prologue turn, the cards raised in it with two or more options. That their options lead to different states is M5b's test |
+| 5 | A headless run takes seconds; the invariants pass | The run's wall time (the test requires under 5 s for 21 quarters). The property tests below |
+
+**M6a's tests:**
+- **Content:** `compileSlice` gives the same `init`, `tick` and hashes as the old fixtures, so every M2–M5 run is unchanged.
+- **Bands:** each band kind passes and fails at its edges on fixture values. A claim below `verified` is tagged. A measure that is unknown, or a band whose claim has no numeric value, throws.
+- **Policies:** a whole run under each of `cautious`, `aggressive` and `randomPolicy(1..5)` reaches the visit, with no action thrown. `aggressive` takes the loan and accepts a shortcut. `cautious` never borrows, and never accepts a shortcut or the co-financing.
+- **Golden runs:** each summary matches its file.
+- **Invariants** (§10), as property tests: for seeds 1–5, under `randomPolicy` and the three main policies, every month of a whole run passes M2's population and stock checks, M3b's firm sums and M4's ledger check.
+- **Speed:** 21 quarters of `aggressive` under 5 s.
+- **The CLI:** the same arguments give a byte-identical `run.json`; the report names every band.
+- **The 1983 checkpoint's notes:** `aggressive` ends the fiscal test negative and `cautious` ends it above `aggressive`. This replaces the note's "cautious near or above zero", which is M6b's target.
+
 - **The branches** (`test/m5b-branches.test.ts`): `runQuarter` through the whole slice, with each prologue decision answered in its quarter and the failure card pausing it; a lapsed crisis takes its lapse option; the budget card's numbers; declining the co-financing investor withdraws its power line; event-only teams; the milestones; an orders slump caps posts; a fire vetoes its review; the Corps deployment; the climate's event gains; a two-month sweep covers December; indicators between turns; and the compilers' error paths.
 
 ---
@@ -1391,7 +1493,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 ---
 
 ## 10. The headless runner and tests
-- **`apps/cli`**: `slice run --seed N --quarters 21 --policy default` writes a JSON series and a short HTML report.
+- **`apps/cli`**: `slice run --seed N --quarters 21 --policy default` writes a JSON series and a short HTML report (M6a, §5.9).
 - **Decision policies:**
   - `default` (first option), `cautious`, `aggressive`;
   - `decline_all` (declines every investor and offer);
@@ -1404,7 +1506,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
   - under `decline_all`, the forex quota still covers one generator before the SEZ fires (no soft-lock);
   - the `historical_prologue` run passes the snapshot's bands (§9.1).
 - **The area invariant** (§3): every placed site's area contains its point, and every area is a union of whole proxy subdistricts.
-- **Golden runs:** fixed seeds for the three policies. A change that moves their numbers must say so.
+- **Golden runs:** fixed seeds for the three policies, plus `decline_all` and `historical_prologue` (§5.9). A change that moves their numbers must say so.
 - **Invariants** (property tests over random seeds and policies):
   - population conservation: births + inflow − deaths − outflow = Δpop, for every kind and area;
   - the ledger balances every month (fiscal §10), and the month always closes (fiscal §7.1);
@@ -1437,7 +1539,10 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 | M4 | Fiscal: ledger, obligations, projects, the loan, the deficit rule; nominal GDP; serviced land and the construction-capacity pool (§5.6) | Overbuilding forces a deficit card; the loan squeezes later years. The §5.6 tests pass. *Status:* done, with placeholder numbers (`params/slice.yaml` `fiscal`, `capacity`, `projects`, `teams`, `gdp`). M2 and M3 runs are unchanged without the fiscal content. Code: `packages/sim-core/src/fiscal.ts`, `src/systems/finance.ts`, `src/systems/projects.ts`; tests: `test/m4.test.ts` |
 | M5a | The events step; the guaranteed first contract; the SEZ chain, its new origins and incentives; readiness, the 1980-Q2 check and the first wave; Shekou's capture; the leaders and the deal-maker's shortcut (§5.7) | Readiness visibly changes the first wave. The §5.7 tests pass. *Status:* done |
 | M5b | The annual review and the sweep, the climate value, the remaining events and prologue beats, the budget cards and the grant warning, the briefing's loan and co-financing offers, and the closing visit (§5.8) | Each year's review forces a trade-off; the prologue tests pass; the 1980-Q2 snapshot is generated and passes its bands. *Status:* done. The snapshot is generated by the M5b test, not checked in as a file. The review targets, the climate and the event numbers are placeholders for M6's balance pass |
-| M6 | The CLI, golden runs, the plausibility report; the 2D UI on the Spike A canvas | All five exit criteria can be checked |
+| M6 | The CLI, golden runs, the plausibility report; the 2D UI on the Spike A canvas. Built in three parts | All five exit criteria can be checked |
+| M6a | One way to load the slice, the bands and measures, the `cautious`, `aggressive` and random policies, the CLI and its report, the golden runs, the property and speed tests (§5.9) | The §5.9 tests pass; the report checks criteria 1–5 on any run. No balance changes |
+| M6b | The balance pass: named params only, with a tuning log, driven by M6a's report | The report's findings are fixed or recorded as structural. M5b's calibration properties still hold (§5.8) |
+| M6c | The 2D UI on the Spike A canvas (§11) | A person can play all 21 quarters in the browser, from the first card to the visit's verdict |
 | Playtest | Several full playthroughs; notes in `docs/playtests/` | You want to play it again |
 
 ---
