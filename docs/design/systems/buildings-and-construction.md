@@ -341,8 +341,8 @@ interface WorksOrder {        // GameState.worksOrders, id order; ids from GameS
 - `facilities.<type>`: the same fields.
 
 **Not yet:**
-- maintenance and staffing obligations on finished works (R4's finance);
-- finished works feeding the M-series area ledger: built roads do not raise `roadKm` (readiness), placed sources do not raise `area.utilities`, and facilities do not raise `area.facilities`. Supply from placed sources shows in `spatialViews` alone until R3/R4 read it;
+- staffing obligations on finished works. R4 adds their maintenance: a done order owes `spent × works.maint_rate_year ÷ 12` a month (phase1-slice §5.11);
+- finished works feeding the M-series area ledger: built roads do not raise `roadKm` (readiness), placed sources do not raise `area.utilities`, and facilities do not raise `area.facilities`. From R4, placed sources' supply reaches the firms' utility share through `spatialViews` (phase1-slice §5.11), not through the ledger;
 - footprints larger than one cell;
 - removing a built road.
 
@@ -365,11 +365,12 @@ On serviced land that a road reaches, ordinary builders answer demand each month
 
 **Worker spending.** For each playable area a, spending is computed from last month's matching (the state before tick step 5):
 ```
-spend[a]   = Σ groups living in a, Σ sectors: employed × wage[sector] × growth.spend_share
-ref[a]     = Σ base jobs in a: jobs × wage_start[sector] × growth.spend_share
-induced[a] = max(0, spend[a] − ref[a]) ÷ growth.services.spend_per_job_month      // service jobs the new spending supports
+spend[a]   = Σ groups living in a, Σ sectors but services: employed × wage[sector] × growth.spend_share
+ref        = Σ base jobs outside services: jobs × wage_start[sector] × growth.spend_share
+induced    = floor(max(0, Σₐ spend[a] − ref) ÷ growth.services.spend_per_job_month)   // service jobs the new spending supports
+induced[a] = induced split over the playable areas by spend[a] (largest remainder)
 ```
-At the start every base job is filled at its starting wage, so `induced` is 0 and the start stays at rest. A share `growth.services.formal_share` of the induced jobs wants formal shop floor; the rest is informal, in the town and the villages. R4 posts these jobs (phase1-slice §5.11). In R3 they only drive building.
+At the start every base job is filled at its starting wage, so `induced` is 0 and the start stays at rest. From R4, service wages are left out of the spending (the basic-sector rule): service jobs are posted from spending (phase1-slice §5.11), so counting their own wages would close a loop whose gain grows with the service wage. A share `growth.services.formal_share` of the induced jobs wants formal shop floor; the rest is informal, in the town and the villages. R4 posts these jobs (phase1-slice §5.11). In R3 they only drive building.
 
 **Commercial.** The target is Σₐ induced[a] × `formal_share` × `growth.services.m2_per_job` m² over the slice, since shoppers cross areas. The stock is the private shop floor, completed and under construction. Each month's starts are `floor(min(max(0, target − stock) × growth.response, room))`, where room is that of all commercial zones together. They are split over those zones by their room (largest remainder, ties to the lower id), one cohort per zone. **Occupancy is derived, never stored:** completed private shop floor is occupied up to the target, zone by zone in id order.
 

@@ -380,7 +380,7 @@ interface PolicyLevers { permitRegime: 'loose' | 'standard' | 'strict'; enforcem
   - construction jobs, from m² under construction × `construction_jobs_per_m2`;
   - in M3, industry.
 - **Who works where:** each sector is filled from the kinds in `fill_order[sector]`, in that order. A kind not listed never works in that sector.
-- **Matching:** each month from scratch. Jobs are filled within the area first, in `AREA_ORDER` and `SECTORS` order. Leftover vacancies then take unemployed workers from the other playable areas: per sector and kind (in `fill_order`), the slice's idle workers are split across the areas' remaining vacancies by largest remainder, so no area is staffed first because of its id. A cross-area worker counts as employed in their home group.
+- **Matching:** each month from scratch. Jobs are filled within the area first, in `AREA_ORDER` and `SECTORS` order. Leftover vacancies then take unemployed workers from the other playable areas: per sector and kind (in `fill_order`), the slice's idle workers are split across the areas' remaining vacancies by largest remainder, so no area is staffed first because of its id. A cross-area worker counts as employed in their home group. *R4 replaces this with incumbency, turnover and road reach (§5.11).*
 - **`employed` stays whole after outflows:** when people leave a group later in the month (housing cap, migration), the unemployed leave first. If `Σ employed` then exceeds the group's labour force, employment is trimmed (by largest remainder over sectors) and the job rows' `filled` with it, the home area's row first. So `Σ employed ≤ labour force ≤ size`, and `Σ employed = Σ filled` per sector, at the end of every step.
 - **Wages:** each sector's wage moves toward clearing, `wage += wage_speed × wage × (vacancy_rate − unemployment_rate)`, and never falls below `wage_floor[sector]`.
 
@@ -398,7 +398,7 @@ interface PolicyLevers { permitRegime: 'loose' | 'standard' | 'strict'; enforcem
   - `pull = vacancies ÷ (vacancies + K_vac)`, which saturates;
   - `network = 1 + network_alpha × ln(1 + lagged slice stock ÷ K_net)`, which is concave and at least 1, so an empty slice can still attract migrants;
   - `inflow = base[k] × gap × pull × network × permit_factor[regime]`.
-- **Allocation:** weights are the area's vacancies in sector(k) plus its free rental beds under `crowding_max`, counted after this month's outflow. No area takes more than its free beds; an area's overflow is shared again among the areas that still have free beds (by the same weights), until everyone is placed or no bed is left. Whoever finds no bed in the slice does not come: that inflow is lost, not stored, and so is the whole inflow when every weight is zero. An area with no rental beds at all (area 6 at the start) takes no migrants, so its villagers never see rental demand: intended for the rural north until content seeds it.
+- **Allocation:** weights are the area's vacancies in sector(k) plus its free rental beds under `crowding_max`, counted after this month's outflow. No area takes more than its free beds; an area's overflow is shared again among the areas that still have free beds (by the same weights), until everyone is placed or no bed is left. Whoever finds no bed in the slice does not come: that inflow is lost, not stored, and so is the whole inflow when every weight is zero. *From R4 the bedless are recorded as turned away and raise rents and building (§5.11).* An area with no rental beds at all (area 6 at the start) takes no migrants, so its villagers never see rental demand: intended for the rural north until content seeds it.
 - **Arrivals** enter `underSix[0]` and are present at once.
 - **Outflow per group:**
   - `size × (base_exit + unemployment_push × unemployment_rate + housing_push × max(0, crowding − 1))`;
@@ -409,7 +409,7 @@ interface PolicyLevers { permitRegime: 'loose' | 'standard' | 'strict'; enforcem
   - In the first away month (this month away, last month not), migrants' `present = size − away`, with `away` the share `spring.away_share` of `size`, stochastically rounded. It stays low through the away months (January and February with the start params, January 1979 included).
   - In the first month after them, `away × (nonreturn + nonreturn_unemployment × unemployment_rate)`, stochastically rounded, leave as a real outflow, and the rest come back. The unemployment rate is last month's matching, so the jobless are the ones who stay home.
   - Usual residence (`size`) does not change while people are away.
-- **Rest:** the start params set `base_exit` and `nonreturn` to 0, so exits come only from unemployment and crowding, and the start is a fixed point. A churn with replacement inflow needs a vacancy mechanism that M2 does not have (matching backfills vacated jobs with locals).
+- **Rest:** the start params set `base_exit` and `nonreturn` to 0, so exits come only from unemployment and crowding, and the start is a fixed point. A churn with replacement inflow needs a vacancy mechanism that M2 does not have (matching backfills vacated jobs with locals). *R4's incumbency and turnover give it one (§5.11); the start params keep the rest point.*
 - **Births and deaths** are explicit zero flows in M2.
 
 **Village building (step 4).** Once a month, for each area with village plots:
@@ -1274,6 +1274,84 @@ So the end-1983 growth bands fail, along with the spending-to-revenue band and t
 - **C. Fix the labour market.** Incumbency in matching, so a new post opens a vacancy that pulls migrants (a §5.2 change, with M2's rest test kept).
 
 M6b's only change so far is `aggressive`'s build list and its pool contracts (§5.9). They move only `aggressive`'s golden run, and slightly: its GDP ends ×1.006 rather than ×0.979, and its arrears are higher. Without money it hires no team.
+
+### 5.11 Jobs, labour and migration on the map (R4)
+R4 answers §5.10's labour constraint (option C) and traces jobs from the map: construction jobs while works and builds are active, industrial jobs once floor is occupied, then service jobs as wages are spent. It replaces §5.2's from-scratch matching and its lost arrivals, and it adds the occupied city's revenue. Organic floor is buildings-and-construction §13.3's (R3).
+
+**Jobs posted each month (tick step 5).** Each (area, sector) row is:
+- its base jobs;
+- **construction:** the m² under construction × `construction_jobs_per_m2`, as in M2. That covers firm, private, work-unit and village self-build. To it are added the crew units that projects and works orders used this month, × `labour.jobs_per_crew_unit`, posted in the area where the work was done:
+  - a project's area;
+  - a service order's zone's area, or the area of its first unfinished cell if the zone is gone;
+  - the area of the road cell being built;
+  - a structure's area.
+
+  The construction step reports them as `crew` events, `{ area, units }`, so they need no state. Team crews are counted like local ones: their workers are hired through vacancies, as construction migrants.
+- **factory:** the posts of the firms in the area. Organic firms are firms (§13.3), so occupied floor posts through `min(ramp, floor, utilities, orders)` (§5.5).
+- **services:** service posts from spending, with `params.growth` and the start network only:
+  - formal posts are `floor(occupied private shop m² in the area's zones ÷ growth.services.m2_per_job)`, from §13.3's derived occupancy;
+  - informal posts are `floor(induced[a] × (1 − formal_share))`, where the spenders live, in the town and the villages.
+
+  Both use §13.3's spending rule, from last month's matching. It counts wages earned outside services only, so service posts do not feed their own spending and the loop stays open. `labour.servicePosts` keeps this month's split for finance and GDP.
+
+**The utility share, with placed sources.** For each area, the share is now `min(1, (area capacity + placed supply) ÷ the firms' need)`, the lower of power and water:
+- the area capacity is `area.utilities`, the M-series ledger of spare capacity, which start content and M4's projects raise;
+- the placed supply is what placed sources deliver to the area's zones, through `spatialViews(…).supply` (b&c §13.1). Each zone with open firms demands their need, spread evenly over its developable cells (largest remainder). Supply is allocated on the road components, and each zone's share is summed into its area.
+
+A placed source never adds to `area.utilities`, so no capacity is counted twice. Without placed sources the share is M3b's. The R3 prospective test uses the same share.
+
+**Matching keeps incumbents (replaces §5.2's matching).** `labour.held: { home, kind, area, sector, n }[]` records who holds which jobs. It is sorted by home area, kind, work area and sector in their state orders, and only rows with `n > 0` are kept. Each month:
+1. **Layoffs.** A row whose holders exceed its jobs lays off the excess, split over its holders by largest remainder.
+2. **Turnover.** Each row loses `round(holders × labour.turnover_month)` holders, split the same way. They quit to idle; they do not leave.
+3. **Match the vacancies from idle workers only.** Idle means the labour force less what the group holds.
+   - First within the area, in `fill_order`.
+   - Then across the areas a worker can reach. Areas reach each other when a road component (start or built roads, rails excluded) has cells in both. An area that no road touches reaches only itself. Without the start network in the tick content every playable area reaches every other, as in M2.
+   - Within each reach class the leftover vacancies take idle workers by §5.2's largest-remainder pairing, so no area is staffed first because of its id.
+4. `filled`, `employed` and the firms' staffing are read off `held`.
+
+A new post therefore stays a vacancy until an idle worker or a migrant takes it: no employed local is pulled across. When `held` is empty (the first month, or a loaded version 4 save) every worker is idle, so the month matches from scratch.
+
+**Accessible vacancies** are the vacancies a migrant can take: those in a reach class that has an area with rental beds. The other vacancies are open, but no one can come for them. The `vacancies` series counts the accessible ones. `trimEmployed` (people leaving, §5.2) cuts `held` too. It cuts the group's home-area rows first, then the other rows in area order. No draw is made: turnover and layoffs are largest-remainder splits, so the labour step's RNG stream is unchanged.
+
+**Migration (replaces §5.2's pull and its lost arrivals).**
+- **Pull:** `migration.pull_sectors[kind]` lists the sectors whose vacancies pull that kind. Factory migrants answer factory and service vacancies (services list them in `fill_order`); construction migrants answer construction. `pull` reads the accessible vacancies in those sectors. The wage gap still reads `migration.sector[kind]`.
+- **Allocation:** as in §5.2, except that an area's weight is its own pull vacancies, plus its free rental beds, plus its share of the accessible pull vacancies in its reach class's areas that have no free bed. That share is split over the class's areas with free beds by their free beds (largest remainder). Without such vacancies the weights are §5.2's.
+- **Turned away:** arrivals who find no bed are no longer lost silently. They are split over the areas by their accessible pull vacancies (largest remainder; with none anywhere, they go uncounted) and recorded as `housing[a].turnedAway`, this month's count, with a `turned_away` event and the `turnedAway` series. They are not people: no group grows.
+- **Rents and building read them a month later:**
+  - the rent target uses demand crowding, `(rental occupants + turnedAway) ÷ max(1, rental beds)`;
+  - the village rule and the work units' dormitories add `turnedAway` to their unmet beds;
+  - the dormitory test reads demand crowding.
+
+  So crowding raises rents, and rents raise beds. The cap expulsion (§5.2) is unchanged.
+
+**Fiscal (tick step 11).** Revenue grows with the occupied city:
+- organic firms pay value-added tax and the land fee like any firm;
+- formal service posts pay `growth.services.tax_rate` × `gdp.base_va_per_job_month.services` per staffed post. Staffed means the services row's fill ratio times its posts, times the collection efficiency and the local share;
+- private shops and work-unit dormitories pay the land fee on their zone floor, as firms do (`floor ÷ max_far` × the regime's fee);
+- informal posts pay nothing.
+
+Finished works now owe maintenance: a done order adds `spent × works.maint_rate_year ÷ 12` a month from the next month (b&c §13.2).
+
+**GDP.** Service posts add `base_va_per_job_month.services` × their staffed share, as base jobs do.
+
+**State and saves.** `LabourMarket` gains `held` and `servicePosts: { area, formal, informal }[]`. `HousingMarket` gains `turnedAway`. `History` gains `vacancies`, `turnedAway`, `servicePosts` and `constructionPosts`. **Save version 5** adds them. The 4 → 5 migration sets `held` to empty and leaves `employed` and `filled` as saved, so the loaded game's next labour step matches once from scratch. It also sets `servicePosts` to empty, `turnedAway` to 0, and fills the new series with zeros.
+
+**Params** (`params/slice.yaml`, placeholders):
+- `labour.turnover_month`, `labour.jobs_per_crew_unit`;
+- `migration.pull_sectors`;
+- `growth.services.tax_rate`;
+- `works.maint_rate_year`.
+
+**R4's tests** (`test/jobs.test.ts`):
+- **Construction jobs during works.** A funded works order raises its area's construction jobs while it works, and they go when it is done. The construction migrants laid off then leave, with people and money conserved every month.
+- **Industrial jobs after occupancy.** Organic firms post jobs only once open. A placed power source on the zone's road raises the share and the posts.
+- **Service jobs as wages are spent.** New factory wages raise service posts: formal posts on occupied shop floor, informal posts where the workers live.
+- **Incumbents stay.** A job shock in one sector leaves the other sectors' holders in place and pulls migrants into the vacancy.
+- **Reach.** A vacancy in an area that no road joins to another is not filled from that other area.
+- **Turned away.** With no free bed, arrivals are recorded, the rent target rises with them, and villages build.
+- **Against an idle run.** A run that services and builds on connected land ends with more accessible vacancies, filled jobs, arrivals, rental beds and recurring revenue than the same start left idle.
+- **Service posts stay bounded.** After a factory shock, service posts settle: they never exceed the induced jobs from non-service wages.
+- **At rest, saves and determinism.** M2's rest test still holds. Save, load and continue matches an uninterrupted run, and a version 4 save loads.
 
 ---
 
