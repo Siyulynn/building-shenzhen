@@ -17,7 +17,8 @@
     "spike:grid": "pipeline/.venv/Scripts/python -I pipeline/spike_a_grid.py",
     "spike:map": "vite apps/map-spike --port 5173 --strictPort",
     "slice": "tsx apps/cli/src/main.ts",
-    "golden:update": "tsx apps/cli/src/main.ts golden --update"
+    "golden:update": "tsx apps/cli/src/main.ts golden --update",
+    "slice:ui": "vite apps/slice-ui --port 5174 --strictPort"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

@@ -1,0 +1,6 @@
+{
+  "name": "@sz/slice-ui",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "vite --port 5174 --strictPort" }
+}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>深圳 Shenzhen · Phase 1 slice</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0e1a24; color: #e8e4d8; font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
+    canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; cursor: grab; }
+    canvas.dragging { cursor: grabbing; } canvas.drawing { cursor: crosshair; }
+    .side { position: fixed; top: 8px; bottom: 8px; width: min(390px, calc(50vw - 14px)); overflow: auto; background: rgba(14,26,36,.93); border-radius: 6px; padding: 10px 12px; box-sizing: border-box; }
+    #left { left: 8px; } #right { right: 8px; }
+    h1 { font-size: 15px; margin: 0 0 4px; } h2 { font-size: 13px; margin: 12px 0 4px; color: #b8c4cc; }
+    h3 { font-size: 13px; margin: 0 0 4px; }
+    table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+    td { padding: 1px 4px; vertical-align: top; overflow-wrap: anywhere; } td.n { text-align: right; white-space: nowrap; overflow-wrap: normal; }
+    .up { color: #8fd18f; } .down { color: #e08a7a; } .muted { color: #8fa3b3; font-size: 12px; }
+    .card { border: 1px solid #3a4c5a; border-radius: 5px; padding: 6px 8px; margin: 6px 0; }
+    .card.int { border-color: #d9b26f; }
+    .card .line { font-size: 12px; color: #c9d2d8; margin: 2px 0; }
+    .opts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    button { background: #22394a; color: #e8e4d8; border: 1px solid #3a5a70; border-radius: 4px; padding: 3px 8px; cursor: pointer; font: inherit; }
+    button:hover { background: #2d4a60; } button.sel { background: #d9b26f; color: #17222b; border-color: #d9b26f; }
+    button.go { background: #3f7d4e; border-color: #5ea36f; font-weight: 600; padding: 6px 14px; margin-top: 8px; }
+    button:disabled { opacity: .45; cursor: default; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 6px; }
+    .err { background: #5a2a24; border-radius: 4px; padding: 6px 8px; margin: 6px 0; }
+    .q { display: flex; justify-content: space-between; gap: 6px; margin: 2px 0; }
+    select { background: #22394a; color: #e8e4d8; border: 1px solid #3a5a70; border-radius: 4px; font: inherit; }
+    #overlays { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); background: rgba(14,26,36,.9); border-radius: 6px; padding: 4px 6px; display: flex; gap: 3px; flex-wrap: wrap; max-width: calc(100vw - 820px); }
+    #hover { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(14,26,36,.9); border-radius: 6px; padding: 4px 8px; font-size: 12px; }
+    #verdict { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(5,10,15,.7); }
+    #verdict > div { background: #14232f; border: 1px solid #d9b26f; border-radius: 8px; padding: 16px 20px; width: 520px; max-height: 80vh; overflow: auto; }
+    .bar { height: 6px; background: #2a3a46; border-radius: 3px; } .bar > i { display: block; height: 6px; background: #d9b26f; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <canvas id="map"></canvas>
+  <div id="overlays"></div>
+  <div id="left" class="side"></div>
+  <div id="right" class="side"></div>
+  <div id="hover"></div>
+  <div id="verdict"><div id="verdictBody"></div></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

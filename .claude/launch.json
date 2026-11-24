@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "map-spike", "runtimeExecutable": "npm", "runtimeArgs": ["run", "spike:map"], "port": 5173 }
+    { "name": "map-spike", "runtimeExecutable": "npm", "runtimeArgs": ["run", "spike:map"], "port": 5173 },
+    { "name": "slice-ui", "runtimeExecutable": "npm", "runtimeArgs": ["run", "slice:ui"], "port": 5174 }
   ]
 }
