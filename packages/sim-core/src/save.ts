@@ -6,7 +6,7 @@ import { Rng, type RngState } from './rng.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 /** The content a save was made with (§5.1, §5.3). */
 export interface SaveContent {
@@ -31,6 +31,12 @@ const MIGRATIONS: Record<number, (s: Save) => Save> = {
   // R3 (§13.3): the organic firms' banked demand. The new cohort and firm fields are optional
   3: (s) => ({ ...s, header: { ...s.header, version: 4 },
     body: { ...s.body, state: { ...(s.body.state as object), growth: { carry: 0 } } } }),
+  // R4 (phase1-slice §5.11): who holds which jobs. Empty, so the next labour step matches once from scratch
+  4: (s) => {
+    const st = s.body.state as { labour: object };
+    return { ...s, header: { ...s.header, version: 5 },
+      body: { ...s.body, state: { ...st, labour: { ...st.labour, held: [] } } } };
+  },
 };
 
 /** JSON turns NaN and Infinity into null without a word: a save must fail instead. */

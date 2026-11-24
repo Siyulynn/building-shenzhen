@@ -1302,7 +1302,7 @@ A placed source never adds to `area.utilities`, so no capacity is counted twice.
 
 **Matching keeps incumbents (replaces §5.2's matching).** `labour.held: { home, kind, area, sector, n }[]` records who holds which jobs. It is sorted by home area, kind, work area and sector in their state orders, and only rows with `n > 0` are kept. Each month:
 1. **Layoffs.** A row whose holders exceed its jobs lays off the excess, split over its holders by largest remainder.
-2. **Turnover.** Each row loses `round(holders × labour.turnover_month)` holders, split the same way. They quit to idle; they do not leave.
+2. **Turnover.** Each row loses `round(migrant holders × labour.turnover_month)` of its migrant holders, split the same way. They quit to idle; they do not leave. Locals keep their jobs (work units and village enterprises), so turnover never hands a local's job to a migrant ahead of the fill order. A probe with every holder turning over broke M2's rent-settling test: migrants displaced locals a few a month, and the migrant stock grew for the whole run.
 3. **Match the vacancies from idle workers only.** Idle means the labour force less what the group holds.
    - First within the area, in `fill_order`.
    - Then across the areas a worker can reach. Areas reach each other when a road component (start or built roads, rails excluded) has cells in both. An area that no road touches reaches only itself. Without the start network in the tick content every playable area reaches every other, as in M2.

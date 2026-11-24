@@ -11,6 +11,7 @@ export interface SliceParams {
     wage_floor: Record<Sector, number>;
     wage_speed: number;
     construction_jobs_per_m2: number;
+    turnover_month: number;          // R4 (§5.11): share of each job row's holders who quit to idle each month
   };
   migration: {
     inland_wage: number;
@@ -208,6 +209,7 @@ export function validateParams(raw: unknown): SliceParams {
   for (const s of SECTORS) for (const k of p.labour.fill_order[s]) {
     if (!(POP_KINDS as readonly string[]).includes(k)) throw new Error(`params: labour.fill_order.${s} names ${k}`);
   }
+  if (!(p.labour.turnover_month >= 0 && p.labour.turnover_month <= 1)) throw new Error('params: labour.turnover_month must be in [0, 1]');
   need(p.migration.base, MIGRANT_KINDS, 'migration.base');
   need(p.migration.sector, MIGRANT_KINDS, 'migration.sector');
   need(p.migration.permit_factor, PERMIT_REGIMES, 'migration.permit_factor');

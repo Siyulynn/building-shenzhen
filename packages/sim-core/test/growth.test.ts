@@ -95,8 +95,11 @@ describe('R3: the builder pays', () => {
     const b = run(landed([{ use: 'industrial', runs: CONNECTED }]), 5, noGrowth);
     expect(organicFirms(a).length).toBeGreaterThan(0);
     expect(a.firms.every((f) => f.opens === undefined || f.opens >= a.date)).toBe(true);   // none open yet: no taxes
-    expect(a.fiscal.balances).toEqual(b.fiscal.balances);
-    expect(a.fiscal.ledger).toEqual(b.fiscal.ledger);
+    // R4 (§5.11): the builds' construction jobs draw migrants, whose baseline services the city pays; nothing else differs
+    const notBaseline = (l: GameState['fiscal']['ledger']) => l.filter((e) => e.ref !== 'baseline');
+    expect(notBaseline(a.fiscal.ledger)).toEqual(notBaseline(b.fiscal.ledger));
+    expect(a.fiscal.ledger.length).toBe(b.fiscal.ledger.length);
+    expect(a.history.resident.at(-1)).toBeGreaterThanOrEqual(b.history.resident.at(-1)!);
   });
 
   it('names its builder on its cohorts and work, and takes the pool after the city', () => {

@@ -55,10 +55,13 @@ export interface BlockStock {
 }
 
 export interface JobRow { area: number; sector: Sector; jobs: number; filled: number }
+/** R4 (§5.11): n workers of the (home, kind) group hold jobs in (area, sector). Sorted; only n > 0 is kept. */
+export interface HeldJobs { home: number; kind: PopKind; area: number; sector: Sector; n: number }
 export interface LabourMarket {
   wage: Record<Sector, number>;
   jobs: JobRow[];
   baseJobs: { area: number; sector: Sector; jobs: number }[];
+  held: HeldJobs[];
 }
 export interface HousingMarket {
   area: number;
@@ -377,7 +380,7 @@ export function createInitialState(content: {
     pops,
     blocks,
     villagePlots,
-    labour: { wage: { ...params.labour.wage_start }, jobs: [], baseJobs },
+    labour: { wage: { ...params.labour.wage_start }, jobs: [], baseJobs, held: [] },
     housing,
     migration: { stockLag: {
       migrant_factory: Array(lagLen).fill(stockOf('migrant_factory')),
@@ -442,7 +445,8 @@ export function cloneState(s: GameState): GameState {
     blocks: s.blocks.map((b) => ({ ...b, cohorts: b.cohorts.map((c) => ({ ...c })), events: [...b.events],
       rightsSummary: b.rightsSummary.map((r) => ({ ...r })) })),
     villagePlots: s.villagePlots.map((v) => ({ ...v })),
-    labour: { wage: { ...s.labour.wage }, jobs: s.labour.jobs.map((j) => ({ ...j })), baseJobs: s.labour.baseJobs.map((j) => ({ ...j })) },
+    labour: { wage: { ...s.labour.wage }, jobs: s.labour.jobs.map((j) => ({ ...j })), baseJobs: s.labour.baseJobs.map((j) => ({ ...j })),
+      held: s.labour.held.map((h) => ({ ...h })) },
     housing: s.housing.map((m) => ({ ...m, beds: { ...m.beds }, occupants: { ...m.occupants } })),
     migration: { stockLag: { migrant_factory: [...s.migration.stockLag.migrant_factory],
       migrant_construction: [...s.migration.stockLag.migrant_construction] } },

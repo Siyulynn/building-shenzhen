@@ -22,6 +22,7 @@ labour:
   wage_floor: { farming_fishing: 40, factory: 60, construction: 70, services: 50, state: 55 }
   wage_speed: 0.02                       # share of the wage per month, times (vacancy rate - unemployment rate)
   construction_jobs_per_m2: 0.02         # workers per m² under construction
+  turnover_month: 0.02                   # R4 placeholder: share of a job row's holders who quit to idle each month
 
 migration:
   inland_wage: 45                        # the reference wage migrants compare with

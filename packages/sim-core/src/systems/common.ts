@@ -6,7 +6,7 @@ import { largestRemainder } from '../round.js';
 import { staffFirms } from './industry.js';
 import type { SliceParams } from '../params.js';
 import { REGISTRATION } from '../enums.js';
-import type { BlockStock, Cohort, GameState, PopGroup, Queue6, Stage } from '../state.js';
+import type { BlockStock, Cohort, GameState, HeldJobs, JobRow, PopGroup, Queue6, Stage } from '../state.js';
 
 export function m2ByArchetype(b: BlockStock, stages: readonly Stage[]): Record<BuildingArchetype, number> {
   const out = Object.fromEntries(BUILDING_ARCHETYPES.map((a) => [a, 0])) as Record<BuildingArchetype, number>;
@@ -62,26 +62,49 @@ export function groupFor(s: GameState, area: number, kind: PopKind): PopGroup {
 /** A group's labour force: a stock, so rounded to the nearest person with no draw (§5.2). */
 export const labourForce = (g: PopGroup, p: SliceParams): number => Math.round(g.size * p.labour.participation[g.kind]);
 
+/** R4 (§5.11): `held` in its state order (home area, kind, work area, sector), with only n > 0 kept. */
+export function sortHeld(s: GameState, held: readonly HeldJobs[]): HeldJobs[] {
+  const ai = new Map(s.areas.map((a, i) => [a.id, i]));
+  return held.filter((h) => h.n > 0).sort((x, y) => ai.get(x.home)! - ai.get(y.home)! || POP_KINDS.indexOf(x.kind) - POP_KINDS.indexOf(y.kind)
+    || ai.get(x.area)! - ai.get(y.area)! || SECTORS.indexOf(x.sector) - SECTORS.indexOf(y.sector));
+}
+
 /**
  * Keep employment whole after people leave (§5.2): the unemployed left first, so trim only what exceeds the labour
- * force, by largest remainder over sectors, and take the same workers out of the job rows (home area first).
+ * force, by largest remainder over sectors. The same workers leave `held` (§5.11) and the job rows: the group's
+ * home-area row first, then the other areas in area order. A loaded version 4 game has no `held` until its next
+ * labour step, so whatever `held` does not cover is cut from the rows alone, home area first, as in M2.
  */
 export function trimEmployed(s: GameState, g: PopGroup, p: SliceParams): void {
   const excess = SECTORS.reduce((a, sec) => a + g.employed[sec], 0) - labourForce(g, p);
   if (excess <= 0) return;
   const cut = largestRemainder(excess, SECTORS.map((sec) => g.employed[sec]));
+  const touched: JobRow[] = [];
+  const rowOf = (area: number, sec: string) => s.labour.jobs.find((r) => r.area === area && r.sector === sec);
   SECTORS.forEach((sec, i) => {
     let left = cut[i]!;
     if (left <= 0) return;
     g.employed[sec] -= left;
+    const mine = s.labour.held.filter((h) => h.home === g.area && h.kind === g.kind && h.sector === sec);
+    for (const h of [...mine.filter((h) => h.area === g.area), ...mine.filter((h) => h.area !== g.area)]) {
+      const t = Math.min(left, h.n);
+      if (t <= 0) continue;
+      h.n -= t; left -= t;
+      const r = rowOf(h.area, sec);
+      if (r) { r.filled -= t; touched.push(r); }
+      if (left <= 0) break;
+    }
+    if (left <= 0) return;
     const rows = s.labour.jobs.filter((r) => r.sector === sec);
     for (const r of [...rows.filter((r) => r.area === g.area), ...rows.filter((r) => r.area !== g.area)]) {
       const t = Math.min(left, r.filled);
       r.filled -= t; left -= t;
-      if (t > 0) staffFirms(s, [r]);          // the firms' share of the row shrinks with it (§5.5)
+      if (t > 0) touched.push(r);
       if (left <= 0) break;
     }
   });
+  s.labour.held = s.labour.held.filter((h) => h.n > 0);
+  staffFirms(s, touched);          // the firms' share of the rows shrinks with them (§5.5)
 }
 
 /** n usual residents leave, newest first; `present` falls in proportion and employment stays whole. */

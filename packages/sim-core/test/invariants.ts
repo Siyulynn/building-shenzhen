@@ -48,6 +48,17 @@ export function checkInvariants(before: GameState, s: GameState, events: SimEven
     const filled = s.labour.jobs.reduce((a, r) => a + (r.sector === sec ? r.filled : 0), 0);
     expect(s.pops.reduce((a, g) => a + g.employed[sec], 0)).toBe(filled);
   }
+  // R4 (§5.11): who holds which jobs agrees with the groups and the rows, once the labour step has run
+  if (s.labour.held.length || s.labour.jobs.every((r) => r.filled === 0)) {
+    for (const h of s.labour.held) expect(Number.isInteger(h.n) && h.n > 0).toBe(true);
+    for (const g of s.pops) for (const sec of Object.keys(g.employed) as (keyof typeof g.employed)[]) {
+      expect(s.labour.held.filter((h) => h.home === g.area && h.kind === g.kind && h.sector === sec).reduce((a, h) => a + h.n, 0))
+        .toBe(g.employed[sec]);
+    }
+    for (const r of s.labour.jobs) {
+      expect(s.labour.held.filter((h) => h.area === r.area && h.sector === r.sector).reduce((a, h) => a + h.n, 0)).toBe(r.filled);
+    }
+  }
   for (const b of s.blocks) {
     for (const c of b.cohorts) expect(c.m2).toBeGreaterThan(0);
     const m = s.housing.find((x) => x.area === b.area)!;
