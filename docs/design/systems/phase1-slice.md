@@ -311,7 +311,7 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
 - **Saving fails on NaN or Infinity**, which JSON would otherwise turn into `null` without warning.
 - **Arrays are `u32le` only.** A milestone that keeps per-cell layers of another type adds its dtype (`u8`, `i16le`, `u16le`, `f32le`) here first.
 - Compression and the file container belong to the caller, because no synchronous deflate exists without DOM or Node.
-- Loading runs the migration table from the saved `version` up to the current one. Version 1 is the first. Version 2 (R1) adds `cellWorks`, `structures` and `nextStructureId`, and its migration defaults them to empty (`buildings-and-construction.md` §13.1).
+- Loading runs the migration table from the saved `version` up to the current one. Version 1 is the first. Version 2 (R1) adds `cellWorks`, `structures` and `nextStructureId`, and its migration defaults them to empty (`buildings-and-construction.md` §13.1). Version 3 (R2) adds `roads`, `worksOrders` and `nextOrderId`, and the header's content gains `network_sha256` (§13.2).
 
 **M1's tests:**
 - save at month k, load, continue, and match an uninterrupted run byte for byte;
@@ -811,7 +811,7 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
   - every kind: `maintenance` = budget × `maint_rate_year` ÷ 12.
 
 **Serviced land (三通一平, the §5.5 hook).**
-- **Serviced land is a property of the land, not of a zone.** `servicedLand` holds the serviced cells. In tick step 3, before names and offers, and again in step 4 once the month's work is done (so site preparation finished this month counts at once), each zone's `servicedShare` is set to its buildable cells in `servicedLand` ÷ its buildable cells (0 when it has none). Offers already raised keep their options; the next month's offers can site in the zone. So an edit that adds cells lowers the share until they are serviced, and removing a zone leaves its land serviced for the next.
+- **Serviced land is a property of the land, not of a zone.** `servicedLand` holds the serviced cells. In tick step 3, before names and offers, and again in step 4 once the month's work is done (so site preparation finished this month counts at once), each zone's `servicedShare` is set to its buildable cells in `servicedLand` ÷ its buildable cells (0 when it has none). Offers already raised keep their options; the next month's offers can site in the zone. So an edit that adds cells lowers the share until they are serviced, and removing a zone leaves its land serviced for the next. From R2, municipal works orders (`buildings-and-construction.md` §13.2) join the pool's queue as a third job type, and their unspent budgets count as commitments. Site preparation skips cells that have works.
 - **The start:** `servicedLand` is empty. The 1979 town has no serviced industrial land (a placeholder, like the start utilities). The first contracts use existing premises (§5.5).
 - **Connected is not supplied.** Site preparation adds floor capacity for new firms. It adds no water or power: a serviced zone can still have a utility bottleneck, which only mains and lines relieve (§5.5).
 - **Rights and compensation** are not settled by levelling. Village compensation is part of readiness's serviced-land part in M5 (§7.1).

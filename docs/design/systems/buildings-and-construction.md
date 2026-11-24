@@ -291,7 +291,7 @@ The views are never saved. After save and load they must be identical, and they 
 
 ### 13.2 Municipal works orders (R2)
 
-The player's map edits become **works orders** in one queue (`packages/sim-core/src/works.ts`). An order is paid as its work is done, from the same accounts and crew pool as M4's projects (phase1-slice §5.6). Committing an order reserves nothing and pays nothing. Its unspent budget counts in `unspentCommitments`, so the project-loan offer sees it.
+The player's map edits become **works orders** in one queue (`packages/sim-core/src/works.ts`). An order is paid as its work is done, from the same accounts and crew pool as M4's projects (phase1-slice §5.6). Committing an order reserves nothing and pays nothing. Its unspent budget counts in `unspentCommitments`, so the project-loan offer sees it. A works commit that leaves `moneyForProjects` below zero sets `loanWanted`, as `commit_project` does, and a cancel that brings it back to zero or above clears the flag. M4's site preparation, for its part, leaves out every cell that has works.
 
 ```ts
 interface WorksOrder {        // GameState.worksOrders, id order; ids from GameState.nextOrderId, never reused
@@ -316,16 +316,16 @@ interface WorksOrder {        // GameState.worksOrders, id order; ids from GameS
 
 | Action | Validates | Creates |
 |---|---|---|
-| `commit_works { zone, cells?, priority? }` | The zone exists. The cells (all of the zone's eligible cells when absent) are in it, have no works, are outside `servicedLand` and outside every live site-preparation project. | A `service` order and one `planned` CellWork per cell. |
+| `commit_works { zone, cells?, priority? }` | The zone exists. The cells (all of the zone's eligible cells when absent) are in it, are outside `servicedLand` and outside every live site-preparation project, and have no works or only detached works (below). | A `service` order and one `planned` CellWork per new cell. A detached work is adopted: it keeps its sunk work, and the order takes on only its remaining units. |
 | `build_road { path, priority? }` | `path` holds orthogonal `[x,y]` waypoints, expanded like `start_network.yaml`. Every cell is on a playable area. No cell is already a road (start, built or in a live road order), a structure footprint or a cell with works. The first cell touches a road or a live road order's path. | A `road` order. A cell outside the buildable layer is a bridge. |
 | `place_structure { kind, cell: [x,y], attach: [x,y], facility?, priority? }` | As `placeStructure` (§13.1). The footprint is not a road, nor another structure's or a live order's footprint. A facility names a type in params. | A `structure` order. Its params give its units, budget, capacity and any forex, which is drawn at commit as for a project. |
 | `cancel_works { order, cells? }` | The order is live. | Removes its unstarted cells (all of them when `cells` is absent): their works, path cells or structure, and their units and budget. Started cells and sunk spending stay. An order left with nothing to do is `cancelled`, or `done` if its remaining work is finished. No penalty: nothing was contracted. |
 | `set_works_paused { order, paused }` | The order is live. | A paused order takes no crew and no money. |
 | `set_works_priority { order, priority }` | The order is live. | |
 
-**Zone edits.** When an edit or removal takes a cell out of a zone, that cell's unstarted service work is cancelled as above. Started work keeps its record and its sunk work (§13.1).
+**Zone edits.** When an edit or removal takes a cell out of its work's zone, unstarted work on that cell is cancelled as above. Started work is **detached**: the CellWork keeps its sunk work and loses its `order`, and the order gives up that cell's remaining units and their budget. A later `commit_works` covering the cell adopts it. Any order with nothing left to do closes: `done` if it did some work, `cancelled` if not. So no order holds a commitment it can never spend.
 
-**Monthly work (tick step 4).** Live, unpaused orders join `allocatePool`'s single queue as a third job type, after firm cohorts and projects with the same priority and start month.
+**Monthly work (tick step 4).** The derived views are computed once at the start of the month's allocation, so a road cell finished this month gives reach from next month. Live, unpaused orders join `allocatePool`'s single queue as a third job type, after firm cohorts and projects with the same priority and start month.
 - Each order wants up to `works.crew_per_order` units a month, no more than it can use. A service order can use units only on works with road reach; a road order, on its path; a structure, when its attach cell is a road or the footprint has reach.
 - It is paid like a project. The cost of `k` units is `round(budget × (unitsDone + k) ÷ unitsTotal) − spent`. Payment comes from debt, then land, then general above the reserve floor, and it is posted as `project` with ref `works.<id>`. A fall from grace freezes orders as it freezes projects.
 - A service order pours its units into its own cells, using `advanceCellWorks`' order. A road order builds its path in order, and each finished cell joins `roads` at once. A structure order becomes a `PlacedStructure` when its units are done.
@@ -336,12 +336,13 @@ interface WorksOrder {        // GameState.worksOrders, id order; ids from GameS
 **Params** (`params/slice.yaml` `works`): placeholders taken from the M4 templates' rates (phase1-slice §5.6), not sourced.
 - `crew_per_order`;
 - `service` and `road`: `units_per_cell` and `yuan_per_cell`;
-- `bridge`: four times a road cell, a guess;
+- `bridge`: four times a road cell, a guess. Road and bridge must cost the same per unit (`validateParams` checks this), so the cost formula stays exact after a cancel;
 - `structures.water_source` and `structures.power_source`: `units`, `yuan`, `capacity` and optional `forex_usd`;
 - `facilities.<type>`: the same fields.
 
 **Not yet:**
 - maintenance and staffing obligations on finished works (R4's finance);
+- finished works feeding the M-series area ledger: built roads do not raise `roadKm` (readiness), placed sources do not raise `area.utilities`, and facilities do not raise `area.facilities`. Supply from placed sources shows in `spatialViews` alone until R3/R4 read it;
 - footprints larger than one cell;
 - removing a built road.
 
