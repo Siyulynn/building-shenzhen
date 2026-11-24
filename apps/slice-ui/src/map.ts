@@ -155,7 +155,7 @@ export class SliceMap {
       if (px <= 1 / 20) {
         ctx.font = `${11 * px}px sans-serif`;
         ctx.strokeStyle = '#19232a'; ctx.lineWidth = 3 * px;
-        const label = `≈ ${bi(s.name)}`;
+        const label = `≈ ${bi(s.name)}`;                // a place label: bilingual in both languages (§11.1)
         ctx.strokeText(label, x + 1.1, y + .7);
         ctx.fillStyle = '#fff'; ctx.fillText(label, x + 1.1, y + .7);
       }

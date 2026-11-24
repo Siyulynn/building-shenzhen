@@ -10,24 +10,36 @@ import {
   type CardInstance, type CellRuns, type GameState, type PlayerAction, type Slice,
 } from '@sz/sim-core';
 import * as S from './strings.js';
-import type { L } from './strings.js';
+import { place, type L } from './strings.js';
 
 const sum = (xs: readonly number[]) => xs.reduce((a, x) => a + x, 0);
 const last = (xs: readonly number[]) => xs[xs.length - 1] ?? 0;
-const cat = (a: L, b: L, sep = ' '): L => ({ zh: `${a.zh}${b.zh}`, en: `${a.en}${sep}${b.en}` });
+/** Chinese separators for the English ones: a full-width colon, and no space between words. */
+const ZH_SEP: Readonly<Record<string, string>> = { ': ': '：', ' ': '' };
+const cat = (a: L, b: L, sep = ' ', zhSep = ZH_SEP[sep] ?? sep): L => ({ zh: `${a.zh}${zhSep}${b.zh}`, en: `${a.en}${sep}${b.en}` });
 const raw = (t: string): L => ({ zh: t, en: t });
+/** A label then a value, as one localized string. */
+const lv = (l: L, v: string): L => ({ zh: `${l.zh} ${v}`, en: `${l.en} ${v}` });
+const joinL = (xs: readonly L[], sep: string): L => ({ zh: xs.map((x) => x.zh).join(sep), en: xs.map((x) => x.en).join(sep) });
 export const yuan = (x: number) => `¥${Math.round(x).toLocaleString('en-US')}`;
 export const num = (x: number) => Math.round(x).toLocaleString('en-US');
 export const pct = (x: number) => `${(100 * x).toFixed(1)}%`;
 
 // ---- names ----
+// Place names (areas, sites, routes, precedent zones) are marked with place(): they stay bilingual (§11.1).
 
 export function areaName(s: GameState, id: number): L {
-  return s.areas.find((a) => a.id === id)?.name ?? cat(S.AREA, raw(` ${id}`), '');
+  const name = s.areas.find((a) => a.id === id)?.name;
+  return name ? place(name) : cat(S.AREA, raw(` ${id}`), '');
 }
+/** A zone's zoneLabel: a place when it carries a precedent's name, otherwise chrome (`area · use #id`). */
 export function zoneName(s: GameState, slice: Slice, id: number): L {
   const z = s.zones.find((x) => x.id === id);
-  return z ? zoneLabel(s, z, slice.tick.precedents ?? []) : cat(S.ZONE, raw(` #${id}`), '');
+  if (!z) return cat(S.ZONE, raw(` #${id}`), '');
+  const precedents = slice.tick.precedents ?? [];
+  const label = zoneLabel(s, z, precedents);
+  const n = z.name;
+  return n.kind === 'precedent' && precedents.some((p) => p.id === n.precedent) ? place(label) : label;
 }
 const named = <T extends { id: string; name: L }>(xs: readonly T[] | undefined, id: string) => xs?.find((x) => x.id === id)?.name;
 
@@ -51,7 +63,7 @@ export function optionLabel(s: GameState, slice: Slice, card: string, option: st
 
 // ---- cards ----
 
-export interface Line { label: L; value: string }
+export interface Line { label: L; value: L }
 export interface CardView {
   id: string; card: string; title: L; interrupting: boolean; expires?: string;
   options: { id: string; label: L }[];
@@ -64,42 +76,43 @@ function cardLines(s: GameState, slice: Slice, c: CardInstance): Line[] {
   const out: Line[] = [];
   if (pl.offer) {
     const v = previewOffer(s, c, p, slice.tick);
-    out.push({ label: S.T.offerJobs, value: num(v.jobs) }, { label: S.T.powerNeed, value: `${num(v.powerKw)} kW` });
+    out.push({ label: S.T.offerJobs, value: raw(num(v.jobs)) }, { label: S.T.powerNeed, value: raw(`${num(v.powerKw)} kW`) });
     for (const site of v.sites) {
       const lbl = optionLabel(s, slice, c.card, site.option) ?? raw(site.option);
       const f = site.fiscal;
-      out.push({ label: lbl, value: [
-        `${S.bi(S.T.opensIn)} ${site.opensInMonths}`,
-        `${S.bi(S.T.powerFree)} ${num(site.powerFreeKw)} kW`,
-        `${S.bi(S.T.bedsNeeded)} ${num(site.bedsNeeded)}`,
-        `${S.bi(S.T.perYearOutput)} ${yuan(site.perYear.output)}`,
-        ...(f ? [`${S.bi(S.T.cash)} ${yuan(f.cashThisQuarter)}`, `${S.bi(S.T.retained)} ${yuan(f.retainedTaxPerYear)}`,
-          `${S.bi(S.T.newObligations)} ${yuan(f.newObligationsPerYear)}`] : []),
-      ].join(' · ') });
+      out.push({ label: lbl, value: joinL([
+        lv(S.T.opensIn, String(site.opensInMonths)),
+        lv(S.T.powerFree, `${num(site.powerFreeKw)} kW`),
+        lv(S.T.bedsNeeded, num(site.bedsNeeded)),
+        lv(S.T.perYearOutput, yuan(site.perYear.output)),
+        ...(f ? [lv(S.T.cash, yuan(f.cashThisQuarter)), lv(S.T.retained, yuan(f.retainedTaxPerYear)),
+          lv(S.T.newObligations, yuan(f.newObligationsPerYear))] : []),
+      ], ' · ') });
     }
   }
   if (c.card === LOAN_CARD) {
-    out.push({ label: S.T.principal, value: yuan(pl.principal) }, { label: S.T.rate, value: pct(pl.rate_month) },
-      { label: S.T.grace, value: String(pl.grace_months) }, { label: S.T.term, value: String(pl.term_months) });
+    out.push({ label: S.T.principal, value: raw(yuan(pl.principal)) }, { label: S.T.rate, value: raw(pct(pl.rate_month)) },
+      { label: S.T.grace, value: raw(String(pl.grace_months)) }, { label: S.T.term, value: raw(String(pl.term_months)) });
   }
   if (c.card === DEFICIT_CARD) {
-    out.push({ label: S.T.shortfall, value: yuan(pl.shortfall) }, { label: S.T.capacity, value: yuan(pl.capacity) });
+    out.push({ label: S.T.shortfall, value: raw(yuan(pl.shortfall)) }, { label: S.T.capacity, value: raw(yuan(pl.capacity)) });
   }
   if (c.card === REVIEW_CARD && pl.review) {
     const r = pl.review as GameState['reviews']['held'][number];
-    out.push({ label: S.T.score, value: `${r.score.toFixed(2)} (${S.bi(r.pass ? S.T.pass : S.T.fail)}${r.vetoed ? `, ${S.bi(S.T.vetoed)}` : ''})` });
-    for (const it of r.items) out.push({ label: S.INDICATOR[it.indicator] ?? raw(it.indicator), value: `${num(it.value * (it.indicator === 'order_check' ? 100 : 1))}${it.indicator === 'order_check' ? '%' : ''} → ${it.score.toFixed(2)}` });
+    const verdictL = joinL([r.pass ? S.T.pass : S.T.fail, ...(r.vetoed ? [S.T.vetoed] : [])], ', ');
+    out.push({ label: S.T.score, value: cat(raw(`${r.score.toFixed(2)} (`), cat(verdictL, raw(')'), ''), '') });
+    for (const it of r.items) out.push({ label: S.INDICATOR[it.indicator] ?? raw(it.indicator), value: raw(`${num(it.value * (it.indicator === 'order_check' ? 100 : 1))}${it.indicator === 'order_check' ? '%' : ''} → ${it.score.toFixed(2)}`) });
   }
-  if (c.card === FAILURE_CARD) out.push({ label: S.T.scrutiny, value: num(pl.scrutiny) });
+  if (c.card === FAILURE_CARD) out.push({ label: S.T.scrutiny, value: raw(num(pl.scrutiny)) });
   if (pl.report) {
     const r = pl.report as { bar: number; roads: number; servicedLand: number; waterPower: number; forecastCards: number };
-    out.push({ label: S.T.bar, value: pct(r.bar) }, { label: S.T.readyRoads, value: pct(r.roads) },
-      { label: S.T.readyLand, value: pct(r.servicedLand) }, { label: S.T.readyWaterPower, value: pct(r.waterPower) },
-      { label: S.T.forecast, value: String(r.forecastCards) });
+    out.push({ label: S.T.bar, value: raw(pct(r.bar)) }, { label: S.T.readyRoads, value: raw(pct(r.roads)) },
+      { label: S.T.readyLand, value: raw(pct(r.servicedLand)) }, { label: S.T.readyWaterPower, value: raw(pct(r.waterPower)) },
+      { label: S.T.forecast, value: raw(String(r.forecastCards)) });
   }
   if (pl.grantFactor !== undefined) {
-    out.push({ label: S.T.grantFactor, value: String(pl.grantFactor) }, { label: S.T.recurring, value: yuan(pl.recurring) });
-    if (pl.warning) out.push({ label: S.T.warning, value: `${formatYM(pl.warning.from)} → ${pl.warning.factor}` });
+    out.push({ label: S.T.grantFactor, value: raw(String(pl.grantFactor)) }, { label: S.T.recurring, value: raw(yuan(pl.recurring)) });
+    if (pl.warning) out.push({ label: S.T.warning, value: raw(`${formatYM(pl.warning.from)} → ${pl.warning.factor}`) });
   }
   return out;
 }
@@ -155,7 +168,7 @@ export function areaView(s: GameState, id: number) {
   const pops = s.pops.filter((g) => g.area === id);
   const h = s.housing.find((x) => x.area === id);
   return {
-    name: a.name, access: a.access,
+    name: place(a.name), access: a.access,
     pops: pops.map((g) => ({ label: S.POP_KIND[g.kind] ?? raw(g.kind), size: g.size, present: g.present })),
     housing: h ? { beds: h.beds, occupants: h.occupants, crowding: h.crowding, rent: h.rent } : undefined,
     jobs: s.labour.jobs.filter((j) => j.area === id).map((j) => ({ label: S.SECTOR[j.sector] ?? raw(j.sector), jobs: j.jobs, filled: j.filled })),
@@ -269,8 +282,9 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
     case 'set_permit_regime': return cat(S.T.permits, S.PERMIT[a.regime] ?? raw(a.regime), ': ');
     case 'create_zone': {
       const cells = a.runs.reduce((t, [, x0, x1]) => t + x1 - x0 + 1, 0);
-      const tpl = a.template ? named(slice.tick.precedents, a.template) : undefined;
-      return cat(cat(S.LAND_USE[a.use] ?? raw(a.use), tpl ?? raw(`#${queuedZoneIds(s, queue).get(k)}`), ' '),
+      const tplName = a.template ? named(slice.tick.precedents, a.template) : undefined;
+      const tpl = tplName ? place(tplName) : undefined;
+      return cat(cat(S.LAND_USE[a.use] ?? raw(a.use), tpl ?? raw(`#${queuedZoneIds(s, queue).get(k)}`), ' ', ' '),
         { zh: `（${cells}${S.T.cells.zh}）`, en: ` (${cells} ${S.T.cells.en})` }, '');
     }
     case 'remove_zone': return cat(S.T.removeZone, zoneName(s, slice, a.zone), ': ');
@@ -281,7 +295,7 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
     }
     case 'cancel_project': return cat(S.T.cancel, raw(` #${a.project}`), '');
     case 'contract_team': return cat(S.T.contract, named(slice.tick.fiscal?.teams, a.team) ?? raw(a.team), ': ');
-    case 'set_project_priority': return cat(S.T.priority, raw(` #${a.project} ${a.priority}`), '');
+    case 'set_project_priority': return cat(cat(S.T.priority, raw(` #${a.project}`), ''), S.PRIORITY[a.priority] ?? raw(a.priority), ': ');
     default: return raw(a.type);
   }
 }

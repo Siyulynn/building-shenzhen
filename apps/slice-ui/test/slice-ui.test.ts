@@ -131,14 +131,14 @@ describe('M6c: zones, a throwing action, the panels and the overlays', () => {
     x = enqueue(x, { type: 'commit_project', template: 'project.nothing', area: 7 });
     const before = JSON.stringify(x.rng.save());
     const y = submit(x);
-    expect(y.error).toMatch(/no project template/);
+    expect(y.error?.detail).toMatch(/no project template/);         // sim-core's own message, as the detail
     expect(y.state).toBe(x.state);
     expect(y.queue).toEqual(x.queue);
     expect(JSON.stringify(y.rng.save())).toBe(before);
     let z = submit(dequeue(y, 0));
     expect(z.error).toBeUndefined();
     while (z.mode === 'paused') {                              // a card mid-quarter: answer it and Continue
-      expect(enqueue(z, { type: 'set_enforcement', level: 'high' }).error).toMatch(/turn's start/);
+      expect(enqueue(z, { type: 'set_enforcement', level: 'high' }).error?.what.en).toMatch(/turn's start/);
       for (const c of z.state.pendingCards) z = choose(z, c.id, c.options[0]);
       z = submit(z);
     }

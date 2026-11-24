@@ -1,7 +1,7 @@
 /**
- * The UI's own strings (phase1-slice.md §11.1), English and Simplified Chinese side by side. They name mechanics only:
- * no dates, figures, names or claims. Content names (events, investors, projects, teams, areas, leaders, zones) come
- * from content, never from here.
+ * The UI's own strings (phase1-slice.md §11.1), each with an English and a Simplified Chinese entry; the UI shows one
+ * of them (src/lang.ts). They name mechanics only: no dates, figures, names or claims. Content names (events,
+ * investors, projects, teams, areas, leaders, zones) come from content, never from here.
  */
 import type { LocalizedString } from '@sz/sim-core';
 
@@ -134,7 +134,7 @@ export const T = {
   fiscalTest: l('财政检验（不计补助）', 'The fiscal test (without the grant)'), reserve: l('储备', 'Reserve'),
   debt: l('债务', 'Debt'), arrears: l('拖欠', 'Arrears'), ended: l('试玩结束', 'The slice is over'),
   failure: l('因上级关注度过高被撤职', 'Removed: scrutiny stayed too high'),
-  report: l('报告', 'Report'), preview: l('预估', 'Preview'), opensIn: l('个月后开工', 'months to open'),
+  report: l('报告', 'Report'), preview: l('预估', 'Preview'), opensIn: l('开工还需（月）', 'Months to open'),
   bedsNeeded: l('需要床位', 'Beds needed'), powerNeed: l('用电', 'Power'), powerFree: l('富余电力', 'Spare power'),
   perYearOutput: l('满产年产值', 'Output a year at full ramp'), cash: l('本季度现金', 'Cash this quarter'),
   retained: l('每年留成税收', 'Retained tax a year'), newObligations: l('每年新增支出', 'New obligations a year'),
@@ -148,8 +148,22 @@ export const T = {
   noSuchCard: l('没有这张卡片', 'No such card'), noSuchOption: l('没有这个选项', 'No such option'), forecast: l('首批投资者预计', 'First wave forecast'), score: l('得分', 'Score'),
   grantFactor: l('补助系数', 'Grant factor'), warning: l('补助将削减', 'The grant will be cut'),
   seed: l('随机种子', 'Seed'), restart: l('重新开始', 'Start again'),
-  months: l('个月', 'months'), none: l('无', 'none'),
+  month: l('月', 'month'), none: l('无', 'none'),
+  proxyLocation: l('近似位置', 'Proxy location'), temporaryAlignment: l('临时走线', 'Temporary alignment'),
+  temporaryAlignments: l('临时走线', 'Temporary alignments'), roadAccess: l('道路可达', 'Road access'),
+  noRoadAccess: l('无道路连接', 'No road access'), evidence: l('证据', 'Evidence'), language: l('语言', 'Language'),
 } as const satisfies Record<string, L>;
 
-/** The two languages side by side, as the UI shows every string. */
+/** Every table above, for the tests: each entry has an en and a zh. */
+export const TABLES: Readonly<Record<string, Readonly<Record<string, L>>>> = {
+  SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, ENFORCEMENT, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
+  ROLE, TRAIT, RISK, STAGE, WAITING, OVERLAYS, T, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
+};
+
+/** Both names, Chinese first: how a place label reads in either language. */
 export const bi = (s: L) => `${s.zh} ${s.en}`;
+/**
+ * A place label (an area, a 1979 site, a route, a precedent zone): it stays bilingual in both languages, so both its
+ * fields read `zh en` (§11.1).
+ */
+export const place = (s: L): L => ({ zh: bi(s), en: bi(s) });

@@ -1670,15 +1670,19 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
   - the readiness card's payload for the report.
 - **A zone drawn this turn** is known by the id it will get, `nextZoneId + k` for the k-th queued zone, as `cautious` does. Site preparation on it names that id.
 
-**Strings.** Each string has its English and Simplified Chinese side by side.
+**Strings and the language.** Content and data keep both languages (`LocalizedString` `{zh, en}`), and so do the views (`src/views.ts` returns `{zh, en}`). The UI shows one language, chosen at render time; choosing it is a display choice only.
+- **The choice:** English (`en`) or Simplified Chinese (`zh`). The URL's `?lang=en|zh` wins, then the viewer's stored choice (`localStorage`, every access in try/catch), then English; the language a page opens in is stored, so a `?lang` visit is remembered. An in-app switch changes it: it stores the choice, rewrites `?lang` in place (keeping `?seed`) and re-renders. The language never enters the `Session`, so switching changes no sim state.
+- **One language:** all the UI's chrome shows only the chosen language: the HUD, the panels and tabs, buttons, card titles, options and lines, ledger labels, the queue, the verdict screen, the map's hover readout and route key, the page's `<title>` and `<html lang>`, and the errors the UI writes.
+- **Place labels stay bilingual** in both languages, wherever they appear (the map, the hover readout, panels, selects, card options and the queue): the names of areas, the 1979 sites, the routes, and precedent (historical) zones, e.g. 深圳火车站 Shenzhen Station. `place()` in `src/strings.ts` marks one: both its fields read `zh en`. A zone without a precedent name (`zoneLabel`'s `area · use #id`) is chrome and shows in one language.
+- **The other exceptions:** the language switch names each language in its own script (English, 中文); ids (claim ids, the proxy's source id, card ids in a diagnostic), units (kW, USD, ¥) and numbers are not words of either language.
 - **Content names come from content:** events and their options, investors, projects, teams, regimes, areas, leaders, and zones through `zoneLabel`.
-- **The UI's own strings are in `src/strings.ts`:** the system cards (investor, shortcut, loan, deficit, review, failure) and their options, and the panel labels.
+- **The UI's own strings are in `src/strings.ts`,** each with an `en` and a `zh` entry: the system cards (investor, shortcut, loan, deficit, review, failure) and their options, the panel labels and the map's own words.
   - They describe mechanics, never history: no dates, figures, names or claims.
   - The briefing shows the sim's own deltas and content names only.
 - **An option with an argument** (`accept:zone:<id>`, `accept:premises:<area>`) is labelled with that zone's label or area's name.
-- **Errors:** the controller's own messages are bilingual. An error thrown by sim-core shows as sim-core wrote it, in English, after the bilingual "Could not apply".
+- **Errors:** the controller keeps an error as a string-table entry plus a detail and renders it in the chosen language, so a switch re-renders it. An error thrown by sim-core is a diagnostic: it shows as sim-core wrote it, in English, after "Could not apply" in the chosen language. sim-core's messages stay out of the string table.
 
-**The screens** (`src/views.ts`, pure, tested; `src/main.ts` only renders them):
+**The screens** (`src/views.ts`, pure, tested, `{zh, en}`; `src/render.ts` turns them into HTML in the chosen language, pure and tested; `src/main.ts` only puts that on the page). The language switch sits on the turn screen and the verdict screen:
 - **The turn screen:**
   - the briefing: the quarter, then residents, present non-locals, firm jobs, the quarter's GDP, money for projects and scrutiny, each with its change since the previous turn's start;
   - the card stack, each card with its options and, for investors, the preview;
@@ -1714,6 +1718,11 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 - `sha256.ts` matches `node:crypto` on test vectors, and the browser loader's `slice.content` equals the node loader's.
 - The controller, driven by each golden policy (its turn actions at each turn's start, its answers when paused), ends with a `runSummary` equal to its golden file.
 - Every card and option raised in the golden policies, `aggressive` and `random`, over seeds 1–5, has a non-empty zh and en label. Every pending card in the controller's golden runs renders with each title, option and line label in both languages.
+- **The language:**
+  - every entry in `src/strings.ts` has a non-empty `en` with no Han character and a `zh` with one;
+  - the pure renderers (`src/render.ts`), run in each language on every state of the controller's `default`, `aggressive` and `historical_prologue` runs, and on a queue holding every kind of order, show no string from the other language once place labels and the switch are removed: no Han character (or full-width punctuation) in English, and in Chinese no English string-table or content name and no Latin word but ids and shared units (kW, GDP, USD);
+  - the golden runs, rendered in alternating languages at every step, still equal their golden files, and rendering leaves the session unchanged;
+  - `resolveLang` takes the URL first, then the stored choice, then English.
 - A drawn zone's preview equals the zone's runs after End turn. A throwing action leaves the session as it was.
 - Each overlay's colour for a cell reads its area's value.
 
@@ -1747,7 +1756,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 | M6 | The CLI, golden runs, the plausibility report; the 2D UI on the Spike A canvas. Built in three parts | All five exit criteria can be checked. *Status:* M6a and M6c done, so all five can be checked (the report, the golden runs, the UI); M6b held (§5.10) |
 | M6a | One way to load the slice, the bands and measures, the `cautious`, `aggressive` and random policies, the CLI and its report, the golden runs, the property and speed tests (§5.9) | The §5.9 tests pass; the report checks criteria 1–5 on any run. No balance changes. *Status:* done. Run `npm run slice -- run --policy <name>` for a report and `npm run golden:update` after a change that moves a golden run. Code: `packages/sim-core/src/{content,calibration,play,summary,policies}.ts`, `apps/cli/`; tests: `test/m6a.test.ts`, `apps/cli/test/cli.test.ts` |
 | M6b | The balance pass: named params only, with a tuning log, driven by M6a's report | The report's findings are fixed or recorded as structural. M5b's calibration properties still hold (§5.8). *Status:* findings recorded (§5.10); held for decisions on the slice's scale (options A–C) |
-| M6c | The 2D UI on the Spike A canvas (§11, §11.1) | The §11.1 tests pass. A person can play all 21 quarters in the browser, from the first card to the visit's verdict. *Status:* done. Run `npm run slice:ui` (port 5174). Answering every card with its first option in the browser plays all 21 quarters and reproduces the default golden run's verdict. Code: `apps/slice-ui/src/` (`controller.ts`, `views.ts`, `map.ts`, `main.ts`); tests: `apps/slice-ui/test/slice-ui.test.ts` |
+| M6c | The 2D UI on the Spike A canvas (§11, §11.1) | The §11.1 tests pass. A person can play all 21 quarters in the browser, from the first card to the visit's verdict. *Status:* done. Run `npm run slice:ui` (port 5174). Answering every card with its first option in the browser plays all 21 quarters and reproduces the default golden run's verdict. Code: `apps/slice-ui/src/` (`controller.ts`, `views.ts`, `render.ts`, `lang.ts`, `map.ts`, `main.ts`); tests: `apps/slice-ui/test/slice-ui.test.ts`, `lang.test.ts`. The UI shows English or Simplified Chinese (`?lang=`), and both play the default run to its golden verdict |
 | Playtest | Several full playthroughs; notes in `docs/playtests/` | You want to play it again |
 
 ---
