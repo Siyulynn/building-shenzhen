@@ -61,7 +61,6 @@ export interface WorksOrder {
   placement?: StructurePlacement;          // structure
   cofinanced?: true;                       // R9 (§5.8): an investor pays: rate 0, no forex, no maintenance
   pace?: Exclude<WorksPace, 'normal'>;     // R9 (§5.6): absent = normal
-  paceCarry?: number;                      // R9: crew units given at this pace not yet turned into a unit of work (under one)
   paceBase?: { units: number; spent: number };   // R9: units done and spent when the pace last changed; later units at its rate
 }
 /** R9 (§5.6): a works order's pace, the money-for-time lever. */

@@ -84,15 +84,18 @@ function costTo(o: WorksOrder, w: WorksParams, units: number): number {
   return b ? b.spent + Math.round(r * (units - b.units)) : Math.round(r * units);
 }
 const EPS = 1e-9;
-/** R9 (§5.6): crew units to do `work` more units at the order's pace, net of its carry. Normal: the same number. */
+/**
+ * R9 (§5.6): the crew units a month's `work` units take at the order's pace, ceil(work × units). Whole units each
+ * month, so a month's spare fraction of a crew unit passes down the queue. Normal: the same number.
+ */
 function crewFor(o: WorksOrder, w: WorksParams, work: number): number {
   const u = paceStep(o, w).units;
-  return u === 1 ? work : Math.max(0, Math.ceil(work * u - (o.paceCarry ?? 0) - EPS));
+  return u === 1 ? work : Math.ceil(work * u - EPS);
 }
-/** R9: the units of work `crew` crew units do at the order's pace, with its carry. Normal: the same number. */
+/** R9: the whole units of work `crew` crew units do in a month at the order's pace, floor(crew ÷ units). */
 function workFor(o: WorksOrder, w: WorksParams, crew: number): number {
   const u = paceStep(o, w).units;
-  return u === 1 ? crew : Math.floor((crew + (o.paceCarry ?? 0)) / u + EPS);
+  return u === 1 ? crew : Math.floor(crew / u + EPS);
 }
 function checkPace(w: WorksParams, k: unknown): WorksPace {
   if (k === undefined) return 'normal';
@@ -111,7 +114,6 @@ function setPace(s: GameState, wc: WorksContent, o: WorksOrder, k: unknown): voi
   const p = checkPace(wc.works, k);
   if ((o.pace ?? 'normal') === p) return;
   o.paceBase = { units: o.unitsDone, spent: o.spent };
-  delete o.paceCarry;
   if (p === 'normal') delete o.pace; else o.pace = p;
   o.budget = costTo(o, wc.works, o.unitsTotal);
   if (moneyForProjects(s, wc.params) < 0) afterCommit(s, wc.params); else afterCancel(s, wc.params);
@@ -491,33 +493,30 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
     const st = pl.kind === 'power_station' ? W.structures.power_station : undefined;
     return st ? Math.min(left, Math.ceil(st.units / st.build_months)) : left;
   };
+  /** The most of `units` more units of work the city can pay for now. */
+  const affordableWork = (o: WorksOrder, units: number): number => {
+    const rate = rateOf(o, W) * paceStep(o, W).money;
+    if (rate === 0 || units <= 0) return Math.max(0, units);
+    const f = projectFunds(s, wc.params), cash = f.debt + f.land + f.general, b = o.paceBase ?? { units: 0, spent: 0 };
+    let u = Math.min(units, Math.max(0, Math.floor((cash + o.spent - b.spent) / rate) + b.units - o.unitsDone + 1));
+    while (u > 0 && costTo(o, W, o.unitsDone + u) - o.spent > cash) u--;
+    return u;
+  };
   return {
     // R9 (§5.6): the pool deals in crew units; an order's work is in units of work. At normal pace they are the same
     usable(o) { return crewFor(o, W, usableWork(o)); },
-    affordable(o, crew) {
-      const units = Math.min(usableWork(o), workFor(o, W, crew));
-      const rate = rateOf(o, W) * paceStep(o, W).money;
-      if (rate === 0) return Math.min(crew, crewFor(o, W, units));
-      const f = projectFunds(s, wc.params), cash = f.debt + f.land + f.general, b = o.paceBase ?? { units: 0, spent: 0 };
-      let u = Math.min(units, Math.max(0, Math.floor((cash + o.spent - b.spent) / rate) + b.units - o.unitsDone + 1));
-      while (u > 0 && costTo(o, W, o.unitsDone + u) - o.spent > cash) u--;
-      return Math.min(crew, crewFor(o, W, u));
-    },
+    affordable(o, crew) { return Math.min(crew, crewFor(o, W, affordableWork(o, Math.min(usableWork(o), workFor(o, W, crew))))); },
     work(o, crew, events) {
       if (crew <= 0) return 0;
       const area = workArea(s, o);                       // R4 (phase1-slice §5.11): where this month's crew works
-      const units = Math.min(o.unitsTotal - o.unitsDone, workFor(o, W, crew));
+      // never more work than the order can reach or the city can pay for, whatever crew it was given
+      const units = affordableWork(o, Math.min(usableWork(o), workFor(o, W, crew)));
       let used = units;
       if (o.kind === 'service') {
         const left = advanceCellWorks(s, units, views.frontage, (w) => w.order === o.id);
         used = units - left;
       }
-      // R9: the crew this work took; what a partial unit took waits in the carry
-      const u = paceStep(o, W).units, crewUsed = u === 1 ? used : Math.min(crew, crewFor(o, W, used));
-      if (u !== 1) {
-        const carry = (o.paceCarry ?? 0) + crewUsed - used * u;
-        if (carry > EPS) o.paceCarry = carry; else delete o.paceCarry;
-      }
+      const crewUsed = Math.min(crew, crewFor(o, W, used));   // R9: the crew this work took at the order's pace
       const pay = costTo(o, W, o.unitsDone + used) - o.spent;
       if (pay > 0) {
         payProject(s, wc.params, pay, `works.${o.id}`);
@@ -545,7 +544,6 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
         if (x.kind === 'facility') feedFacility(s, W, o, x);
       }
       settle(s, o, W);
-      if ((o.stage as WorksOrder['stage']) === 'done') delete o.paceCarry;
       if (crewUsed > 0 && area !== undefined) events.push({ step: 'construction', kind: 'crew', detail: { area, units: crewUsed } });
       return crewUsed;
     },
@@ -640,8 +638,9 @@ export function previewWorks(s: GameState, w: WorksParams, actions: readonly Pla
       if (k) m[k] = (m[k] ?? 0) + 1;
       return m;
     }, {} as Partial<Record<LandCoverClass, number>>) } : {}),
-    // R9 (§5.6): at the order's pace, its crew units are its units × the step's units
-    crewPerMonth: Math.min(w.crew_per_order, crewFor(o, w, o.unitsTotal)), months: Math.ceil(crewFor(o, w, o.unitsTotal) / w.crew_per_order),
+    // R9 (§5.6): at the order's pace a month's full draw does floor(crew_per_order ÷ units) units
+    crewPerMonth: Math.min(w.crew_per_order, crewFor(o, w, o.unitsTotal)),
+    months: Math.ceil(o.unitsTotal / Math.max(1, workFor(o, w, w.crew_per_order))),
   })) };
 }
 

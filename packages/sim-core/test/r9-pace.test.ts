@@ -5,6 +5,7 @@ import {
   saveToJson, templateZoneAction, type GameState, type PlayerAction, type WorksOrder,
 } from '../src/index.js';
 import { content, initial, params, slice, UNGATED } from './fixtures.js';
+import { checkLedger } from './invariants.js';
 
 const WORKS = { ...params.works!, crew_per_order: 30 };
 const PARAMS = { ...params, works: WORKS };
@@ -47,24 +48,41 @@ describe('R9 works pace (§5.6)', () => {
     for (const r of [normal, push, all]) {
       expect(r.o.spent).toBe(r.o.budget);
       expect(worksPaid(r.s, r.o.id)).toBe(r.o.spent);
-      expect(r.o.paceCarry).toBeUndefined();
     }
-    // the monthly draw stays at crew_per_order, so the order finishes in about units × u ÷ crew months
+    // the monthly draw stays at crew_per_order, so a month does floor(30 ÷ u) units
     expect(normal.months).toBe(Math.ceil(units / 30));
-    expect(push.months).toBe(Math.ceil(Math.ceil(units * PACE.push.units) / 30));
-    expect(all.months).toBe(Math.ceil(Math.ceil(units * PACE.all_out.units) / 30));
+    expect(push.months).toBe(Math.ceil(units / Math.floor(30 / PACE.push.units)));
+    expect(all.months).toBe(Math.ceil(units / Math.floor(30 / PACE.all_out.units)));
     expect(all.months).toBeLessThan(push.months);
     expect(push.months).toBeLessThan(normal.months);
   });
 
-  it('a crew unit does 1 ÷ units of work, and a partial unit waits in the carry', () => {
+  it("a month's crew does whole units: floor(crew ÷ units), taking ceil(units × step) crew", () => {
     const rng = new Rng(12);
     let s = play(funded(), 1, rng, [{ type: 'build_road', path: SPUR, priority: 'high', pace: 'all_out' }]);
-    const first = s.worksOrders[0]!;
-    expect(first.unitsDone).toBe(Math.floor(30 / PACE.all_out.units));       // 54 units for 30 crew
-    expect(first.paceCarry).toBeCloseTo(30 - 54 * PACE.all_out.units, 9);
+    expect(s.worksOrders[0]!.unitsDone).toBe(Math.floor(30 / PACE.all_out.units));       // 54 units for 30 crew
     s = play(s, 1, rng);
-    expect(s.worksOrders[0]!.unitsDone).toBe(54 + Math.floor((30 + first.paceCarry!) / PACE.all_out.units));
+    expect(s.worksOrders[0]!.unitsDone).toBe(2 * 54);
+  });
+
+  it('short of money, a paced order does only what the city can pay for, and never goes negative', () => {
+    const rng = new Rng(17);
+    const s0 = initial();
+    const cash = s0.fiscal.balances.general;
+    post(s0, 'grant', 'general', 40_000 - cash, 'test.drain');                 // ¥40,000 left: 10 units at all-out
+    let s = s0;
+    let finance = 0;
+    for (let m = 0; m < 30; m++) {
+      const before = s;
+      s = play(s, 1, rng, m === 0 ? [{ type: 'build_road', path: SPUR, priority: 'high', pace: 'all_out' }] : []);
+      checkLedger(before, s);
+      const o = s.worksOrders[0]!;
+      expect(o.spent).toBe(worksPaid(s, o.id));
+      expect(o.spent).toBeLessThanOrEqual(o.budget);
+      if (o.waiting === 'finance') finance++;
+    }
+    expect(finance).toBeGreaterThan(0);
+    expect(s.worksOrders[0]!.unitsDone).toBeGreaterThan(0);
   });
 
   it('changing the step re-prices only the unworked units', () => {
@@ -119,7 +137,7 @@ describe('R9 works pace (§5.6)', () => {
     if (!p.ok) return;
     const e = p.orders[0]!;
     expect(e.budget).toBe(Math.round(RATE * PACE.push.money * e.units));
-    expect(e.months).toBe(Math.ceil(Math.ceil(e.units * PACE.push.units) / 30));
+    expect(e.months).toBe(Math.ceil(e.units / Math.floor(30 / PACE.push.units)));
   });
 
   it('is gated with works.priority, with the opener named', () => {
@@ -131,7 +149,7 @@ describe('R9 works pace (§5.6)', () => {
       .toThrow(/locked: it opens with/);
   });
 
-  it('a paced order survives save and load mid-run, carry and base included', () => {
+  it('a paced order survives save and load mid-run, its base included', () => {
     const run = (k: number) => {
       const rng = new Rng(16);
       let s = play(funded(), 2, rng, [{ type: 'build_road', path: SPUR, priority: 'high', pace: 'all_out' }]);
