@@ -17,6 +17,8 @@ import { isOpen } from './systems/industry.js';
 import { verdict } from './verdict.js';
 import { parseYM, type YM } from './ym.js';
 import { isOpeningBeat } from './opening.js';
+import { LAND_COVER_CLASSES, type LandCover } from './landcover.js';
+import { liveOrder } from './works.js';
 
 export type EventEffect = { option?: string } & (
   | { kind: 'offer'; archetype: string; terms?: boolean }
@@ -49,7 +51,8 @@ const NUMBER_OF: Partial<Record<EventEffect['kind'], string[]>> = {
 };
 
 /** Milestone conditions (§5.8), read from the state. */
-export const EVENT_CONDITIONS = ['first_zone_firm_open', 'firm_open', 'shekou_captured', 'site_preparation_committed'] as const;
+export const EVENT_CONDITIONS = ['first_zone_firm_open', 'firm_open', 'shekou_captured', 'site_preparation_committed',
+  'village_works'] as const;
 export type EventCondition = (typeof EVENT_CONDITIONS)[number];
 export type EventTrigger =
   | { date: YM }
@@ -226,8 +229,30 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
   });
 }
 
-/** Is a milestone's condition true now (§5.8)? */
-export function conditionHolds(s: GameState, c: EventCondition): boolean {
+/** The playable areas with village-class cells (§5.5); without a land-cover layer, none. */
+export function villageAreas(s: GameState, lc?: LandCover): Set<number> {
+  const out = new Set<number>();
+  if (!lc) return out;
+  const v = LAND_COVER_CLASSES.indexOf('village');
+  for (const a of s.areas) if (a.access === 'playable' && a.cells.some((c) => lc.classOf[c] === v)) out.add(a.id);
+  return out;
+}
+
+/**
+ * R9 (§5.8): the petition's condition. A live works service order, or a live site-preparation project the city pays
+ * for, in an area with village-class cells; or a land-compensation obligation, once one exists.
+ */
+function villageWorks(s: GameState, villages: ReadonlySet<number>): boolean {
+  if (s.fiscal.obligations.some((o) => o.kind === 'compensation')) return true;
+  const areaOfZone = (z?: number) => s.zones.find((q) => q.id === z)?.area;
+  const inVillageArea = (z?: number) => { const a = areaOfZone(z); return a !== undefined && villages.has(a); };
+  return s.worksOrders.some((o) => o.kind === 'service' && liveOrder(o) && inVillageArea(o.zone))
+    || s.fiscal.projects.some((x) => x.kind === 'site_preparation' && !x.cofinanced && liveProject(x) && inVillageArea(x.zone));
+}
+
+/** Is a milestone's condition true now (§5.8)? `villages` is villageAreas' set, for village_works. */
+export function conditionHolds(s: GameState, c: EventCondition, villages: ReadonlySet<number> = new Set()): boolean {
+  if (c === 'village_works') return villageWorks(s, villages);
   if (c === 'first_zone_firm_open') return s.firms.some((f) => f.zone !== undefined && isOpen(f, s.date));
   if (c === 'firm_open') return s.firms.some((f) => isOpen(f, s.date));
   if (c === 'shekou_captured') return s.shekou.captured > 0;
@@ -265,14 +290,17 @@ export function budgetReport(s: GameState, p: SliceParams, fc: FiscalContent) {
 /** Tick step 2 (§5.7, §5.8): expire event cards, apply this month's answers, then fire the events that are due. */
 export function events(p: SliceParams, content: {
   events?: EventContent; investors?: readonly InvestorArchetype[]; buildable?: Buildable; fiscal?: FiscalContent;
+  landcover?: LandCover;
 }) {
   const defs = content.events ?? [];
   const byId = new Map(defs.map((d) => [d.id, d]));
   const archetypes = content.investors ?? [];
   const fc = content.fiscal;
+  let villages: Set<number> | undefined;
   return (ctx: TickContext): void => {
     if (!defs.length) return;
     const s = ctx.state;
+    villages ??= villageAreas(s, content.landcover);                // the areas never change in a run
     const ev = (kind: string, detail: Record<string, unknown>) => ctx.events.push({ step: 'events', kind, detail });
     const num = (d: EventDef, f: string) => (p.events[d.id] as Record<string, number>)[f]!;
     const expiry = () => s.date + (3 - s.subStep);                // a non-interrupting card stays to the next turn
@@ -432,12 +460,12 @@ export function events(p: SliceParams, content: {
       else if ('prologueTurn' in t) due = s.turn >= t.prologueTurn;
       else if ('monthOfYear' in t) due = s.date % 12 === t.monthOfYear;
       else if ('hazard' in t) {
-        if ((t.fromTurn !== undefined && s.turn < t.fromTurn) || (t.condition && !conditionHolds(s, t.condition))) continue;
+        if ((t.fromTurn !== undefined && s.turn < t.fromTurn) || (t.condition && !conditionHolds(s, t.condition, villages))) continue;
         const inSeason = !t.monthsOfYear || t.monthsOfYear.includes(s.date % 12);
         due = inSeason && ctx.rng.float() < t.hazard;
         // the guaranteed emergent beat (§2.1): the last month of that turn, if it has not fired by then
         if (!due && t.guaranteedByTurn === s.turn && s.subStep === 2 && !firedOnce(d)) due = true;
-      } else due = conditionHolds(s, t.condition);
+      } else due = conditionHolds(s, t.condition, villages);
       if (!due) continue;
       s.events.fired.push({ id: d.id, date: s.date });
       ev('event_fired', { event: d.id });

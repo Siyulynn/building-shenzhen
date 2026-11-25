@@ -419,7 +419,7 @@
     zh: "土地正在平整的村民为补偿上访。补足补偿要花钱；按原方案办，事情会往上反映。"
     en: "Villagers whose land is being formed petition over their compensation. Topping it up costs money; keeping to the plan lets the complaint go up the line."
   family: emergent
-  trigger: { hazard: 0.05, condition: site_preparation_committed, recurring: true }
+  trigger: { hazard: 0.05, condition: village_works, recurring: true }   # R9 (§5.8): only for the player's works
   card:
     interrupting: false
     lapse: noted                         # ignored, it is that choice
