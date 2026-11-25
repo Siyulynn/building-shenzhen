@@ -18,6 +18,7 @@ export interface SaveContent {
   targets_sha256: string;                                 // M5b, §5.8
   network_sha256: string;                                 // R2, b&c §13.2: content/slice/start_network.yaml
   gateways_sha256: string;                                // R8e, §5.12: content/slice/gateways.yaml (older headers lack it)
+  tools_sha256?: string;                                  // R9, §5.8: content/slice/tools.yaml (older headers lack it)
 }
 export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed: number; content: SaveContent }
 export interface Save { header: SaveHeader; body: { state: unknown; rng: RngState }; arrays: Record<string, Uint32Array> }

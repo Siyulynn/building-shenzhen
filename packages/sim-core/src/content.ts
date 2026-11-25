@@ -4,6 +4,7 @@
  */
 import { compileEvents, type EventContent } from './events.js';
 import { compileFiscal } from './fiscal.js';
+import { compileTools } from './gates.js';
 import { compileGateways } from './freight.js';
 import { compileInvestors } from './investors.js';
 import { compileLandCover, type LandCoverContent } from './landcover.js';
@@ -34,6 +35,7 @@ export const SLICE_FILES = Object.freeze({
   events: 'content/slice/events.yaml',
   targets: 'content/slice/targets.yaml',
   leaders: 'content/slice/leaders.yaml',
+  tools: 'content/slice/tools.yaml',               // R9 (§5.8): the tool gates
 });
 export type SliceFile = keyof typeof SLICE_FILES;
 
@@ -67,6 +69,7 @@ export function compileSlice(read: (path: string) => string, parse: (text: strin
   const fiscal = compileFiscal({ regimes: parse(text.regimes), projects: parse(text.projects), teams: parse(text.teams) }, params);
   const events = compileEvents(parse(text.events), params, investors, fiscal);
   const targets = compileTargets(parse(text.targets));
+  const gates = compileTools(parse(text.tools), events);
   const leaders = compileLeaders(parse(text.leaders));
   const sites = parse(text.sites);
   const network = compileStartNetwork(parse(text.network), sites, areas);
@@ -76,14 +79,14 @@ export function compileSlice(read: (path: string) => string, parse: (text: strin
     startSites,
     startNetwork: network,
     init: { scenario: parse(text.scenario) as ScenarioContent, areas, start: parse(text.start) as StartContent, params, leaders, events },
-    tick: { precedents, investors, buildable, landcover, fiscal, events, targets, network, gateways },
+    tick: { precedents, investors, buildable, landcover, fiscal, events, targets, network, gateways, gates },
     params,
     content: {
       areas_sha256: areas.areas_sha256, params_sha256: hash(text.params), precedents_sha256: hash(text.precedents),
       investors_sha256: hash(text.investors), landcover_sha256: hash(text.landcover),
       fiscal_sha256: hash([text.regimes, text.projects, text.teams].join('\n---\n')),
       events_sha256: hash(text.events), leaders_sha256: hash(text.leaders), targets_sha256: hash(text.targets),
-      network_sha256: hash(text.network), gateways_sha256: hash(text.gateways),
+      network_sha256: hash(text.network), gateways_sha256: hash(text.gateways), tools_sha256: hash(text.tools),
     },
   };
 }

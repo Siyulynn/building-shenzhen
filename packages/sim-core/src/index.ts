@@ -14,6 +14,7 @@ export * from './power.js';
 export * from './freight.js';
 export * from './fiscal.js';
 export * from './events.js';
+export * from './gates.js';
 export { gdpNow } from './systems/statistics.js';
 export { isOpeningBeat, openingBeats } from './opening.js';
 export * from './readiness.js';

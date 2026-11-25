@@ -28,6 +28,8 @@ export interface TickStep {
   afterAction?(state: GameState, action: PlayerAction): void;
   /** R8b (§5.3): whether an avenue touches these cells, for a high zone; the construction step gives it */
   avenueAt?: AvenueAt;
+  /** R9 (§5.8): why a turn action is refused before it applies (the tool gates); the events step gives it */
+  refuse?(state: GameState, action: PlayerAction): string | undefined;
 }
 
 export type StepResult =
@@ -76,6 +78,7 @@ const log = (s: GameState, action: PlayerAction) =>
 
 /** A turn action (§4, §5.1): validated, applied and logged. Exported for previews, which apply to a clone. */
 export function applyTurnAction(s: GameState, action: PlayerAction, steps: readonly TickStep[]): void {
+  for (const st of steps) { const why = st.refuse?.(s, action); if (why) throw new Error(why); }
   if (action.type === 'set_enforcement') {
     if (!(ENFORCEMENT_LEVELS as readonly string[]).includes(action.level)) throw new Error(`unknown enforcement ${action.level}`);
     s.policy.enforcement = action.level;

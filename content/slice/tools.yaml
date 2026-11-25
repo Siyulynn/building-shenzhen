@@ -1,0 +1,6 @@
+# The tool gates (docs/design/systems/phase1-slice.md §5.8, revision plan §4.4): for each gate, the unlock key that
+# opens it. step refuses a gated action while its key is unset; a gate not listed here is open. Keys are set only by
+# event `unlock` effects (content/slice/events.yaml); the rail shows a locked tool greyed with the event that opens it.
+# Gate ids: zone.<use>, zone.intensity.<tier>, road.<class>, structure.<kind>, formation.bulk, works.priority,
+# policy.enforcement, team.contract, power.buy.
+[]

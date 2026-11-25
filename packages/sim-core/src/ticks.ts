@@ -19,6 +19,7 @@ import { climate, reviews, type TargetContent } from './systems/reviews.js';
 import { zoning, type Precedent } from './zones.js';
 import type { LandCover } from './landcover.js';
 import { freightContent, type Gateway } from './freight.js';
+import { gateRefusal, type ToolContent } from './gates.js';
 
 /**
  * Content the tick reads, never stored in state (§5.3, §5.5, §5.6, §5.7). Without precedents no zone takes a
@@ -34,6 +35,7 @@ export interface TickContent {
   network?: StartNetwork;                        // R2 (b&c §13.2): with fiscal, enables works orders
   landcover?: LandCover;                         // R8a (§5.5): formation cost, compensation and bridges; buildable is its formable cells
   gateways?: readonly Gateway[];                 // R8d (§5.12): with params.freight and works.roads, freight limits firms and building
+  gates?: ToolContent;                           // R9 (§5.8): the tool gates; without them nothing is gated
 }
 
 /** Tick step 3: serviced shares (with the fiscal content), zone names, then investors look for sites (§5.3, §5.5, §5.6). */
@@ -78,7 +80,10 @@ export function createTickSteps(params: SliceParams, content: TickContent = {}):
     applyFiscalAction(s, params, fc, a, content.buildable);
     return true;
   } : undefined;
+  const gates = content.gates;
+  const refuse = gates?.length ? (s: GameState, a: PlayerAction) => gateRefusal(s, gates, a) : undefined;
   return Object.freeze(TICK_STEPS.map((st) => {
+    if (st.name === 'events' && refuse) return { name: st.name, run: impl.events ?? st.run, refuse };
     const run = impl[st.name];
     if (!run) return st;
     if (st.name === 'construction') return { name: st.name, run, ...worksHooks(wc) };
