@@ -6,7 +6,7 @@
 import {
   PRIORITIES, addObligation, liveProject, moneyForProjects, payProject, post, projectFunds, type Priority,
 } from './fiscal.js';
-import { FACILITY_STOCK, ROAD_CLASSES, type CellWorksParams, type RoadClass, type SliceParams, type StructureWorksParams, type WorksParams } from './params.js';
+import { FACILITY_STOCK, ROAD_CLASSES, intensityOf, type CellWorksParams, type RoadClass, type SliceParams, type StructureWorksParams, type WorksParams } from './params.js';
 import { roadClasses, setRoadClass, type FreightContent } from './freight.js';
 import type { StartNetwork } from './sites.js';
 import { cloneState, type GameState, type PlayerAction } from './state.js';
@@ -15,7 +15,7 @@ import {
   OFFERED_STRUCTURES, advanceCellWorks, checkPlacement, liveOrder, placeStructure, spatialViews, STRUCTURE_KINDS, type CellWork, type PathCell,
   type PlacedStructure, type StructureKind, type StructurePlacement, type WorksOrder,
 } from './works.js';
-import { cellsOfRuns } from './zones.js';
+import { cellsOfRuns, checkHigh, type AvenueAt } from './zones.js';
 import { coverFactors, landCoverAt, needsBridge, type LandCover, type LandCoverClass } from './landcover.js';
 
 export interface WorksContent {
@@ -68,7 +68,7 @@ function structureParams(w: WorksParams, kind: StructureKind, facility?: string)
 const cellRate = (c: CellWorksParams) => c.yuan_per_cell / c.units_per_cell;
 /** The order's yuan per unit, from params by its kind (§13.2). */
 function rateOf(o: WorksOrder, w: WorksParams): number {
-  if (o.kind === 'service') return cellRate(w.service);
+  if (o.kind === 'service') return cellRate(w.service) * (o.rateFactor ?? 1);
   if (o.kind === 'road') return cellRate(w.road);
   const sp = structureParams(w, o.placement!.kind, o.placement!.facility);
   return sp.yuan / sp.units;
@@ -163,6 +163,8 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
   if (!z) throw new Error(`no zone ${a.zone}`);
   const priority = checkPriority(a.priority);
   const inZone = cellsOfRuns(z.runs, s.grid);
+  if (z.intensity === 'high') checkHigh(s, inZone, avenueAt(wc));   // R8b (§5.3): the avenue may have gone since
+  const tier = intensityOf(wc.params.growth, z);
   const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
   for (const x of s.fiscal.projects) if (x.cells && liveProject(x)) for (const c of cellsOfRuns(x.cells, s.grid)) served.add(c);
   const roads = roadSet(s, wc.network), queued = queuedPath(s);
@@ -200,13 +202,15 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
     const w = works.get(c);
     if (w) { w.order = id; w.zone = z.id; units += w.workTotal - w.workDone; continue; }   // adopt a detached work
     // R8a (§5.5): the class scales the cell's units, so its money too, at the order's one rate
-    const u = Math.max(1, Math.round(wc.works.service.units_per_cell * coverFactors(wc.params, wc.landcover, c).cost));
+    // R8b (§5.3): the tier scales its work; the order's rate carries the tier's money per unit of that work
+    const u = Math.max(1, Math.round(wc.works.service.units_per_cell * coverFactors(wc.params, wc.landcover, c).cost * tier.formation_work));
     added.push({ cell: c, zone: z.id, workTotal: u, workDone: 0, stage: 'planned', order: id });
     units += u;
   }
   s.cellWorks = [...s.cellWorks, ...added].sort((x, y) => x.cell - y.cell);
   const o: WorksOrder = { id, kind: 'service', priority, paused: false, committed: s.date, stage: 'queued',
-    unitsTotal: units, unitsDone: 0, budget: 0, spent: 0, zone: z.id };
+    unitsTotal: units, unitsDone: 0, budget: 0, spent: 0, zone: z.id,
+    ...(tier.formation_cost !== tier.formation_work ? { rateFactor: tier.formation_cost / tier.formation_work } : {}) };
   o.budget = costTo(o, wc.works, units);
   s.worksOrders.push(o);
   requisition(s, wc, cells, `works.${id}`);
@@ -489,9 +493,17 @@ export function workArea(s: GameState, o: WorksOrder): number | undefined {
 // ---- the step hooks and the preview ----
 
 /** The construction step's act and afterAction for works (§13.2): present only with works params, fiscal and network. */
-export function worksHooks(wc: WorksContent | undefined): Pick<TickStep, 'act' | 'afterAction'> {
+/** Whether an avenue cell is 4-adjacent to one of the cells (§5.3): the check behind a high zone. */
+export const avenueAt = (wc: WorksContent): AvenueAt => (s, cells) => {
+  const k = roadClasses(s, wc.network), w = s.grid.width;
+  return cells.some((c) => [c - w, c + w, ...(c % w ? [c - 1] : []), ...((c + 1) % w ? [c + 1] : [])]
+    .some((n) => k.get(n) === 'avenue'));
+};
+
+export function worksHooks(wc: WorksContent | undefined): Pick<TickStep, 'act' | 'afterAction' | 'avenueAt'> {
   if (!wc) return {};
   return {
+    avenueAt: avenueAt(wc),
     act: (s, a) => { if (!isWorksAction(a)) return false; applyWorksAction(s, wc, a); return true; },
     afterAction: (s, a) => {
       if (a.type === 'edit_zone' || a.type === 'remove_zone') syncWorksToZones(s, wc);

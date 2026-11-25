@@ -4,7 +4,7 @@
  * page. The chrome shows one language; place labels (marked by place() in the views) read zh and en in both.
  */
 import {
-  ENFORCEMENT_LEVELS, LAND_USES, PERMIT_REGIMES, formatYM,
+  ENFORCEMENT_LEVELS, HIGH_INTENSITY_KEY, INTENSITIES, LAND_USES, PERMIT_REGIMES, formatYM,
   type Slice, type StartSite,
 } from '@sz/sim-core';
 import { unanswered, type Session, type UiError } from './controller.js';
@@ -144,13 +144,18 @@ export function renderFlyout(v: View): string {
   const formation = `<div class="hint"><b>${t(S.T.siteFormation)}:</b> ${t(S.T.formationHint)}</div>`;
   if (k === 'service') body += formation;
   if (k === 'zone') {
-    // R7 (§11.2): public is shown disabled with its reason; planGesture and sim-core still accept it until R8b
-    const uses = LAND_USES.filter((u) => u !== 'reserve').map((u) => u === 'public'
-      ? `<span class="off" title="${esc(pick(S.T.noPublicZone, v.lang))}"><button disabled>${t(S.LAND_USE[u]!)}</button></span>`
-      : `<button data-act="use" data-use="${u}" class="${ui.opts.use === u ? 'sel' : ''}"
+    // R8b (§11.2): public is gone; facilities are placed directly
+    const uses = LAND_USES.filter((u) => u !== 'reserve').map((u) => `<button data-act="use" data-use="${u}" class="${ui.opts.use === u ? 'sel' : ''}"
       style="border-left:6px solid rgba(${USE_COLOR[u]!.slice(0, 3).join(',')})">${t(S.LAND_USE[u]!)}</button>`).join('');
+    // R8b (§5.3): the intensity; high is shown disabled with its reason until it is unlocked
+    const tier = ui.opts.intensity ?? 'standard', highOpen = v.x.state.events.unlocked.includes(HIGH_INTENSITY_KEY);
+    const tiers = INTENSITIES.map((k) => k === 'high' && !highOpen
+      ? `<span class="off" title="${esc(pick(S.T.highLocked, v.lang))}"><button disabled>${t(S.INTENSITY[k]!)}</button></span>`
+      : `<button data-act="intensity" data-tier="${k}" class="${tier === k ? 'sel' : ''}">${t(S.INTENSITY[k]!)}</button>`).join('');
     const guides = (slice.tick.precedents ?? []).filter((p) => p.cells.length);
     body += `<div class="opts">${uses}</div>
+      <div class="muted">${t(S.T.intensity)}</div><div class="opts">${tiers}</div>
+      <div class="hint">${t(S.T.intensityHint)}</div>
       ${ui.opts.planOnly ? '' : formation}
       <label><input type="checkbox" data-ui="planOnly" ${ui.opts.planOnly ? 'checked' : ''}> ${t(S.T.planOnly)}</label>
       <label><input type="checkbox" data-ui="guide" ${ui.guide ? 'checked' : ''}> ${t(S.T.showGuide)}</label>

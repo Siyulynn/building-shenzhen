@@ -5,7 +5,7 @@
  * Deterministic: no draw.
  */
 import { SECTORS, USE_OF } from './enums.js';
-import type { GrowthParams, SliceParams } from './params.js';
+import { intensityOf, zonePowerKw, type GrowthParams, type SliceParams } from './params.js';
 import { largestRemainder } from './round.js';
 import type { StartNetwork } from './sites.js';
 import type { BlockStock, Cohort, GameState, OrganicBuilder, ServicePosts, Zone } from './state.js';
@@ -93,7 +93,7 @@ export function placedSupply(s: GameState, g: GrowthContent, counts: (f: GameSta
 /** A zone's room for organic floor (§13.3): developable cells × 10,000 m² × far, less what is built or building. */
 export function zoneRoomM2(s: GameState, z: Zone, cells: number, G: GrowthParams): number {
   if (!isGrowthUse(z.use) || cells === 0) return 0;
-  return Math.max(0, Math.floor(cells * CELL_M2 * G.far[z.use] - zoneBuiltM2(s, z.id)));
+  return Math.max(0, Math.floor(cells * CELL_M2 * G.far[z.use] * intensityOf(G, z).far - zoneBuiltM2(s, z.id)));
 }
 
 /**
@@ -211,8 +211,9 @@ export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): 
       if (z.use !== 'industrial') continue;
       const r = room(z);
       // a builder puts up no factory its area could not supply: every firm there open, this one too
-      if (r >= need && r > bestRoom && prospectiveShare(s, z.area, offer.powerKw, offer.waterM3Day,
-        placedSupply(s, g, () => true, { zone: z.id, kw: offer.powerKw, m3: offer.waterM3Day })) >= I.min_utility_share) {
+      const kw = zonePowerKw(G, z, offer.powerKw);   // R8b (§5.3): the tier's power, as createFirm will set it
+      if (r >= need && r > bestRoom && prospectiveShare(s, z.area, kw, offer.waterM3Day,
+        placedSupply(s, g, () => true, { zone: z.id, kw, m3: offer.waterM3Day })) >= I.min_utility_share) {
         best = z; bestRoom = r;
       }
     }

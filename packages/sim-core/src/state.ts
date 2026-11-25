@@ -1,7 +1,7 @@
 /** The slice's game state (phase1-slice.md §5, §5.1, §5.2). Later milestones add modules from their specs. */
 import {
   HOUSING_ARCHETYPES, POP_KINDS, REGISTRATION, SECTORS, USE_OF, isMigrant,
-  type BuildingArchetype, type Enforcement, type HousingArchetype, type LandUse, type MigrantKind, type Ownership,
+  type BuildingArchetype, type Enforcement, type HousingArchetype, type Intensity, type LandUse, type MigrantKind, type Ownership,
   type PermitRegime, type PopKind, type Sector,
 } from './enums.js';
 import { cloneFiscal, initialFiscal, type FiscalState, type Priority, type TeamMode } from './fiscal.js';
@@ -37,7 +37,7 @@ export interface PopGroup {
 
 // buildings §2.2, with the cohort's archetype and due month (M2), and its work counters and firm (M3b, §5.5)
 export type FloorUse = 'residential_rental' | 'residential_owner' | 'dormitory' | 'shop' | 'workshop' | 'factory'
-  | 'office' | 'warehouse' | 'public' | 'vacant';
+  | 'office' | 'warehouse' | 'vacant';
 export type Stage = 'planned' | 'under_construction' | 'stalled' | 'completed' | 'demolished';
 export type Legality = 'permitted' | 'unpermitted_tolerated' | 'marked_illegal' | 'condemned';
 export type BlockEventKind = 'start' | 'complete' | 'add_floors' | 'change_use' | 'stall' | 'resume' | 'demolish'
@@ -91,6 +91,7 @@ export interface Zone {
   area: number;               // the playable area holding most of its cells (ties: lower id)
   created: YM;
   template?: string;          // the precedent it was applied from: a record of what the player did
+  intensity?: Intensity;      // R8b (§5.3): absent = standard
   servicedShare?: number;     // §5.5 hook: the share of its buildable cells serviced (三通一平), 0–1; absent = 1. Set by M4
   name: ZoneName;
 }
@@ -141,8 +142,8 @@ export type PlayerAction =
   | { type: 'answer_card'; instance: string; option: string }
   | { type: 'set_enforcement'; level: Enforcement }
   | { type: 'set_permit_regime'; regime: PermitRegime }
-  | { type: 'create_zone'; use: LandUse; runs: CellRuns; template?: string }
-  | { type: 'edit_zone'; zone: number; add?: CellRuns; remove?: CellRuns; use?: LandUse }
+  | { type: 'create_zone'; use: LandUse; runs: CellRuns; template?: string; intensity?: Intensity }
+  | { type: 'edit_zone'; zone: number; add?: CellRuns; remove?: CellRuns; use?: LandUse; intensity?: Intensity }
   | { type: 'remove_zone'; zone: number }
   | { type: 'rename_zone'; zone: number; name: LocalizedString | null }
   // M4 (§5.6): owned by the finance step

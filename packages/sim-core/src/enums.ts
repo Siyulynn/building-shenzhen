@@ -45,9 +45,14 @@ export const ENFORCEMENT_LEVELS = ['low', 'medium', 'high'] as const;
 export type PermitRegime = (typeof PERMIT_REGIMES)[number];
 export type Enforcement = (typeof ENFORCEMENT_LEVELS)[number];
 
-/** Zone uses (phase1-slice.md §5.3): buildings §2.2's plannedUse. */
-export const LAND_USES = ['industrial', 'residential', 'commercial', 'public', 'reserve'] as const;
+/** Zone uses (phase1-slice.md §5.3): buildings §2.2's plannedUse. R8b dropped `public`: facilities are placed directly. */
+export const LAND_USES = ['industrial', 'residential', 'commercial', 'reserve'] as const;
 export type LandUse = (typeof LAND_USES)[number];
+/** Zone intensity (§5.3, R8b): absent on a zone means standard. */
+export const INTENSITIES = ['low', 'standard', 'high'] as const;
+export type Intensity = (typeof INTENSITIES)[number];
+/** The unlock key that offers `high` (§5.3); the SEZ beat sets it in Pass 3. */
+export const HIGH_INTENSITY_KEY = 'intensity.high';
 
 /** Firm ownership (§5.5, §5.7): the first two before the SEZ; joint ventures, foreign and overseas Chinese firms with it. */
 export const OWNERSHIPS = ['hk_processing', 'inland_soe', 'joint_venture', 'foreign_owned', 'overseas_chinese'] as const;

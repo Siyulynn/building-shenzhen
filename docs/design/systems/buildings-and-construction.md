@@ -302,6 +302,7 @@ interface WorksOrder {        // GameState.worksOrders, id order; ids from GameS
   committed: YM; completed?: YM;
   stage: 'queued' | 'working' | 'done' | 'cancelled';
   waiting?: 'paused' | 'capacity' | 'finance' | 'access' | 'frozen';   // this month's reason it got less than its pace
+  rateFactor?: number;                     // service, R8b (phase1-slice §5.3): the zone tier's cost ÷ work, times the yuan per unit; absent = 1
   unitsTotal: number; unitsDone: number;   // integer work units; unitsTotal shrinks only when cells are cancelled
   budget: number; spent: number;           // yuan; spent is sunk, budget − spent the commitment
   zone?: number;                           // service: its cells are the CellWork records with this order id

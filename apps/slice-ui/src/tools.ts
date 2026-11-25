@@ -5,7 +5,7 @@
  */
 import {
   applyTurnAction, cellsOfRuns, expandPath, liveOrder, playableAreaOf, previewWorks, runsOfCells, templateZoneAction,
-  type CellRuns, type GameState, type LandUse, type PlayerAction, type RoadClass, type Precedent, type WorksEstimate,
+  type CellRuns, type GameState, type Intensity, type LandUse, type PlayerAction, type RoadClass, type Precedent, type WorksEstimate,
 } from '@sz/sim-core';
 import { dequeue, enqueue, type Session } from './controller.js';
 import * as S from './strings.js';
@@ -16,7 +16,11 @@ export const TOOLS = ['select', 'road', 'zone', 'service', 'erase', 'power', 'st
 export type Tool = (typeof TOOLS)[number];
 /** The tools that build: off while a card interrupts the quarter, and after the end. */
 export const BUILD_TOOLS: readonly Tool[] = ['road', 'zone', 'service', 'erase', 'power', 'station', 'facility'];
-export interface ToolOptions { use: LandUse; planOnly: boolean; facility: string; roadClass?: RoadClass }   // R8d: absent = street
+export interface ToolOptions {
+  use: LandUse; planOnly: boolean; facility: string;
+  roadClass?: RoadClass;    // R8d: absent = street
+  intensity?: Intensity;    // R8b: absent = standard
+}
 export type XY = readonly [number, number];
 /** A press at `from` and a release at `to`; a click has the two equal. */
 export interface Gesture { tool: Tool; from: XY; to: XY }
@@ -203,7 +207,8 @@ export function planGesture(x: Session, o: ToolOptions, g: Gesture): Plan {
   if (!onGrid(s, g.from) || !onGrid(s, g.to)) return refused(S.T.refused, 'off the map');
   switch (g.tool) {
     case 'zone':
-      return zonePlan(x, o, { type: 'create_zone', use: o.use, runs: previewZone(s, x.queue, g.from[0], g.from[1], g.to[0], g.to[1]) });
+      return zonePlan(x, o, { type: 'create_zone', use: o.use, runs: previewZone(s, x.queue, g.from[0], g.from[1], g.to[0], g.to[1]),
+        ...(o.intensity && o.intensity !== 'standard' ? { intensity: o.intensity } : {}) });
     case 'road': {
       const path = roadWaypoints(g.from, g.to);
       const cls = o.roadClass && o.roadClass !== 'street' ? { class: o.roadClass } : {};

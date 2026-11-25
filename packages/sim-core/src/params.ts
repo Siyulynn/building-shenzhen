@@ -1,5 +1,5 @@
 /** params/slice.yaml, parsed (phase1-slice.md §5.2, §8). Validated once; never stored in GameState. */
-import type { Enforcement, HousingArchetype, MigrantKind, Ownership, PermitRegime, PopKind, Sector } from './enums.js';
+import type { Enforcement, HousingArchetype, Intensity, MigrantKind, Ownership, PermitRegime, PopKind, Sector } from './enums.js';
 import { ENFORCEMENT_LEVELS, HOUSING_ARCHETYPES, MIGRANT_KINDS, OWNERSHIPS, PERMIT_REGIMES, POP_KINDS, SECTORS } from './enums.js';
 
 export interface SliceParams {
@@ -121,7 +121,14 @@ export interface GrowthParams {
   residential: { min_crowding: number };
   village_shops: { m2_per_job: number };
   land_cover?: LandCoverParams;          // R8a (phase1-slice §5.5): absent = every cell at factor 1, no compensation
+  intensity?: Record<Intensity, IntensityFactors>;   // R8b (phase1-slice §5.3): absent = every tier at factor 1
 }
+/** A zone intensity's multiples (§5.3): of the FAR, of a cell's formation money and work, and of a sited firm's power. */
+export interface IntensityFactors { far: number; formation_cost: number; formation_work: number; power: number }
+const UNIT_INTENSITY: IntensityFactors = { far: 1, formation_cost: 1, formation_work: 1, power: 1 };
+/** The factors of a zone's tier (§5.3); no zone, no tier or no params block gives 1s. */
+export const intensityOf = (G: GrowthParams | undefined, z?: { intensity?: Intensity }): IntensityFactors =>
+  G?.intensity?.[z?.intensity ?? 'standard'] ?? UNIT_INTENSITY;
 /** Per formable land-cover class (§5.5): formation cost and compensation, both multiples of works.service. */
 export interface LandCoverParams {
   upland: LandCoverFactor; lowland_farm: LandCoverFactor; pond: LandCoverFactor; town: LandCoverFactor;
@@ -156,6 +163,17 @@ function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
   }
   if (!(g.residential?.min_crowding >= 0)) throw new Error('params: growth.residential.min_crowding must be >= 0');
   if (!pos(g.village_shops?.m2_per_job)) throw new Error('params: growth.village_shops.m2_per_job must be > 0');
+  if (g.intensity !== undefined) {
+    need(g.intensity as unknown as Record<string, unknown>, ['low', 'standard', 'high'], 'growth.intensity');
+    for (const [k, v] of Object.entries(g.intensity)) {
+      for (const f of ['far', 'formation_cost', 'formation_work', 'power'] as const) {
+        if (!pos(v?.[f])) throw new Error(`params: growth.intensity.${k}.${f} must be > 0`);
+      }
+    }
+    for (const f of ['far', 'formation_cost', 'formation_work', 'power'] as const) {
+      if (g.intensity.standard[f] !== 1) throw new Error(`params: growth.intensity.standard.${f} must be 1`);
+    }
+  }
   if (g.land_cover !== undefined) {
     need(g.land_cover as unknown as Record<string, unknown>, ['upland', 'lowland_farm', 'pond', 'town'], 'growth.land_cover');
     for (const [k, f] of Object.entries(g.land_cover)) {
@@ -473,3 +491,7 @@ function validateFiscalParams(p: SliceParams): void {
   for (const k of SECTORS) if (!(p.gdp.base_va_per_job_month[k] >= 0)) throw new Error(`params: gdp.base_va_per_job_month.${k} must be >= 0`);
   if (!(p.gdp.construction_va_ratio >= 0 && p.gdp.construction_va_ratio <= 1)) throw new Error('params: gdp.construction_va_ratio must be in [0, 1]');
 }
+
+/** A sited firm's power in its zone (§5.3, R8b): the offer's kW × the zone tier's power factor, rounded. */
+export const zonePowerKw = (G: GrowthParams | undefined, z: { intensity?: Intensity } | undefined, kw: number): number =>
+  !z?.intensity || z.intensity === 'standard' ? kw : Math.round(kw * intensityOf(G, z).power);

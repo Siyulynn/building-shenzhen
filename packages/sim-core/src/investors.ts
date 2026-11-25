@@ -4,7 +4,7 @@
  * investors and the deal-maker's shortcut card. The preview is a pure function (fiscal §7.2).
  */
 import { OWNERSHIPS, type Ownership } from './enums.js';
-import type { SliceParams } from './params.js';
+import { intensityOf, type SliceParams } from './params.js';
 import type { AreasContent, CardInstance, FirmTerms, GameState, LocalizedString, Zone } from './state.js';
 import type { TickContext } from './step.js';
 import { createFirm, firmTerms, sizeOffer, type FirmOffer } from './systems/industry.js';
@@ -84,7 +84,7 @@ export const archetypeAvailable = (s: GameState, a: InvestorArchetype) => !a.req
 export function zoneCapacityM2(s: GameState, z: Zone, p: SliceParams, buildable?: Buildable, raw = false): number {
   const cells = cellsOfRuns(z.runs, s.grid);
   const n = buildable ? cells.filter((c) => has(buildable.cells, c)).length : cells.length;
-  return n * (raw ? 1 : z.servicedShare ?? 1) * CELL_M2 * p.industry.max_far;
+  return n * (raw ? 1 : z.servicedShare ?? 1) * CELL_M2 * p.industry.max_far * intensityOf(p.growth, z).far;   // R8b: × the tier
 }
 /** The floor and dormitory area of the firms sited in a zone, and of the organic cohorts built in it (b&c §13.3). */
 export const zoneUsedM2 = (s: GameState, zone: number) => zoneBuiltM2(s, zone);   // R3: its organic cohorts too

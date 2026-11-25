@@ -3,7 +3,7 @@
  * explicit entities with stable ids. A zone close enough to a historical zone (a precedent) in location, purpose and
  * scale takes its name. Names are labels: nothing in the economy reads them.
  */
-import { LAND_USES, type LandUse } from './enums.js';
+import { HIGH_INTENSITY_KEY, INTENSITIES, LAND_USES, type Intensity, type LandUse } from './enums.js';
 import type { SliceParams } from './params.js';
 import type { CellRuns, GameState, LocalizedString, PlayerAction, Zone } from './state.js';
 import type { TickContext } from './step.js';
@@ -102,8 +102,30 @@ function setCells(s: GameState, z: Zone, cells: readonly number[]): void {
 const ZONE_ACTIONS: readonly string[] = ['create_zone', 'edit_zone', 'remove_zone', 'rename_zone'];
 export const isZoneAction = (a: PlayerAction): boolean => ZONE_ACTIONS.includes(a.type);
 
+/** Checks a tier (§5.3): a known one, and for high the unlock key and, through `avenueAt`, an avenue beside the cells. */
+function checkIntensity(s: GameState, k: unknown, cells: readonly number[], avenueAt?: AvenueAt): Intensity {
+  if (!(INTENSITIES as readonly unknown[]).includes(k)) throw new Error(`unknown intensity ${String(k)}`);
+  if (k === 'high') checkHigh(s, cells, avenueAt);
+  return k as Intensity;
+}
+/** Whether an avenue cell is 4-adjacent to one of these cells; the construction step gives it, from the road network. */
+export type AvenueAt = (s: GameState, cells: readonly number[]) => boolean;
+/** High intensity's two conditions (§5.3), each refused with its reason. Exported for commit_works. */
+export function checkHigh(s: GameState, cells: readonly number[], avenueAt?: AvenueAt): void {
+  if (!s.events.unlocked.includes(HIGH_INTENSITY_KEY)) throw new Error('high intensity is not available yet');
+  if (!avenueAt) throw new Error('high intensity needs the road network to check its avenue');
+  if (!avenueAt(s, cells)) throw new Error('high intensity needs an avenue beside the zone');
+}
+
+/** Whether any of the zone's cells is serviced or has site-formation works (§5.3). */
+function formedIn(s: GameState, zone: number, cells: readonly number[]): boolean {
+  if (s.cellWorks.some((w) => w.zone === zone)) return true;
+  const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
+  return cells.some((c) => served.has(c));
+}
+
 /** Apply one zone action (§5.3). Throws on an invalid one, changing nothing; the caller logs a valid one. */
-export function applyZoneAction(s: GameState, a: PlayerAction): void {
+export function applyZoneAction(s: GameState, a: PlayerAction, avenueAt?: AvenueAt): void {
   const find = (id: number) => {
     const z = s.zones.find((x) => x.id === id);
     if (!z) throw new Error(`no zone ${id}`);
@@ -116,8 +138,10 @@ export function applyZoneAction(s: GameState, a: PlayerAction): void {
       if (!cells.length) throw new Error('a zone needs at least one cell');
       checkPlaceable(s, cells);
       if (a.template !== undefined && typeof a.template !== 'string') throw new Error('a zone template must be a precedent id');
+      const k = a.intensity !== undefined ? checkIntensity(s, a.intensity, cells, avenueAt) : undefined;
       const z: Zone = { id: s.nextZoneId, use, runs: [], cellCount: 0, area: 0, created: s.date,
-        ...(a.template !== undefined ? { template: a.template } : {}), name: { kind: 'generic' } };
+        ...(a.template !== undefined ? { template: a.template } : {}), ...(k && k !== 'standard' ? { intensity: k } : {}),
+        name: { kind: 'generic' } };
       setCells(s, z, cells);
       s.nextZoneId += 1;
       s.zones.push(z);
@@ -133,7 +157,16 @@ export function applyZoneAction(s: GameState, a: PlayerAction): void {
       const cells = [...current, ...added].filter((c) => !removed.has(c)).sort((x, y) => x - y);
       if (!cells.length) throw new Error(`the edit would leave zone ${z.id} empty: remove it instead`);
       const use = a.use !== undefined ? checkUse(a.use) : z.use;
+      const k = a.intensity !== undefined ? a.intensity : z.intensity ?? 'standard';
+      // a high zone's cells are rechecked on every edit: it must still touch an avenue
+      if (a.intensity !== undefined || k === 'high') checkIntensity(s, k, cells, avenueAt);
+      // formation is priced at the tier in force: a zone with formed or forming land may not be raised (§5.3)
+      const rank = (t: Intensity) => INTENSITIES.indexOf(t);
+      if (rank(k) > rank(z.intensity ?? 'standard') && formedIn(s, z.id, current)) {
+        throw new Error(`zone ${z.id} has formed land: its intensity can no longer be raised`);
+      }
       z.use = use;
+      if (k === 'standard') delete z.intensity; else z.intensity = k;
       setCells(s, z, cells);
       return;
     }
@@ -286,7 +319,6 @@ const USE_LABEL: Record<LandUse, LocalizedString> = {
   industrial: { zh: '工业区', en: 'industrial zone' },
   residential: { zh: '居住区', en: 'residential zone' },
   commercial: { zh: '商业区', en: 'commercial zone' },
-  public: { zh: '公共用地', en: 'public land' },
   reserve: { zh: '储备用地', en: 'reserve land' },
 };
 

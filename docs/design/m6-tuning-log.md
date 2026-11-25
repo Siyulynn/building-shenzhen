@@ -183,3 +183,14 @@ The numbers are those of commit 2b1d766 (seed 1, end-1983).
 
 - Default and decline_all move only `params_sha256`.
 - historical_prologue and aggressive pass all 20 bands.
+
+### R8b: no public zone, and the zone intensity
+
+**What changed:**
+- `public` left `LAND_USES` and the zones flyout.
+- Zones gained `intensity` (low, standard, high), absent meaning standard.
+- The tier factors are in `growth.intensity` (phase1-slice §5.3).
+
+**Deviation from plan §3.2:** low's formation cost is ×0.7, not ×0.5. At 0.5, low was the cheapest per m² of floor in money, work and power at once. At 0.7, high is the cheapest in money, low in power, and the two tie in work. A test holds this.
+
+**Effect on the goldens:** none, beyond `params_sha256`. No map plan or policy sets a tier, and no content unlocks `high`. Residents, GDP and every band are unchanged in all five runs. The tiers become a lever only when a player or a later plan chooses one.

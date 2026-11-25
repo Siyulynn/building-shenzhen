@@ -3,7 +3,7 @@
  * production in tick step 6. output = min(orders, staffed, floor, utilities): staffed ≤ posted ≤ each cap.
  */
 import { BUILDER_OF, USE_OF, type Ownership } from '../enums.js';
-import type { SliceParams } from '../params.js';
+import { zonePowerKw, type SliceParams } from '../params.js';
 import { poolShares } from '../power.js';
 import { largestRemainder } from '../round.js';
 import type { Firm, FirmTerms, GameState, JobRow } from '../state.js';
@@ -67,7 +67,9 @@ export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site:
     id: s.nextFirmId, archetype: offer.archetype, ownership: offer.ownership, sector: 'factory',
     area: site.area, ...(site.premises === 'new_factory' ? { zone: site.zone } : {}), premises: site.premises,
     jobs: offer.jobs, floorM2: existing ? 0 : offer.floorM2, dormM2: existing ? 0 : offer.dormM2,
-    powerKw: offer.powerKw, waterM3Day: offer.waterM3Day,
+    // R8b (§5.3): a firm built in a zone draws the zone tier's power
+    powerKw: site.premises === 'new_factory' ? zonePowerKw(p.growth, s.zones.find((z) => z.id === site.zone), offer.powerKw) : offer.powerKw,
+    waterM3Day: offer.waterM3Day,
     accepted: s.date, ...(existing ? { opens: s.date + 1 } : {}),
     posted: 0, staffed: 0, output: 0,
     ...(terms ? { terms } : {}),

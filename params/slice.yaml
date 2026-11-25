@@ -198,6 +198,11 @@ growth:                                  # R3 organic growth (buildings-and-cons
   build_months: 6                        # a shop or dormitory cohort's months of work
   spend_share: 0.4                       # share of wages spent in the slice
   far: { industrial: 1.0, commercial: 1.5, residential: 1.5 }   # floor m² per m² of developable land
+  intensity:                             # R8b (phase1-slice §5.3): a zone tier's multiples. Placeholders, design_note:
+                                         # set so no tier is cheapest per m² of floor in money, work and power at once
+    low:      { far: 0.6, formation_cost: 0.7, formation_work: 0.5, power: 0.8 }
+    standard: { far: 1.0, formation_cost: 1.0, formation_work: 1.0, power: 1.0 }
+    high:     { far: 1.8, formation_cost: 1.6, formation_work: 1.5, power: 1.3 }
   industrial:                            # small Hong Kong processing firms that build and occupy their own premises
     archetype: organic.small_processing  # the firms' archetype id; not an investor card
     firm: { dorm_beds_per_job: 0.3, build_months: 6, ramp_months: 3 }   # as an investors.archetypes entry

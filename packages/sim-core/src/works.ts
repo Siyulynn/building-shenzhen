@@ -56,6 +56,7 @@ export interface WorksOrder {
   unitsTotal: number; unitsDone: number;   // integer work units; unitsTotal shrinks only when cells are cancelled or detached
   budget: number; spent: number;           // yuan; spent is sunk, budget − spent the commitment
   zone?: number;                           // service
+  rateFactor?: number;                     // service, R8b (§5.3): its tier's cost ÷ work, times the yuan per unit; absent = 1
   path?: PathCell[];                       // road: build order, nearest the network first
   placement?: StructurePlacement;          // structure
 }

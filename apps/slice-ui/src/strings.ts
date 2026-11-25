@@ -35,7 +35,7 @@ export const AREA = l('片区', 'Area');
 
 export const LAND_USE: Readonly<Record<string, L>> = {
   industrial: l('工业', 'Industrial'), residential: l('居住', 'Residential'), commercial: l('商业', 'Commercial'),
-  public: l('公共', 'Public'), reserve: l('储备', 'Reserve'),
+  reserve: l('储备', 'Reserve'),
 };
 export const ENFORCEMENT: Readonly<Record<string, L>> = { low: l('低', 'Low'), medium: l('中', 'Medium'), high: l('高', 'High') };
 export const PERMIT: Readonly<Record<string, L>> = { loose: l('宽松', 'Loose'), standard: l('一般', 'Standard'), strict: l('严格', 'Strict') };
@@ -95,6 +95,8 @@ export const STRUCTURE: Readonly<Record<string, L>> = {
 };
 export const FACILITY: Readonly<Record<string, L>> = { school: l('学校', 'School') };
 /** R8d (§5.12): the road tiers. */
+/** R8b (§5.3): zone intensity tiers. */
+export const INTENSITY: Readonly<Record<string, L>> = { low: l('低', 'Low'), standard: l('标准', 'Standard'), high: l('高', 'High') };
 export const ROAD_CLASS: Readonly<Record<string, L>> = { track: l('土路', 'Track'), street: l('街道', 'Street'), avenue: l('大道', 'Avenue') };
 /** A cell's works stage, and the stage of a zoned cell with no works. */
 export const WORK_STAGE: Readonly<Record<string, L>> = {
@@ -276,7 +278,11 @@ export const T = {
   siteFormation: l('三通一平', 'Site formation'),
   formationHint: l('清场、平整、内部道路，以及地块边上的接水接电。这些已经包含在内，不必另外建设。',
     'Clearing, levelling, internal lanes, and the water and power connection at the plot edge. Already included — you do not build these separately.'),
-  noPublicZone: l('公共建筑直接放置，没有公共用地区块。', 'Public buildings are placed directly; there is no public zone.'),
+  // R8b (§5.3): the zone intensity
+  intensity: l('开发强度', 'Intensity'),
+  intensityHint: l('低强度：每平方米楼面最省电，但占地最多。高强度：每平方米最省钱，但需要大道。',
+    'Low: the least power per m² of floor, but the most land. High: the least money per m², and it needs an avenue.'),
+  highLocked: l('高强度尚未开放，需要特区政策。', 'High intensity is not available yet: it comes with the zone policy.'),
   // R7 (§11.2): the money committed and the funds left after it
   committed: l('已承诺未支出', 'Committed'), afterCommitments: l('承诺之后的项目资金', 'Funds after commitments'),
   commitmentsHint: l('已承诺未支出：在建工程、项目和本回合排队的指令，加上本季度到期的一次性支出 · 扣除之后可用于项目的资金',

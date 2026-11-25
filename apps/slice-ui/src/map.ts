@@ -83,7 +83,7 @@ function hash(c: number, k: number): number {
   h = Math.imul(h ^ (h >>> 13), 1274126177);
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 }
-const ROOF: Record<string, string> = { industrial: '#c98a55', commercial: '#d46a8e', residential: '#e8d27a', public: '#7ea6dd' };
+const ROOF: Record<string, string> = { industrial: '#c98a55', commercial: '#d46a8e', residential: '#e8d27a' };
 /** A cell at least this many screen pixels wide is core zoom. */
 export const CORE_ZOOM_PX = 14;
 

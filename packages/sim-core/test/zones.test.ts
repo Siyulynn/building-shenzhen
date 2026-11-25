@@ -42,7 +42,7 @@ describe('M3a precedents', () => {
     expect(P('bagualing_industrial').centroid).toBeNull();
     const s = initial();
     expect(new Set(P('shangbu_industrial').cells.map((c) => playableAreaOf(s, c)))).toEqual(new Set([7]));
-    const edge = compilePrecedents([{ id: 'p.edge', kind: 'zone', name: { zh: '边', en: 'Edge' }, use: 'public',
+    const edge = compilePrecedents([{ id: 'p.edge', kind: 'zone', name: { zh: '边', en: 'Edge' }, use: 'reserve',
       geometry: { kind: 'square', cell: [0, 0], side: 6 } }], areasJson);
     expect(edge[0]!.cells).toHaveLength(16);                       // x and y 0..3: the rest is off the grid
   });
@@ -110,7 +110,7 @@ describe('M3a zone validity', () => {
     const s1 = month(s0, [create(SHANGBU_SQUARE)]);
     expect(() => step(s1, [create(rect(354, 356, 370, 371))], new Rng(1), STEPS)).toThrow(/another zone/);
     expect(() => step(s1, [{ type: 'edit_zone', zone: 1, remove: SHANGBU_SQUARE }], new Rng(1), STEPS)).toThrow(/empty/);
-    expect(() => step(s1, [{ type: 'edit_zone', zone: 9, use: 'public' }], new Rng(1), STEPS)).toThrow(/no zone 9/);
+    expect(() => step(s1, [{ type: 'edit_zone', zone: 9, use: 'reserve' }], new Rng(1), STEPS)).toThrow(/no zone 9/);
     expect(() => step(s1, [{ type: 'remove_zone', zone: 9 }], new Rng(1), STEPS)).toThrow(/no zone 9/);
     expect(() => step(s1, [{ type: 'rename_zone', zone: 1, name: { zh: '', en: 'X' } }], new Rng(1), STEPS)).toThrow(/zh and en/);
     // an edit may not take another zone's cells, and a refused action changes nothing

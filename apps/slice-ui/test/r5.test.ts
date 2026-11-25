@@ -261,20 +261,20 @@ describe('R5: the limiting constraint at a cell, and the change at the next turn
     expect(renderBriefing({ ...v, lang: 'zh' })).toContain(T.heldBackArea.zh);
   });
 
-  it('a serviced public block is active; a serviced residential block reads its area crowding', () => {
+  it('a serviced reserve block (a use with no growth, as public was) is active; a serviced residential block reads its area crowding', () => {
     let x = answered(newSession(slice));
     expect(icrCue(x.state, slice).c.low).toBe(true);                 // before any quarter, formal induced jobs are nil
     const [bx, by] = guangshenBlock(x.state);
-    x = applyPlan(x, ok(gesture(x, { tool: 'zone', from: [bx, by], to: [bx + 2, by + 2] }, { ...OPTS, use: 'public' })));
+    x = applyPlan(x, ok(gesture(x, { tool: 'zone', from: [bx, by], to: [bx + 2, by + 2] }, { ...OPTS, use: 'reserve' })));
     const [rx, ry] = guangshenBlock(x.state, (cx, cy) => cy < by - 3 || cy > by + 3);   // a second block beside the road, clear of the first
     x = applyPlan(x, ok(gesture(x, { tool: 'zone', from: [rx, ry], to: [rx + 2, ry] }, { ...OPTS, use: 'residential' })));
     const y = endQuarter(x);
     const k = constraintContext(y.state, slice);
     const served = (use: string) => [...k.served].filter((c) => k.zoneAt.get(c)?.use === use);
-    expect(served('public').length).toBeGreaterThan(0);
-    for (const c of served('public')) expect(held(y, c)).toBe('active');
+    expect(served('reserve').length).toBeGreaterThan(0);
+    for (const c of served('reserve')) expect(held(y, c)).toBe('active');
     const G = slice.params.growth!;
-    let z = y;                                        // the residential order runs after the public one
+    let z = y;                                        // the residential order runs after the reserve one
     while (![...constraintContext(z.state, slice).served].some((c) => constraintContext(z.state, slice).zoneAt.get(c)?.use === 'residential') && z.state.turn < 4) z = endQuarter(z);
     const kz = constraintContext(z.state, slice);
     const crowding = kz.crowding.get(1) ?? 0;

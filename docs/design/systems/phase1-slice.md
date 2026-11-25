@@ -36,7 +36,7 @@ One simulation cell is **100 m × 100 m (1 ha)** at every zoom. The 931 × 686 r
 
 The player plans a quarter on the map, previews its cost and crew time, then advances **three monthly steps**. A typical decision is whether to connect and service another industrial block or spend that crew-quarter on homes or a water source. The next quarter should show *where* work finished, which premises filled, and which constraint held the rest back.
 
-- **Plan.** Paint industrial, residential, commercial or public land; replace or cancel unworked cells. Developed settlements are existing stock, not freely erasable zoning. Lay outbound roads and place trunk utilities, facilities and approved landmarks. Internal lanes and distribution hookups are municipal work. A master plan such as Shangbu is a guide: showing it creates no order, reservation or bill. Only the cells the player commits enter the queue.
+- **Plan.** Paint industrial, residential, commercial or reserve land, at an intensity (R8b); replace or cancel unworked cells. Developed settlements are existing stock, not freely erasable zoning. Lay outbound roads and place trunk utilities, facilities and approved landmarks. Internal lanes and distribution hookups are municipal work. A master plan such as Shangbu is a guide: showing it creates no order, reservation or bill. Only the cells the player commits enter the queue.
 - **Build.** Each queued cell goes `planned → servicing → serviced`. Crews consume funded work on clearing, levelling, internal streets and hookups over months. Finish accessible frontage before advancing inward; break equal priorities by queue order then cell index. The first finished cell can develop while its neighbours wait. Show progress, pause and remaining cost by cell; record sunk work separately from future commitments.
 - **Occupy.** On serviced, reachable land, ordinary private or public builders respond to policy and demand without a decision card. Industrial demand draws on orders and access; worker spending supports commercial premises; housing pressure attracts dormitories and flats. Existing villages can add rental floor and shops without a municipal servicing order. Keep cards for exceptional deals, major works, policy, crises and reviews.
 - **Employ and finance.** Occupied floor and utility supply limit operating jobs; active builds post construction jobs. Match reachable vacancies after keeping incumbents. Wage income supports service jobs; vacancies pull migrants, who need beds. Crowding and tolerated additions carry review and fire costs. Taxes and land receipts compete with maintenance, payroll and debt. Headless comparisons must distinguish planned area from occupied floor and approved projects from active work.
@@ -183,7 +183,7 @@ In the prologue the actions unlock one beat at a time (§2.1). From the SEZ's es
 
 | Action | System | Notes |
 |---|---|---|
-| Draw, edit, rename or remove zones (industrial, residential, commercial, public, reserve) on any playable cells; view the historical zone template, or apply one of its zones | §5.3, buildings §3.1 | Zoning is free. The plan guides investors and city builders (M3b) but does not bind village households. A zone close enough to a historical one in location, purpose and scale takes its name (§5.3) |
+| Draw, edit, rename or remove zones (industrial, residential, commercial, reserve; R8b dropped public) at an intensity, on any playable cells; view the historical zone template, or apply one of its zones | §5.3, buildings §3.1 | Zoning is free. The plan guides investors and city builders (M3b) but does not bind village households. A zone close enough to a historical one in location, purpose and scale takes its name (§5.3) |
 | Lease a parcel by allocation or negotiation | fiscal §5 | Leasing to outside investors opens with the SEZ; land-use fees follow the 1981 regulations. Auctions are locked in the slice |
 | Build a road, water main, power line, school, clinic or police post | fiscal §6.2, §6.1 | Creates a project, then obligations once it is finished |
 | Accept or decline an investor card | §6.5 | Shows the partial-equilibrium preview (fiscal §7.2). Before the SEZ, only a few kinds of investor can be accepted (§6.5) |
@@ -257,8 +257,8 @@ type PlayerAction =
   | { type: 'answer_card'; instance: string; option: string }
   | { type: 'set_enforcement'; level: 'low' | 'medium' | 'high' }           // M2, §4
   | { type: 'set_permit_regime'; regime: 'loose' | 'standard' | 'strict' }  // M2, §4
-  | { type: 'create_zone'; use: LandUse; runs: CellRuns; template?: string } // M3a, §5.3
-  | { type: 'edit_zone'; zone: number; add?: CellRuns; remove?: CellRuns; use?: LandUse }
+  | { type: 'create_zone'; use: LandUse; runs: CellRuns; template?: string; intensity?: Intensity } // M3a, §5.3; R8b intensity
+  | { type: 'edit_zone'; zone: number; add?: CellRuns; remove?: CellRuns; use?: LandUse; intensity?: Intensity }
   | { type: 'remove_zone'; zone: number }
   | { type: 'rename_zone'; zone: number; name: { zh: string; en: string } | null };   // later milestones add kinds
 interface ActionLogEntry { date: YM; subStep: 0 | 1 | 2; action: PlayerAction }
@@ -472,7 +472,8 @@ Names are labels. They appear in cards, the briefing and the encyclopedia, and n
 
 **State added by M3a.**
 ```ts
-type LandUse = 'industrial' | 'residential' | 'commercial' | 'public' | 'reserve';   // buildings §2.2's plannedUse
+type LandUse = 'industrial' | 'residential' | 'commercial' | 'reserve';   // buildings §2.2's plannedUse; R8b dropped 'public'
+type Intensity = 'low' | 'standard' | 'high';                           // R8b: Zone.intensity, absent = standard
 type CellRuns = [number, number, number][];   // [y, x0, x1], inclusive, sorted by y then x0, disjoint: plain JSON
 interface Zone {
   id: number;                 // from nextZoneId, never reused
@@ -482,6 +483,7 @@ interface Zone {
   created: YM;
   template?: string;          // the precedent it was applied from: a record of what the player did, not of history
   servicedShare?: number;     // M3b hook (§5.5): the share of its buildable cells serviced (三通一平), 0–1; absent = 1
+  intensity?: Intensity;      // R8b: absent = standard
   name: { kind: 'generic' } | { kind: 'precedent'; precedent: string } | { kind: 'custom'; zh: string; en: string };
 }
 // GameState gains: grid: { width: number; height: number } (from the areas content); zones: Zone[] (id order);
@@ -548,6 +550,25 @@ interface Zone {
   - one zone per name; the first matching zone keeps it when a better one is drawn; an edit that breaks the match frees the name for the next zone; a custom name opts out.
 - **No effect on the economy:** with zones present, M2's at-rest and shock runs give the same pops, blocks and history.
 - **Determinism:** save, load and continue, and replay, with zone actions in the log. Zone actions are refused while an interrupting card is pending.
+
+**Intensity (R8b).** "Tiered zones" means intensity in this slice. `Zone.intensity: 'low' | 'standard' | 'high'`, where absent means `standard`. `create_zone` and `edit_zone` take `intensity?`. Each tier pays for its floor differently, with factors from `growth.intensity[tier]` (placeholders, design_note):
+
+| Tier | FAR × | Formation cost × | Formation work × | Firm power × |
+|---|---|---|---|---|
+| low | 0.6 | 0.7 | 0.5 | 0.8 |
+| standard | 1.0 | 1.0 | 1.0 | 1.0 |
+| high | 1.8 | 1.6 | 1.5 | 1.3 |
+
+- **FAR.** The tier's factor multiplies `growth.far[use]` in `zoneRoomM2` (organic room) and `industry.max_far` in `zoneCapacityM2` (investor siting). It moves the room, not the demand.
+- **Site formation.** A cell's units are multiplied by the work factor. The service order keeps one yuan-per-unit rate, multiplied by cost ÷ work and recorded on the order as `rateFactor`, so its pro-rata spending stays exact. Land compensation is about the land, not the tier, so it is unchanged. A detached work adopted by a new order keeps its units and is paid at that order's rate.
+- **Formation is priced at the tier in force.** `edit_zone` refuses to raise a zone's tier once any of its cells is serviced or has works, so land formed cheaply at low cannot take a higher FAR. Lowering is allowed.
+- **Known gap.** A player can still remove the zone and repaint a higher tier over its serviced land. Closing this needs each cell to record the tier it was formed at, which is left for later.
+- **Power.** A firm sited in a zone takes `powerKw` × the tier's power factor when it is created. The R3 prospective test reads the same factor. Overbuilding high is how a player runs past the city pool (R8c).
+- **No tier is cheapest per m² of floor on every count.** Low is cheapest in power and ties high in work, high is cheapest in money, and low also uses the most land. This is tested. The plan's low cost factor of 0.5 made low cheapest on all three counts, so it is 0.7 here.
+- **High is gated.** It needs the unlock key `intensity.high`, which the SEZ beat sets in Pass 3; until then no content sets it. It also needs an avenue cell (R8d) 4-adjacent to one of the zone's cells. `create_zone`, `edit_zone` and `commit_works` check both and refuse with a named reason. Zone actions take the road check from the construction step, so it needs the works content.
+- **Low and standard need no particular road class in R8b.** Frontage from any road serves both. The plan's "a street or better" for standard is not enforced, because it would refuse zones that today's plans draw ahead of their roads.
+- **Migration.** Absent means standard, so a version-5 zone is a standard zone; R8e writes it. A version-5 `public` zone (the starts have none) becomes `reserve` in R8e's migration. `FloorUse` drops `public`.
+- **Later, not now:** zones that differ by firm or product type. This is an open design question for after Phase 1.
 
 ### 5.4 Named emergence (M3c, held)
 A sketch, not built.
@@ -1934,7 +1955,8 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
   - **Erase:** an action queued this turn that covers the cell is removed from the queue first, since no order exists yet for `cancel_works` to name.
   - **Previews and refusals.** Every gesture's actions are tried with `previewWorks` on the turn's queue plus the gesture, through `applyTurnAction`, so they pass the same validation as End quarter. The preview shows the new orders' estimates (area, cells, bridges, cost, forex, crew a month and months at full pace). A refused gesture queues nothing and shows sim-core's reason.
 - **Removing a queued action keeps the queue valid.** Removing a queued `create_zone` also removes the queued actions that name its zone (`commit_works`, `commit_project`, `edit_zone`, `remove_zone`), and renumbers the references to zones queued after it.
-- **`public` is not offered (R7).** The zones flyout shows it disabled, with the hover reason "Public buildings are placed directly; there is no public zone". `planGesture` and sim-core still accept it, and the enum leaves in R8b.
+- **`public` is gone (R8b).** R7 showed it disabled; R8b removed it from `LAND_USES` and the flyout. Facilities are placed directly.
+- **Intensity (R8b).** The zones flyout offers low and standard after the use. It also offers high once `intensity.high` is unlocked, and shows it disabled with its reason until then. A drag carries the tier in `create_zone`.
 - **The overlays:** areas; zones by use; works stage; the road network (components and frontage depth); utilities (sources and each cell's supplied share); held back (each zoned cell coloured by its ladder rung); demand (each zone coloured by its use's cue level); rental crowding; the illegal floor share (legality); the service gap; buildable and serviced land. Zones, their works stages, roads, structures and the start anchors draw on every overlay.
 - **The map draws** terrain and water from the Spike A grid when it is served, area outlines, the start anchors, the temporary routes in their keyed styles, roads autotiled from their four-neighbours, bridges (path cells off the buildable layer) with their own edge, and works stages: zoned (outline only), planned (hatched), servicing (filled to its share of work done) and serviced (solid). Queued, unsubmitted actions draw dashed.
 - **Core zoom** (a cell at least 14 screen pixels wide) adds the floor spread above as roofs within each cell, and **village thickening**: each settlement anchor's roofs multiply with its area's village floor over its footprint (§5.2). The roof pattern is a hash of the cell index, never the RNG.

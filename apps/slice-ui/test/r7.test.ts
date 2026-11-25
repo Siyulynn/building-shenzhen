@@ -174,12 +174,11 @@ describe('R7 terms and the parked public zone', () => {
   const flyout = (tool: 'zone' | 'service', lang: 'en' | 'zh', planOnly = false) =>
     renderFlyout({ ...view(newSession(slice), lang), ui: { ...initialUi(slice), tool, opts: { ...initialUi(slice).opts, planOnly } } });
 
-  it('the zones flyout offers no public zone, and says why, in both languages', () => {
+  it('the zones flyout offers no public zone (R8b removed it), in both languages', () => {
     for (const lang of LANGS) {
       const html = flyout('zone', lang);
       expect(html).not.toContain('data-use="public"');
       expect(html).toContain('data-use="industrial"');
-      expect(html).toContain(esc(T.noPublicZone[lang]));
       expect(html).toContain(esc(T.formationHint[lang]));         // zone painting orders site formation
       expect(flyout('zone', lang, true)).not.toContain(esc(T.formationHint[lang]));   // Plan only orders none
     }

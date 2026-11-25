@@ -402,7 +402,7 @@ export function ramp(v: number): RGBA {
 }
 export const USE_COLOR: Record<string, RGBA> = {
   industrial: [196, 120, 60, 200], residential: [220, 200, 90, 200], commercial: [200, 80, 120, 200],
-  public: [90, 140, 210, 200], reserve: [120, 160, 110, 200],
+  reserve: [120, 160, 110, 200],
 };
 const PLAYABLE: RGBA = [255, 236, 120, 60], CARD_ONLY: RGBA = [200, 150, 80, 60];
 /** R8a (phase1-slice §5.5, §11.1): one colour per land-cover class. */

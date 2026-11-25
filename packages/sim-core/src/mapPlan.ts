@@ -5,10 +5,10 @@
  * state, the plan and the content, and every action is checked before it is given, so a policy never throws.
  */
 import { contractLive, liveProject, moneyForProjects } from './fiscal.js';
-import { ROAD_CLASSES, type RoadClass, type SliceParams } from './params.js';
+import { ROAD_CLASSES, intensityOf, type RoadClass, type SliceParams } from './params.js';
 import { roadClasses } from './freight.js';
 import type { LandUse } from './enums.js';
-import type { GameState, PlayerAction } from './state.js';
+import type { GameState, PlayerAction, Zone } from './state.js';
 import type { TickContent } from './ticks.js';
 import { liveOrder, spatialViews } from './works.js';
 import { cellsOfRuns, runsOfCells, templateZoneAction, zoneCellsAllowed } from './zones.js';
@@ -211,10 +211,12 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
     const capUnits = Math.floor(plan.crew_share * s.scenario.monthsPerTurn * p.capacity.local_crew);
     const rate = W.service.yuan_per_cell / W.service.units_per_cell;
     const req = new Set(s.requisitioned ?? []);
-    const cellCost = (c: number) => {
-      const f = coverFactors(p, tick.landcover, c);
-      const u = Math.max(1, Math.round(W.service.units_per_cell * f.cost));
-      return { u, yuan: u * rate + (tick.landcover && !req.has(c) ? f.compensation * W.service.yuan_per_cell : 0) };
+    // R8b (§5.3): and its zone's tier scales the work, and the money per unit of it
+    const cellCost = (z: Zone, c: number) => {
+      const f = coverFactors(p, tick.landcover, c), k = intensityOf(p.growth, z);
+      const u = Math.max(1, Math.round(W.service.units_per_cell * f.cost * k.formation_work));
+      return { u, yuan: u * rate * (k.formation_cost / k.formation_work)
+        + (tick.landcover && !req.has(c) ? f.compensation * W.service.yuan_per_cell : 0) };
     };
     if (capUnits >= W.service.units_per_cell && money > 0) {
       const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
@@ -234,7 +236,7 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
         const cells: number[] = [];
         let units = 0, spend = 0;
         for (const c of pick.todo) {
-          const k = cellCost(c);
+          const k = cellCost(pick.z, c);
           if (units + k.u > capUnits || spend + k.yuan > money) break;
           cells.push(c); units += k.u; spend += k.yuan;
         }

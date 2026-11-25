@@ -7,7 +7,7 @@ import { cloneState, isFinished, type CardInstance, type GameState, type PlayerA
 import { ENFORCEMENT_LEVELS, PERMIT_REGIMES } from './enums.js';
 import { formatYM, type YM } from './ym.js';
 import { statistics } from './systems/statistics.js';
-import { applyZoneAction, isZoneAction } from './zones.js';
+import { applyZoneAction, isZoneAction, type AvenueAt } from './zones.js';
 
 export interface SimEvent { step: string; kind: string; detail?: Record<string, unknown> }
 export interface MonthStats { date: YM }
@@ -26,6 +26,8 @@ export interface TickStep {
   name: string; run(ctx: TickContext): void; act?(state: GameState, action: PlayerAction): boolean;
   /** R2 (b&c §13.2): called after every applied turn action, so a step can follow edits it does not own */
   afterAction?(state: GameState, action: PlayerAction): void;
+  /** R8b (§5.3): whether an avenue touches these cells, for a high zone; the construction step gives it */
+  avenueAt?: AvenueAt;
 }
 
 export type StepResult =
@@ -81,7 +83,7 @@ export function applyTurnAction(s: GameState, action: PlayerAction, steps: reado
     if (!(PERMIT_REGIMES as readonly string[]).includes(action.regime)) throw new Error(`unknown permit regime ${action.regime}`);
     s.policy.permitRegime = action.regime;
   } else if (isZoneAction(action)) {
-    applyZoneAction(s, action);
+    applyZoneAction(s, action, steps.find((st) => st.avenueAt)?.avenueAt);
   } else if (!steps.some((st) => st.act?.(s, action))) {
     throw new Error(`unknown action type ${(action as { type: string }).type}`);
   }
