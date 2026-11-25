@@ -92,6 +92,22 @@ permit card is about applying the province's border and residence rules, not inv
 non-blocking `news` layer adds the 1981–1983 political weather; see
 `docs/design/systems/prologue-flavor-and-news.md` and `docs/research/phase1-political-calendar.md`.
 
+**R9: the beats and the unlock schedule, as built** (revision plan §4.1, §4.4). The sim enforces each gate (§5.8, `content/slice/tools.yaml`). The rail shows a locked tool greyed, with the name of the event that opens it (§11.2).
+
+| Turn | Beat (its card) | Opens: key → gates |
+|---|---|---|
+| start | — | industrial and reserve zones; low and standard intensity; `track` and `street` roads; Form site on one zone at a time; cards |
+| 0 (1979-Q1) | `event.first_project`, the city's own survey: the two opening letters and a card that only reports. The first zone and road are drawn on the map | — |
+| 1 (1979-Q2) | `event.first_processing_contract` (the offer) | `tools.formation_bulk` → `formation.bulk` |
+| 2 (1979-Q3) | `event.permit_choice`: how strictly the city applies the province's border and residence rules | `tools.priorities` → `works.priority`, `policy.enforcement` (with `scrutiny.gauge`, as before) |
+| 3 (1979-Q4) | `event.corps_advance`; the news `news.1979q4.provincial_city` (1979-11) | `tools.corps` → `zone.residential`, `structure.facility`, `team.contract`; `power.purchase` → `power.buy` |
+| 4 (1980-Q1) | `event.cofinancing`: the loan, and a co-financed substation near Luohu | `power.substations` → `structure.power_substation` |
+| 5 (1980-Q2) | `event.readiness_check` | — |
+| 6 (1980-Q3) | `event.sez_established` (answered) | `investors.sez` → `zone.commercial`, `road.avenue`, `structure.power_station`, and the investor market |
+| 1982-Q4 | the news `news.1982q4.storm_passes` (1982-12) | `intensity.high` → `zone.intensity.high` |
+
+**When an opened tool can be used.** A scripted beat fires in its quarter's first month, after that turn's actions. An anchor or news record fires in its own month, and an `on_answer` unlock applies in the month of the answer. Turn actions are given at a turn's start. So a tool that a turn's beat opens can first be used at the **next** turn's start: the SEZ's from 1980-Q4, and high intensity from 1983-Q1. That is §4.1's "the tool the next beat needs". Only the turn-0 beat fires before the player's first action. The headless policies follow the same schedule: a map plan holds back each action until its gate opens (§5.9).
+
 ---
 
 ## 3. The map
@@ -188,7 +204,7 @@ Shenzhen in 1979 had a market town, a border crossing and railway, villages, far
 ---
 
 ## 4. What the player can do
-In the prologue the actions unlock one beat at a time (§2.1). From the SEZ's establishment, all of them are available.
+In the prologue the actions unlock one beat at a time (§2.1). R9's tool gates (§5.8, `content/slice/tools.yaml`) enforce the schedule in the sim. From the SEZ's establishment all of them are available, except high intensity, which opens in 1982-Q4.
 
 | Action | System | Notes |
 |---|---|---|
@@ -1076,7 +1092,7 @@ M5b fills the slice's calendar on M5a's events step: the prologue beats, the rem
 - **More trigger kinds.** The families are `anchor`, `scripted`, `recurring`, `emergent` and `milestone`.
   - `{ month_of_year: m, recurring: true }`: every year in month m (0 = January). This is seasonality, like Spring Festival, not a year.
   - `{ hazard: p, months_of_year?: […], from_turn?: n, guaranteed_by_turn?: n, condition?: c }`: an emergent event with probability p a month, drawn from the `events` stream. A draw is made each month the event can fire: in season, from that turn, with its condition true. With `guaranteed_by_turn`, it fires in the last month of that turn if it has not fired by then (the "guaranteed emergent beat" of §2.1). An emergent event fires at most once unless `recurring`, and a recurring event at most once a month.
-  - `{ condition: c }`: a milestone, the first month c holds. The conditions are `first_zone_firm_open` (a firm sited in a zone is open), `firm_open`, `shekou_captured` and `site_preparation_committed`. `site_preparation_committed` holds when an M4 site-preparation project or a works `service` order (b&c §13.2) exists and is not cancelled (R4.5).
+  - `{ condition: c }`: a milestone, the first month c holds. The conditions are `first_zone_firm_open` (a firm sited in a zone is open), `firm_open`, `shekou_captured`, `site_preparation_committed` and `village_works` (R9, below). `site_preparation_committed` holds when an M4 site-preparation project or a works `service` order (b&c §13.2) exists and is not cancelled (R4.5).
   - **Gates:** `requires: <key>` (an unlock key must be set) and `until: <key>` (it must not be set yet). The SEZ's opening sets `investors.sez`.
 - **Per-option effects.** An `on_answer` effect with `option: <id>` applies only when that option was chosen.
 - **More effect kinds.** Their numbers are `params.events.<id>` (`scrutiny`, `cost`, `standing`, `factor` and `months`, `jobs`):
@@ -1096,17 +1112,41 @@ M5b fills the slice's calendar on M5a's events step: the prologue beats, the rem
   - `veto { reason }`: that year's review fails (the fire's order check);
   - `end_run`: the scenario ends (`ended`), and the card carries the verdict. **The month stops at the events step:** steps 3–14 do not run and the date does not advance, so the final state is the previous month's, and no later step raises a card (no deficit card from the zero grant). Its cards can still be answered, as for the last turn (§5.1).
 - **Cards.** A non-interrupting event card lapses at the start of the next turn, as M5a's. With `card.lapse: <option>`, a lapse takes that option's effects, so a crisis cannot be ignored for free (the typhoon lapses to `defer`; the fire, escapes and petition to `noted`). The prologue's decisions (the first project, the permit choice, the corps' advance, the co-financing, the readiness check) interrupt, so under quarterly turns each is answered in the quarter that raises it. A card that only reports offers `noted`.
-- **News (R9).** A record with `family: news`, `news: { desk, tone, weather? }` and `text: { zh, en }`, and **no card and no effects**. It fires once, is recorded in `events.fired`, and the briefing renders one lead item and at most two one-liners under the quarter's lead. `desk` is `beijing | province | city | hong_kong`; `tone` is `opening | warning | relief | texture`; `weather` is an optional -2..+2 read by the investor and scrutiny steps through a four-quarter window. A news record requires at least one claim, and its text follows the flavour rule (`sourced` for every factual detail). The compiler rejects a news record with a card or an effect. The calendar is in `docs/design/systems/prologue-flavor-and-news.md`.
+- **News (R9).** A record with `family: news`, `news: { desk, tone }` and `text: { zh, en }`, at least one claim, and **no card** (so no `on_answer`). `desk` is `beijing | province | city | hong_kong`; `tone` is `opening | warning | relief | texture`. Its trigger is a `date`, or `prologue_turn: 0` for the two opening letters, which fire at init with the turn-0 beats. It fires once and is recorded in `events.fired`; it never pauses a turn. Its `effects` may only be `unlock` and `modifier` (revision plan §4.4); any other effect kind, a card, or a `weather` field fails the compiler. The design note's hidden four-quarter `weather` sum is **not** built: R9's timed modifiers (below) replace it, so the weather is legible. Its text follows the flavour rule: every factual detail cites a `sourced` claim (`use: encyclopedia`), attributed speech keeps to the words in a claim's quote, and no number the sim owns appears. The calendar and the text are in `docs/design/systems/prologue-flavor-and-news.md`; how the briefing shows it is §11.2.
+- **Timed modifiers (R9, revision plan §4.4).** Two effect kinds, each with its numbers in `params.events.<id>` (placeholders, cited `design_note`; the record's text states the political fact, never the number):
+  - `{ kind: modifier, target, factor?, months? }`. `target` is `investor_rate` or `scrutiny_gain`, nothing else (a new target is a spec change). `factor` and `months` name fields of `params.events.<id>`; they default to the target's own name and `months`. It pushes `{ source: <event id>, target, factor, until: date + months − 1 }` onto `state.events.modifiers`.
+  - `{ kind: modifier_shift, source, months }`. It moves the `until` of every modifier from event `source` by `params.events.<id>.<months>` months (negative is sooner). One that now ends before this month is dropped.
+  - A modifier is **live** while `date ≤ until`. The events step drops the expired ones at the start of each month, before it applies answers. Live modifiers on one target **multiply**.
+  - `investor_rate` scales the monthly arrival draw: an archetype arrives when its draw is below `min(1, rate_per_quarter ÷ 3 × factor)`. The number of draws is unchanged, so the stream stays aligned. The first wave and the scripted offers are not scaled.
+  - `scrutiny_gain` scales step 12's gains (before the permit factor). The `scrutiny` effect of a card is not scaled.
+  - **State:** `EventsState` gains `modifiers?: { source: string; target: 'investor_rate' | 'scrutiny_gain'; factor: number; until: YM }[]`. Absent means none, and it is omitted when empty, so the save version stays 6; `cloneState` copies it.
+- **Tool gates (R9, revision plan §4.4).** A gated turn action is refused by `applyTurnAction`, before it changes anything, while its gate's key is not in `events.unlocked`. So headless policies, replays and the UI keep one schedule. Gates are content, `content/slice/tools.yaml`: a list of `{ gate, requires, name: { zh, en } }`. A gate that is not listed is open.
+  - **The gate ids** are `zone.<use>`, `zone.intensity.<tier>`, `road.<class>`, `structure.<kind>` (the kinds that can be ordered), `formation.bulk`, `works.priority`, `policy.enforcement`, `team.contract` and `power.buy`.
+  - **Which action needs which gate.** `create_zone` needs its use and its tier, and `edit_zone` the use or tier it sets. `build_road` needs its class (absent: street). `place_structure` needs its kind. `set_enforcement` needs `policy.enforcement`, `contract_team` needs `team.contract` and `buy_power` needs `power.buy`. `works.priority` covers `set_works_priority`, `set_project_priority`, and a `priority` other than `normal` on `commit_works`, `build_road`, `place_structure` or `commit_project`. `formation.bulk` covers `commit_works` while a live service order exists on another zone: without it, site formation runs on one zone at a time.
+  - **The reason** reads "‹gate name› is locked: it opens with ‹opener›", where the opener is the event whose `unlock` sets the key.
+  - **Event effects are not gated.** An event's own `contract_team`, `cofinance` or investor works go through whatever the schedule says.
+  - **The compiler** (`compileTools`) refuses an unknown gate id, a duplicate gate, and a `requires` key that no event's `effects` or `on_answer` unlocks. It records each gate's opener (the first such event, in content order) for the rail.
+  - **Without tools content nothing is gated,** as without events, so bare fixtures and M2–R8's tests are unchanged.
+  - **R8b's `intensity.high` check** moves into the table: `zone.intensity.high` requires `intensity.high`.
+  - **The schedule** is §2.1's R9 table. Each `unlock` that opens a gate sits in `effects`, not `on_answer`, so a player who declines the beat's card still gets the tool. The exception is the SEZ, whose every option opens it.
+- **The petition (R9).** `event.petition`'s condition is `village_works`. It holds while a live works service order, or a live site-preparation project that is not co-financed, sits in a playable area with `village`-class cells, or once a land-compensation obligation (§5.5) exists. So the card arrives only for work the player did.
+- **Co-financing a works order (R9).** `cofinance` takes `structure: power_substation` (with `area`) in place of `template`. It orders that structure as a **co-financed works order** (`cofinanced: true`): its budget, spending and forex are 0, and it owes no maintenance. Its crew units still come from the pool. The site is the area's lowest playable free cell four-adjacent to a road (start or built), not zoned, with no works or structure; its attach cell is its lowest road neighbour. With no such site nothing is ordered, an `event_action_failed` event is pushed, and the offer is raised without the link. The next `offer` of the same answer carries the order (`payload.cofinancedOrder`). If that investor declines, lapses or fails, the live order is cancelled: its sunk units are kept, and no structure is placed. The M4 `template` form stays for old content, but no slice record uses it.
+- **The two political decisions (R9).** `event.1982q1.concession_storm` (date 1982-02, interrupting) follows its news record, `news.1982q1.concession_material`, which carries the storm's modifiers. Its options are postures, not outcomes:
+  - `honest`: `modifier_shift` the storm 3 months sooner;
+  - `public`: a `scrutiny` cost;
+  - `numbers`: `modifier_shift` it 3 months later.
 
-**The prologue beats** (§2.1). Each prologue quarter raises at least one card whose options lead to different states:
+  `event.1983q4.rectification` (date 1983-10, interrupting) gives each of its options (`follow`, `strict`, `transmit`) its own `scrutiny_gain` modifier. The detailed effects of both wait for the politics pass.
+
+**The prologue beats** (§2.1). Each prologue quarter from turn 1 raises at least one card whose options lead to different states. Turn 0's decision is made on the map, the first zone and the first road (R9), so its card only reports:
 
 | Turn | Beat | Its decision |
 |---|---|---|
-| 0 (1979-Q1) | `event.first_project`, scripted: meet the pair, choose the first project toward Luohu. `event.shenzhen_city` (anchor, 1979-03) is a declared fact | `project.road_link`, `project.water_main` or `later`, by `commit_choice` in area 2 |
+| 0 (1979-Q1) | `event.first_project`, scripted, reframed in R9 as **the city's own survey**: the two opening letters (news) and a card that only reports. `event.shenzhen_city` (anchor, 1979-03) is a declared fact | `noted`; the first zone and road on the map |
 | 1 (1979-Q2) | M5a's first contract. `event.shekou_command` (anchor, 1979-04) is a declared fact | accept a site or decline |
 | 2 (1979-Q3) | `event.permit_choice`, scripted: the temporary-permit regime and the scrutiny gauge switch on. Shekou's works (M5a). The typhoon (emergent, guaranteed by turn 2) | `standard`, `loose` or `strict`, by `set_permit` |
 | 3 (1979-Q4) | `event.corps_advance`, scripted: a pool contract for `team.corps_advance` (the advance units, a placeholder crew); the sweep card and the first, lightweight review | `quarters` (a cost) or `tents` (scrutiny); and the sweep |
-| 4 (1980-Q1) | The budget card; `event.cofinancing`, scripted (the briefing): the loan's offer and the co-financing card. Accepting builds a co-financed power line in the market town (area 1) and raises the investor's Hong Kong processing offer with its concession | take the loan; `decline` or `accept` the co-financing |
+| 4 (1980-Q1) | The budget card; `event.cofinancing`, scripted (the briefing): the loan's offer and the co-financing card. R9: accepting orders a co-financed power substation near Luohu (area 2, a composite: the documented 1980 Luohu package is site formation with a bank loan) and raises the investor's Hong Kong processing offer with its concession. Before R9 it was a co-financed power line in the market town | take the loan; `decline` or `accept` the co-financing |
 | 5 (1980-Q2) | M5a's readiness check, now with `noted` or `rush` (a cost, and every live project to `high`) | `noted` or `rush` |
 
 **The other events** (§7's table; all `content/slice/events.yaml`):
@@ -1222,7 +1262,7 @@ A player who accepts no shortcut never trips: the risk stays 0.
 - **The climate:** scrutiny decays, rises with each gain and with events, and four quarters above the threshold end the run.
 - **The fall from grace:** no shortcuts, no fall; a forced trip replaces the Mayor, freezes projects and vetoes the review when entangled.
 - **The budget card and the warning:** the warning appears exactly on the cards whose next 12 months hold a grant cut, read from content.
-- **The briefing:** the loan card and the co-financing card arrive in turn 4; accepting the co-financing builds a power line that costs the city nothing, and its investor's firm gets the concession.
+- **The briefing:** the loan card and the co-financing card arrive in turn 4; accepting the co-financing orders a substation (R9; a power line before) that costs the city nothing, and its investor's firm gets the concession.
 - **The visit:** it fires in 1984-01 and ends the run, and the verdict's fiscal test equals its formula on the end-1983 state.
 - **No effect without the content,** and determinism (save, load and continue, and replay, through a whole 21-quarter run).
 - **The branches** (`test/m5b-branches.test.ts`): `runQuarter` through the whole slice, with each prologue decision answered in its quarter and the failure card pausing it; a lapsed crisis takes its lapse option; the budget card's numbers; declining the co-financing investor withdraws its power line; event-only teams; the milestones; an orders slump caps posts; a fire vetoes its review; the Corps deployment; the climate's event gains; a two-month sweep covers December; indicators between turns; and the compilers' error paths.
@@ -1292,6 +1332,8 @@ The report says pass or fail honestly. A failing band is a finding for M6b, neve
   3. **water and power:** for each industrial zone, the scarcer of the two first: a source is placed when the area's sited firms plus `headroom_jobs` organic jobs would need more than the area's capacity plus the zone's sources (those attached to a road cell beside it), up to `max_sources`; if the scarcer one cannot be paid for or its forex quota is short, the other waits too. A source sits on a free cell beside a road cell that touches the zone;
   4. **facilities**, once each, beside the first zone of their area;
   5. **teams**, under pool contracts, while money covers a year of their cost.
+
+**R9: the gates.** Each action the plan would give is checked against the tool gates first (`gateRefusal`, §5.8), and one that is locked is held back to a later turn. So `first` (the enforcement level) is given once `policy.enforcement` opens. A plan zone is drawn at the first turn's start whose gates allow it, with no zone yet of its use in its area (or of its template), clipped against the zones drawn by then. Avenue upgrades, substations, purchases, the station, facilities and teams each wait for their gate. A plan's turn numbers (`import_from_turn`, `station_turn`, an upgrade's `from_turn`) are floors. The gates can push them later, never earlier.
 
 A policy's turn actions are legal by construction: zones are clipped with `zoneCellsAllowed`, and each works action is given only when the checks of `orders.ts` would pass (playable cells, no road, works or structure in the way, frontage for servicing, the forex quota for a power source), so a run never throws. The plan keeps its unbuilt road cells free of sources, so a later road is not blocked by a station placed on its path.
 
@@ -1620,6 +1662,7 @@ content/slice/precedents.yaml     # historical zones (the template) and, later, 
 content/slice/investors.yaml      # investor card templates
 content/slice/events/*.yaml       # about 15 events
 content/slice/targets.yaml        # annual review targets
+content/slice/tools.yaml          # R9: the tool gates and the unlock key each requires (§5.8)
 params/slice.yaml                 # all tunable numbers
 ```
 Every historical statement cites claim IDs (AGENTS.md). Claims that don't exist yet are created as `lead` in the same change.
@@ -1656,6 +1699,15 @@ concession storm and the 1983-Q4 plenum). They are not "about 15 events" above; 
 layer. The selected list, the dropped list and the text are in
 `docs/design/systems/prologue-flavor-and-news.md`; the evidence is in
 `docs/research/phase1-political-calendar.md` and `data/evidence/claims/phase1_political_calendar.yaml`.
+
+**As built (R9).** The records live in `content/slice/events.yaml`, after the anchors:
+- **25 `news` records:**
+  - the 22 news rows of the design note's calendar;
+  - `news.1982q1.concession_material`, the storm card's paired record, which carries its modifiers;
+  - the two opening letters (`news.1979q1.assignment`, `news.1979q1.office_note`, tone `opening`, fiction that carries cited facts).
+- **The two decision cards:** `event.1982q1.concession_storm` and `event.1983q4.rectification`.
+
+So the calendar's 24 rows are 22 news records and 2 cards. Its `weather` column is not built. Only the records in revision plan §4.4's table carry a modifier, or `news.1979q4.provincial_city`'s and `news.1982q4.storm_passes`'s unlocks; the rest are presentation only.
 
 ### 7.1 The SEZ's establishment: the major early event
 The six prologue quarters (1979-Q1 to 1980-Q2, §2.1) are a **prologue with a deadline**. The player knows a zone is coming, but not its terms.
@@ -1971,11 +2023,17 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
 - **Contents:**
   - the §11.1 briefing deltas;
   - where work finished;
-  - the area most held back, and the constraint holding it.
+  - the area most held back, and the constraint holding it;
+  - **R9, the news** (§5.8): the records fired since the previous turn's start (on Turn 1, those fired at init), grouped under their desk ("From Beijing", "From the province", "From the city", "From Hong Kong"):
+    - `opening` records are shown first, in full, as letters marked as composed fiction;
+    - then the lead (the first other record, in content order) in full;
+    - then at most two more, as one-line headlines (their `name`).
+    A record that fires mid-quarter is read at the next turn's briefing; a decision card it pairs with shows its own description at once;
+  - **R9, the live modifiers:** each with its target in words, its factor ("Investor arrivals ×0.75") and the quarters left (`ceil((until − date + 1) ÷ 3)`), and its source's name.
 - **Closing:** "To the map" or the first click on the map. The Briefing button reopens it until End quarter. If an interrupting card is still unanswered (on Turn 1, the opening card, R7), closing the briefing opens the decisions modal.
 - **Where work finished:** compared with the previous turn's start, by playable area: cells newly serviced, road cells built, sources and facilities placed, works orders done, and firms opened.
 
-**Cards that can be judged (R7).** An event card shows its title, its content `description`, then each option with its name and its **effect badges**. Badges are derived, never authored: a pure `effectBadges(def, slice, state)` in `views.ts` turns the `on_answer` effects that apply to an option (those with no `option`, and those naming it) into short `{zh, en}` strings, so a badge cannot disagree with what the option does. Effects applied when the event fired are not the option's, so they get no badge. Numbers come from params, as the effects read them: `cost` → "Cost ¥…" (`params.events[id].cost`); `scrutiny` and `standing` → "Scrutiny +…", "Standing +…"; `commit_choice` → the project template's name and its `params.projects` budget, or nothing for an option that is not a template; `set_permit` → the permit regime; `sweep` → its cash cost and months; `contract_team` and `cofinance` → the team or project by name; `unlock` → what it opens (`investors.*` reads "Unlocks investment"); the rest by kind. An option with no effect reads "No effect". The switch is exhaustive over the effect kinds. Badges wrap, and none is told apart by colour alone. Cards raised by systems (investor offers, the loan, the deficit, the review) keep their §11.1 lines and get no badges.
+**Cards that can be judged (R7).** An event card shows its title, its content `description`, then each option with its name and its **effect badges**. Badges are derived, never authored: a pure `effectBadges(def, slice, state)` in `views.ts` turns the `on_answer` effects that apply to an option (those with no `option`, and those naming it) into short `{zh, en}` strings, so a badge cannot disagree with what the option does. Effects applied when the event fired are not the option's, so they get no badge. Numbers come from params, as the effects read them: `cost` → "Cost ¥…" (`params.events[id].cost`); `scrutiny` and `standing` → "Scrutiny +…", "Standing +…"; `commit_choice` → the project template's name and its `params.projects` budget, or nothing for an option that is not a template; `set_permit` → the permit regime; `sweep` → its cash cost and months; `contract_team` and `cofinance` → the team or project by name; `unlock` → what it opens (`investors.*` reads "Unlocks investment"; R9: a key that opens tool gates reads "Opens ‹gate names›"); R9: `modifier` → its target, factor and months ("Investor arrivals ×0.75 for 9 months"); `modifier_shift` → "‹source›'s effects end 3 months sooner" (or later); `cofinance` with a structure → "Co-financed ‹structure›"; the rest by kind. An option with no effect reads "No effect". The switch is exhaustive over the effect kinds. Badges wrap, and none is told apart by colour alone. Cards raised by systems (investor offers, the loan, the deficit, the review) keep their §11.1 lines and get no badges.
 
 **R5's build rules** (the details the layout above leaves open):
 - **The rail, as built:** Select (inspect a cell), Roads, Zones (industrial, commercial, residential; Plan only; show the Shangbu guide; zone the guide), Form site, Erase, Water, Power and Facilities (the facility types in `works.facilities`). The guide is the historical template's footprint drawn over the map; showing it creates no action. "Zone the guide" queues `templateZoneAction`'s zone, clipped as §11.1's, with its `commit_works` unless Plan only is on. Tools are off while a card interrupts the quarter and after the end.
@@ -1988,6 +2046,7 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
   - **Previews and refusals.** Every gesture's actions are tried with `previewWorks` on the turn's queue plus the gesture, through `applyTurnAction`, so they pass the same validation as End quarter. The preview shows the new orders' estimates (area, cells, bridges, cost, forex, crew a month and months at full pace). A refused gesture queues nothing and shows sim-core's reason.
 - **Removing a queued action keeps the queue valid.** Removing a queued `create_zone` also removes the queued actions that name its zone (`commit_works`, `commit_project`, `edit_zone`, `remove_zone`), and renumbers the references to zones queued after it.
 - **`public` is gone (R8b).** R7 showed it disabled; R8b removed it from `LAND_USES` and the flyout. Facilities are placed directly.
+- **Locked tools (R9).** A tool, zone use, road class, tier or Govern control whose gate is locked (§5.8) is shown greyed, never hidden. Its title reads "Opens with ‹opener›", from the compiled gate's opener. A gesture that needs a locked gate is refused with sim-core's reason, as any refusal. The state of each gate is read from `events.unlocked` through the same `gateRefusal` predicate the sim uses.
 - **Intensity (R8b).** The zones flyout offers low and standard after the use. It also offers high once `intensity.high` is unlocked, and shows it disabled with its reason until then. A drag carries the tier in `create_zone`.
 - **The overlays:** areas; zones by use; works stage; the road network (components and frontage depth); utilities (sources and each cell's supplied share); held back (each zoned cell coloured by its ladder rung); demand (each zone coloured by its use's cue level); rental crowding; the illegal floor share (legality); the service gap; buildable and serviced land; the 1979 land cover (R8a, a lead). Zones, their works stages, roads, structures and the start anchors draw on every overlay.
 - **The map draws** terrain and water from the Spike A grid when it is served, area outlines, the start anchors, the temporary routes in their keyed styles, roads autotiled from their four-neighbours, bridges (path cells off the buildable layer) with their own edge, and works stages: zoned (outline only), planned (hatched), servicing (filled to its share of work done) and serviced (solid). Queued, unsubmitted actions draw dashed.
