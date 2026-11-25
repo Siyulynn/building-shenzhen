@@ -674,6 +674,86 @@ warned, not blocked.
 
 ---
 
+## 4b. Passes 4 and 5 — The economy the statistics describe (R10, R11)
+
+Status: **planned 2026-11-25.** Input: `docs/research/phase1-statistics-1979-1985.md` (OCR of the 1987 Statistical
+Bureau compilation, claims in `data/evidence/claims/phase1_statistics.yaml`) and 王碩 (2013) for context. All of it is
+`lead` until a person checks the scans.
+
+### 4b.1 What the evidence says the slice gets wrong
+
+The slice's GDP **level** at end-1983 (¥42M, about 43% of the SEZ's ¥96.5M, the same share as its 1979 population) is
+defensible. Its **composition and drivers** are not:
+
+| | SEZ (lead) | Slice now | Why |
+|---|---|---|---|
+| GDP split 1983 | 4.8 / 50.3 / 44.9 | about 4 / 76 / 20 | organic growth is all export factories; services are only induced by wages |
+| Tertiary share 1980 | 50% (city 42.5% in 1979) | low from the start | the start's base services are underweighted, before any trade boom |
+| Budget revenue | 39–71% customs (海关代征) | county base, firm tax, land fees | no import channel, no customs line |
+| Capital construction | bank loans 0 → 41% by 1984 | one ¥3M project loan | no construction credit |
+| Wages | SEZ 833 → 1,610 a year by 1983 | factory ¥60 a month, nearly flat | slow wage response, no wage policy |
+| Firms | ~40 workers per factory in 1979; state and collective dominate to 1983 | 500-job HK processing plants | one organic archetype at estate scale |
+| Population | SEZ 1983: 16.5万 registered + 12.0万 temporary | resident and present-nonlocal overlap | no clean registered / temporary split |
+
+### 4b.2 Decisions and corrections (2026-11-25)
+
+1. **Composition and level move together.** Raising tertiary to about 45% with industry unchanged would push
+   end-1983 GDP to about ¥64M. Every pass that adds tertiary GDP shrinks industry in the same commit (organic demand
+   `floor_m2_per_month`, the firm mix), so the level stays near today's.
+2. **Processing stays 100% export.** 来料加工 re-exports by contract, so `hk_processing.export_share` stays 1.
+   Domestic sales belong to the joint venture, the inland SOE and a new `local_collective` archetype.
+3. **Wages: policy plus pressure, not pressure alone.** Part of the 1979–83 rise is wage reform (bonuses, floating
+   wages) and price drift; the model has no price level. Wage steps are dated content citing claims; the market part
+   is a faster upward vacancy response. No rent pass-through in Phase 1.
+4. **Customs needs a retention claim first.** 海关代征 appears in the city's budget, but how much was retained
+   locally needs a claim before `customs_local_share` gets a number. Until then it is a `design_note` placeholder and
+   the spec says so.
+5. **Credit is a stand-in.** Much 1982–84 bank credit funded enterprise and developer building, not city works. Phase
+   1 has no developers, so a regime-governed credit line for city works stands in for it; the spec says so.
+6. **The statistics are tuning targets, not bands.** No §9 band rests on a `lead` claim. The 5/50/45 split, the
+   customs share, the bank-loan share and the wage path go into the tuning log as targets with tolerances. They
+   become bands only after a person checks the scans and sets the claims to `verified`.
+7. **Old saves get their unlock keys.** The save bump in R10a re-applies the `unlock` effects of the events already in
+   `events.fired`, so a pre-R9 save opens the tools whose beats have fired. Events still set every key.
+
+### 4b.3 R10 — Composition and the revenue base
+
+| Step | Work | Goldens |
+|---|---|---|
+| **R10a** | **Reporting and save.** Construction VA as its own line under secondary in `gdpBySector` and the summary (municipal works, firm builds, housing builds). Population reported as `registered` (常住 with local hukou), `temporary` (暂住, split `migrant_construction` / `migrant_factory` / other) and `total_present`, non-overlapping, beside the existing `resident`. Save bump with the unlock re-application (4b.2 item 7). | none (reporting only; the save test proves it) |
+| **R10b** | **Start composition and firms.** Base service jobs and `gdp.base_va_per_job_month.services` set so the 1979–80 tertiary share starts near the evidence. A `local_collective` archetype (small, domestic sales, low export share). Organic firms of 100–150 jobs with `floor_m2_per_month` and `max_backlog_m2` rescaled, and industrial demand lowered so the level holds. | move |
+| **R10c** | **Trade and customs.** Commercial firms grow on commercial zones with gateway reach (parallel to organic industry in `growth.ts`), at tertiary VA per job. Trade volume runs through R8d's inbound flows, so gateway capacity limits it. Customs is collected on firm inputs (`freight.by_archetype.*.input_ratio`) and on commercial imports, credited to `general` at `customs_local_share`. Commercial imports spend forex; processing exports earn it at `retention_share`. `priority.trade` and `priority.commerce` (`params/slice.yaml` `sez.priorities`) steer commercial growth, closing the gap the comment there names. | move |
+| **R10d** | **Import quota setting.** `set_import_quota: strict / balanced / open`, a standing setting like enforcement, gated by a dated card after the SEZ (cites claims). Open raises customs revenue and tertiary GDP and drains forex, and raises scrutiny gain while forex is falling. The verdict reports forex burned. | move |
+
+**Done when:** `npm run check` green; goldens regenerated and explained per commit; the tuning log records the
+historical run against the 4b.2 item 6 targets (sector split 1981–83, customs share, level within ±15% of today's).
+`historical_prologue` and `aggressive` keep every §9 band; if one fails, tune before touching a band, and stop and
+report if tuning can't restore it.
+
+### 4b.4 R11 — The buildup the verdict judges
+
+| Step | Work | Goldens |
+|---|---|---|
+| **R11a** | **Bank construction credit.** A credit line per fiscal regime (`credit_limit_revenue_multiple`, `bank_loan_share_max` in `fiscal_regimes.yaml`) replaces the one-off ¥3M project loan. City works may draw on it up to the ceiling, with debt service. It opens with the 1982 investment programme card (take the credit line or stay self-funded). The summary and verdict show debt ÷ revenue and the bank share of capital construction. | move |
+| **R11b** | **Wages.** Upward wage response faster than downward (`wage_speed_up` / `wage_speed_down`); `migration.inland_wage` as the slower outside benchmark, so the gap widens in the boom; dated wage-policy steps as event effects citing claims. Rising wages lift induced services. | move |
+| **R11c** | **Worksite sheds.** Low-cost sheds for `migrant_construction` near active works (low `m2_per_bed`, no land fee, scrutiny when crowded), reusing the corps card's sheds-and-tents theme; construction crew waves draw temporary workers into them. | move |
+
+**Done when:** as R10, plus the tuning log's bank-share and wage-path targets.
+
+### 4b.5 Not in R10–R11
+
+- No 1985 credit contraction or import-resale scandal: the slice ends at 1984-01. Expose the leverage and the forex
+  burn so the verdict can judge the boom.
+- No state/collective ownership overhaul beyond the one `local_collective` archetype; that is Phase 2.
+- No claim promoted to `sourced` or `verified` by this work; every new param is `placeholder: true`.
+- No band widened.
+
+**Commits:** `report: construction VA and population categories; save unlock re-apply` · `economy: start composition,
+local collectives, workshop-sized firms` · `trade: commercial firms, customs and forex` · `trade: the import quota` ·
+`credit: the regime credit line` · `labour: wage policy and asymmetry` · `housing: worksite sheds` · docs.
+
+---
+
 ## 5. Golden impact, at a glance
 
 | Pass | Moves goldens? | Why |
@@ -681,6 +761,8 @@ warned, not blocked.
 | 1 | **yes, once** (§1.4 opening beat at init) | the first card is answered a quarter earlier |
 | 2 | yes, heavily | land cover changes serviceable land; power changes who builds; freight changes revenue |
 | 3 | yes | new prologue content and re-tuned params |
+| 4 (R10) | not R10a; yes from R10b | composition, trade and customs; level held near today's |
+| 5 (R11) | yes | credit, wages and sheds |
 
 Every pass regenerates `test/golden/*.json` with `npm run golden:update` and states the resident, GDP and band deltas
 in the commit message. A golden that moves without a sentence is a bug report.
