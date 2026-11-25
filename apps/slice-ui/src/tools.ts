@@ -5,7 +5,7 @@
  */
 import {
   applyTurnAction, cellsOfRuns, expandPath, liveOrder, playableAreaOf, previewWorks, runsOfCells, templateZoneAction,
-  type CellRuns, type GameState, type Intensity, type LandUse, type PlayerAction, type RoadClass, type Precedent, type WorksEstimate,
+  type CellRuns, type GameState, type Intensity, type WorksPace, type LandUse, type PlayerAction, type RoadClass, type Precedent, type WorksEstimate,
 } from '@sz/sim-core';
 import { dequeue, enqueue, type Session } from './controller.js';
 import * as S from './strings.js';
@@ -20,6 +20,7 @@ export interface ToolOptions {
   use: LandUse; planOnly: boolean; facility: string;
   roadClass?: RoadClass;    // R8d: absent = street
   intensity?: Intensity;    // R8b: absent = standard
+  pace?: WorksPace;         // R9 (§5.6): absent = normal
 }
 export type XY = readonly [number, number];
 /** A press at `from` and a release at `to`; a click has the two equal. */
@@ -29,6 +30,7 @@ export interface Gesture { tool: Tool; from: XY; to: XY }
 export interface GesturePreview {
   area: number; cells: number; orders: number; bridges: number; units: number; budget: number; forexUsd: number;
   crewPerMonth: number; months: number; note?: L;
+  pace?: { monthsSaved: number; extraYuan: number };   // R9 (§5.6): against the same orders at normal pace
   compensation: number;                       // R8a (§5.5): land compensation owed next month
   byClass: Partial<Record<string, number>>;   // service cells by land-cover class
 }
@@ -200,7 +202,7 @@ function erasePlan(x: Session, c: XY): Plan {
 }
 
 /** What a gesture with this tool would do at the turn's start. */
-export function planGesture(x: Session, o: ToolOptions, g: Gesture): Plan {
+function planGestureAt(x: Session, o: ToolOptions, g: Gesture): Plan {
   const s = x.state;
   if (g.tool === 'select') return { kind: 'none' };
   if (x.mode !== 'turn') return refused(S.T.turnStartOnly);
@@ -253,4 +255,19 @@ export function applyPlan(x: Session, plan: Plan): Session {
   if (plan.kind === 'dequeue') return dequeue(x, plan.index);
   if (plan.kind === 'refused') return { ...x, error: plan.detail === undefined ? { what: plan.what } : { what: plan.what, detail: plan.detail } };
   return x;
+}
+
+const PACED: readonly string[] = ['commit_works', 'build_road', 'place_structure'];
+/**
+ * A gesture's actions and preview (§11.2). R9 (§5.6): at a pace other than normal, its works actions carry the pace,
+ * and the preview gives the months saved and the extra yuan against the same orders at normal pace.
+ */
+export function planGesture(x: Session, o: ToolOptions, g: Gesture): Plan {
+  const plan = planGestureAt(x, o, g);
+  if (plan.kind !== 'actions' || !o.pace || o.pace === 'normal' || !plan.actions.some((a) => PACED.includes(a.type))) return plan;
+  const actions = plan.actions.map((a) => (PACED.includes(a.type) ? { ...a, pace: o.pace } as PlayerAction : a));
+  const p = previewOrders(x, actions);
+  if (!p.ok) return refused(S.T.refused, p.error);
+  const n = plan.preview, paced = summarize(p.orders, n.area, n.cells, n.note);
+  return { kind: 'actions', actions, preview: { ...paced, pace: { monthsSaved: n.months - paced.months, extraYuan: paced.budget - n.budget } } };
 }

@@ -13,14 +13,16 @@ const flyout = (x: Session, lang: 'en' | 'zh') =>
 const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 describe('R8b the zone intensity', () => {
-  it('offers low and standard; high is disabled with its reason until unlocked, in both languages', () => {
+  it('offers low and standard; high is disabled with its opener until unlocked, in both languages', () => {
     const x = newSession(slice);
     for (const lang of ['en', 'zh'] as const) {
       const html = flyout(x, lang);
       expect(html).toContain('data-tier="low"');
       expect(html).toContain('data-tier="standard"');
       expect(html).not.toContain('data-tier="high"');
-      expect(html).toContain(esc(S.T.highLocked[lang]));
+      // R9 (§11.2): the tier's gate names the event that opens it
+      const g = slice.tick.gates!.find((q) => q.gate === 'zone.intensity.high')!;
+      expect(html).toContain(esc(S.T.opensWith[lang] + g.opener.name[lang]));
       expect(html).not.toContain('data-use="public"');
     }
     const open: Session = { ...x, state: { ...x.state, events: { ...x.state.events, unlocked: [HIGH_INTENSITY_KEY] } } };

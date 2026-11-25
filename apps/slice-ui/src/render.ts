@@ -15,7 +15,7 @@ import { BUILD_TOOLS, TOOLS, queuedBudget, type Plan, type Tool, type ToolOption
 import {
   DRAWERS, LAND_COVER_COLOR, powerView, freightView, OVERLAY_LAYERS, USE_COLOR, actionLabel, areaName, areaView, briefing, cardStack, chipsView, constraintContext,
   commitments, constraintLabel, finishedWork, icrCue, inspectorView, ledgerView, leadersView, mostHeldBack, num, pct, projectsView,
-  reviewView, teamsView, verdictView, worksView, yuan, zoneName,
+  reviewView, teamsView, verdictView, worksView, yuan, zoneName, gateLock, newsView, modifiersView,
   type DrawerId, type OverlayLayer,
 } from './views.js';
 
@@ -130,10 +130,28 @@ export function renderStack(v: View): string {
 
 const GLYPH: Readonly<Record<Tool, string>> = { select: '◎', road: '═', zone: '▦', service: '⚒', erase: '⌫', power: 'ϟ', station: '⌁', facility: '⌂' };
 
+/** R9 (§11.2): the gate a whole tool needs; its zone uses, road classes and tiers are gated inside the flyout. */
+const TOOL_GATE: Partial<Record<Tool, string>> = { power: 'structure.power_substation', station: 'structure.power_station', facility: 'structure.facility' };
+/** A gated choice: greyed, never hidden, its title "Opens with ‹opener›" (§11.2). */
+const lockedButton = (lock: L, lang: Lang, label: string) =>
+  `<span class="off" title="${esc(pick(lock, lang))}"><button disabled aria-disabled="true">${label}</button><small class="opens">${esc(pick(lock, lang))}</small></span>`;
+
 export function renderRail(v: View): string {
-  const t = tx(v.lang);
-  return TOOLS.map((k) => `<button class="tool${v.ui.tool === k ? ' sel' : ''}" data-act="tool" data-tool="${k}"
-    ${BUILD_TOOLS.includes(k) && v.x.mode !== 'turn' ? 'disabled' : ''}><i>${GLYPH[k]}</i><span>${t(S.TOOL[k]!)}</span></button>`).join('');
+  const t = tx(v.lang), s = v.x.state;
+  return TOOLS.map((k) => {
+    const lock = TOOL_GATE[k] ? gateLock(s, v.slice, TOOL_GATE[k]!) : undefined;
+    const dis = (BUILD_TOOLS.includes(k) && v.x.mode !== 'turn') || lock ? 'disabled' : '';
+    return `<button class="tool${v.ui.tool === k ? ' sel' : ''}${lock ? ' locked' : ''}" data-act="tool" data-tool="${k}" ${dis}
+    ${lock ? `title="${esc(pick(lock, v.lang))}"` : ''}><i>${GLYPH[k]}</i><span>${t(S.TOOL[k]!)}</span>${lock ? `<small>${t(S.T.locked)}</small>` : ''}</button>`;
+  }).join('');
+}
+
+/** R9 (§5.6): the works pace, for the tools that order works; greyed until works.priority opens. */
+function paceRow(v: View): string {
+  const t = tx(v.lang), cur = v.ui.opts.pace ?? 'normal', lock = gateLock(v.x.state, v.slice, 'works.priority');
+  const steps = ['normal', 'push', 'all_out'].map((k) => k !== 'normal' && lock ? lockedButton(lock, v.lang, t(S.PACE[k]!))
+    : `<button data-act="pace" data-pace="${k}" class="${cur === k ? 'sel' : ''}">${t(S.PACE[k]!)}</button>`).join('');
+  return `<div class="muted">${t(S.T.pace)}</div><div class="opts">${steps}</div><div class="hint">${t(S.T.paceHint)}</div>`;
 }
 
 /** The open tool's flyout: what it does, and its choices. */
@@ -142,34 +160,44 @@ export function renderFlyout(v: View): string {
   let body = `<div class="muted">${t(S.TOOL_HINT[k]!)}</div>`;
   // R7 (§13 vocabulary): the Form site hint, wherever site formation is ordered
   const formation = `<div class="hint"><b>${t(S.T.siteFormation)}:</b> ${t(S.T.formationHint)}</div>`;
-  if (k === 'service') body += formation;
+  if (k === 'service') body += formation + paceRow(v);
+  if (k === 'power' || k === 'station') body += paceRow(v);
   if (k === 'zone') {
     // R8b (§11.2): public is gone; facilities are placed directly
-    const uses = LAND_USES.filter((u) => u !== 'reserve').map((u) => `<button data-act="use" data-use="${u}" class="${ui.opts.use === u ? 'sel' : ''}"
-      style="border-left:6px solid rgba(${USE_COLOR[u]!.slice(0, 3).join(',')})">${t(S.LAND_USE[u]!)}</button>`).join('');
+    const uses = LAND_USES.filter((u) => u !== 'reserve').map((u) => {
+      const lock = gateLock(v.x.state, slice, `zone.${u}`);   // R9 (§11.2)
+      return lock ? lockedButton(lock, v.lang, t(S.LAND_USE[u]!)) : `<button data-act="use" data-use="${u}" class="${ui.opts.use === u ? 'sel' : ''}"
+      style="border-left:6px solid rgba(${USE_COLOR[u]!.slice(0, 3).join(',')})">${t(S.LAND_USE[u]!)}</button>`;
+    }).join('');
     // R8b (§5.3): the intensity; high is shown disabled with its reason until it is unlocked
     const tier = ui.opts.intensity ?? 'standard', highOpen = v.x.state.events.unlocked.includes(HIGH_INTENSITY_KEY);
-    const tiers = INTENSITIES.map((k) => k === 'high' && !highOpen
-      ? `<span class="off" title="${esc(pick(S.T.highLocked, v.lang))}"><button disabled>${t(S.INTENSITY[k]!)}</button></span>`
-      : `<button data-act="intensity" data-tier="${k}" class="${tier === k ? 'sel' : ''}">${t(S.INTENSITY[k]!)}</button>`).join('');
+    // R9 (§11.2): a tier's gate names its opener; without gates, high keeps its R8b reason
+    const tiers = INTENSITIES.map((k) => {
+      const lock = gateLock(v.x.state, slice, `zone.intensity.${k}`) ?? (k === 'high' && !highOpen && !slice.tick.gates?.length ? S.T.highLocked : undefined);
+      return lock ? lockedButton(lock, v.lang, t(S.INTENSITY[k]!))
+        : `<button data-act="intensity" data-tier="${k}" class="${tier === k ? 'sel' : ''}">${t(S.INTENSITY[k]!)}</button>`;
+    }).join('');
     const guides = (slice.tick.precedents ?? []).filter((p) => p.cells.length);
     body += `<div class="opts">${uses}</div>
       <div class="muted">${t(S.T.intensity)}</div><div class="opts">${tiers}</div>
       <div class="hint">${t(S.T.intensityHint)}</div>
-      ${ui.opts.planOnly ? '' : formation}
+      ${ui.opts.planOnly ? '' : formation + paceRow(v)}
       <label><input type="checkbox" data-ui="planOnly" ${ui.opts.planOnly ? 'checked' : ''}> ${t(S.T.planOnly)}</label>
       <label><input type="checkbox" data-ui="guide" ${ui.guide ? 'checked' : ''}> ${t(S.T.showGuide)}</label>
       ${guides.map((p) => `<div class="q"><span>${esc(bi(p.name))}</span><button data-act="zoneGuide" data-id="${esc(p.id)}" ${off(v)}>${t(S.T.zoneGuide)}</button></div>`).join('')}`;
   } else if (k === 'road') {
     // R8d (§5.12): the tier before the drag
     const cls = ui.opts.roadClass ?? 'street';
-    body += `<div class="muted">${t(S.T.roadTier)}</div><div class="opts">${['track', 'street', 'avenue'].map((c) =>
-      `<button data-act="roadClass" data-cls="${c}" class="${cls === c ? 'sel' : ''}">${t(S.ROAD_CLASS[c]!)}</button>`).join('')}</div>
-      <div class="hint">${t(S.T.roadTierHint)}</div>`;
+    body += `<div class="muted">${t(S.T.roadTier)}</div><div class="opts">${['track', 'street', 'avenue'].map((c) => {
+      const lock = gateLock(v.x.state, slice, `road.${c}`);   // R9 (§11.2)
+      return lock ? lockedButton(lock, v.lang, t(S.ROAD_CLASS[c]!))
+        : `<button data-act="roadClass" data-cls="${c}" class="${cls === c ? 'sel' : ''}">${t(S.ROAD_CLASS[c]!)}</button>`;
+    }).join('')}</div>
+      <div class="hint">${t(S.T.roadTierHint)}</div>${paceRow(v)}`;
   } else if (k === 'facility') {
     const types = Object.keys(slice.params.works?.facilities ?? {});
     body += `<label>${t(S.T.facilityType)} <select data-ui="facility">${types.map((f) =>
-      `<option value="${esc(f)}" ${ui.opts.facility === f ? 'selected' : ''}>${t(S.FACILITY[f] ?? { zh: f, en: f })}</option>`).join('')}</select></label>`;
+      `<option value="${esc(f)}" ${ui.opts.facility === f ? 'selected' : ''}>${t(S.FACILITY[f] ?? { zh: f, en: f })}</option>`).join('')}</select></label>${paceRow(v)}`;
   }
   return `<h3>${t(S.TOOL[k]!)}</h3>${body}`;
 }
@@ -186,7 +214,8 @@ export function renderPreview(plan: Plan, v: Pick<View, 'x' | 'lang'>): string {
     ${tr(S.T.cost, `${yuan(p.budget)}${p.forexUsd ? ` + $${num(p.forexUsd)}` : ''}`)}
     ${p.compensation ? tr(S.OBLIGATION.compensation!, yuan(p.compensation)) : ''}
     ${Object.keys(p.byClass).length > 1 ? tr(S.T.landCover, Object.entries(p.byClass).map(([k, n]) => `${t(S.LAND_COVER[k]!)} ${num(n!)}`).join(', ')) : ''}
-    ${p.orders ? `${tr(S.T.units, num(p.units))}${tr(S.T.crewPerMonth, num(p.crewPerMonth))}${tr(S.T.months, num(p.months))}` : ''}</table>
+    ${p.orders ? `${tr(S.T.units, num(p.units))}${tr(S.T.crewPerMonth, num(p.crewPerMonth))}${tr(S.T.months, num(p.months))}` : ''}
+    ${p.pace ? `${tr(S.T.monthsSaved, num(p.pace.monthsSaved))}${tr(S.T.extraYuan, yuan(p.pace.extraYuan))}` : ''}</table>
     ${p.note ? `<div class="down">${t(p.note)}</div>` : ''}`;
 }
 
@@ -228,7 +257,14 @@ export function renderBriefing(v: View): string {
     return `<div>${t(f.name)}: ${parts.filter(([n]) => n > 0).map(([n, l]) => `${num(n)}${v.lang === 'zh' ? '' : ' '}${t(l)}`).join(v.lang === 'zh' ? '，' : ', ')}</div>`;
   }).join('') || `<div class="muted">${t(S.T.noWorkFinished)}</div>`;
   const held = mostHeldBack(s, slice);
-  return `<h2>${t(S.T.briefing)} · ${esc(br.when)}</h2><table>${rows}</table>
+  // R9 (§11.2): the news since the previous turn's start, by desk, and the timed modifiers still in force
+  const news = newsView(s, slice, x.lastTurnStart).map((g) => `<div class="desk"><h4>${t(S.DESK[g.desk] ?? { zh: g.desk, en: g.desk })}</h4>${g.items.map((n) =>
+    n.text ? `<div class="news${n.letter ? ' letter' : ''}"><b>${t(n.name)}</b>${n.letter ? ` <small class="muted">${t(S.T.composedFiction)}</small>` : ''}<p>${t(n.text)}</p></div>`
+      : `<div class="news headline">${t(n.name)}</div>`).join('')}</div>`).join('') || `<div class="muted">${t(S.T.noNews)}</div>`;
+  const mods = modifiersView(s, slice).map((m) => `<div>${t(m.target)} ×${String(Math.round(m.factor * 100) / 100)} · ${num(m.quartersLeft)} ${t(S.T.quartersLeft)} · ${t(m.source)}</div>`).join('')
+    || `<div class="muted">${t(S.T.noModifiers)}</div>`;
+  return `<h2>${t(S.T.briefing)} · ${esc(br.when)}</h2>
+    <h3>${t(S.T.news)}</h3>${news}<h3>${t(S.T.liveModifiers)}</h3>${mods}<table>${rows}</table>
     <h3>${t(S.T.workFinished)}</h3>${fin}
     <h3>${t(S.T.heldBackArea)}</h3>${held ? `<div>${t(held.name)}: ${t(constraintLabel(held.constraint))} (${num(held.cells)}${v.lang === 'zh' ? '' : ' '}${t(S.T.cellsHeld)})</div>`
       : `<div class="muted">${t(S.T.nothingHeld)}</div>`}
@@ -347,7 +383,11 @@ function drawerPolitics(v: View): string {
       ${tr(S.T.disciplineRisk, pick(l.risk, v.lang))}${tr(S.T.shortcuts, String(l.shortcuts))}</table></div>`).join('')
     + (lv.falls.length ? `<h2>${t(S.T.falls)}</h2>${lv.falls.map((f) => `<div class="muted">${f.at}: ${t(f.leader)} → ${t(f.replacedBy)}</div>`).join('')}` : '')
     + next + `<h2>${t(S.T.held)}</h2>` + r.held.map((h) => `<div>${h.at}: ${h.score.toFixed(2)} ${t(h.pass ? S.T.pass : S.T.fail)}${h.vetoed ? ` · ${t(S.T.vetoed)}` : ''}</div>`).join('')
-    + `<h2>${t(S.T.enforcement)}</h2><div class="opts">${ENFORCEMENT_LEVELS.map((n) => `<button data-act="enforce" data-v="${n}" class="${p.enforcement === n ? 'sel' : ''}" ${off(v)}>${t(S.ENFORCEMENT[n]!)}</button>`).join('')}</div>
+    + `<h2>${t(S.T.enforcement)}</h2><div class="opts">${ENFORCEMENT_LEVELS.map((n) => {
+      const lock = n !== p.enforcement ? gateLock(v.x.state, v.slice, 'policy.enforcement') : undefined;   // R9 (§11.2)
+      return lock ? lockedButton(lock, v.lang, t(S.ENFORCEMENT[n]!))
+        : `<button data-act="enforce" data-v="${n}" class="${p.enforcement === n ? 'sel' : ''}" ${off(v)}>${t(S.ENFORCEMENT[n]!)}</button>`;
+    }).join('')}</div>
     <h2>${t(S.T.permits)}</h2><div class="opts">${PERMIT_REGIMES.map((n) => `<button data-act="permit" data-v="${n}" class="${p.permitRegime === n ? 'sel' : ''}" ${off(v)}>${t(S.PERMIT[n]!)}</button>`).join('')}</div>`;
 }
 

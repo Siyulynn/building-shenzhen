@@ -126,6 +126,7 @@ document.addEventListener('click', (e) => {
     case 'use': ui.opts.use = d.use as LandUse; break;
     case 'roadClass': ui.opts.roadClass = d.cls as RoadClass; break;
     case 'intensity': ui.opts.intensity = d.tier as Intensity; break;
+    case 'pace': if (d.pace === 'normal') delete ui.opts.pace; else ui.opts.pace = d.pace as 'push' | 'all_out'; break;   // R9 (§5.6)
     case 'zoneGuide': {
       const p = slice.tick.precedents?.find((q) => q.id === d.id);
       if (p) x = applyPlan(x, guidePlan(x, ui.opts, p));

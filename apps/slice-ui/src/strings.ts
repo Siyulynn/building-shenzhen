@@ -289,7 +289,25 @@ export const T = {
     "Committed: live orders and projects, this turn's queued orders, and one-off costs due this quarter · money for projects after them"),
   crewsCommitted: l('在用施工力量／总数 · 已承诺未支出', 'Crews in use / total · committed'),
   queuedThisTurn: l('本回合排队的指令', "This turn's queued orders"), oneOffDue: l('本季度到期的一次性支出', 'One-off costs due this quarter'),
+  // R9 (§11.2): locked tools, the works pace, the news and the live modifiers
+  opensWith: l('随此开放：', 'Opens with '), locked: l('尚未开放', 'Locked'),
+  pace: l('施工节奏', 'Pace'),
+  paceHint: l('加快：同样的工程，每月施工力量做得更多，但每单位花钱更多。只影响尚未完成的部分。',
+    "Faster: the same work, more of it done by each month's crew, at more money a unit. Only unworked units are re-priced."),
+  monthsSaved: l('节省月数', 'Months saved'), extraYuan: l('额外费用', 'Extra cost'),
+  news: l('消息', 'News'), noNews: l('上季度没有新消息。', 'No news since the last quarter.'),
+  composedFiction: l('虚构的信件，依据史料写成', 'A composed letter, fiction written from the sources'),
+  liveModifiers: l('仍在起作用的影响', 'Effects still in force'), quartersLeft: l('剩余季度', 'quarters left'),
+  noModifiers: l('没有。', 'None.'),
 } as const satisfies Record<string, L>;
+
+/** R9 (§5.6): the works pace steps. */
+export const PACE: Readonly<Record<string, L>> = { normal: l('正常', 'Normal'), push: l('加快', 'Push'), all_out: l('全力', 'All-out') };
+/** R9 (§11.2): the news desks, as the briefing's headings. */
+export const DESK: Readonly<Record<string, L>> = {
+  beijing: l('来自北京', 'From Beijing'), province: l('来自省里', 'From the province'), city: l('来自本市', 'From the city'),
+  hong_kong: l('来自香港', 'From Hong Kong'),
+};
 
 /** R9 (§5.8, §11.2): what each timed-modifier target scales, in words. */
 export const MODIFIER_TARGET: Readonly<Record<string, L>> = {
@@ -318,7 +336,7 @@ export const BADGE: Readonly<Record<string, L>> = {
 export const TABLES: Readonly<Record<string, Readonly<Record<string, L>>>> = {
   SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, LAND_COVER, ENFORCEMENT, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
   ROLE, TRAIT, RISK, STAGE, WAITING, OVERLAYS, T, RUNG, ORDER_KIND, ORDER_STAGE, STRUCTURE, FACILITY, WORK_STAGE, TOOL,
-  TOOL_HINT, CHIP, CHIP_STAT, CUE, CUE_INPUT, BADGE, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
+  TOOL_HINT, CHIP, CHIP_STAT, CUE, CUE_INPUT, BADGE, PACE, DESK, MODIFIER_TARGET, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
 };
 
 /** Both names, Chinese first: how a place label reads in either language. */

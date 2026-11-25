@@ -9,7 +9,7 @@ import {
   zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
   VILLAGE_ARCHETYPES, SOURCE_KINDS, areaTakes, poolFactor, powerPool, importedKw, utilityShares,
-  firmFreight, freightContent, freightNetwork, crewPool,
+  firmFreight, freightContent, freightNetwork, crewPool, modifierLive, lockedGate,
   type CardInstance, type CellRuns, type EventDef, type EventEffect, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
   type WorksOrder, type Zone, type LandCoverClass, landCoverAt,
 } from '@sz/sim-core';
@@ -227,6 +227,50 @@ const indicators = (s: GameState, slice: Slice): Indicator[] => [
   { label: S.T.moneyForProjects, value: Math.round(moneyForProjects(s, slice.params)), money: true },
   { label: S.T.scrutiny, value: Math.round(s.climate.scrutiny) },
 ];
+// ---- R9 (§11.2): locked gates, the news and the live modifiers ----
+
+/** "Opens with ‹opener›" for a gate id that is locked now; undefined when it is open (or ungated). */
+export function gateLock(s: GameState, slice: Slice, gate: string): L | undefined {
+  const g = (slice.tick.gates ?? []).find((x) => x.gate === gate);
+  if (!g || s.events.unlocked.includes(g.requires)) return undefined;
+  return { zh: `${S.T.opensWith.zh}${g.opener.name.zh}`, en: `${S.T.opensWith.en}${g.opener.name.en}` };
+}
+/** The same for an action: the first locked gate it needs, read through sim-core's own predicate. */
+export function actionLock(s: GameState, slice: Slice, a: PlayerAction): L | undefined {
+  const g = slice.tick.gates?.length ? lockedGate(s, slice.tick.gates, a) : undefined;
+  return g ? { zh: `${S.T.opensWith.zh}${g.opener.name.zh}`, en: `${S.T.opensWith.en}${g.opener.name.en}` } : undefined;
+}
+
+export interface NewsItem { id: string; desk: string; name: L; text?: L; letter: boolean }
+/**
+ * The news records fired since the previous turn's start (§11.2; on Turn 1 those fired at init): the opening letters
+ * in full, then the lead in full, then at most two more as headlines; grouped under their desk, in that order.
+ */
+export function newsView(now: GameState, slice: Slice, before?: GameState): { desk: string; items: NewsItem[] }[] {
+  const fresh = new Set(now.events.fired.slice(before ? before.events.fired.length : 0).map((f) => f.id));
+  const defs = slice.tick.events.filter((d) => d.family === 'news' && d.news && fresh.has(d.id));   // content order
+  const letters = defs.filter((d) => d.news!.tone === 'opening'), rest = defs.filter((d) => d.news!.tone !== 'opening');
+  const items: NewsItem[] = [
+    ...letters.map((d) => ({ id: d.id, desk: d.news!.desk, name: d.name, ...(d.text ? { text: d.text } : {}), letter: true })),
+    ...rest.slice(0, 1).map((d) => ({ id: d.id, desk: d.news!.desk, name: d.name, ...(d.text ? { text: d.text } : {}), letter: false })),
+    ...rest.slice(1, 3).map((d) => ({ id: d.id, desk: d.news!.desk, name: d.name, letter: false })),
+  ];
+  const out: { desk: string; items: NewsItem[] }[] = [];
+  for (const it of items) {
+    const g = out.find((x) => x.desk === it.desk);
+    if (g) g.items.push(it); else out.push({ desk: it.desk, items: [it] });
+  }
+  return out;
+}
+/** The live timed modifiers (§11.2): the target in words, the factor, the quarters left and the source's name. */
+export function modifiersView(s: GameState, slice: Slice): { target: L; factor: number; quartersLeft: number; source: L }[] {
+  return (s.events.modifiers ?? []).filter((m) => modifierLive(s, m)).map((m) => ({
+    target: S.MODIFIER_TARGET[m.target] ?? raw(m.target), factor: m.factor,
+    quartersLeft: Math.ceil((m.until - s.date + 1) / 3),
+    source: slice.tick.events.find((d) => d.id === m.source)?.name ?? raw(m.source),
+  }));
+}
+
 /** The quarter's indicators, each with its change since the previous turn's start. */
 export function briefing(now: GameState, slice: Slice, before?: GameState): { when: string; turn: number; rows: Indicator[] } {
   const a = indicators(now, slice), b = before ? indicators(before, slice) : undefined;
@@ -400,6 +444,7 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
     case 'cancel_works': return cat(S.T.cancel, cat(orderName(s, a.order), raw(a.cells ? ` (${cellsOfRuns(a.cells, s.grid).length})` : ''), ''), ': ');
     case 'set_works_paused': return cat(a.paused ? S.T.pause : S.T.resume, orderName(s, a.order), ': ');
     case 'set_works_priority': return cat(cat(S.T.priority, orderName(s, a.order), ' '), S.PRIORITY[a.priority] ?? raw(a.priority), ': ');
+    case 'set_works_pace': return cat(cat(S.T.pace, orderName(s, a.order), ' '), S.PACE[a.pace] ?? raw(a.pace), ': ');
     default: return raw((a as { type: string }).type);
   }
 }
