@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  cellsOfRuns, policyNamed, runSummary, spatialViews, templateZoneAction,
+  cellsOfRuns, policyNamed, runSummary, templateZoneAction,
   type CardInstance, type GameState, type LocalizedString, type PlayRecord, type Slice,
 } from '@sz/sim-core';
 import { GOLDEN_POLICIES, ROOT, goldenPath, goldenText } from '../../cli/src/slice.js';
@@ -14,8 +14,11 @@ import { loadSlice } from '../src/load.js';
 import { choose, enqueue, newSession, simError, submit, type Session } from '../src/controller.js';
 import { LANGS, LANG_NAME, STORAGE_KEY, readStoredLang, resolveLang, storeLang, withLang, type Lang } from '../src/lang.js';
 import {
-  PANELS, errorText, hoverText, pageTitle, renderOverlays, renderRight, renderTurn, renderVerdict, type UiState, type View,
+  DRAWERS, errorText, hoverText, initialUi, pageTitle, renderBriefing, renderChips, renderCue, renderDecisions, renderDrawer,
+  renderFlyout, renderInspector, renderOverlaySelect, renderPreview, renderQuarter, renderRail, renderStack, renderVerdict,
+  type UiState, type View,
 } from '../src/render.js';
+import { TOOLS, planGesture } from '../src/tools.js';
 import { ENFORCEMENT, TABLES, T, bi, place } from '../src/strings.js';
 import { actionLabel, areaName, clipZone, previewZone, zoneName } from '../src/views.js';
 
@@ -75,7 +78,8 @@ const PLACES: string[] = [...new Set([
 const ENT: Record<string, string> = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
 /** The text a reader sees: tags and attributes dropped, entities decoded, place labels and the switch removed. */
 function visible(html: string): string {
-  let t = html.replace(/<[^>]*>/g, ' ').replace(/&(amp|lt|gt|quot|#39);/g, (e) => ENT[e]!);
+  // sim-core's own messages are diagnostics, shown as sim-core wrote them (§11.1): render.ts marks them
+  let t = html.replace(/<span class="diag" lang="en">[^<]*<\/span>/g, ' ').replace(/<[^>]*>/g, ' ').replace(/&(amp|lt|gt|quot|#39);/g, (e) => ENT[e]!);
   for (const p of PLACES) t = t.split(p).join(' ');
   for (const n of Object.values(LANG_NAME)) t = t.split(n).join(' ');
   return t;
@@ -114,22 +118,30 @@ function checkLang(where: string, html: string, lang: Lang): void {
 
 /** Every screen of the session in one language, and a few hover readouts: sites, routes, zones. */
 function screens(x: Session, lang: Lang): [string, string][] {
-  const ui: UiState = { layer: 'areas', tab: 'ledger', area: 7, drawUse: null,
-    project: slice.tick.fiscal?.projects[0]?.id ?? '', target: '', priority: 'normal' };
-  const spatial = spatialViews(x.state, slice.startNetwork);
-  const v: View = { slice, x, ui, lang, spatial };
-  const out: [string, string][] = [['turn', renderTurn(v)], ['overlays', renderOverlays(v)], ['verdict', renderVerdict(v) ?? '']];
-  for (const tab of Object.keys(PANELS)) out.push([tab, renderRight({ ...v, ui: { ...ui, tab } })]);
-  for (const p of slice.tick.fiscal?.projects ?? []) out.push([`build ${p.id}`, renderRight({ ...v, ui: { ...ui, tab: 'build', project: p.id } })]);
+  const ui: UiState = { ...initialUi(slice), area: 7 };
+  const v: View = { slice, x, ui, lang };
+  const out: [string, string][] = [['quarter', renderQuarter(v)], ['cue', renderCue(v)], ['overlays', renderOverlaySelect(v)],
+    ['rail', renderRail(v)], ['chips', renderChips(v)], ['stack', renderStack(v)], ['briefing', renderBriefing(v)],
+    ['decisions', renderDecisions(v)], ['verdict', renderVerdict(v) ?? '']];
+  for (const tool of TOOLS) out.push([`flyout ${tool}`, renderFlyout({ ...v, ui: { ...ui, tool } })]);
+  for (const drawer of DRAWERS) out.push([`drawer ${drawer}`, renderDrawer({ ...v, ui: { ...ui, drawer } })]);
+  for (const area of x.state.areas.filter((a) => a.access === 'playable')) {
+    out.push([`population ${area.id}`, renderDrawer({ ...v, ui: { ...ui, drawer: 'population', area: area.id } })]);
+  }
   for (const site of slice.startSites) {
-    out.push([`area+site ${site.id}`, renderRight({ ...v, ui: { ...ui, tab: 'area', area: site.area }, selectedSite: site })]);
+    out.push([`inspector ${site.id}`, renderInspector({ ...v, ui: { ...ui, selected: { x: site.cell[0], y: site.cell[1] } }, selectedSite: site })]);
     out.push([`hover ${site.id}`, hoverText(v, { x: site.cell[0], y: site.cell[1], area: site.area })]);
+  }
+  const [sx, sy] = slice.startSites.find((q) => q.area === 7)?.cell ?? [0, 0];
+  for (const tool of ['zone', 'road', 'erase', 'power'] as const) {
+    out.push([`preview ${tool}`, renderPreview(planGesture(x, ui.opts, { tool, from: [sx + 1, sy + 1], to: [sx + 2, sy + 2] }), v)]);
   }
   const W = x.state.grid.width;
   for (const r of slice.startNetwork.routes) { const c = r.cells[0]!; out.push([`hover ${r.id}`, hoverText(v, { x: c % W, y: Math.floor(c / W), area: 0 })]); }
   for (const z of x.state.zones) {
     const c = cellsOfRuns(z.runs, x.state.grid)[0]!;
     out.push([`hover zone ${z.id}`, hoverText(v, { x: c % W, y: Math.floor(c / W), area: z.area })]);
+    out.push([`inspector zone ${z.id}`, renderInspector({ ...v, ui: { ...ui, selected: { x: c % W, y: Math.floor(c / W) } } })]);
   }
   out.push(['title', pageTitle(lang)]);
   return out;
@@ -208,12 +220,28 @@ describe('each language shows only itself, except place labels', () => {
     x = enqueue(x, { type: 'cancel_project', project: 1 });
     x = enqueue(x, { type: 'contract_team', team: team.id, mode: 'pool' });
     x = enqueue(x, { type: 'set_project_priority', project: 1, priority: 'low' });
+    // R5's works actions and the zone edits
+    const [cx, cy] = [c % W, Math.floor(c / W)];
+    x = enqueue(x, { type: 'commit_works', zone: x.state.nextZoneId });
+    x = enqueue(x, { type: 'commit_works', zone: x.state.nextZoneId, cells: [[cy, cx - 2, cx - 1]] });
+    x = enqueue(x, { type: 'build_road', path: [[cx, cy + 6], [cx + 3, cy + 6]] });
+    x = enqueue(x, { type: 'place_structure', kind: 'power_source', cell: [cx, cy + 7], attach: [cx, cy + 6] });
+    x = enqueue(x, { type: 'place_structure', kind: 'facility', facility: 'school', cell: [cx + 1, cy + 7], attach: [cx + 1, cy + 6] });
+    x = enqueue(x, { type: 'cancel_works', order: 1, cells: [[cy, cx, cx]] });
+    x = enqueue(x, { type: 'set_works_paused', order: 1, paused: true });
+    x = enqueue(x, { type: 'set_works_priority', order: 1, priority: 'high' });
+    x = enqueue(x, { type: 'edit_zone', zone: x.state.nextZoneId, use: 'commercial' });
+    x = enqueue(x, { type: 'rename_zone', zone: x.state.nextZoneId, name: null });
     expect(x.error).toBeUndefined();
-    expect(x.queue.length).toBe(10);
+    expect(x.queue.length).toBe(20);
+    for (const [k, a] of x.queue.entries()) {
+      const label = actionLabel(x.state, slice, x.queue, k);
+      expect(label.en, a.type).not.toBe(a.type);
+      expect(label.zh, a.type).not.toBe(a.type);
+    }
     for (const lang of LANGS) {
-      const v: View = { slice, x, lang, spatial: spatialViews(x.state, slice.startNetwork),
-        ui: { layer: 'areas', tab: 'ledger', area: 7, drawUse: null, project, target: '', priority: 'normal' } };
-      checkLang('queue', renderTurn(v), lang);
+      const v: View = { slice, x, lang, ui: { ...initialUi(slice), area: 7 } };
+      checkLang('queue', renderStack(v), lang);
     }
     expect(actionLabel(x.state, slice, x.queue, 0).zh).toBe(`${T.enforcement.zh}：${ENFORCEMENT.high!.zh}`);
     expect(actionLabel(x.state, slice, x.queue, 0).en).toBe(`${T.enforcement.en}: ${ENFORCEMENT.high!.en}`);
@@ -225,8 +253,7 @@ describe('each language shows only itself, except place labels', () => {
     const a = areaName(s, 7);
     expect(a).toEqual(place(s.areas.find((q) => q.id === 7)!.name));
     for (const lang of LANGS) {
-      const html = renderOverlays({ slice, x: newSession(slice), lang, spatial: spatialViews(s, slice.startNetwork),
-        ui: { layer: 'areas', tab: 'ledger', area: 7, drawUse: null, project: '', target: '', priority: 'normal' } });
+      const html = renderOverlaySelect({ slice, x: newSession(slice), lang, ui: initialUi(slice) });
       for (const r of slice.startNetwork.routes) expect(html).toContain(bi(r.name));
     }
   });

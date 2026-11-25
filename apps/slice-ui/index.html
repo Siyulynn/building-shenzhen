@@ -5,46 +5,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Shenzhen · the Phase 1 slice</title>
   <style>
+    /* phase1-slice.md §11.2: the map fills the window; the HUD floats over it. Ugly on purpose. */
     html, body { margin: 0; height: 100%; background: #0e1a24; color: #e8e4d8; font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
     canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; cursor: grab; }
     canvas.dragging { cursor: grabbing; } canvas.drawing { cursor: crosshair; }
-    .side { position: fixed; top: 8px; bottom: 8px; width: min(390px, calc(50vw - 14px)); overflow: auto; background: rgba(14,26,36,.93); border-radius: 6px; padding: 10px 12px; box-sizing: border-box; }
-    #left { left: 8px; } #right { right: 8px; }
-    h1 { font-size: 15px; margin: 0 0 4px; } h2 { font-size: 13px; margin: 12px 0 4px; color: #b8c4cc; }
-    h3 { font-size: 13px; margin: 0 0 4px; }
+    .float { position: fixed; background: rgba(14,26,36,.93); border-radius: 6px; padding: 6px 10px; box-sizing: border-box; }
+    #quarter { top: 8px; left: 8px; min-width: 150px; } #quarter .when { font-size: 18px; font-weight: 600; }
+    #cue { top: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; }
+    .cue { position: relative; display: flex; align-items: center; gap: 4px; } .cue .bar { width: 46px; }
+    .cue.low .bar > i { background: #e08a7a; }
+    .tip { display: none; position: absolute; top: 100%; left: 0; z-index: 5; background: #22394a; border: 1px solid #3a5a70; border-radius: 4px; padding: 4px 6px; white-space: nowrap; font-size: 12px; font-weight: normal; }
+    .cue:hover .tip, .chip span:hover > .tip { display: block; }
+    #overlay { top: 8px; right: 8px; width: 300px; }
+    #inspector { top: 64px; right: 8px; width: 300px; max-height: calc(100vh - 220px); overflow: auto; }
+    #rail { top: 96px; left: 8px; display: flex; flex-direction: column; gap: 3px; padding: 5px; }
+    .tool { display: flex; align-items: center; gap: 6px; text-align: left; min-width: 112px; } .tool i { font-style: normal; width: 16px; text-align: center; }
+    #flyout { top: 96px; left: 148px; width: 250px; }
+    #chips { bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 5px; }
+    .chip { display: flex; flex-direction: column; align-items: flex-start; min-width: 108px; font-variant-numeric: tabular-nums; }
+    .chip span { position: relative; } .chip .tip { bottom: 100%; top: auto; }
+    #stack { bottom: 8px; right: 8px; width: 280px; display: flex; flex-direction: column; gap: 4px; max-height: 60vh; overflow: auto; }
+    .queue { max-height: 30vh; overflow: auto; }
+    #drawer { top: 64px; left: 148px; width: 400px; max-height: calc(100vh - 150px); overflow: auto; z-index: 3; }
+    #dim { position: fixed; inset: 0; background: rgba(5,10,15,.55); display: none; z-index: 4; pointer-events: none; }
+    #briefing, #decisions { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 480px; max-height: 80vh; overflow: auto; z-index: 6; border: 1px solid #d9b26f; }
+    #preview { display: none; z-index: 7; width: 240px; font-size: 12px; pointer-events: none; border: 1px solid #3a5a70; }
+    #hover { bottom: 74px; left: 50%; transform: translateX(-50%); font-size: 12px; padding: 3px 8px; }
+    #hover:empty { display: none; }
+    h1 { font-size: 15px; margin: 0 0 4px; } h2 { font-size: 13px; margin: 10px 0 4px; color: #b8c4cc; } h3 { font-size: 13px; margin: 2px 0 4px; }
     table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
     td { padding: 1px 4px; vertical-align: top; overflow-wrap: anywhere; } td.n { text-align: right; white-space: nowrap; overflow-wrap: normal; }
     .up { color: #8fd18f; } .down { color: #e08a7a; } .muted { color: #8fa3b3; font-size: 12px; }
-    .card { border: 1px solid #3a4c5a; border-radius: 5px; padding: 6px 8px; margin: 6px 0; }
-    .card.int { border-color: #d9b26f; }
-    .card .line { font-size: 12px; color: #c9d2d8; margin: 2px 0; }
-    .opts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .card { border: 1px solid #3a4c5a; border-radius: 5px; padding: 6px 8px; margin: 6px 0; } .card.int { border-color: #d9b26f; }
+    .card .line { font-size: 12px; color: #c9d2d8; margin: 2px 0; } .cells { font-size: 11px; color: #8fa3b3; }
+    .opts { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
     button { background: #22394a; color: #e8e4d8; border: 1px solid #3a5a70; border-radius: 4px; padding: 3px 8px; cursor: pointer; font: inherit; }
     button:hover { background: #2d4a60; } button.sel { background: #d9b26f; color: #17222b; border-color: #d9b26f; }
-    button.go { background: #3f7d4e; border-color: #5ea36f; font-weight: 600; padding: 6px 14px; margin-top: 8px; }
+    button.go { background: #3f7d4e; border-color: #5ea36f; font-weight: 600; padding: 6px 14px; }
+    button.must { border-color: #d9b26f; } button.x { float: right; padding: 0 6px; }
     button:disabled { opacity: .45; cursor: default; }
-    .lang { float: right; display: flex; gap: 2px; } .lang button { padding: 1px 6px; font-size: 12px; }
-    .tabs { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 6px; }
-    .err { background: #5a2a24; border-radius: 4px; padding: 6px 8px; margin: 6px 0; }
-    .q { display: flex; justify-content: space-between; gap: 6px; margin: 2px 0; }
-    select { background: #22394a; color: #e8e4d8; border: 1px solid #3a5a70; border-radius: 4px; font: inherit; }
-    #overlays { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); background: rgba(14,26,36,.9); border-radius: 6px; padding: 4px 6px; display: flex; gap: 3px; flex-wrap: wrap; max-width: calc(100vw - 820px); }
-    #hover { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(14,26,36,.9); border-radius: 6px; padding: 4px 8px; font-size: 12px; }
-    .route-key { flex-basis: 100%; font-size: 11px; color: #c9d2d8; }
-    .route-key i { display: inline-block; width: 20px; margin: 0 5px 3px 0; border-top: 2px solid #eab977; }
-    .route-key .railway { border-top: 2px dashed #c6d9ef; }
-    #verdict { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(5,10,15,.7); }
+    label { display: block; margin: 3px 0; }
+    .lang { float: right; display: flex; gap: 2px; margin-left: 8px; } .lang button { padding: 1px 6px; font-size: 12px; }
+    .err { background: #5a2a24; border-radius: 4px; padding: 6px 8px; }
+    .refused { color: #f0b0a0; }
+    .q { display: flex; justify-content: space-between; gap: 6px; margin: 2px 0; } .q button { padding: 0 6px; }
+    .held { margin-top: 6px; padding: 4px 6px; background: #22394a; border-radius: 4px; }
+    select { background: #22394a; color: #e8e4d8; border: 1px solid #3a5a70; border-radius: 4px; font: inherit; max-width: 100%; }
+    .key { font-size: 11px; color: #c9d2d8; } .key i { display: inline-block; width: 20px; margin: 0 5px 3px 0; border-top: 2px dashed #eab977; }
+    .key .railway { border-top: 2px dashed #c6d9ef; }
+    #verdict { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(5,10,15,.7); z-index: 9; }
     #verdict > div { background: #14232f; border: 1px solid #d9b26f; border-radius: 8px; padding: 16px 20px; width: 520px; max-height: 80vh; overflow: auto; }
     .portrait { float: right; width: 34px; height: 40px; border: 1px dashed #8fa3b3; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #b8c4cc; }
-    .bar { height: 6px; background: #2a3a46; border-radius: 3px; } .bar > i { display: block; height: 6px; background: #d9b26f; border-radius: 3px; }
+    .bar { height: 6px; background: #2a3a46; border-radius: 3px; flex: 1; min-width: 30px; } .bar > i { display: block; height: 6px; background: #d9b26f; border-radius: 3px; }
   </style>
 </head>
 <body>
   <canvas id="map"></canvas>
-  <div id="overlays"></div>
-  <div id="left" class="side"></div>
-  <div id="right" class="side"></div>
-  <div id="hover"></div>
+  <div id="quarter" class="float"></div>
+  <div id="cue" class="float"></div>
+  <div id="overlay" class="float"></div>
+  <div id="inspector" class="float"></div>
+  <div id="rail" class="float"></div>
+  <div id="flyout" class="float"></div>
+  <div id="drawer" class="float"></div>
+  <div id="chips" class="float"></div>
+  <div id="stack" class="float"></div>
+  <div id="hover" class="float"></div>
+  <div id="dim"></div>
+  <div id="briefing" class="float"></div>
+  <div id="decisions" class="float"></div>
+  <div id="preview" class="float"></div>
   <div id="verdict"><div id="verdictBody"></div></div>
   <script type="module" src="/src/main.ts"></script>
 </body>

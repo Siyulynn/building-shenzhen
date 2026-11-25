@@ -69,11 +69,66 @@ export const STAGE: Readonly<Record<string, L>> = {
 export const WAITING: Readonly<Record<string, L>> = {
   capacity: l('等施工力量', 'waiting for crews'), finance: l('等资金', 'waiting for money'),
   mobilization: l('等进场', 'mobilising'), frozen: l('冻结', 'frozen'),
+  paused: l('已暂停', 'paused'), access: l('道路未通', 'no road access'),
+};
+
+// ---- R5: the planning map (§11.2) ----
+
+/** The constraint ladder's rungs, as the inspector's "Held back by" names them. */
+export const RUNG: Readonly<Record<string, L>> = {
+  unbuildable: l('不可建设用地', 'Unbuildable land'), unzoned: l('未规划', 'Not zoned'),
+  not_queued: l('未安排三通一平', 'Not queued for servicing'), waiting: l('工程在等待', 'Works waiting'),
+  no_frontage: l('不临路', 'No road frontage'), servicing: l('正在三通一平', 'Being serviced'),
+  utility: l('水电不足', 'Utility shortfall'), low_demand: l('需求不足', 'Low demand'),
+  building: l('正在建设', 'Building under way'), active: l('无：已在运转', 'Nothing: active'),
+};
+export const ORDER_KIND: Readonly<Record<string, L>> = {
+  service: l('三通一平', 'Servicing'), road: l('道路', 'Road'), structure: l('设施', 'Structure'),
+};
+export const ORDER_STAGE: Readonly<Record<string, L>> = {
+  queued: l('排队中', 'Queued'), working: l('施工中', 'Working'), done: l('完工', 'Done'), cancelled: l('已取消', 'Cancelled'),
+};
+export const STRUCTURE: Readonly<Record<string, L>> = {
+  water_source: l('水源', 'Water source'), power_source: l('电源', 'Power source'), facility: l('公共设施', 'Facility'),
+};
+export const FACILITY: Readonly<Record<string, L>> = { school: l('学校', 'School') };
+/** A cell's works stage, and the stage of a zoned cell with no works. */
+export const WORK_STAGE: Readonly<Record<string, L>> = {
+  zoned: l('已规划，未安排工程', 'Zoned, no works'), planned: l('已安排', 'Planned'),
+  servicing: l('三通一平中', 'Servicing'), serviced: l('已三通一平', 'Serviced'),
+};
+export const TOOL: Readonly<Record<string, L>> = {
+  select: l('查看', 'Inspect'), road: l('道路', 'Roads'), zone: l('规划', 'Zones'), service: l('三通一平', 'Service'),
+  erase: l('撤销', 'Erase / cancel'), water: l('水源', 'Water'), power: l('电源', 'Power'), facility: l('公共设施', 'Facilities'),
+};
+/** What each tool does, shown in its flyout. */
+export const TOOL_HINT: Readonly<Record<string, L>> = {
+  select: l('点击地块查看', 'Click a cell to inspect it'),
+  road: l('从现有道路拖出一条路（先横后竖）', 'Drag a road out from an existing one (across, then down)'),
+  zone: l('拖出一个矩形：划区并安排三通一平', 'Drag a rectangle: zone it and queue its servicing'),
+  service: l('点击区块安排三通一平；拖动只安排拖过的格', 'Click a zone to service it; drag to service only those cells'),
+  erase: l('点击撤销未开工的工程或本回合的指令', "Click to cancel unstarted work or this turn's orders"),
+  water: l('点击临路的地块放置水源', 'Click a cell beside a road to place a water source'),
+  power: l('点击临路的地块放置电源', 'Click a cell beside a road to place a power source'),
+  facility: l('点击临路的地块放置公共设施', 'Click a cell beside a road to place a facility'),
+};
+export const CHIP: Readonly<Record<string, L>> = {
+  building: l('建设', 'Building'), budget: l('预算', 'Budget'), population: l('人口', 'Population'),
+  economy: l('经济', 'Economy'), politics: l('政治', 'Politics'),
+};
+/** The I/C/R cue's letters: one character each. */
+export const CUE: Readonly<Record<string, L>> = { i: l('工', 'I'), c: l('商', 'C'), r: l('住', 'R') };
+export const CUE_INPUT: Readonly<Record<string, L>> = {
+  industrialDemand: l('工业用地需求', 'Industrial floor demand'), headroom: l('新企业的水电余量', 'Utility headroom for a new firm'),
+  spending: l('消费带动的正式服务岗位', 'Formal service jobs from spending'), shopPosts: l('有铺面的正式岗位', 'Formal posts with shop floor'),
+  crowding: l('出租屋拥挤度', 'Rental crowding'), turnedAway: l('上月找不到床位的人', 'Turned away last month'),
 };
 export const OVERLAYS: Readonly<Record<string, L>> = {
   areas: l('片区', 'Areas'), land_use: l('用地规划', 'Land use'), illegal: l('违建比例', 'Illegal floor share'),
   occupancy: l('出租屋拥挤度', 'Rental crowding'), service_gap: l('公共服务缺口', 'Service gap'),
   buildable: l('可建设用地与三通一平', 'Buildable and serviced land'),
+  stages: l('工程阶段', 'Works stages'), network: l('路网与临路深度', 'Road network and frontage'),
+  utilities: l('水电供应', 'Utility supply'), held: l('受制约因素', 'Held back by'), demand: l('需求', 'Demand'),
 };
 
 export const T = {
@@ -152,12 +207,49 @@ export const T = {
   proxyLocation: l('近似位置', 'Proxy location'), temporaryAlignment: l('临时走线', 'Temporary alignment'),
   temporaryAlignments: l('临时走线', 'Temporary alignments'), roadAccess: l('道路可达', 'Road access'),
   noRoadAccess: l('无道路连接', 'No road access'), evidence: l('证据', 'Evidence'), language: l('语言', 'Language'),
+  // R5 (§11.2)
+  endQuarter: l('结束季度', 'End quarter'), pendingDecisions: l('待决事项', 'Pending decisions'),
+  toAnswer: l('必须回答', 'to answer'), overlay: l('图层', 'Overlay'), close: l('关闭', 'Close'),
+  planOnly: l('只规划，不安排三通一平', 'Plan only (no servicing)'), showGuide: l('显示历史规划', 'Show the historical plan'),
+  zoneGuide: l('按历史规划划区', 'Zone the historical plan'), facilityType: l('设施类型', 'Facility type'),
+  cell: l('地块', 'Cell'), use: l('用途', 'Use'), stage: l('阶段', 'Stage'), progress: l('工程进度', 'Work progress'),
+  supplied: l('水电供应（本格）', 'Power and water supplied (this cell)'), noDemand: l('无需求', 'no demand'),
+  areaShare: l('片区企业的水电保障', "The area's firms' utility share"),
+  zoneFloor: l('区块楼面（区块存量）', 'Floor in the zone (zone stock)'),
+  villageFloor: l('村屋楼面（片区存量）', 'Village floor (area stock)'),
+  areaJobsBeds: l('岗位与床位（片区存量）', 'Jobs and beds (area stock)'),
+  perCell: l('本格的事实', 'This cell'), heldBackBy: l('受制于', 'Held back by'),
+  notZoned: l('不在区块内', 'Not in a zone'), depth: l('临路深度', 'Frontage depth'),
+  workFinished: l('完工情况', 'Where work finished'), heldBackArea: l('最受制约的片区', 'The area most held back'),
+  nothingHeld: l('没有受制约的片区', 'Nothing is held back'), noWorkFinished: l('上季度没有完工的工程', 'No work finished last quarter'),
+  toMap: l('回到地图', 'To the map'), servicedCells: l('格三通一平', 'cells serviced'), roadCells: l('格道路', 'road cells'),
+  sourcesPlaced: l('个水电源', 'sources'), facilitiesPlaced: l('个公共设施', 'facilities'), ordersDone: l('项工程完工', 'works done'),
+  firmsOpened: l('家企业开业', 'firms opened'), cellsHeld: l('格', 'cells'),
+  cost: l('费用', 'Cost'), crewPerMonth: l('每月施工', 'Crew a month'), months: l('满负荷月数', 'Months at full pace'),
+  bridges: l('座桥', 'bridges'), units: l('工作量', 'Work units'), refused: l('不能这样建', 'Cannot build this'),
+  nothingToService: l('没有可以三通一平的格', 'No cells to service'),
+  startedWork: l('已开工的工程不能撤销', 'Started work cannot be erased'),
+  builtRoad: l('已建成的道路不能拆除', 'A built road cannot be removed'),
+  startRoad: l('原有道路不能拆除', 'A start road cannot be removed'),
+  builtStructure: l('已建成的设施不能拆除', 'A built structure cannot be removed'),
+  zoneHasWorks: l('区块里有工程：先撤销工程', 'The zone has works: cancel them first'),
+  existingStock: l('原有村镇是现有存量，不是规划', 'An existing settlement is stock, not zoning'),
+  nothingToErase: l('这里没有可撤销的东西', 'Nothing to erase here'),
+  noAttachRoad: l('旁边没有道路：建成后无法供应', 'No road beside it: it will supply nothing'),
+  worksQueue: l('工程队列', 'Works queue'), remaining: l('剩余费用', 'Remaining cost'),
+  pause: l('暂停', 'Pause'), resume: l('恢复', 'Resume'),
+  crewsInUse: l('在用施工力量／总数', 'Crews in use / total'), worksRunning: l('进行中／停滞的工程', 'Works running / stalled'),
+  netQuarter: l('每季度净收支', 'Net per quarter'), turnedAway: l('找不到床位的人', 'Turned away'),
+  vacancies: l('可到达的空缺岗位', 'Accessible vacancies'), targetsMet: l('达标的考核指标', 'Review targets met'),
+  demandCue: l('需求', 'Demand'), low: l('偏低', 'low'), exports: l('出口（美元，本季度）', 'Exports (USD, this quarter)'),
+  newZone: l('新区块', 'new zone'), queued: l('本回合', 'this turn'), stocks: l('区块与片区的存量', 'Zone and area stock'),
 } as const satisfies Record<string, L>;
 
 /** Every table above, for the tests: each entry has an en and a zh. */
 export const TABLES: Readonly<Record<string, Readonly<Record<string, L>>>> = {
   SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, ENFORCEMENT, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
-  ROLE, TRAIT, RISK, STAGE, WAITING, OVERLAYS, T, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
+  ROLE, TRAIT, RISK, STAGE, WAITING, OVERLAYS, T, RUNG, ORDER_KIND, ORDER_STAGE, STRUCTURE, FACILITY, WORK_STAGE, TOOL,
+  TOOL_HINT, CHIP, CUE, CUE_INPUT, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
 };
 
 /** Both names, Chinese first: how a place label reads in either language. */

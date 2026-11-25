@@ -10,6 +10,7 @@ import {
   type GameState, type PlayerAction, type Slice, type TickStep,
 } from '@sz/sim-core';
 import { T, type L } from './strings.js';
+import { dropQueued } from './views.js';
 
 export type Mode = 'turn' | 'paused' | 'over';
 /** An error to show: what went wrong (a string-table entry) and, if any, a detail (ids, or sim-core's own message). */
@@ -56,9 +57,10 @@ export function enqueue(x: Session, a: PlayerAction): Session {
   const { error: _e, ...rest } = x;
   return { ...rest, queue: [...x.queue, a] };
 }
+/** Remove queued action k, with the queued actions that name a zone it would create (§11.2). */
 export function dequeue(x: Session, k: number): Session {
   const { error: _e, ...rest } = x;
-  return { ...rest, queue: x.queue.filter((_, i) => i !== k) };
+  return { ...rest, queue: dropQueued(x.state, x.queue, k) };
 }
 
 /** The interrupting cards still without an answer: End turn or Continue waits for them. */

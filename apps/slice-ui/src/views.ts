@@ -6,8 +6,11 @@
 import {
   FAILURE_CARD, LOAN_CARD, buildableCells, DEFICIT_CARD, REVIEW_CARD, SHORTCUT_CARD, contractLive, fiscalViews, formatYM, indicatorValue,
   liveProject, moneyForProjects, previewOffer, runsOfCells, scoreReview, tripChance, verdict,
-  zoneCellsAllowed, zoneLabel, cellsOfRuns,
-  type CardInstance, type CellRuns, type GameState, type PlayerAction, type Slice,
+  zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
+  prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
+  VILLAGE_ARCHETYPES,
+  type CardInstance, type CellRuns, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
+  type WorksOrder, type Zone,
 } from '@sz/sim-core';
 import * as S from './strings.js';
 import { place, type L } from './strings.js';
@@ -296,13 +299,32 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
     case 'cancel_project': return cat(S.T.cancel, raw(` #${a.project}`), '');
     case 'contract_team': return cat(S.T.contract, named(slice.tick.fiscal?.teams, a.team) ?? raw(a.team), ': ');
     case 'set_project_priority': return cat(cat(S.T.priority, raw(` #${a.project}`), ''), S.PRIORITY[a.priority] ?? raw(a.priority), ': ');
-    default: return raw(a.type);
+    case 'edit_zone': return cat(S.T.zones, zoneRef(s, slice, a.zone), ': ');
+    case 'rename_zone': return cat(S.T.zones, zoneRef(s, slice, a.zone), ': ');
+    case 'commit_works': {
+      const n = a.cells ? cellsOfRuns(a.cells, s.grid).length : undefined;
+      const where = zoneRef(s, slice, a.zone);
+      return cat(cat(S.ORDER_KIND.service!, where, ': '), n === undefined ? raw('') : { zh: `（${n}${S.T.cells.zh}）`, en: ` (${n} ${S.T.cells.en})` }, '');
+    }
+    case 'build_road': {
+      const [x0, y0] = a.path[0] ?? [0, 0], [x1, y1] = a.path[a.path.length - 1] ?? [0, 0];
+      return cat(S.ORDER_KIND.road!, raw(`${x0},${y0} → ${x1},${y1}`), ': ');
+    }
+    case 'place_structure': {
+      const kind = a.kind === 'facility' && a.facility ? S.FACILITY[a.facility] ?? raw(a.facility) : S.STRUCTURE[a.kind] ?? raw(a.kind);
+      return cat(kind, cat(areaName(s, playableAreaOf(s, a.cell[1] * s.grid.width + a.cell[0])), raw(` · ${a.cell[0]},${a.cell[1]}`), ''), ': ');
+    }
+    case 'cancel_works': return cat(S.T.cancel, cat(orderName(s, a.order), raw(a.cells ? ` (${cellsOfRuns(a.cells, s.grid).length})` : ''), ''), ': ');
+    case 'set_works_paused': return cat(a.paused ? S.T.pause : S.T.resume, orderName(s, a.order), ': ');
+    case 'set_works_priority': return cat(cat(S.T.priority, orderName(s, a.order), ' '), S.PRIORITY[a.priority] ?? raw(a.priority), ': ');
+    default: return raw((a as { type: string }).type);
   }
 }
 
 // ---- map overlays (§11): one RGBA pixel per cell ----
 
-export const OVERLAY_LAYERS = ['areas', 'land_use', 'illegal', 'occupancy', 'service_gap', 'buildable'] as const;
+export const OVERLAY_LAYERS = ['areas', 'land_use', 'stages', 'network', 'utilities', 'held', 'demand', 'occupancy', 'illegal',
+  'service_gap', 'buildable'] as const;
 export type OverlayLayer = (typeof OVERLAY_LAYERS)[number];
 export type RGBA = [number, number, number, number];
 
@@ -336,9 +358,61 @@ export function overlayRgba(s: GameState, slice: Slice, layer: OverlayLayer): Ui
   else if (layer === 'buildable') {
     paint(slice.tick.buildable?.cells ?? [], [150, 190, 120, 110]);
     paint(cellsOfRuns(s.servicedLand, s.grid), [60, 200, 120, 220]);
+  } else if (layer === 'stages' || layer === 'network' || layer === 'utilities' || layer === 'held' || layer === 'demand') {
+    const k = constraintContext(s, slice);
+    const zoned = [...k.zoneAt.keys()];
+    if (layer === 'stages') {
+      paint(zoned, STAGE_COLOR.zoned);
+      for (const w of s.cellWorks) px.set(stageColor(w), w.cell * 4);
+      paint(k.served, STAGE_COLOR.serviced);
+    } else if (layer === 'network') {
+      paint(zoned, NO_REACH);
+      for (const [c, f] of k.spatial.frontage) px.set(depthColor(f.depth, slice.startNetwork.maxFrontageDepth), c * 4);
+      paint(k.spatial.roads.component.keys(), ROAD_COLOR);
+    } else if (layer === 'utilities') {
+      for (const c of k.developable.values()) paint(c, NO_DEMAND);
+      for (const [c, sh] of k.shares) px.set(shareColor(Math.min(sh.power, sh.water)), c * 4);
+      for (const x of s.structures) px.set(x.kind === 'power_source' ? POWER_COLOR : x.kind === 'water_source' ? WATER_COLOR : FACILITY_COLOR, x.cell * 4);
+    } else if (layer === 'held') {
+      for (const c of zoned) px.set(RUNG_COLOR[cellConstraint(s, slice, c).rung], c * 4);
+    } else {
+      for (const [c, z] of k.zoneAt) {
+        const b = z.use === 'industrial' ? k.cue.i : z.use === 'commercial' ? k.cue.c : z.use === 'residential' ? k.cue.r : undefined;
+        px.set(b ? shareColor(b.level) : NO_DEMAND, c * 4);
+      }
+    }
   } else for (const a of s.areas) if (a.access === 'playable') paint(a.cells, ramp(areaValue(s, layer, a.id)));
   return px;
 }
+
+// the R5 overlays' colours (§11.2)
+export const STAGE_COLOR = {
+  zoned: [210, 210, 210, 90] as RGBA, planned: [120, 160, 255, 160] as RGBA, serviced: [60, 200, 120, 220] as RGBA,
+};
+/** A works cell's stage colour: planned, servicing (brighter with work done) or serviced. */
+export function stageColor(w: Pick<CellWork, 'stage' | 'workDone' | 'workTotal'>): RGBA {
+  if (w.stage === 'serviced') return STAGE_COLOR.serviced;
+  if (w.stage === 'planned') return STAGE_COLOR.planned;
+  const t = w.workDone / Math.max(1, w.workTotal);
+  return [Math.round(120 - 60 * t), Math.round(160 + 40 * t), Math.round(255 - 135 * t), 200];
+}
+const ROAD_COLOR: RGBA = [245, 245, 235, 235], NO_REACH: RGBA = [220, 70, 60, 190], NO_DEMAND: RGBA = [170, 170, 170, 110];
+const POWER_COLOR: RGBA = [255, 220, 60, 255], WATER_COLOR: RGBA = [80, 170, 255, 255], FACILITY_COLOR: RGBA = [200, 120, 255, 255];
+/** Frontage depth 1 (green) to the deepest reach (yellow). */
+export function depthColor(depth: number, max: number): RGBA {
+  const t = max > 1 ? (depth - 1) / (max - 1) : 0;
+  return [Math.round(80 + 170 * t), Math.round(200 + 20 * t), 90, 200];
+}
+/** A share or a level 0..1: red (0) to green (1). */
+export function shareColor(v: number): RGBA {
+  const t = Math.max(0, Math.min(1, v));
+  return [Math.round(230 - 170 * t), Math.round(70 + 140 * t), 70, 210];
+}
+export const RUNG_COLOR: Readonly<Record<Rung, RGBA>> = {
+  unbuildable: [90, 90, 90, 200], unzoned: [0, 0, 0, 0], not_queued: [200, 200, 200, 170], waiting: [230, 60, 60, 220],
+  no_frontage: [240, 120, 40, 220], servicing: [100, 150, 255, 200], utility: [250, 210, 40, 220], low_demand: [190, 120, 220, 210],
+  building: [120, 220, 230, 210], active: [60, 200, 120, 220],
+};
 
 /** The area (playable or card-only) a cell belongs to, or 0. */
 export function areaAt(s: GameState, cell: number): number {
@@ -357,4 +431,446 @@ export function sliceBox(s: GameState): [number, number, number, number] {
     if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
   }
   return [x0, y0, x1, y1];
+}
+
+// ---- R5 (§11.2): the planning map's derived views. Pure, never saved; they add no sim fields ----
+
+const CELL_M2 = 10_000;
+/** A cue level below this reads low (the ladder's rung 8). */
+export const LOW = 1 / 3;
+type GrowthUse = 'industrial' | 'commercial' | 'residential';
+const isGrowthUse = (u: string): u is GrowthUse => u === 'industrial' || u === 'commercial' || u === 'residential';
+const isOpenFirm = (f: GameState['firms'][number], date: number) => f.opens !== undefined && date >= f.opens;
+function inSorted(sorted: ArrayLike<number>, v: number): boolean {
+  let lo = 0, hi = sorted.length - 1;
+  while (lo <= hi) { const m = (lo + hi) >> 1, x = sorted[m]!; if (x === v) return true; if (x < v) lo = m + 1; else hi = m - 1; }
+  return false;
+}
+const growthContent = (slice: Slice) => ({ network: slice.startNetwork, ...(slice.tick.buildable ? { buildable: slice.tick.buildable } : {}) });
+const isVillageCohort = (c: GameState['blocks'][number]['cohorts'][number]) =>
+  VILLAGE_ARCHETYPES.includes(c.archetype) || c.builder === 'village_household';
+
+/** A zone id named by an action: a current zone's label, or a zone queued this turn. */
+function zoneRef(s: GameState, slice: Slice, id: number): L {
+  if (s.zones.some((z) => z.id === id)) return zoneName(s, slice, id);
+  return cat(S.T.newZone, raw(` #${id}`), '', '');
+}
+/** A works order's short name: its kind and id. */
+function orderName(s: GameState, id: number): L {
+  const o = s.worksOrders.find((q) => q.id === id);
+  return cat(o ? S.ORDER_KIND[o.kind] ?? raw(o.kind) : S.ORDER_KIND.service!, raw(` #${id}`), '', '');
+}
+
+// ---- the I/C/R cue ----
+
+export interface CueInput { label: L; level: number }
+export interface CueBar { level: number; low: boolean; inputs: readonly [CueInput, CueInput] }
+export interface Cue { i: CueBar; c: CueBar; r: CueBar }
+const bar3 = (level: number, a: [L, number], b: [L, number]): CueBar => ({
+  level, low: level < LOW, inputs: [{ label: a[0], level: a[1] }, { label: b[0], level: b[1] }] });
+const clamp01 = (v: number) => Math.max(0, Math.min(1, Number.isFinite(v) ? v : 0));
+
+/** Demand crowding (§5.11) by playable area, its highest, and the turned away last month. */
+function crowdingNow(s: GameState): { max: number; byArea: Map<number, number>; turnedAway: number } {
+  const playable = new Set(s.areas.filter((a) => a.access === 'playable').map((a) => a.id));
+  const byArea = new Map<number, number>();
+  let max = 0, turnedAway = 0;
+  for (const h of s.housing) {
+    if (!playable.has(h.area)) continue;
+    const d = (h.occupants.rental + h.turnedAway) / Math.max(1, h.beds.rental);
+    byArea.set(h.area, d);
+    max = Math.max(max, d);
+    turnedAway += h.turnedAway;
+  }
+  return { max, byArea, turnedAway };
+}
+
+/** The I/C/R demand cue (§11.2): each bar a level 0..1, with its two inputs. */
+export function icrCue(s: GameState, slice: Slice): Cue {
+  const p = slice.params, G = p.growth;
+  if (!G) return { i: bar3(0, [S.CUE_INPUT.industrialDemand!, 0], [S.CUE_INPUT.headroom!, 0]),
+    c: bar3(0, [S.CUE_INPUT.spending!, 0], [S.CUE_INPUT.shopPosts!, 0]), r: bar3(0, [S.CUE_INPUT.crowding!, 0], [S.CUE_INPUT.turnedAway!, 0]) };
+  // I: demand against one organic firm's floor, and the best prospective utility share a new firm would see
+  const I = G.industrial;
+  const factor = I.regime_factor[s.fiscal.regime] ?? I.regime_factor.default!;
+  const offer = sizeOffer(p, I.archetype, I.ownership, I.firm_jobs);
+  const demand = clamp01((I.floor_m2_per_month * p.industry.order_index * orderFactor(s) * factor + s.growth.carry) / Math.max(1, offer.floorM2));
+  const g = growthContent(slice);
+  const ind = s.zones.filter((z) => z.use === 'industrial');
+  let best = 0;
+  if (ind.length) {
+    for (const z of ind) best = Math.max(best, prospectiveShare(s, z.area, offer.powerKw, offer.waterM3Day,
+      placedSupply(s, g, () => true, { zone: z.id, kw: offer.powerKw, m3: offer.waterM3Day }).get(z.area)));
+  } else {
+    for (const a of s.areas) if (a.access === 'playable') best = Math.max(best, prospectiveShare(s, a.id, offer.powerKw, offer.waterM3Day));
+  }
+  const headroom = clamp01(best / Math.max(1e-9, I.min_utility_share));
+  // C: the formal service jobs spending supports, against the formal posts that have shop floor
+  let induced = 0;
+  for (const n of inducedServiceJobs(s, p).values()) induced += n;
+  const formal = induced * G.services.formal_share;
+  const posts = s.labour.servicePosts.reduce((n, x) => n + x.formal, 0);
+  const shortfall = formal > 0 ? clamp01((formal - posts) / formal) : 0;
+  // R: demand crowding and the turned away
+  const cr = crowdingNow(s);
+  const crowd = clamp01(cr.max / (2 * G.residential.min_crowding));
+  const turned = cr.turnedAway > 0 ? 2 / 3 : 0;
+  return {
+    i: bar3(Math.min(demand, headroom), [S.CUE_INPUT.industrialDemand!, demand], [S.CUE_INPUT.headroom!, headroom]),
+    c: bar3(shortfall, [S.CUE_INPUT.spending!, formal > 0 ? 1 : 0], [S.CUE_INPUT.shopPosts!, formal > 0 ? clamp01(posts / formal) : 0]),
+    r: bar3(Math.max(crowd, turned), [S.CUE_INPUT.crowding!, crowd], [S.CUE_INPUT.turnedAway!, turned]),
+  };
+}
+
+// ---- the constraint ladder ----
+
+export const RUNGS = ['unbuildable', 'unzoned', 'not_queued', 'waiting', 'no_frontage', 'servicing', 'utility', 'low_demand',
+  'building', 'active'] as const;
+export type Rung = (typeof RUNGS)[number];
+export interface CellConstraint { rung: Rung; why?: L }
+/** Power and water supplied share at a demanding cell, each 0..1 (§11.2 "A cell's supplied share"). */
+export interface CellShare { power: number; water: number }
+
+/** What the ladder reads, built once per state (§11.2): the views, the shares, the cue, the zones with building. */
+export interface ConstraintContext {
+  spatial: SpatialViews;
+  developable: Map<number, number[]>;
+  served: Set<number>;
+  zoneAt: Map<number, Zone>;
+  works: Map<number, CellWork>;
+  orders: Map<number, WorksOrder>;
+  siteAt: Map<number, GameState['fiscal']['projects'][number]>;
+  shares: Map<number, CellShare>;
+  cue: Cue;
+  building: Set<number>;
+  crowding: Map<number, number>;
+}
+const CTX = new WeakMap<GameState, ConstraintContext>();
+
+/** Each demanding cell's supplied share: the area's capacity pro rata, plus the cell's placed supply (§11.2). */
+function cellShares(s: GameState, slice: Slice, developable: Map<number, number[]>): Map<number, CellShare> {
+  const out = new Map<number, CellShare>();
+  const demand = { power: new Map<number, number>(), water: new Map<number, number>() };
+  const areaNeed = new Map<number, { power: number; water: number }>();
+  for (const f of s.firms) if (isOpenFirm(f, s.date)) {
+    const a = areaNeed.get(f.area) ?? { power: 0, water: 0 };
+    areaNeed.set(f.area, { power: a.power + f.powerKw, water: a.water + f.waterM3Day });
+  }
+  const areaOf = new Map<number, number>();
+  for (const z of s.zones) {
+    const cs = developable.get(z.id) ?? [];
+    if (!cs.length) continue;
+    let kw = 0, m3 = 0;
+    for (const f of s.firms) if (f.zone === z.id && isOpenFirm(f, s.date)) { kw += f.powerKw; m3 += f.waterM3Day; }
+    for (const [u, need] of [['power', kw], ['water', m3]] as const) {
+      const split = largestRemainder(Math.ceil(need), cs.map(() => 1));
+      cs.forEach((c, i) => { if (split[i]! > 0) { demand[u].set(c, split[i]!); areaOf.set(c, z.area); } });
+    }
+  }
+  const cells = [...new Set([...demand.power.keys(), ...demand.water.keys()])].sort((a, b) => a - b);
+  if (!cells.length) return out;
+  const placed = s.structures.some((x) => x.kind === 'power_source' || x.kind === 'water_source')
+    ? spatialViews(s, slice.startNetwork, { demand }).supply : undefined;
+  for (const c of cells) {
+    const area = s.areas.find((a) => a.id === areaOf.get(c));
+    const need = areaNeed.get(area?.id ?? -1) ?? { power: 0, water: 0 };
+    const share = (u: 'power' | 'water', cap: number) => {
+      const d = demand[u].get(c) ?? 0;
+      if (d <= 0) return 1;
+      const fromArea = need[u] > 0 ? Math.max(0, cap) / need[u] : 1;
+      return Math.min(1, fromArea + (placed?.[u].get(c) ?? 0) / d);
+    };
+    out.set(c, { power: share('power', area?.utilities.powerCap ?? 0), water: share('water', area?.utilities.waterCap ?? 0) });
+  }
+  return out;
+}
+
+export function constraintContext(s: GameState, slice: Slice): ConstraintContext {
+  const hit = CTX.get(s);
+  if (hit) return hit;
+  const spatial = spatialViews(s, slice.startNetwork);
+  const developable = developableCells(s, growthContent(slice));
+  const zoneAt = new Map<number, Zone>();
+  for (const z of s.zones) for (const c of cellsOfRuns(z.runs, s.grid)) if (!zoneAt.has(c)) zoneAt.set(c, z);
+  const siteAt = new Map<number, GameState['fiscal']['projects'][number]>();
+  for (const x of s.fiscal.projects) if (x.cells && liveProject(x)) for (const c of cellsOfRuns(x.cells, s.grid)) siteAt.set(c, x);
+  const building = new Set<number>();
+  for (const b of s.blocks) for (const c of b.cohorts) if (c.zone !== undefined && c.stage === 'under_construction') building.add(c.zone);
+  for (const f of s.firms) if (f.zone !== undefined && !isOpenFirm(f, s.date)) building.add(f.zone);
+  const ctx: ConstraintContext = {
+    spatial, developable, served: new Set(cellsOfRuns(s.servicedLand, s.grid)), zoneAt,
+    works: new Map(s.cellWorks.map((w) => [w.cell, w])), orders: new Map(s.worksOrders.map((o) => [o.id, o])), siteAt,
+    shares: cellShares(s, slice, developable), cue: icrCue(s, slice), building, crowding: crowdingNow(s).byArea,
+  };
+  CTX.set(s, ctx);
+  return ctx;
+}
+
+/** Is the cell on the buildable layer (every cell is, without the layer)? */
+export const isBuildable = (slice: Slice, cell: number) => !slice.tick.buildable || inSorted(slice.tick.buildable.cells, cell);
+
+/** The first constraint that applies at a cell, on §11.2's ladder. */
+export function cellConstraint(s: GameState, slice: Slice, cell: number): CellConstraint {
+  const k = constraintContext(s, slice);
+  if (!isBuildable(slice, cell)) return { rung: 'unbuildable' };
+  const z = k.zoneAt.get(cell);
+  if (!z) return { rung: 'unzoned' };
+  const served = k.served.has(cell);
+  const w = k.works.get(cell);
+  const o = w?.order !== undefined ? k.orders.get(w.order) : undefined;
+  const live = o !== undefined && liveOrder(o) ? o : undefined;
+  const site = k.siteAt.get(cell);
+  if (!served && !live && !site) return { rung: 'not_queued' };
+  if (!served) {
+    if (live?.waiting) return { rung: 'waiting', why: S.WAITING[live.waiting] ?? raw(live.waiting) };
+    if (site?.waiting) return { rung: 'waiting', why: S.WAITING[site.waiting] ?? raw(site.waiting) };
+  }
+  if (!k.spatial.frontage.has(cell)) return { rung: 'no_frontage' };
+  if (!served) return { rung: 'servicing' };
+  if (!isGrowthUse(z.use)) return { rung: 'active' };
+  const sh = k.shares.get(cell);
+  if (sh && Math.min(sh.power, sh.water) < 1) return { rung: 'utility', why: sh.power <= sh.water ? S.T.power : S.T.water };
+  const G = slice.params.growth;
+  const room = G ? zoneRoomM2(s, z, k.developable.get(z.id)?.length ?? 0, G) : 0;
+  if (room > 0) {
+    const cue = z.use === 'industrial' ? k.cue.i : z.use === 'commercial' ? k.cue.c : k.cue.r;
+    if (cue.low) return { rung: 'low_demand', why: cue.inputs[0].level <= cue.inputs[1].level ? cue.inputs[0].label : cue.inputs[1].label };
+    if (z.use === 'residential' && G && (k.crowding.get(z.area) ?? 0) < G.residential.min_crowding) {
+      return { rung: 'low_demand', why: S.CUE_INPUT.crowding! };
+    }
+  }
+  if (k.building.has(z.id)) return { rung: 'building' };
+  return { rung: 'active' };
+}
+
+/** The constraint as one line: the rung's name and, if any, why. */
+export function constraintLabel(c: CellConstraint): L {
+  const r = S.RUNG[c.rung]!;
+  return c.why ? cat(r, c.why, ': ') : r;
+}
+
+/**
+ * The area most held back (§11.2): the playable area with the most zoned cells on the earliest rung, ties by area id.
+ * Unbuildable and active cells never name an area. Undefined when nothing is held back.
+ */
+export function mostHeldBack(s: GameState, slice: Slice): { area: number; name: L; constraint: CellConstraint; cells: number } | undefined {
+  type Best = { rank: number; cells: number; constraint: CellConstraint };
+  const best = new Map<number, Best>();
+  const k = constraintContext(s, slice);
+  for (const [c, z] of [...k.zoneAt].sort((a, b) => a[0] - b[0])) {
+    const con = cellConstraint(s, slice, c);
+    if (con.rung === 'unbuildable' || con.rung === 'active') continue;
+    const area = playableAreaOf(s, c) || z.area, rank = RUNGS.indexOf(con.rung);
+    const b = best.get(area);
+    if (!b || rank < b.rank) best.set(area, { rank, cells: 1, constraint: con });
+    else if (rank === b.rank) b.cells += 1;
+  }
+  let pick: [number, Best] | undefined;
+  for (const e of [...best].sort((a, b) => a[0] - b[0])) {
+    if (!pick || e[1].rank < pick[1].rank || (e[1].rank === pick[1].rank && e[1].cells > pick[1].cells)) pick = e;
+  }
+  return pick ? { area: pick[0], name: areaName(s, pick[0]), constraint: pick[1].constraint, cells: pick[1].cells } : undefined;
+}
+
+// ---- the cell inspector ----
+
+export interface InspectorView {
+  x: number; y: number; area?: L; zone?: L; use?: L; stage: L;
+  progress?: { done: number; total: number };
+  frontage?: { depth: number; max: number };
+  share?: CellShare; areaShare?: number;
+  zoneFloorM2?: number; villageFloorM2?: number;
+  jobs: { filled: number; posted: number }; beds: { occupants: number; beds: number };
+  site?: L; route?: L;
+  constraint: CellConstraint;
+}
+
+export function inspectorView(s: GameState, slice: Slice, x: number, y: number): InspectorView {
+  const cell = y * s.grid.width + x, k = constraintContext(s, slice);
+  const areaId = playableAreaOf(s, cell) || areaAt(s, cell);
+  const z = k.zoneAt.get(cell), w = k.works.get(cell);
+  const stage = w ? S.WORK_STAGE[w.stage]! : k.served.has(cell) ? S.WORK_STAGE.serviced! : z ? S.WORK_STAGE.zoned! : S.T.notZoned;
+  const f = k.spatial.frontage.get(cell);
+  const site = slice.startSites.find((q) => q.cell[0] === x && q.cell[1] === y);
+  const route = slice.startNetwork.routes.find((r) => r.cells.includes(cell));
+  const jobs = s.labour.jobs.filter((j) => j.area === areaId);
+  const h = s.housing.find((q) => q.area === areaId);
+  const village = s.blocks.filter((b) => b.area === areaId)
+    .reduce((n, b) => n + b.cohorts.reduce((m, c) => m + (c.stage === 'completed' && isVillageCohort(c) ? c.m2 : 0), 0), 0);
+  const share = k.shares.get(cell);
+  const v: InspectorView = {
+    x, y, stage, constraint: cellConstraint(s, slice, cell),
+    jobs: { filled: jobs.reduce((n, j) => n + j.filled, 0), posted: jobs.reduce((n, j) => n + j.jobs, 0) },
+    beds: { occupants: h ? h.occupants.local + h.occupants.rental : 0, beds: h ? h.beds.local + h.beds.rental : 0 },
+  };
+  if (areaId) v.area = areaName(s, areaId);
+  if (z) { v.zone = zoneName(s, slice, z.id); v.use = S.LAND_USE[z.use] ?? raw(z.use); v.zoneFloorM2 = zoneBuiltM2(s, z.id); }
+  if (w) v.progress = { done: w.workDone, total: w.workTotal };
+  if (f) v.frontage = { depth: f.depth, max: slice.startNetwork.maxFrontageDepth };
+  if (share) { v.share = share; v.areaShare = utilityShare(s, z?.area ?? areaId); }
+  if (areaId && village > 0) v.villageFloorM2 = village;
+  if (site) v.site = place(site.name);
+  if (route) v.route = place(route.name);
+  return v;
+}
+
+// ---- the floor at core zoom (render only) ----
+
+/**
+ * Each developable cell's drawn share of its zone's floor (§11.2): the zone's floor, built and building, spread over
+ * its developable cells frontage first (lower depth, then cell index), each filled to growth.far before the next.
+ */
+export function floorSpread(s: GameState, slice: Slice): Map<number, number> {
+  const out = new Map<number, number>();
+  const G = slice.params.growth;
+  if (!G) return out;
+  const k = constraintContext(s, slice);
+  for (const z of s.zones) {
+    if (!isGrowthUse(z.use)) continue;
+    const cap = CELL_M2 * G.far[z.use];
+    const cells = [...(k.developable.get(z.id) ?? [])].sort((a, b) =>
+      (k.spatial.frontage.get(a)?.depth ?? 99) - (k.spatial.frontage.get(b)?.depth ?? 99) || a - b);
+    let left = zoneBuiltM2(s, z.id);
+    for (const c of cells) {
+      if (left <= 0) break;
+      const take = Math.min(cap, left);
+      out.set(c, take / cap);
+      left -= take;
+    }
+  }
+  return out;
+}
+
+/** Village floor over its plots' footprint, by area (§5.2): how much the settlement anchors thicken at core zoom. */
+export function villageFloors(s: GameState): Map<number, number> {
+  const out = new Map<number, number>();
+  for (const v of s.villagePlots) {
+    if (v.footprintM2 <= 0) continue;
+    const m2 = s.blocks.filter((b) => b.area === v.area)
+      .reduce((n, b) => n + b.cohorts.reduce((m, c) => m + (c.stage === 'completed' && isVillageCohort(c) ? c.m2 : 0), 0), 0);
+    out.set(v.area, m2 / v.footprintM2);
+  }
+  return out;
+}
+
+// ---- the chips ----
+
+export const DRAWERS = ['building', 'budget', 'population', 'economy', 'politics'] as const;
+export type DrawerId = (typeof DRAWERS)[number];
+export interface Chip { id: DrawerId; label: L; values: readonly [string, string]; hints: readonly [L, L] }
+const signedYuan = (v: number) => `${v < 0 ? '−' : '+'}${yuan(Math.abs(v))}`;
+
+/** Works running and stalled: live orders and projects without and with a waiting reason. */
+export function worksCounts(s: GameState): { running: number; stalled: number } {
+  let running = 0, stalled = 0;
+  for (const o of s.worksOrders) if (liveOrder(o)) { if (o.waiting) stalled++; else running++; }
+  for (const x of s.fiscal.projects) if (liveProject(x)) { if (x.waiting || x.stage === 'stalled') stalled++; else running++; }
+  return { running, stalled };
+}
+/** Crews in use last month (city works and projects) and the pool this month (§11.2's chip stats). */
+export function crewsView(s: GameState, slice: Slice): { used: number; total: number } {
+  const p = slice.params;
+  const total = p.capacity.local_crew + s.fiscal.contracts.reduce((a, c) =>
+    a + (c.mode === 'pool' && c.starts <= s.date && s.date <= (c.ends ?? s.date) ? c.crew : 0), 0);
+  return { used: Math.round(last(s.history.constructionPosts) / Math.max(1e-9, p.labour.jobs_per_crew_unit)), total };
+}
+/** This year's review targets met now, out of all of them. */
+export function targetsMet(s: GameState, slice: Slice): { met: number; of: number } {
+  const r = reviewView(s, slice).next;
+  if (!r) return { met: 0, of: 0 };
+  return { met: r.items.filter((i) => i.value >= i.target).length, of: r.items.length };
+}
+
+export function chipsView(s: GameState, slice: Slice): Chip[] {
+  const crews = crewsView(s, slice), wc = worksCounts(s), t = targetsMet(s, slice);
+  return [
+    { id: 'building', label: S.CHIP.building!, values: [`${num(crews.used)} / ${num(crews.total)}`, `${wc.running} / ${wc.stalled}`],
+      hints: [S.T.crewsInUse, S.T.worksRunning] },
+    { id: 'budget', label: S.CHIP.budget!, values: [yuan(moneyForProjects(s, slice.params)), signedYuan(3 * fiscalViews(s, slice.params).recurring.available)],
+      hints: [S.T.moneyForProjects, S.T.netQuarter] },
+    { id: 'population', label: S.CHIP.population!, values: [num(sum(s.pops.map((g) => g.stayedSixMonths))), num(sum(s.housing.map((h) => h.turnedAway)))],
+      hints: [S.T.residents, S.T.turnedAway] },
+    { id: 'economy', label: S.CHIP.economy!, values: [yuan(sum(s.history.gdp.slice(-3))), num(last(s.history.vacancies))],
+      hints: [S.T.gdpQuarter, S.T.vacancies] },
+    { id: 'politics', label: S.CHIP.politics!, values: [num(s.climate.scrutiny), `${t.met} / ${t.of}`],
+      hints: [S.T.scrutiny, S.T.targetsMet] },
+  ];
+}
+
+// ---- the works queue (the Building drawer) ----
+
+export interface WorkRow {
+  id: number; kind: L; where: L; stage: L; waiting?: L; paused: boolean; priority: string;
+  done: number; total: number; spent: number; budget: number; cells?: { x: number; y: number; stage: L }[];
+}
+function orderWhere(s: GameState, slice: Slice, o: WorksOrder): L {
+  const W = s.grid.width, xy = (c: number) => `${c % W},${Math.floor(c / W)}`;
+  if (o.kind === 'service') return o.zone !== undefined ? zoneRef(s, slice, o.zone) : S.ORDER_KIND.service!;
+  if (o.kind === 'road') {
+    const a = o.path?.[0]?.cell ?? 0, b = o.path?.[o.path.length - 1]?.cell ?? a;
+    return cat(areaName(s, playableAreaOf(s, a)), raw(` · ${xy(a)} → ${xy(b)}`), '', '');
+  }
+  const pl = o.placement!;
+  const kind = pl.kind === 'facility' && pl.facility ? S.FACILITY[pl.facility] ?? raw(pl.facility) : S.STRUCTURE[pl.kind]!;
+  return cat(kind, cat(areaName(s, playableAreaOf(s, pl.cell)), raw(` · ${xy(pl.cell)}`), '', ''), ': ');
+}
+export function worksView(s: GameState, slice: Slice): WorkRow[] {
+  const W = s.grid.width;
+  return s.worksOrders.filter(liveOrder).map((o) => ({
+    id: o.id, kind: S.ORDER_KIND[o.kind]!, where: orderWhere(s, slice, o), stage: S.ORDER_STAGE[o.stage]!,
+    ...(o.waiting ? { waiting: S.WAITING[o.waiting] ?? raw(o.waiting) } : {}), paused: o.paused, priority: o.priority,
+    done: o.unitsDone, total: o.unitsTotal, spent: o.spent, budget: o.budget,
+    ...(o.kind === 'service' ? { cells: s.cellWorks.filter((w) => w.order === o.id)
+      .map((w) => ({ x: w.cell % W, y: Math.floor(w.cell / W), stage: S.WORK_STAGE[w.stage]! })) } : {}),
+  }));
+}
+
+// ---- the briefing: where work finished ----
+
+export interface Finished { area: number; name: L; serviced: number; roads: number; sources: number; facilities: number; orders: number; firms: number }
+/** What finished between two turn starts, by playable area (§11.2). */
+export function finishedWork(now: GameState, before: GameState | undefined): Finished[] {
+  if (!before) return [];
+  const rows = new Map<number, Finished>();
+  const row = (area: number) => {
+    let r = rows.get(area);
+    if (!r) { r = { area, name: areaName(now, area), serviced: 0, roads: 0, sources: 0, facilities: 0, orders: 0, firms: 0 }; rows.set(area, r); }
+    return r;
+  };
+  const was = new Set(cellsOfRuns(before.servicedLand, before.grid));
+  for (const c of cellsOfRuns(now.servicedLand, now.grid)) if (!was.has(c)) row(playableAreaOf(now, c)).serviced++;
+  const roads = new Set(before.roads);
+  for (const c of now.roads) if (!roads.has(c)) row(playableAreaOf(now, c)).roads++;
+  for (const x of now.structures) if (x.id >= before.nextStructureId) {
+    const r = row(playableAreaOf(now, x.cell));
+    if (x.kind === 'facility') r.facilities++; else r.sources++;
+  }
+  const doneBefore = new Set(before.worksOrders.filter((o) => o.stage === 'done').map((o) => o.id));
+  for (const o of now.worksOrders) if (o.stage === 'done' && !doneBefore.has(o.id)) {
+    const cell = o.kind === 'road' ? o.path?.[0]?.cell : o.kind === 'structure' ? o.placement?.cell
+      : now.cellWorks.find((w) => w.order === o.id)?.cell;
+    row(cell !== undefined ? playableAreaOf(now, cell) : now.zones.find((z) => z.id === o.zone)?.area ?? 0).orders++;
+  }
+  for (const f of now.firms) if (f.opens !== undefined && f.opens > before.date && f.opens <= now.date) row(f.area).firms++;
+  return [...rows.values()].filter((r) => r.area > 0).sort((a, b) => a.area - b.area);
+}
+
+// ---- the queue: removing an action keeps the others valid ----
+
+const ZONE_REF_TYPES = new Set(['commit_works', 'commit_project', 'edit_zone', 'remove_zone', 'rename_zone']);
+const zoneRefOf = (a: PlayerAction): number | undefined => (ZONE_REF_TYPES.has(a.type) ? (a as { zone?: number }).zone : undefined);
+
+/**
+ * The queue without action k (§11.2): removing a queued create_zone also removes the queued actions naming its zone,
+ * and renumbers references to the zones queued after it.
+ */
+export function dropQueued(s: GameState, queue: readonly PlayerAction[], k: number): PlayerAction[] {
+  const zid = queuedZoneIds(s, queue).get(k);
+  return queue.flatMap((a, j) => {
+    if (j === k) return [];
+    const ref = zoneRefOf(a);
+    if (zid === undefined || ref === undefined) return [a];
+    if (ref === zid) return [];
+    return ref > zid ? [{ ...a, zone: ref - 1 } as PlayerAction] : [a];
+  });
 }
