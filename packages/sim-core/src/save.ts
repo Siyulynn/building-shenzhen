@@ -11,7 +11,8 @@ export const SAVE_VERSION = 5;
 /** The content a save was made with (§5.1, §5.3). */
 export interface SaveContent {
   areas_sha256: string; params_sha256: string; precedents_sha256: string;
-  investors_sha256: string; buildable_sha256: string;   // M3b, §5.5
+  investors_sha256: string;                             // M3b, §5.5
+  landcover_sha256: string;                             // R8a, §5.5: replaces M3b's buildable_sha256 (older headers keep it)
   fiscal_sha256: string;                                  // M4, §5.6: regimes, projects and teams together
   events_sha256: string; leaders_sha256: string;          // M5a, §5.7
   targets_sha256: string;                                 // M5b, §5.8

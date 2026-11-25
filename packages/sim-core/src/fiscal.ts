@@ -12,7 +12,8 @@ export const ACCOUNTS = ['general', 'land', 'debt', 'forex'] as const;
 export type AccountId = (typeof ACCOUNTS)[number];          // forex is a quota to buy, in USD; never added to yuan
 export type TxType = 'tax' | 'grant' | 'land_fee' | 'obligation' | 'project' | 'loan' | 'retention' | 'import';
 export interface LedgerEntry { date: YM; type: TxType; account: AccountId; amount: number; ref: string }
-export type ObligationKind = 'payroll' | 'service' | 'maintenance' | 'transfer' | 'arrears';
+export type ObligationKind = 'payroll' | 'service' | 'maintenance' | 'transfer' | 'arrears'
+  | 'compensation';                          // R8a (phase1-slice §5.5): one-off land compensation
 export interface Obligation {
   id: number; kind: ObligationKind; perMonth: number; index: 'none' | 'wages'; baseWage?: number;
   from: YM; until?: YM; createdBy: string;
@@ -451,7 +452,7 @@ export function fiscalViews(s: GameState, p: SliceParams): FiscalViews {
   const revenue = last(s.history.revenue), due = last(s.history.obligationsDue);
   const f = projectFunds(s, p), unspent = unspentCommitments(s);
   const byKind = { baseline: baselineDue(s, p), debt_service: s.fiscal.loans.reduce((a, l) => a + debtServiceAt(l, s.date), 0),
-    payroll: 0, service: 0, maintenance: 0, transfer: 0, arrears: 0 };
+    payroll: 0, service: 0, maintenance: 0, transfer: 0, arrears: 0, compensation: 0 };
   for (const o of s.fiscal.obligations) if (isLive(o, s.date)) byKind[o.kind] += obligationDue(o, s);
   return {
     recurring: { revenue, due, available: revenue - due, perYear: 12 * (revenue - due) },

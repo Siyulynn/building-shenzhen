@@ -91,3 +91,40 @@ such, not counted as passes.
 `npm run check` is green: population and money are conserved, no stock goes negative, the runs are deterministic,
 and the M5b calibration properties still hold (the historical run passes the snapshot and the later reviews,
 `declineAll` fails every review after the lightweight one, and readiness still moves the first wave).
+
+## R8 (Pass 2, 2026-11-25)
+
+R8 adds land cover, power, freight and intensity (`phase1-revision-plan.md` §3). Each commit is checked against the
+R7 band results for `historical_prologue` and `aggressive` (seed 1). Both had 20 passes and 0 failures before R8.
+Bands are never widened; the tuning goes into parameters.
+
+### R8a: land cover and compensation
+
+| Run | Plan's first table (farm ×2.0) | No compensation | Half table (farm ×1.0), kept |
+|---|---|---|---|
+| historical 1983 spending ÷ revenue | 1.334, **fails** (≤ 1.204) | 1.040 | 1.191 |
+| aggressive 1983 spending ÷ revenue | 1.524, **fails** | 1.180 | 1.182 |
+| aggressive 1983 GDP multiple | 3.351 | 3.580 | 3.480 (band ≥ 3.341) |
+
+- With compensation off and the cost factor at 1, both runs reproduce R7 exactly. The plans' zones avoid every
+  village cell: they are lowland_farm (98% of the historical plan's cells, 80% of the aggressive plan's),
+  and the rest is upland.
+- At ¥60,000 a farm cell, compensation was about a fifth of 1983 revenue in the historical run, which pushed spending
+  out of the band. Halving every multiple keeps the ordering the plan wanted: upland 0.25, farm 1.0, pond 1.25, town
+  1.5.
+- The aggressive run's response is not monotonic: farm ×0.75 fails at 1.222. The 1983 ratio sits near the deficit
+  rule and the loan timing, so it is fragile. R8c's purchased power adds monthly obligations on the same account, so
+  it must be checked against this margin.
+
+The kept values give these results.
+
+| Run | Residents | GDP (yuan) | Readiness |
+|---|---|---|---|
+| historical | 49,815 → 50,690 | 28.79 M → 29.36 M | 0.745 → 0.706 |
+| aggressive | 54,329 → 49,980 | 32.93 M → 29.76 M | 0.784 → 0.685 |
+
+- Both runs pass all 20 bands.
+- Aggressive builds less because formation costs 1.2–1.6× and compensation competes for the same money.
+- Cautious moves a little: 36,266 → 36,268 residents, and GDP 14.24 M → 14.28 M. Its five structural failures are
+  unchanged.
+- Default and decline_all are unchanged, because they draw no zones.

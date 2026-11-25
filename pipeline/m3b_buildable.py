@@ -1,5 +1,9 @@
 """M3b: the buildable layer for the slice's playable areas (phase1-slice.md §5.5).
 
+SUPERSEDED by pipeline/m3c_landcover.py (R8a): the slice now reads data/starts/slice_landcover.json, whose formable
+classes are the buildable cells. Kept for reference, and for slope_pct, which m3c imports; slice_buildable.json
+stays on disk until the land-cover layer is proven, then goes in its own commit.
+
 Usage: pipeline/.venv/Scripts/python.exe -I pipeline/m3b_buildable.py
 A cell is buildable if it is land on the present-day DEM, not water in the 1979 Landsat mask, and its slope on the
 100 m grid is <= SLOPE_MAX_PCT. Reads the Spike A grid (git-ignored): grid.bin and water1979.bin

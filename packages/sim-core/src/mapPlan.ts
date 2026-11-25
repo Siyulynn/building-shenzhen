@@ -12,6 +12,7 @@ import type { TickContent } from './ticks.js';
 import { liveOrder, spatialViews } from './works.js';
 import { cellsOfRuns, runsOfCells, templateZoneAction, zoneCellsAllowed } from './zones.js';
 import { developableCells, zoneRoomM2 } from './growth.js';
+import { coverFactors, needsBridge } from './landcover.js';
 
 /** A zone the plan draws in its first month: a precedent's template cells, or an area's buildable cells nearest a road. */
 export type ZonePlan = { template: string } | { use: LandUse; area: number; cells: number };
@@ -124,7 +125,8 @@ function roadOrder(s: GameState, tick: TickContent, p: SliceParams, waypoints: r
   const touches = (c: number) => neighbours(c, w).some((n) => roads.has(n));
   if (!touches(cells[0]!) && !touches(cells[cells.length - 1]!)) return 'blocked';
   let cost = 0;
-  for (const c of cells) cost += tick.buildable && !inSorted(tick.buildable.cells, c) ? W.bridge.yuan_per_cell : W.road.yuan_per_cell;
+  const bridge = (c: number) => tick.landcover ? needsBridge(tick.landcover, c) : !!tick.buildable && !inSorted(tick.buildable.cells, c);
+  for (const c of cells) cost += bridge(c) ? W.bridge.yuan_per_cell : W.road.yuan_per_cell;
   return { cells, cost };
 }
 
@@ -181,10 +183,16 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
 
   // 2. servicing, phased to the crew pool: one service order at a time, the zone with the least room first
   if (!live.some((o) => o.kind === 'service')) {
-    const cap = Math.floor((plan.crew_share * s.scenario.monthsPerTurn * p.capacity.local_crew) / W.service.units_per_cell);
-    const affordable = Math.floor(Math.max(0, money) / W.service.yuan_per_cell);
-    const n = Math.min(cap, affordable);
-    if (n > 0) {
+    // R8a (§5.5): a cell's units and money follow its land cover, and an unrequisitioned cell owes compensation
+    const capUnits = Math.floor(plan.crew_share * s.scenario.monthsPerTurn * p.capacity.local_crew);
+    const rate = W.service.yuan_per_cell / W.service.units_per_cell;
+    const req = new Set(s.requisitioned ?? []);
+    const cellCost = (c: number) => {
+      const f = coverFactors(p, tick.landcover, c);
+      const u = Math.max(1, Math.round(W.service.units_per_cell * f.cost));
+      return { u, yuan: u * rate + (tick.landcover && !req.has(c) ? f.compensation * W.service.yuan_per_cell : 0) };
+    };
+    if (capUnits >= W.service.units_per_cell && money > 0) {
       const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
       const works = new Set(s.cellWorks.map((x) => x.cell));
       const roads = plannedRoads(s, tick);
@@ -199,9 +207,17 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
         .sort((a, b) => a.room - b.room || a.z.id - b.z.id);
       const pick = candidates[0];
       if (pick) {
-        const cells = pick.todo.slice(0, n);
-        out.push({ type: 'commit_works', zone: pick.z.id, cells: runsOfCells(cells, w) });
-        money -= cells.length * W.service.yuan_per_cell;
+        const cells: number[] = [];
+        let units = 0, spend = 0;
+        for (const c of pick.todo) {
+          const k = cellCost(c);
+          if (units + k.u > capUnits || spend + k.yuan > money) break;
+          cells.push(c); units += k.u; spend += k.yuan;
+        }
+        if (cells.length) {
+          out.push({ type: 'commit_works', zone: pick.z.id, cells: runsOfCells(cells, w) });
+          money -= spend;
+        }
       }
     }
   }

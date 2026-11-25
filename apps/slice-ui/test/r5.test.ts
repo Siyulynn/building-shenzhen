@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  cellsOfRuns, createInitialState, playQuarters, playableAreaOf, policyNamed, Rng, zoneBuiltM2, type GameState, type Slice,
+  cellsOfRuns, coverFactors, createInitialState, playQuarters, post, playableAreaOf, policyNamed, Rng, zoneBuiltM2, type GameState, type Slice,
 } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { choose, enqueue, newSession, submit, type Session } from '../src/controller.js';
@@ -79,7 +79,13 @@ describe('R5: a quarter played with the map tools alone', () => {
     const zone = ok(gesture(x, { tool: 'zone', from: [bx, by], to: [bx + 2, by + 2] }));
     expect(zone.actions.map((a) => a.type)).toEqual(['create_zone', 'commit_works']);   // servicing queued by default
     expect(zone.preview.cells).toBe(9);
-    expect(zone.preview.budget).toBe(9 * slice.params.works!.service.yuan_per_cell);
+    // R8a (phase1-slice §5.5): each cell forms at its land-cover class's units, at the service rate
+    const S = slice.params.works!.service;
+    let budget = 0;
+    for (let dy = 0; dy < 3; dy++) for (let dx = 0; dx < 3; dx++) {
+      budget += Math.round(S.units_per_cell * coverFactors(slice.params, slice.tick.landcover, idx(bx + dx, by + dy)).cost) * S.yuan_per_cell / S.units_per_cell;
+    }
+    expect(zone.preview.budget).toBe(budget);
     expect(zone.preview.crewPerMonth).toBe(slice.params.works!.crew_per_order);
     x = applyPlan(x, zone);
     const road = ok(gesture(x, roadOut(x)));
@@ -205,6 +211,8 @@ describe('R5: the limiting constraint at a cell, and the change at the next turn
 
     // a long strip running away from the road: its far cells have no frontage while the near ones are serviced
     let y = answered(newSession(slice));
+    // R8a: land compensation now competes with formation for the start's money; a grant keeps this strip a frontage test
+    post(y.state, 'grant', 'general', 2_000_000, 'test.fund');
     const depth = slice.startNetwork.maxFrontageDepth;
     const [sx, sy] = guangshenBlock(y.state);
     y = applyPlan(y, ok(gesture(y, { tool: 'zone', from: [sx, sy], to: [sx + depth + 2, sy] })));

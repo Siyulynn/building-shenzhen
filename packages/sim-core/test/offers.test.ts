@@ -198,10 +198,10 @@ describe('M3b buildable layer', () => {
     expect(offerCards(month(initial(), [hill, ONE_CELL]).state)[0]!.options).toEqual(['accept:zone:1', 'accept:zone:2', 'decline']);
   });
 
-  it('matches the per-area counts the pipeline reports, and refuses a layer from other areas', () => {
+  it('the superseded M3b layer still compiles and refuses a layer from other areas (the slice reads R8a land cover)', () => {
     const text = readFileSync(join(ROOT, 'data/starts/slice_buildable.json'), 'utf8');
     const raw = JSON.parse(text);
-    expect(buildable.cells.length).toBe(raw.areas.reduce((a: number, x: { buildable_count: number }) => a + x.buildable_count, 0));
+    expect(compileBuildable(raw, areasJson).cells.length).toBe(raw.areas.reduce((a: number, x: { buildable_count: number }) => a + x.buildable_count, 0));
     expect(() => compileBuildable({ ...raw, areas_sha256: 'x' }, areasJson)).toThrow(/other areas/);
   });
 });

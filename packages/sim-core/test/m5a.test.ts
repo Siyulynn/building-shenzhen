@@ -162,7 +162,7 @@ describe('M5a: readiness', () => {
   it('starts with every part below 1, and each part rises with its own work', () => {
     const s = initial();
     const r0 = readiness(s, params, buildable);
-    expect(r0.cells).toBe(484 + 266 + 230 + 539);
+    expect(r0.cells).toBe(470 + 242 + 222 + 537);    // R8a: the formable land-cover cells of areas 1, 2, 3 and 7
     expect(r0.roads).toBe(0);
     expect(r0.servicedLand).toBe(0);
     expect(r0.waterPower).toBeGreaterThan(0);

@@ -15,8 +15,12 @@ import {
   type PlacedStructure, type StructureKind, type StructurePlacement, type WorksOrder,
 } from './works.js';
 import { cellsOfRuns } from './zones.js';
+import { coverFactors, landCoverAt, needsBridge, type LandCover, type LandCoverClass } from './landcover.js';
 
-export interface WorksContent { params: SliceParams; works: WorksParams; network: StartNetwork; buildable?: { cells: Uint32Array } }
+export interface WorksContent {
+  params: SliceParams; works: WorksParams; network: StartNetwork; buildable?: { cells: Uint32Array };
+  landcover?: LandCover;                  // R8a (§5.5): a cell's formation units and compensation, and which roads bridge
+}
 
 const WORKS_ACTIONS: readonly string[] = ['commit_works', 'build_road', 'place_structure', 'cancel_works', 'set_works_paused',
   'set_works_priority'];
@@ -166,18 +170,26 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
     const w = works.get(c);
     return !served.has(c) && !roads.has(c) && !queued.has(c) && (!w || (w.stage !== 'serviced' && (w.order === undefined || !live.has(w.order))));
   };
-  // as M4's site preparation: an unbuildable cell adds no capacity, so it is never serviced (§5.5, §13.2)
+  // as M4's site preparation: an unbuildable cell adds no capacity, so it is never serviced (§5.5, §13.2). With the
+  // land-cover layer (R8a), the buildable cells are the formable classes'; a village, hill or water cell is refused
   const buildable = (c: number) => !wc.buildable || inSorted(wc.buildable.cells, c);
+  const why = (c: number) => {
+    const k = wc.landcover ? landCoverAt(wc.landcover, c) : undefined;
+    return k ? `its land cover is ${k}, which is not formable` : 'site formation there adds no capacity';
+  };
   let cells: number[];
   if (a.cells !== undefined) {
     const zc = new Set(inZone);
     cells = [...new Set(cellsOfRuns(a.cells, s.grid))].sort((x, y) => x - y);
     for (const c of cells) {
       if (!zc.has(c)) throw new Error(`cell ${c} is not in zone ${z.id}`);
-      if (!buildable(c)) throw new Error(`cell ${c} is not buildable: site formation there adds no capacity`);
+      if (!buildable(c)) throw new Error(`cell ${c} is not buildable: ${why(c)}`);
       if (!eligible(c)) throw new Error(`cell ${c} is already formed, a road, or already has works`);
     }
-  } else cells = inZone.filter((c) => buildable(c) && eligible(c));
+  } else {
+    if (wc.landcover && !inZone.some(buildable)) throw new Error(`zone ${z.id} has no formable land`);
+    cells = inZone.filter((c) => buildable(c) && eligible(c));
+  }
   if (!cells.length) throw new Error(`zone ${z.id} has no cells left for site formation`);
   const id = s.nextOrderId++;
   let units = 0;
@@ -185,15 +197,32 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
   for (const c of cells) {
     const w = works.get(c);
     if (w) { w.order = id; w.zone = z.id; units += w.workTotal - w.workDone; continue; }   // adopt a detached work
-    added.push({ cell: c, zone: z.id, workTotal: wc.works.service.units_per_cell, workDone: 0, stage: 'planned', order: id });
-    units += wc.works.service.units_per_cell;
+    // R8a (§5.5): the class scales the cell's units, so its money too, at the order's one rate
+    const u = Math.max(1, Math.round(wc.works.service.units_per_cell * coverFactors(wc.params, wc.landcover, c).cost));
+    added.push({ cell: c, zone: z.id, workTotal: u, workDone: 0, stage: 'planned', order: id });
+    units += u;
   }
   s.cellWorks = [...s.cellWorks, ...added].sort((x, y) => x.cell - y.cell);
   const o: WorksOrder = { id, kind: 'service', priority, paused: false, committed: s.date, stage: 'queued',
     unitsTotal: units, unitsDone: 0, budget: 0, spent: 0, zone: z.id };
   o.budget = costTo(o, wc.works, units);
   s.worksOrders.push(o);
+  requisition(s, wc, cells, `works.${id}`);
   return o;
+}
+
+/**
+ * Land compensation (征地补偿, R8a §5.5): one obligation due next month for the committed cells not yet requisitioned,
+ * which join the sorted list. Cancelling refunds nothing, and a requisitioned cell never owes again.
+ */
+function requisition(s: GameState, wc: WorksContent, cells: readonly number[], ref: string): void {
+  if (!wc.landcover) return;
+  const have = new Set(s.requisitioned ?? []);
+  const fresh = cells.filter((c) => !have.has(c));
+  if (!fresh.length) return;
+  const owed = fresh.reduce((n, c) => n + coverFactors(wc.params, wc.landcover, c).compensation * wc.works.service.yuan_per_cell, 0);
+  s.requisitioned = [...have, ...fresh].sort((a, b) => a - b);
+  if (Math.round(owed) > 0) addObligation(s, { kind: 'compensation', perMonth: owed, index: 'none', from: s.date + 1, until: s.date + 1, createdBy: ref });
 }
 
 /**
@@ -234,7 +263,8 @@ function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'bu
   const W = wc.works;
   return oriented.map((seg) => {
     const path: PathCell[] = seg.map((cell) => {
-      const bridge = wc.buildable !== undefined && !inSorted(wc.buildable.cells, cell);
+      // R8a (§5.5): with the land-cover layer only water and tidal flats bridge; a hill or village cell is road
+      const bridge = wc.landcover ? needsBridge(wc.landcover, cell) : wc.buildable !== undefined && !inSorted(wc.buildable.cells, cell);
       return { cell, bridge, units: (bridge ? W.bridge : W.road).units_per_cell };
     });
     const units = path.reduce((n, c) => n + c.units, 0);
@@ -449,6 +479,8 @@ export interface WorksEstimate {
   order: number; kind: WorksOrder['kind'];
   cells: number; bridges: number;           // path or service cells; bridge cells of a road
   units: number; budget: number; forexUsd: number;
+  compensation: number;                     // R8a (§5.5): the one-off land compensation it owes next month
+  byClass?: Partial<Record<LandCoverClass, number>>;   // a service order's cells by land-cover class, with the layer
   crewPerMonth: number; months: number;     // at full pace: no more than crew_per_order a month
 }
 export type WorksPreview = { ok: true; orders: WorksEstimate[] } | { ok: false; error: string };
@@ -458,7 +490,7 @@ export type WorksPreview = { ok: true; orders: WorksEstimate[] } | { ok: false; 
  * preview never spends. `apply` is the turn-action path (step.ts applyTurnAction).
  */
 export function previewWorks(s: GameState, w: WorksParams, actions: readonly PlayerAction[],
-  apply: (state: GameState, a: PlayerAction) => void): WorksPreview {
+  apply: (state: GameState, a: PlayerAction) => void, landcover?: LandCover): WorksPreview {
   const c = cloneState(s);
   try { for (const a of actions) apply(c, a); } catch (e) { return { ok: false, error: (e as Error).message }; }
   const forex = (id: number) => c.fiscal.ledger.filter((l) => l.ref === `works.${id}` && l.account === 'forex')
@@ -468,6 +500,13 @@ export function previewWorks(s: GameState, w: WorksParams, actions: readonly Pla
     cells: o.kind === 'service' ? c.cellWorks.filter((x) => x.order === o.id).length : o.kind === 'road' ? o.path!.length : 1,
     bridges: o.path?.filter((p) => p.bridge).length ?? 0,
     units: o.unitsTotal, budget: o.budget, forexUsd: forex(o.id),
+    compensation: c.fiscal.obligations.filter((x) => x.kind === 'compensation' && x.createdBy === `works.${o.id}`)
+      .reduce((n, x) => n + x.perMonth, 0),
+    ...(landcover && o.kind === 'service' ? { byClass: c.cellWorks.filter((x) => x.order === o.id).reduce((m, x) => {
+      const k = landCoverAt(landcover, x.cell);
+      if (k) m[k] = (m[k] ?? 0) + 1;
+      return m;
+    }, {} as Partial<Record<LandCoverClass, number>>) } : {}),
     crewPerMonth: Math.min(w.crew_per_order, o.unitsTotal), months: Math.ceil(o.unitsTotal / w.crew_per_order),
   })) };
 }

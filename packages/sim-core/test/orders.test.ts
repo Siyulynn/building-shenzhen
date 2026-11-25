@@ -1,7 +1,7 @@
 /** R2: municipal works orders, placement and the preview (buildings-and-construction §13.2; phase1-slice §12 R2). */
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, SAVE_VERSION, applyTurnAction, cellsOfRuns, createTickSteps, firstOption, liveOrder, loadGame, post, previewWorks, replay,
+  Rng, SAVE_VERSION, applyTurnAction, landCoverAt, needsBridge, cellsOfRuns, createTickSteps, firstOption, liveOrder, loadGame, post, previewWorks, replay,
   runMonths, saveFromJson, saveGame, saveToJson, spatialViews, step, templateZoneAction, unspentCommitments,
   type CellRuns, type GameState, type PlayerAction, type WorksOrder,
 } from '../src/index.js';
@@ -16,12 +16,15 @@ const at = (x: number, y: number) => y * W + x;
 const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
 const SHANGBU = slice.tick.precedents!.find((p) => p.id === 'precedent.zone.shangbu_industrial')!;
 // The guide sits at rows 370–375, x 349–354; the temporary Guangshen road runs along row 346. A spur south down
-// x 360 from (360,346), with a bridge over the unbuildable cell (360,347), then west along row 369 fronts the guide's
-// top row: 23 + 10 cells. The phase is that top row.
+// x 360 from (360,346), over the hill cell (360,347) (a road, not a bridge, since R8a: only water and tidal flats
+// bridge), then west along row 369 fronts the guide's top row: 23 + 10 cells. The phase is that top row.
 const SPUR: [number, number][] = [[360, 347], [360, 369], [350, 369]];
 const SPUR_CELLS = 33;
 const PHASE: CellRuns = [[370, 349, 354]];
 const FUND = 5_000_000;
+// R8a (phase1-slice §5.5): the guide's 36 cells are all lowland_farm, so each forms at its class's units and money
+const FARM_UNITS = Math.round(WORKS.service.units_per_cell * params.growth!.land_cover!.lowland_farm.cost);
+const FARM_YUAN = FARM_UNITS * WORKS.service.yuan_per_cell / WORKS.service.units_per_cell;
 const copy = (s: GameState) => loadGame(saveFromJson(saveToJson(saveGame(s, new Rng(0), content)))).state;
 
 /** Months of play, answering every card with its first option; `first` are turn actions in the first month. */
@@ -67,16 +70,17 @@ describe('R2 placement validates the map', () => {
     expect(s.worksOrders).toEqual([]);
   });
 
-  it('prices a road by its cells, bridges where the path leaves buildable land', () => {
+  it('prices a road by its cells, bridging only water and tidal flats (R8a)', () => {
     const s = funded();
     apply(s, { type: 'build_road', path: SPUR });
     const o = s.worksOrders[0]!;
     const bridges = o.path!.filter((c) => c.bridge).length, cells = o.path!.length;
     expect(cells).toBe(SPUR_CELLS);
-    expect(o.path![0]).toMatchObject({ cell: at(360, 347), bridge: true });
+    expect(landCoverAt(slice.tick.landcover!, at(360, 347))).toBe('hill');
+    expect(o.path![0]).toMatchObject({ cell: at(360, 347), bridge: false });
     expect(o.unitsTotal).toBe((cells - bridges) * WORKS.road.units_per_cell + bridges * WORKS.bridge.units_per_cell);
     expect(o.budget).toBe(Math.round(o.unitsTotal * WORKS.road.yuan_per_cell / WORKS.road.units_per_cell));
-    for (const c of o.path!) expect(c.bridge).toBe(!slice.tick.buildable!.cells.includes(c.cell));
+    for (const c of o.path!) expect(c.bridge).toBe(needsBridge(slice.tick.landcover!, c.cell));
     expect(() => apply(s, { type: 'build_road', path: [[361, 350], [362, 350]] })).not.toThrow();   // may branch off a queued road
     expect(() => apply(s, { type: 'build_road', path: [[360, 349], [360, 352]] })).toThrow(/adds no new road/);
   });
@@ -126,11 +130,11 @@ describe('R2 guides and phasing', () => {
     const phase = previewWorks(s, WORKS, [guide(s), { type: 'build_road', path: SPUR },
       { type: 'commit_works', zone: s.nextZoneId, cells: PHASE }], apply);
     expect(saveToJson(saveGame(s, new Rng(1), content))).toBe(before);
-    expect(all).toMatchObject({ ok: true, orders: [{ kind: 'service', cells: 36, units: 36 * WORKS.service.units_per_cell,
-      budget: 36 * WORKS.service.yuan_per_cell }] });
-    expect(phase.ok && phase.orders.map((o) => [o.kind, o.cells, o.bridges])).toEqual([['road', SPUR_CELLS, 1], ['service', 6, 0]]);
-    expect(phase.ok && phase.orders[1]).toMatchObject({ crewPerMonth: 30, months: 8, units: 240,
-      budget: 6 * WORKS.service.yuan_per_cell });
+    expect(all).toMatchObject({ ok: true, orders: [{ kind: 'service', cells: 36, units: 36 * FARM_UNITS,
+      budget: 36 * FARM_YUAN, compensation: 36 * params.growth!.land_cover!.lowland_farm.compensation * WORKS.service.yuan_per_cell }] });
+    expect(phase.ok && phase.orders.map((o) => [o.kind, o.cells, o.bridges])).toEqual([['road', SPUR_CELLS, 0], ['service', 6, 0]]);
+    expect(phase.ok && phase.orders[1]).toMatchObject({ crewPerMonth: 30, months: Math.ceil(6 * FARM_UNITS / 30), units: 6 * FARM_UNITS,
+      budget: 6 * FARM_YUAN });
     expect(previewWorks(s, WORKS, [{ type: 'commit_works', zone: 99 }], apply)).toEqual({ ok: false, error: 'no zone 99' });
   });
 
@@ -150,7 +154,7 @@ describe('R2 guides and phasing', () => {
     expect(rest.length).toBe(30);
     for (const c of rest) expect(served.has(c) || s.cellWorks.some((w) => w.cell === c)).toBe(false);
     expect(road.spent + phase.spent).toBe(road.budget + phase.budget);
-    expect(phase.spent).toBeLessThan(36 * WORKS.service.yuan_per_cell);   // the whole guide's servicing alone
+    expect(phase.spent).toBeLessThan(36 * FARM_YUAN);   // the whole guide's servicing alone
     // the phase's frontage is the new road's, and the next row inward is now reachable from it
     const v = spatialViews(s, slice.startNetwork);
     expect(v.frontage.get(at(352, 370))?.depth).toBe(1);
@@ -187,8 +191,8 @@ describe('R2 cancel and pause conserve funds and work', () => {
     expect(c.fiscal.balances).toEqual(s.fiscal.balances);                 // no refund, no penalty
     expect(c.fiscal.ledger.length).toBe(s.fiscal.ledger.length);
     expect(after).toMatchObject({ unitsDone: o.unitsDone, spent: o.spent, stage: 'working' });
-    expect(o.budget - after.budget).toBe(unstarted * WORKS.service.yuan_per_cell);
-    expect(unspentCommitments(s) - unspentCommitments(c)).toBe(unstarted * WORKS.service.yuan_per_cell);
+    expect(o.budget - after.budget).toBe(unstarted * FARM_YUAN);
+    expect(unspentCommitments(s) - unspentCommitments(c)).toBe(unstarted * FARM_YUAN);
     expect(c.cellWorks.filter((w) => w.order === o.id)).toEqual(started);
     expect(() => apply(c, { type: 'cancel_works', order: o.id })).toThrow(/no unstarted work/);
     const end = runMonths(c, 6, rng, firstOption, STEPS);
@@ -230,7 +234,7 @@ describe('R2 cancel and pause conserve funds and work', () => {
     s = play(s, 1, rng, [guide(s), { type: 'commit_works', zone: s.nextZoneId }]);
     const adopted = s.worksOrders.at(-1)!;
     expect(s.cellWorks.filter((w) => partial.includes(w.cell)).every((w) => w.order === adopted.id)).toBe(true);
-    expect(adopted.unitsTotal).toBeLessThan(36 * WORKS.service.units_per_cell);
+    expect(adopted.unitsTotal).toBeLessThan(36 * FARM_UNITS);
   });
 });
 

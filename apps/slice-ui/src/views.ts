@@ -10,7 +10,7 @@ import {
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
   VILLAGE_ARCHETYPES,
   type CardInstance, type CellRuns, type EventDef, type EventEffect, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
-  type WorksOrder, type Zone,
+  type WorksOrder, type Zone, type LandCoverClass, landCoverAt,
 } from '@sz/sim-core';
 import * as S from './strings.js';
 import { place, type L } from './strings.js';
@@ -390,7 +390,7 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
 // ---- map overlays (§11): one RGBA pixel per cell ----
 
 export const OVERLAY_LAYERS = ['areas', 'land_use', 'stages', 'network', 'utilities', 'held', 'demand', 'occupancy', 'illegal',
-  'service_gap', 'buildable'] as const;
+  'service_gap', 'buildable', 'land_cover'] as const;
 export type OverlayLayer = (typeof OVERLAY_LAYERS)[number];
 export type RGBA = [number, number, number, number];
 
@@ -404,6 +404,11 @@ export const USE_COLOR: Record<string, RGBA> = {
   public: [90, 140, 210, 200], reserve: [120, 160, 110, 200],
 };
 const PLAYABLE: RGBA = [255, 236, 120, 60], CARD_ONLY: RGBA = [200, 150, 80, 60];
+/** R8a (phase1-slice §5.5, §11.1): one colour per land-cover class. */
+export const LAND_COVER_COLOR: Record<LandCoverClass, RGBA> = {
+  water: [70, 120, 190, 200], tidal_flat: [140, 170, 190, 200], pond: [90, 170, 190, 210], hill: [110, 120, 90, 190],
+  village: [170, 80, 60, 220], town: [120, 60, 70, 220], upland: [170, 160, 90, 180], lowland_farm: [190, 210, 120, 170],
+};
 
 /** The per-area value a layer shows, 0..1 (rental crowding is shown as occupants ÷ beds, capped at 1.5). */
 export function areaValue(s: GameState, layer: OverlayLayer, area: number): number {
@@ -421,7 +426,10 @@ export function overlayRgba(s: GameState, slice: Slice, layer: OverlayLayer): Ui
   const paint = (cells: Iterable<number>, c: RGBA) => { for (const i of cells) px.set(c, i * 4); };
   if (layer === 'areas') for (const a of s.areas) paint(a.cells, a.access === 'playable' ? PLAYABLE : CARD_ONLY);
   else if (layer === 'land_use') for (const z of s.zones) paint(cellsOfRuns(z.runs, s.grid), USE_COLOR[z.use] ?? [255, 255, 255, 180]);
-  else if (layer === 'buildable') {
+  else if (layer === 'land_cover') {
+    const lc = slice.tick.landcover;
+    if (lc) for (let c = 0; c < lc.classOf.length; c++) { const k = landCoverAt(lc, c); if (k) px.set(LAND_COVER_COLOR[k], c * 4); }
+  } else if (layer === 'buildable') {
     paint(slice.tick.buildable?.cells ?? [], [150, 190, 120, 110]);
     paint(cellsOfRuns(s.servicedLand, s.grid), [60, 200, 120, 220]);
   } else if (layer === 'stages' || layer === 'network' || layer === 'utilities' || layer === 'held' || layer === 'demand') {
@@ -678,7 +686,10 @@ export const isBuildable = (slice: Slice, cell: number) => !slice.tick.buildable
 /** The first constraint that applies at a cell, on §11.2's ladder. */
 export function cellConstraint(s: GameState, slice: Slice, cell: number): CellConstraint {
   const k = constraintContext(s, slice);
-  if (!isBuildable(slice, cell)) return { rung: 'unbuildable' };
+  if (!isBuildable(slice, cell)) {
+    const lc = slice.tick.landcover ? landCoverAt(slice.tick.landcover, cell) : undefined;   // R8a: name the class
+    return lc ? { rung: 'unbuildable', why: S.LAND_COVER[lc]! } : { rung: 'unbuildable' };
+  }
   const z = k.zoneAt.get(cell);
   if (!z) return { rung: 'unzoned' };
   const served = k.served.has(cell);

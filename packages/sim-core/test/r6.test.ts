@@ -51,9 +51,10 @@ describe('R6: the map-first policies', () => {
   it('servicing is phased: no service order is larger than its crew share of a quarter', () => {
     for (const [plan, { rec }] of [[AGGRESSIVE_PLAN, runs.aggressive], [HISTORICAL_PLAN, runs.historical],
       [CAUTIOUS_PLAN, runs.cautious]] as const) {
-      const cap = Math.floor(plan.crew_share * 3 * params.capacity.local_crew / params.works!.service.units_per_cell);
+      // R8a: a cell's units follow its land cover, so the cap is in units, not cells
+      const cap = Math.floor(plan.crew_share * 3 * params.capacity.local_crew);
       for (const o of rec.final.worksOrders.filter((x) => x.kind === 'service')) {
-        expect(o.unitsTotal).toBeLessThanOrEqual(cap * params.works!.service.units_per_cell);
+        expect(o.unitsTotal).toBeLessThanOrEqual(cap);
       }
       // one service order at a time
       const live = (s: GameState) => s.worksOrders.filter((o) => o.kind === 'service' && (o.stage === 'queued' || o.stage === 'working'));

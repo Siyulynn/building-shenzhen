@@ -17,7 +17,7 @@ import { inTaxHoliday } from './industry.js';
 type LineKind = ObligationKind | 'baseline' | 'debt_service';
 interface Line { ref: string; kind: LineKind; amount: number }
 /** Paying order: debt service, arrears and payroll first, so unpaid payroll is the last resort. */
-const ORDER: readonly LineKind[] = ['debt_service', 'arrears', 'payroll', 'baseline', 'service', 'maintenance', 'transfer'];
+const ORDER: readonly LineKind[] = ['debt_service', 'arrears', 'payroll', 'baseline', 'service', 'maintenance', 'compensation', 'transfer'];
 const CUTTABLE: readonly LineKind[] = ['baseline', 'payroll', 'service'];
 
 function takeLoan(s: GameState, kind: 'project' | 'short', principal: number, p: SliceParams): void {

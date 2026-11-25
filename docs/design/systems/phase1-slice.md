@@ -624,10 +624,26 @@ interface AnsweredCard { card: CardInstance; option: string }   // answered, awa
 - **Existing premises** (archetypes with `existing_premises` only). The local side of a processing contract supplied the premises and labour (`phase1.industry.processing_contract`). So the first contracts can use the town's and villages' existing buildings before any zone exists.
   - In each area, the jobs of firms in existing premises stay ≤ `industry.premises_jobs_per_area`.
   - Such a firm builds nothing, opens the month after acceptance, and produces at `industry.premises_output_factor`.
-- **Buildable cells** come from `data/starts/slice_buildable.json`, compiled by `pipeline/m3b_buildable.py`. A cell is buildable if it is land on the present-day DEM, not water in the 1979 Landsat mask, and its slope on the 100 m grid is ≤ `slope_max_pct`.
-  - **It is a placeholder layer:** its inputs are git-ignored, the 1979 water mask is an automatic threshold (`lead`), and the DEM is present-day.
-  - **Zoning unbuildable cells stays legal** (§5.3). They add no capacity.
+- **Buildable cells** are the formable cells of the land-cover layer (below, R8a). Until R8 they came from `data/starts/slice_buildable.json` (`pipeline/m3b_buildable.py`, now superseded and kept for reference): land on the present-day DEM, not 1979 water, slope ≤ `slope_max_pct`.
+  - **Zoning unbuildable cells stays legal** (§5.3). They add no capacity, and the inspector names the cell's class.
   - **The layer records the `areas_sha256` it was compiled from.** sim-core refuses a layer compiled from other areas or another grid.
+
+**The land-cover layer (R8a).** One class per cell of the seven playable areas, in `data/starts/slice_landcover.json`, written by `pipeline/m3c_landcover.py` and compiled by `src/landcover.ts`. Content, never state; `landcover_sha256` joins the save header. It is a **placeholder at `lead`**: the rule cites `phase1.map.landsat_1979`, `phase1.map.kh9_1980` and `phase1.map.shenzhenxu_refs` as `design_note`, and no claim is promoted by the derivation. The audit, its confusion tables and the caveats are in `docs/research/phase1-landcover.md`.
+- **Eight classes**, first match wins, with fixed thresholds (never per-area quantiles; the numbers are in the file's `thresholds`):
+  1. `water`: DEM water, or a 1979 water body of ≥ 50 cells (the reservoir and the river);
+  2. `tidal_flat`: coast change 2 within two cells of 1979 water, or elevation < 3 m within two cells of DEM water;
+  3. `pond`: inland water in 1979 that is land now, in a smaller body, at or below 50 m;
+  4. `hill`: slope > 15%;
+  5. `village`: within 5 cells of a village point, with built texture on KH-9 1980;
+  6. `town`: within 6 cells of a town, state-unit or railway point, with built texture;
+  7. `upland`: slope > 6%;
+  8. `lowland_farm`: everything else.
+  Two deviations from the plan's first wording, both forced by the inputs: every 1979 water cell in the playable areas is also coast change 3, so `water` takes only large bodies; and about a fifth of 1979 inland water lies on hills (shadow), so `pond` has an elevation ceiling.
+- **The compiler checks** the classes and their order, the grid and the areas hash, and that each playable area's classes **partition** its cells: no gap, no overlap, nothing outside the area.
+- **Formable classes** (decided): `upland`, `lowland_farm`, `pond`, `town`. **Villages are not formable**: development wraps around them and their `village_rental` floor keeps growing. `water`, `tidal_flat` and `hill` are not formable either (no reclamation or terracing in Phase 1). A road on a `water` or `tidal_flat` cell is a bridge (§5.6 works); a road may cross `hill` and `village` cells at the road rate.
+- **Formation cost** (`growth.land_cover.<class>.cost`, placeholders): a formable cell's service work is `round(works.service.units_per_cell × cost)` units, at the order's one rate (`works.service.yuan_per_cell ÷ units_per_cell`), so work and money scale together: upland 1.6, lowland_farm 1.2, pond 1.8, town 1.2. A zone that spans classes has a mixed cost; the preview shows the total and the split by class.
+- **Land compensation (征地补偿)** (`growth.land_cover.<class>.compensation`, a multiple of `works.service.yuan_per_cell`, placeholders: upland 0.25, lowland_farm 1.0, pond 1.25, town 1.5; half the revision plan's first table, which failed the 1983 spending band for both the historical and the aggressive plan, `m6-tuning-log.md`). `commit_works` on a service order posts **one** obligation of kind `compensation`, due the next month (`from` = `until` = the next month), for the committed cells not yet in `s.requisitioned`, and adds them to that sorted list. Cancelling refunds nothing; recommitting a requisitioned cell owes nothing. It is paid from `general` like every obligation, so money stays conserved, and it shows in the Budget drawer. Household income effects of requisition are out of scope in Phase 1.
+- **`commit_works` refuses** a service order with no formable cell (`no formable land`); the unformable cells of a zone are left out of the order, as cells with works already are. Without the layer (fixtures), every cell is formable at factor 1 with no compensation.
 
 **Building.** An accepted firm in a new factory starts its `standard_factory` floor and its `dormitory` floor under construction in its area's block, permitted. M2 does the rest: construction jobs while it rises, dormitory beds once it is complete.
 - **Work, not dates.** Every cohort under construction carries `workDone` and `workTotal` (months of work, integers), and the firm's cohorts carry `firm`. The construction step adds a month of work to each, and completes a cohort when its work is done. `due` stays as the estimate shown to the player.

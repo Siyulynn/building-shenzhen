@@ -4,10 +4,10 @@
   "quarters": 21,
   "content": {
     "areas_sha256": "fc9003de49cb0d274f25b2b21ac1028c4dd8cb0c51f334af2e4caa9ad70212a6",
-    "params_sha256": "adee4c4b8749af01219399469030fd29a5888e92c18e8d256e67df22fb21952b",
+    "params_sha256": "32727634663d87a6025bf9500801abb8451cf3434a7891ff3efc485725241e42",
     "precedents_sha256": "d54f17661a4348d98d655754b9e42dea47173e09d8f6d19566de79d2094104f4",
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
-    "buildable_sha256": "93a4651ce4e9e6dc32928e79da812babc22842aa8407c389dc633bdac21fc4d1",
+    "landcover_sha256": "a8fc4372642be8e1f96c9dee10422e3724c4aee7cdb0a9c20c13570508538253",
     "fiscal_sha256": "7f52bc2bab3d93a40cef10762ae77b061bb0a04a41d558ce3e833e50afd42ca0",
     "events_sha256": "69f6c58519a9803c505cc55b1f61afcd64fa842fc6d0f57a718acd728dded25d",
     "leaders_sha256": "5bf3fe0aa081c85e6f538add149d93852b4fc6f34142656fd5dd599e8c520467",
@@ -331,7 +331,7 @@
   ],
   "sez": {
     "opened": "1980-09",
-    "readiness": 0.2761,
+    "readiness": 0.2808,
     "waveCards": 2
   },
   "verdict": {

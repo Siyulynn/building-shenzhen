@@ -25,6 +25,8 @@ export interface Gesture { tool: Tool; from: XY; to: XY }
 export interface GesturePreview {
   area: number; cells: number; orders: number; bridges: number; units: number; budget: number; forexUsd: number;
   crewPerMonth: number; months: number; note?: L;
+  compensation: number;                       // R8a (§5.5): land compensation owed next month
+  byClass: Partial<Record<string, number>>;   // service cells by land-cover class
 }
 export type Plan =
   | { kind: 'none' }
@@ -45,12 +47,12 @@ function previewOrders(x: Session, actions: readonly PlayerAction[]): { ok: true
   const apply = (st: GameState, a: PlayerAction) => applyTurnAction(st, a, x.steps);
   let base = BASE.get(x.queue);
   if (!base || base.state !== x.state) {
-    const p = previewWorks(x.state, works, x.queue, apply);
+    const p = previewWorks(x.state, works, x.queue, apply, x.slice.tick.landcover);
     base = p.ok ? { state: x.state, n: p.orders.length } : { state: x.state, n: 0, error: p.error };
     BASE.set(x.queue, base);
   }
   if (base.error !== undefined) return { ok: false, error: base.error };
-  const p = previewWorks(x.state, works, [...x.queue, ...actions], apply);
+  const p = previewWorks(x.state, works, [...x.queue, ...actions], apply, x.slice.tick.landcover);
   return p.ok ? { ok: true, orders: p.orders.slice(base.n) } : p;
 }
 
@@ -73,6 +75,9 @@ function summarize(orders: readonly WorksEstimate[], area: number, cells: number
     bridges: orders.reduce((n, o) => n + o.bridges, 0), units: orders.reduce((n, o) => n + o.units, 0),
     budget: orders.reduce((n, o) => n + o.budget, 0), forexUsd: orders.reduce((n, o) => n + o.forexUsd, 0),
     crewPerMonth: orders.reduce((n, o) => n + o.crewPerMonth, 0), months: orders.reduce((n, o) => Math.max(n, o.months), 0),
+    compensation: orders.reduce((n, o) => n + o.compensation, 0),
+    byClass: orders.reduce((m, o) => { for (const [k, c] of Object.entries(o.byClass ?? {})) m[k] = (m[k] ?? 0) + c!; return m; },
+      {} as Record<string, number>),
     ...(note ? { note } : {}),
   };
 }
@@ -184,7 +189,7 @@ function erasePlan(x: Session, c: XY): Plan {
     const works = s.cellWorks.some((q) => q.zone === z.id) || s.fiscal.projects.some((p) => p.zone === z.id && p.cells);
     if (works) return refused(S.T.zoneHasWorks);
     return { kind: 'actions', actions: [{ type: 'remove_zone', zone: z.id }],
-      preview: { area, cells: z.cellCount, orders: 0, bridges: 0, units: 0, budget: 0, forexUsd: 0, crewPerMonth: 0, months: 0 } };
+      preview: { area, cells: z.cellCount, orders: 0, bridges: 0, units: 0, budget: 0, forexUsd: 0, crewPerMonth: 0, months: 0, compensation: 0, byClass: {} } };
   }
   if (x.slice.startSites.some((q) => q.layer === 'settlement' && q.cell[0] === c[0] && q.cell[1] === c[1])) return refused(S.T.existingStock);
   return refused(S.T.nothingToErase);

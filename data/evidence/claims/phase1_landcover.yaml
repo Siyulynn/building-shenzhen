@@ -1,0 +1,36 @@
+# Claims behind the R8a land-cover layer (data/starts/slice_landcover.json, pipeline/m3c_landcover.py,
+# phase1-slice.md §5.5, phase1-revision-plan.md §3.1). Each is a lead: a derivation from imagery and a reference
+# sheet, audited in docs/research/phase1-landcover.md. Nothing here is promoted to sourced by the derivation.
+- id: phase1.map.landsat_1979
+  source: landsat_1979_10_19
+  locator: "Bands B4-B7; water and inland-water masks of pipeline/m1b_landsat_1979.py (water1979.bin, coast_change.bin)"
+  summary: >-
+    The 1979-10-19 Landsat MSS scene, thresholded on the near-infrared band, gives the 1979 water and the inland water
+    that is land now (fishponds and the reservoir). The layer's water and pond classes rest on it.
+  status: lead
+  extracted_by: ai:phase1-r8a-landcover
+  notes: >-
+    Automatic Otsu threshold at 60 m with no hand check; small fishponds below the pixel size are missed, and hill
+    shadow reads as water above about 50 m (landsat1979.json caveats). The audit found water and pond at 70-75%
+    agreement with the KH-9 reading.
+- id: phase1.map.kh9_1980
+  source: kh9_1980_09_11_a048
+  locator: "Frames A048 segment c and F048 segment b, mosaicked by pipeline/m1c_kh9_mosaic.py (kh9_1980_slice.png, 6.25 m)"
+  summary: >-
+    The 1980-09-11 KH-9 Hexagon frames, registered to the grid at about 28-31 m held-out RMSE, show built texture
+    (villages, the market town), fishponds and field patterns. The layer's village and town classes read its
+    texture, and the audit reads every sampled cell on it.
+  status: lead
+  extracted_by: ai:phase1-r8a-landcover
+  notes: >-
+    Dated September 1980, after the first works at Shangbu and Luohu: evidence for that date, not for 1979. About a
+    sixth of Donghu-Liantang is outside the frames. Frame F048 is source kh9_1980_09_11_f048.
+- id: phase1.map.shenzhenxu_refs
+  source: phase1_shenzhenxu_1977_shenzhen_street_map
+  locator: "Whole sheet: the town east of the railway, the county offices and villages west of it, ponds along the line"
+  summary: >-
+    The 1977 street sheet of Shenzhen town shows the built town between the railway and the Wenjindu road, the county
+    offices west of the railway, Yumin village by the river and ponds along the railway. It is not georeferenced, so
+    it confirms the layer's broad pattern near the station and labels features; it classifies no cell.
+  status: lead
+  extracted_by: ai:phase1-r8a-landcover

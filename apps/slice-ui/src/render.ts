@@ -13,7 +13,7 @@ import * as S from './strings.js';
 import { bi, type L } from './strings.js';
 import { BUILD_TOOLS, TOOLS, queuedBudget, type Plan, type Tool, type ToolOptions } from './tools.js';
 import {
-  DRAWERS, OVERLAY_LAYERS, USE_COLOR, actionLabel, areaName, areaView, briefing, cardStack, chipsView, constraintContext,
+  DRAWERS, LAND_COVER_COLOR, OVERLAY_LAYERS, USE_COLOR, actionLabel, areaName, areaView, briefing, cardStack, chipsView, constraintContext,
   commitments, constraintLabel, finishedWork, icrCue, inspectorView, ledgerView, leadersView, mostHeldBack, num, pct, projectsView,
   reviewView, teamsView, verdictView, worksView, yuan, zoneName,
   type DrawerId, type OverlayLayer,
@@ -97,6 +97,8 @@ export function renderOverlaySelect(v: View): string {
   const t = tx(v.lang);
   return `<label class="muted">${t(S.T.overlay)} <select data-ui="layer">${OVERLAY_LAYERS.map((k) =>
     `<option value="${k}" ${v.ui.layer === k ? 'selected' : ''}>${t(S.OVERLAYS[k]!)}</option>`).join('')}</select></label>
+    ${v.ui.layer === 'land_cover' ? `<details class="key" open><summary>${t(S.OVERLAYS.land_cover!)}</summary>${Object.entries(LAND_COVER_COLOR)
+      .map(([k, c]) => `<div style="border-left:10px solid rgba(${c.slice(0, 3).join(',')})">&nbsp;${t(S.LAND_COVER[k]!)}</div>`).join('')}</details>` : ''}
     <details class="key"><summary>${t(S.T.temporaryAlignments)}</summary>${v.slice.startNetwork.routes.map((r) =>
       `<div><i class="${r.kind}"></i>${esc(bi(r.name))}</div>`).join('')}</details>`;
 }
@@ -171,6 +173,8 @@ export function renderPreview(plan: Plan, v: Pick<View, 'x' | 'lang'>): string {
   return `${p.area ? `<div>${t(areaName(v.x.state, p.area))}</div>` : ''}<table>
     ${tr(S.T.cells, num(p.cells))}${p.bridges ? tr(S.T.bridges, num(p.bridges)) : ''}
     ${tr(S.T.cost, `${yuan(p.budget)}${p.forexUsd ? ` + $${num(p.forexUsd)}` : ''}`)}
+    ${p.compensation ? tr(S.OBLIGATION.compensation!, yuan(p.compensation)) : ''}
+    ${Object.keys(p.byClass).length > 1 ? tr(S.T.landCover, Object.entries(p.byClass).map(([k, n]) => `${t(S.LAND_COVER[k]!)} ${num(n!)}`).join(', ')) : ''}
     ${p.orders ? `${tr(S.T.units, num(p.units))}${tr(S.T.crewPerMonth, num(p.crewPerMonth))}${tr(S.T.months, num(p.months))}` : ''}</table>
     ${p.note ? `<div class="down">${t(p.note)}</div>` : ''}`;
 }

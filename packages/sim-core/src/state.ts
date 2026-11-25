@@ -200,6 +200,7 @@ export interface GameState {
   roads: number[];            // R2 (b&c §13.2): built road cells, sorted; start-network roads stay content
   worksOrders: WorksOrder[];  // R2: municipal works orders, id order
   nextOrderId: number;
+  requisitioned?: number[];   // R8a (§5.5): cells whose land compensation is owed or paid, sorted; required from R8e's save bump
   growth: { carry: number };  // R3 (b&c §13.3): m² of industrial demand banked toward the next organic firm
   events: EventsState;        // M5a (§5.7)
   sez: SezState;
@@ -409,6 +410,7 @@ export function createInitialState(content: {
     roads: [],
     worksOrders: [],
     nextOrderId: 1,
+    requisitioned: [],
     growth: { carry: 0 },
     events: { fired: [], unlocked: [] },
     sez: {},
@@ -471,6 +473,7 @@ export function cloneState(s: GameState): GameState {
     structures: s.structures.map((x) => ({ ...x })),
     roads: [...s.roads],
     worksOrders: s.worksOrders.map(cloneOrder),
+    ...(s.requisitioned ? { requisitioned: [...s.requisitioned] } : {}),
     growth: { ...s.growth },
     events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked] },   // fired entries are never changed
     sez: { ...s.sez },

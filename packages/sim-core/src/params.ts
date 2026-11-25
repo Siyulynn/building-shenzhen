@@ -119,7 +119,13 @@ export interface GrowthParams {
   services: { spend_per_job_month: number; formal_share: number; m2_per_job: number; tax_rate: number };
   residential: { min_crowding: number };
   village_shops: { m2_per_job: number };
+  land_cover?: LandCoverParams;          // R8a (phase1-slice §5.5): absent = every cell at factor 1, no compensation
 }
+/** Per formable land-cover class (§5.5): formation cost and compensation, both multiples of works.service. */
+export interface LandCoverParams {
+  upland: LandCoverFactor; lowland_farm: LandCoverFactor; pond: LandCoverFactor; town: LandCoverFactor;
+}
+export interface LandCoverFactor { cost: number; compensation: number }
 
 function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
   const pos = (n: unknown) => typeof n === 'number' && n > 0;
@@ -149,6 +155,13 @@ function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
   }
   if (!(g.residential?.min_crowding >= 0)) throw new Error('params: growth.residential.min_crowding must be >= 0');
   if (!pos(g.village_shops?.m2_per_job)) throw new Error('params: growth.village_shops.m2_per_job must be > 0');
+  if (g.land_cover !== undefined) {
+    need(g.land_cover as unknown as Record<string, unknown>, ['upland', 'lowland_farm', 'pond', 'town'], 'growth.land_cover');
+    for (const [k, f] of Object.entries(g.land_cover)) {
+      if (!['upland', 'lowland_farm', 'pond', 'town'].includes(k)) throw new Error(`params: growth.land_cover.${k}: only formable classes have factors`);
+      if (!pos(f?.cost) || !(f.compensation >= 0)) throw new Error(`params: growth.land_cover.${k} needs cost > 0 and compensation >= 0`);
+    }
+  }
 }
 
 /** A structure's or facility's works numbers (§13.2). */

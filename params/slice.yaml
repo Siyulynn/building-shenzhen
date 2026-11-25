@@ -189,6 +189,14 @@ growth:                                  # R3 organic growth (buildings-and-cons
     min_crowding: 1.0                    # work units build dormitories only where rental crowding is at least this
   village_shops:
     m2_per_job: 10                       # village shop floor per informal service job
+  land_cover:                            # R8a (phase1-slice §5.5): per formable class, placeholders, not sourced. `cost` scales
+                                         # a cell's site-formation units (so its money); `compensation` is a one-off multiple of
+                                         # works.service.yuan_per_cell, owed on commit. Villages, water, tidal flats, hills: not formable.
+                                         # Compensation is half the revision plan's first table (R8a tuning: m6-tuning-log.md)
+    upland:       { cost: 1.6, compensation: 0.25 }  # cut and fill; scrub, orchards, lychee and bamboo
+    lowland_farm: { cost: 1.2, compensation: 1.0 }   # villagers' fields; drain first
+    pond:         { cost: 1.8, compensation: 1.25 }  # fishponds; fill and drain
+    town:         { cost: 1.2, compensation: 1.5 }   # the town fringe; existing users move
 
 gdp:                                     # nominal value added (fiscal §8.2)
   base_va_per_job_month: { farming_fishing: 30, factory: 50, construction: 50, services: 40, state: 45 }

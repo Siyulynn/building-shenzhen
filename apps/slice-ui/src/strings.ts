@@ -51,7 +51,7 @@ export const SECTOR: Readonly<Record<string, L>> = {
 };
 export const OBLIGATION: Readonly<Record<string, L>> = {
   baseline: l('基本支出', 'Baseline'), debt_service: l('还本付息', 'Debt service'), payroll: l('工资', 'Payroll'),
-  service: l('公共服务', 'Services'), maintenance: l('维护', 'Maintenance'), transfer: l('转移支付', 'Transfers'),
+  service: l('公共服务', 'Services'), maintenance: l('维护', 'Maintenance'), compensation: l('征地补偿', 'Land compensation'), transfer: l('转移支付', 'Transfers'),
   arrears: l('拖欠', 'Arrears'),
 };
 export const INDICATOR: Readonly<Record<string, L>> = {
@@ -132,10 +132,17 @@ export const CUE_INPUT: Readonly<Record<string, L>> = {
   spending: l('消费带动的正式服务岗位', 'Formal service jobs from spending'), shopPosts: l('有铺面的正式岗位', 'Formal posts with shop floor'),
   crowding: l('出租屋拥挤度', 'Rental crowding'), turnedAway: l('上月找不到床位的人', 'Turned away last month'),
 };
+/** R8a (phase1-slice §5.5): the land-cover classes; the four formable ones say so. */
+export const LAND_COVER: Readonly<Record<string, L>> = {
+  water: l('水面（不可平整）', 'Water (not formable)'), tidal_flat: l('滩涂（不可平整）', 'Tidal flat (not formable)'),
+  pond: l('鱼塘', 'Fishponds'), hill: l('山地（不可平整）', 'Hill (not formable)'),
+  village: l('村庄（不可平整）', 'Village (not formable)'), town: l('镇区边缘', 'Town fringe'),
+  upland: l('坡地', 'Upland'), lowland_farm: l('平地农田', 'Lowland farmland'),
+};
 export const OVERLAYS: Readonly<Record<string, L>> = {
   areas: l('片区', 'Areas'), land_use: l('用地规划', 'Land use'), illegal: l('违建比例', 'Illegal floor share'),
   occupancy: l('出租屋拥挤度', 'Rental crowding'), service_gap: l('公共服务缺口', 'Service gap'),
-  buildable: l('可建设用地与已平整土地', 'Buildable and formed land'),
+  buildable: l('可建设用地与已平整土地', 'Buildable and formed land'), land_cover: l('1979年土地覆盖（推测）', 'Land cover, 1979 (a lead)'),
   stages: l('工程阶段', 'Works stages'), network: l('路网与临路深度', 'Road network and frontage'),
   utilities: l('水电供应', 'Utility supply'), held: l('受制约因素', 'Held back by'), demand: l('需求', 'Demand'),
 };
@@ -235,7 +242,7 @@ export const T = {
   sourcesPlaced: l('个水电源', 'sources'), facilitiesPlaced: l('个公共设施', 'facilities'), ordersDone: l('项工程完工', 'works done'),
   firmsOpened: l('家企业开业', 'firms opened'), cellsHeld: l('格', 'cells'),
   cost: l('费用', 'Cost'), crewPerMonth: l('每月施工', 'Crew a month'), months: l('满负荷月数', 'Months at full pace'),
-  bridges: l('座桥', 'bridges'), units: l('工作量', 'Work units'), refused: l('不能这样建', 'Cannot build this'),
+  bridges: l('座桥', 'bridges'), units: l('工作量', 'Work units'), landCover: l('土地覆盖', 'Land cover'), refused: l('不能这样建', 'Cannot build this'),
   nothingToService: l('没有可以平整的格', 'No cells to form'),
   startedWork: l('已开工的工程不能撤销', 'Started work cannot be erased'),
   builtRoad: l('已建成的道路不能拆除', 'A built road cannot be removed'),
@@ -281,7 +288,7 @@ export const BADGE: Readonly<Record<string, L>> = {
 
 /** Every table above, for the tests: each entry has an en and a zh. */
 export const TABLES: Readonly<Record<string, Readonly<Record<string, L>>>> = {
-  SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, ENFORCEMENT, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
+  SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, LAND_COVER, ENFORCEMENT, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
   ROLE, TRAIT, RISK, STAGE, WAITING, OVERLAYS, T, RUNG, ORDER_KIND, ORDER_STAGE, STRUCTURE, FACILITY, WORK_STAGE, TOOL,
   TOOL_HINT, CHIP, CHIP_STAT, CUE, CUE_INPUT, BADGE, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
 };

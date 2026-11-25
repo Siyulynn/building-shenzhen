@@ -17,6 +17,7 @@ import { offers, type Buildable, type InvestorArchetype } from './investors.js';
 import { events, type EventContent } from './events.js';
 import { climate, reviews, type TargetContent } from './systems/reviews.js';
 import { zoning, type Precedent } from './zones.js';
+import type { LandCover } from './landcover.js';
 
 /**
  * Content the tick reads, never stored in state (§5.3, §5.5, §5.6, §5.7). Without precedents no zone takes a
@@ -30,6 +31,7 @@ export interface TickContent {
   fiscal?: FiscalContent; events?: EventContent;
   targets?: TargetContent;                       // M5b (§5.8): the annual reviews; read only with events
   network?: StartNetwork;                        // R2 (b&c §13.2): with fiscal, enables works orders
+  landcover?: LandCover;                         // R8a (§5.5): formation cost, compensation and bridges; buildable is its formable cells
 }
 
 /** Tick step 3: serviced shares (with the fiscal content), zone names, then investors look for sites (§5.3, §5.5, §5.6). */
@@ -47,7 +49,8 @@ export function createTickSteps(params: SliceParams, content: TickContent = {}):
   const fc = content.fiscal;
   // works orders (R2, b&c §13.2) need their params, the fiscal content and the start network
   const wc: WorksContent | undefined = fc && content.network && params.works
-    ? { params, works: params.works, network: content.network, ...(content.buildable ? { buildable: content.buildable } : {}) } : undefined;
+    ? { params, works: params.works, network: content.network, ...(content.buildable ? { buildable: content.buildable } : {}),
+      ...(content.landcover ? { landcover: content.landcover } : {}) } : undefined;
   // organic growth (R3, b&c §13.3) needs its params and the start network, for road reach
   const gc: GrowthContent | undefined = params.growth && content.network
     ? { network: content.network, ...(content.buildable ? { buildable: content.buildable } : {}) } : undefined;

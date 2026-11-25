@@ -9,6 +9,7 @@ export * from './round.js';
 export * from './ticks.js';
 export * from './zones.js';
 export * from './investors.js';
+export * from './landcover.js';
 export * from './fiscal.js';
 export * from './events.js';
 export { gdpNow } from './systems/statistics.js';

@@ -4,7 +4,8 @@
  */
 import { compileEvents, type EventContent } from './events.js';
 import { compileFiscal } from './fiscal.js';
-import { compileBuildable, compileInvestors, type BuildableContent } from './investors.js';
+import { compileInvestors } from './investors.js';
+import { compileLandCover, type LandCoverContent } from './landcover.js';
 import { validateParams, type SliceParams } from './params.js';
 import type { SaveContent } from './save.js';
 import { compileStartNetwork, compileStartSites, type StartNetwork, type StartSite } from './sites.js';
@@ -16,7 +17,7 @@ import { compilePrecedents } from './zones.js';
 /** The repo-relative path of every file the slice reads. */
 export const SLICE_FILES = Object.freeze({
   areas: 'data/starts/slice_areas.json',
-  buildable: 'data/starts/slice_buildable.json',
+  landcover: 'data/starts/slice_landcover.json',     // R8a (§5.5): replaces slice_buildable.json
   sites: 'content/slice/sites_1979.yaml',
   siteCells: 'data/starts/slice_site_cells.json',
   network: 'content/slice/start_network.yaml',
@@ -59,7 +60,8 @@ export function compileSlice(read: (path: string) => string, parse: (text: strin
   const params = validateParams(parse(text.params));
   const precedents = compilePrecedents(parse(text.precedents), areas);
   const investors = compileInvestors(parse(text.investors), params);
-  const buildable = compileBuildable(JSON.parse(text.buildable) as BuildableContent, areas);
+  const landcover = compileLandCover(JSON.parse(text.landcover) as LandCoverContent, areas);
+  const buildable = { cells: landcover.formable };     // the formable cells are the buildable ones (§5.5)
   const fiscal = compileFiscal({ regimes: parse(text.regimes), projects: parse(text.projects), teams: parse(text.teams) }, params);
   const events = compileEvents(parse(text.events), params, investors, fiscal);
   const targets = compileTargets(parse(text.targets));
@@ -70,11 +72,11 @@ export function compileSlice(read: (path: string) => string, parse: (text: strin
     startSites: compileStartSites(sites, JSON.parse(text.siteCells), areas, hash(text.sites)),
     startNetwork: network,
     init: { scenario: parse(text.scenario) as ScenarioContent, areas, start: parse(text.start) as StartContent, params, leaders, events },
-    tick: { precedents, investors, buildable, fiscal, events, targets, network },
+    tick: { precedents, investors, buildable, landcover, fiscal, events, targets, network },
     params,
     content: {
       areas_sha256: areas.areas_sha256, params_sha256: hash(text.params), precedents_sha256: hash(text.precedents),
-      investors_sha256: hash(text.investors), buildable_sha256: hash(text.buildable),
+      investors_sha256: hash(text.investors), landcover_sha256: hash(text.landcover),
       fiscal_sha256: hash([text.regimes, text.projects, text.teams].join('\n---\n')),
       events_sha256: hash(text.events), leaders_sha256: hash(text.leaders), targets_sha256: hash(text.targets),
       network_sha256: hash(text.network),
