@@ -106,6 +106,8 @@ non-blocking `news` layer adds the 1981–1983 political weather; see
 | 6 (1980-Q3) | `event.sez_established` (answered) | `investors.sez` → `zone.commercial`, `road.avenue`, `structure.power_station`, and the investor market |
 | 1982-Q4 | the news `news.1982q4.storm_passes` (1982-12) | `intensity.high` → `zone.intensity.high` |
 
+Capacity arrives alongside (revision plan §4.5, §5.6): the county core of 200 crew units from the start, +100 with the corps' advance (1979-Q4), +150 with the SEZ, and +900 with the 1982-09 deployment if accepted.
+
 **When an opened tool can be used.** A scripted beat fires in its quarter's first month, after that turn's actions. An anchor or news record fires in its own month, and an `on_answer` unlock applies in the month of the answer. Turn actions are given at a turn's start. So a tool that a turn's beat opens can first be used at the **next** turn's start: the SEZ's from 1980-Q4, and high intensity from 1983-Q1. That is §4.1's "the tool the next beat needs". Only the turn-0 beat fires before the player's first action. The headless policies follow the same schedule: a map plan holds back each action until its gate opens (§5.9).
 
 ---
@@ -355,6 +357,7 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
 | header `gateways_sha256` | none | the gateways file's hash | not invented for an old header |
 
   `s.roads` keeps its name: the plan's `s.roads`→`s.roadClass` rename was not made (§5.12). The load test (`save-v6.test.ts`) builds a version-5 save: four quarters of the historical plan, written back in version 5's shape with a public zone and a placed power source. It migrates it, plays three months with the invariants, and round-trips as version 6. A save the pre-R8 code wrote is loaded the same way when present locally; it is not checked in.
+- **Version 7 (R9)** adds `crew: { team, crew, from }[]` (§5.6, required). Its migration from 6 writes `crew: []`. A version-6 run's corps advance was a pool contract, which the save keeps, so its pool is unchanged. `events.modifiers` (§5.8) and `WorksOrder.pace` (§5.6) are optional, absent = none and normal, and need no migration.
 
 **M1's tests:**
 - save at month k, load, continue, and match an uninterrupted run byte for byte;
@@ -910,6 +913,19 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
 - **Units.** A *crew unit* is one organised worker-month of formal construction capacity. A job's `crew` is the crew units it uses a month at full pace. A firm's cohort has `crew = max(1, ceil(m² × capacity.crew_per_m2))`. A project's `crew` is a template param.
 - **Work stays in months, and stays integer.** Each month a job is given an integer number of crew units, at most its crew. They go into its `crewBank`. Whenever the bank holds a full crew, `workDone` gains a month and the bank loses a crew. Completion is still `workDone ≥ workTotal`. A job given its full crew every month advances one month a month, exactly as in M3b. One given half advances every second month.
 - **Supply each month:** `capacity.local_crew` (the county's own builders: a param, so the pool does not depend on this month's employment, which step 5 computes later) + the crew of every pool contract active this month.
+- **R9: capacity arrives in waves (revision plan §4.5).** The supply is `crewPool(s, p)`: `capacity.local_crew` (now the county's core only, a placeholder 200) + every arrival in `state.crew` from its `from` month + every live pool contract. The pool step, the map plans' phasing, the chip and the planning preview all read this one function.
+  - **Arrivals** are permanent. They come only from the event effect `{ kind: crew_arrival, team }`, which appends `{ team, crew: params.teams[team].crew, from: date }` to `state.crew` (kept sorted by `from`, then team). Content carries no number.
+  - **The schedule** (placeholders):
+    - `event.corps_advance` (1979-Q4) brings `team.corps_advance` (+100), replacing its nine-month pool contract;
+    - `event.sez_established` (any priority) brings `team.sez_builders` (+150), the zone's own construction companies (a composite, `design_note`);
+    - `event.corps_deployment` (1982-09, `accept` only) brings `team.engineering_corps` (+900). Declining adds nothing.
+  - **The corps and the zone's builders are `event_only`.** The player's `contract_team` (gated `team.contract`, from 1979-Q4's beat) hires `team.outside_soe` or a county crew: a hired company is a 12-month contract, and the corps is a stock.
+  - **Review note (R9).** The core's cut lowers 1979–80 works spending, which pushes the 1979-Q4 and 1980-Q2 spending-to-revenue bands toward their *floors*. The wave raises 1983 crew, which could push the 1983 spending ratio toward its *ceiling* if city works took it. So the map plans size their servicing phase on the county core alone (`crew_share × 3 × capacity.local_crew`, unchanged). The waves then mostly serve the private builders' cohorts, which pay their own way (§4.6's free lever). The 1979 core is calibrated against the 1979 spending floor first.
+- **R9: works pace (revision plan §4.6).** Each works order has a `pace`: `normal` (absent), `push` or `all_out`. It is chosen at commit (`pace` on `commit_works`, `build_road` and `place_structure`) and changed by `set_works_pace { order, pace }`; both are gated with `works.priority`.
+  - **At pace k,** each crew unit the order takes does `1 ÷ works.pace[k].units` units of its work, and each unit of work costs `works.pace[k].money` × the normal rate. The placeholders are units {1, 0.75, 0.55} and money {1, 1.25, 1.6}. So an order's total crew and money scale by exactly those factors, as the plan's `unitsTotal × u`, `budget × b`.
+  - **The monthly draw is unchanged** (at most `crew_per_order` crew units), so a rushed order finishes sooner without starving the builders.
+  - **Changing the step** re-prices only the unworked units; sunk work and money are never re-priced. The order's `budget` is recomputed as `spent` plus the remaining work at the new step.
+  - **Priority stays** the crew-for-time lever and pace is the money-for-time lever. No global slider exists. The headless plans keep `normal`.
 - **Demand:** every firm cohort under construction, and every city project being built without a dedicated contract.
 - **Allocation:** in priority order (`high`, `normal`, `low`; firm cohorts are `normal`), then by start month, then firm cohorts before projects, then by id. Each job takes min(its crew, what is left, the work it has left), so a job's last month passes any spare units down the queue. The last job served may get a partial share; later ones get none (`waiting: 'capacity'`). No proportional sharing: a queue finishes things, and the player sees what is waiting and why.
 - **A firm's two cohorts are two jobs,** the factory first. Under scarcity the dormitory can finish later than the factory. The firm opens when its factory completes (§5.5), so a late factory opens late with no change to the firm code.
@@ -1119,6 +1135,7 @@ M5b fills the slice's calendar on M5a's events step: the prologue beats, the rem
   - A modifier is **live** while `date ≤ until`. The events step drops the expired ones at the start of each month, before it applies answers. Live modifiers on one target **multiply**.
   - `investor_rate` scales the monthly arrival draw: an archetype arrives when its draw is below `min(1, rate_per_quarter ÷ 3 × factor)`. The number of draws is unchanged, so the stream stays aligned. The first wave and the scripted offers are not scaled.
   - `scrutiny_gain` scales step 12's gains (before the permit factor). The `scrutiny` effect of a card is not scaled.
+  - `cohort_crew` (R9, revision plan §4.6) scales a firm cohort's crew per m² (`cohortCrew`: `max(1, ceil(m² × crew_per_m2 × factor))`). It covers only the private builders' cohorts, never city works or projects. A factor below 1 makes the builders faster. (The plan calls this target `construction_pace`; the name follows what it multiplies.)
   - **State:** `EventsState` gains `modifiers?: { source: string; target: 'investor_rate' | 'scrutiny_gain'; factor: number; until: YM }[]`. Absent means none, and it is omitted when empty, so the save version stays 6; `cloneState` copies it.
 - **Tool gates (R9, revision plan §4.4).** A gated turn action is refused by `applyTurnAction`, before it changes anything, while its gate's key is not in `events.unlocked`. So headless policies, replays and the UI keep one schedule. Gates are content, `content/slice/tools.yaml`: a list of `{ gate, requires, name: { zh, en } }`. A gate that is not listed is open.
   - **The gate ids** are `zone.<use>`, `zone.intensity.<tier>`, `road.<class>`, `structure.<kind>` (the kinds that can be ordered), `formation.bulk`, `works.priority`, `policy.enforcement`, `team.contract` and `power.buy`.
@@ -1137,6 +1154,12 @@ M5b fills the slice's calendar on M5a's events step: the prologue beats, the rem
   - `numbers`: `modifier_shift` it 3 months later.
 
   `event.1983q4.rectification` (date 1983-10, interrupting) gives each of its options (`follow`, `strict`, `transmit`) its own `scrutiny_gain` modifier. The detailed effects of both wait for the politics pass.
+- **Endorsing the slogan (R9, revision plan §4.6).** `event.1981q1.slogan` is a non-interrupting card that follows `news.1981q1.shekou_slogan` in 1981-03, the claim's month (the plan's 1981-Q3 has no dated hook). It lapses to `decline`.
+  - `endorse`: a `cohort_crew` modifier (placeholder × 0.9 for 9 months) and `standing`.
+  - `decline`: no effect.
+
+  The plan's extra scrutiny "under a strict permit regime" is not built, as the effects have no condition.
+- **`crew_arrival { team }`** (R9, §5.6): a permanent crew arrival. Its number is `params.teams[team].crew`, and the team must be `event_only`.
 
 **The prologue beats** (§2.1). Each prologue quarter from turn 1 raises at least one card whose options lead to different states. Turn 0's decision is made on the map, the first zone and the first road (R9), so its card only reports:
 
@@ -2043,7 +2066,7 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
   - **Water, Power, Facilities:** a click on cell c gives `place_structure { cell: c, attach }`. The attach cell is the first of c's four neighbours, in cell-index order, that is a road: start, built, in a live road order, or in a road queued this turn. With none it is c itself, and the inspector reads "no road at the attach cell".
   - **Service:** see above. A drag names the zone under its first cell.
   - **Erase:** an action queued this turn that covers the cell is removed from the queue first, since no order exists yet for `cancel_works` to name.
-  - **Previews and refusals.** Every gesture's actions are tried with `previewWorks` on the turn's queue plus the gesture, through `applyTurnAction`, so they pass the same validation as End quarter. The preview shows the new orders' estimates (area, cells, bridges, cost, forex, crew a month and months at full pace). A refused gesture queues nothing and shows sim-core's reason.
+  - **Previews and refusals.** Every gesture's actions are tried with `previewWorks` on the turn's queue plus the gesture, through `applyTurnAction`, so they pass the same validation as End quarter. The preview shows the new orders' estimates (area, cells, bridges, cost, forex, crew a month and months at full pace). A refused gesture queues nothing and shows sim-core's reason. **R9:** the works flyout offers the pace (Normal, Push, All-out; greyed until `works.priority` opens). The preview then shows the months saved, the extra yuan and the quarter's projected spending ÷ revenue. It warns, without refusing, when the ratio would cross the end-1983 band's ceiling.
 - **Removing a queued action keeps the queue valid.** Removing a queued `create_zone` also removes the queued actions that name its zone (`commit_works`, `commit_project`, `edit_zone`, `remove_zone`), and renumbers the references to zones queued after it.
 - **`public` is gone (R8b).** R7 showed it disabled; R8b removed it from `LAND_USES` and the flyout. Facilities are placed directly.
 - **Locked tools (R9).** A tool, zone use, road class, tier or Govern control whose gate is locked (§5.8) is shown greyed, never hidden. Its title reads "Opens with ‹opener›", from the compiled gate's opener. A gesture that needs a locked gate is refused with sim-core's reason, as any refusal. The state of each gate is read from `events.unlocked` through the same `gateRefusal` predicate the sim uses.
