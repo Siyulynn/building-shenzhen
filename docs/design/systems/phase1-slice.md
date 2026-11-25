@@ -1745,6 +1745,10 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
   - **I (industrial):** organic industrial demand (the growth pass's floor demand, `floor_m2_per_month × order_index × orderFactor × regime factor`, plus `growth.carry`, b&c §13.3) and the utility headroom (the lower of the power and water utility shares, §5.11, that a new organic firm would see in the areas with industrial zones). The bar is low when either is.
   - **C (commercial):** the shortfall of shop floor implied by spending: the formal service jobs that last month's spending supports (§13.3's induced jobs × `formal_share`) less the formal posts that have shop floor, as a share of the former.
   - **R (residential):** rental crowding (demand crowding, §5.11) and the people turned away last month.
+  - Each bar is a level from 0 to 1, for display only, and reads **low** below ⅓ (the ladder's rung 8):
+    - **I** = the lower of demand and headroom. Demand = min(1, (this month's floor demand + `growth.carry`) ÷ one organic firm's floor, from `sizeOffer`). Headroom = min(1, the best `prospectiveShare` of one more organic firm over the industrial zones, with `placedSupply` as the growth pass computes it, ÷ `min_utility_share`). With no industrial zone, it is the best over the playable areas, without placed supply.
+    - **C** = the shortfall share: max(0, formal induced − formal posts) ÷ formal induced, where formal induced = Σ `inducedServiceJobs` × `formal_share` and formal posts = Σ `labour.servicePosts[].formal`. It is 0 when nothing is induced.
+    - **R** = the higher of min(1, the highest demand crowding over the playable areas ÷ (2 × `min_crowding`)) and, when anyone was turned away last month, ⅔.
   - Hovering a bar names its two inputs. The cue never shows a number on the first level.
 - **The quarter label (top left):** the year and quarter, and the turn out of 21.
 - **The overlay switcher (top right):** one dropdown listing the overlays of §11.1 plus the road and utility networks.
@@ -1763,14 +1767,18 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
   1. **unbuildable** (off the buildable layer, §5.5);
   2. **unzoned**;
   3. **not queued** (zoned, with no works and not serviced);
-  4. **order waiting**: its works order got less than its pace this month, with the order's `waiting` reason (paused, frozen, access, finance or capacity, b&c §13.2);
+  4. **order waiting**: its works order got less than its pace this month, with the order's `waiting` reason (paused, frozen, access, finance or capacity, b&c §13.2). A live site-preparation project covering the cell counts the same way, with the project's reason;
   5. **no road frontage** (not in `spatialViews(…).frontage`);
-  6. **utility shortfall** (the cell's supplied share of power or water is below 1);
-  7. **low demand or crowding** (its zone's use reads low on the I/C/R cue, or the area's rental crowding holds builders back);
-  8. **building in progress** (a cohort or firm under construction in the zone);
-  9. **active** (nothing holds it back).
+  6. **being serviced**: its work is unfinished and its order is not waiting (R5: an unserviced cell has no supplied share, so rung 7 cannot apply yet);
+  7. **utility shortfall** (the cell's supplied share of power or water is below 1; defined below);
+  8. **low demand or crowding** (its zone's use reads low on the I/C/R cue, or, for a residential zone, the area's demand crowding is below `growth.residential.min_crowding`, so work units build no dormitories there). Public and reserve zones have no organic builder and skip rungs 7 and 8;
+  9. **building in progress** (a cohort or firm under construction in the zone);
+  10. **active** (nothing holds it back).
 
-  The inspector's "Held back by:" line and the briefing's "area most held back" both read it. The area most held back is the playable area with the most zoned cells whose constraint is earliest on the ladder (ties by area id), and the briefing names that constraint.
+  The inspector's "Held back by:" line and the briefing's "area most held back" both read it. The area most held back is the playable area with the most zoned cells whose constraint is earliest on the ladder (ties by area id), and the briefing names that constraint. Rungs 1 and 10 never name an area: an unbuildable cell inside a zone is not land the player can unlock, and an active cell holds nothing back. With every zoned cell on those rungs, the briefing says nothing is held back.
+
+  The context the ladder reads (the spatial views, the supplied shares, the cue, the zones with building under way) is built once per state and reused for every cell, so the briefing's sweep over the zoned cells costs one build.
+- **A cell's supplied share** (rung 7 and the inspector). A cell demands power and water only when it is a developable cell (§13.3) of a zone with open firms: the zone's open firms' needs, spread evenly over its developable cells, as `placedSupply` spreads them. Its share, for each utility, is `min(1, area capacity ÷ the area's open-firm need + the cell's placed supply ÷ the cell's demand)`. The first term is the area's capacity (`area.utilities`) shared pro rata, so without placed sources the cell reads its area's `utilityShare`; the second is what `spatialViews` allocates to the cell from placed sources. The share is the lower of the two utilities. A cell with no demand reads "no demand", never a shortfall.
 - **Floor at core zoom.** Organic floor is stored per zone and village stock per area (b&c §13.3, §5.2). At core zoom R5 draws a zone's floor over its developable cells, frontage first (lower frontage depth, then cell index), filling each cell to `growth.far` before the next. The spread is deterministic and for drawing only: it is never saved and the sim never reads it.
 - **A known quirk (left as it is).** `placedSupply` (`growth.ts`) adds supply per road component into an area total, which the firms' utility share (`industry.ts`) reads. So one powered component lifts the whole area. The inspector's per-cell supplied share and the area's firm posting can therefore differ: a cell can read "utility shortfall" while the area's firms post fully. R5 shows both as they are and does not reconcile them.
 - **The chip strip (bottom):** five chips. Each shows two stats and opens its drawer.
@@ -1805,6 +1813,23 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
   - the §11.1 briefing deltas;
   - where work finished;
   - the area most held back, and the constraint holding it.
+- **Where work finished:** compared with the previous turn's start, by playable area: cells newly serviced, road cells built, sources and facilities placed, works orders done, and firms opened.
+
+**R5's build rules** (the details the layout above leaves open):
+- **The rail, as built:** Select (inspect a cell), Roads, Zones (industrial, commercial, residential, public; Plan only; show the Shangbu guide; zone the guide), Service, Erase, Water, Power and Facilities (the facility types in `works.facilities`). The guide is the historical template's footprint drawn over the map; showing it creates no action. "Zone the guide" queues `templateZoneAction`'s zone, clipped as §11.1's, with its `commit_works` unless Plan only is on. Tools are off while a card interrupts the quarter and after the end.
+- **Gestures become actions in `src/tools.ts`,** a pure module (session, UI choices and gesture in, actions and a preview out), so the tests can play a quarter with the map tools alone. `map.ts` only turns pointer events into gestures.
+  - **Zones:** a dragged rectangle, clipped by `previewZone`, gives `create_zone` and `commit_works { zone }`, the zone named by its queued id (§11.1).
+  - **Roads:** a drag from cell A to cell B gives `build_road` with the waypoints A, (B.x, A.y), B, dropping repeats: horizontal first, then vertical. A click is a one-cell road.
+  - **Water, Power, Facilities:** a click on cell c gives `place_structure { cell: c, attach }`. The attach cell is the first of c's four neighbours, in cell-index order, that is a road: start, built, in a live road order, or in a road queued this turn. With none it is c itself, and the inspector reads "no road at the attach cell".
+  - **Service:** see above. A drag names the zone under its first cell.
+  - **Erase:** an action queued this turn that covers the cell is removed from the queue first, since no order exists yet for `cancel_works` to name.
+  - **Previews and refusals.** Every gesture's actions are tried with `previewWorks` on the turn's queue plus the gesture, through `applyTurnAction`, so they pass the same validation as End quarter. The preview shows the new orders' estimates (area, cells, bridges, cost, forex, crew a month and months at full pace). A refused gesture queues nothing and shows sim-core's reason.
+- **Removing a queued action keeps the queue valid.** Removing a queued `create_zone` also removes the queued actions that name its zone (`commit_works`, `commit_project`, `edit_zone`, `remove_zone`), and renumbers the references to zones queued after it.
+- **The overlays:** areas; zones by use; works stage; the road network (components and frontage depth); utilities (sources and each cell's supplied share); held back (each zoned cell coloured by its ladder rung); demand (each zone coloured by its use's cue level); rental crowding; the illegal floor share (legality); the service gap; buildable and serviced land. Zones, their works stages, roads, structures and the start anchors draw on every overlay.
+- **The map draws** terrain and water from the Spike A grid when it is served, area outlines, the start anchors, the temporary routes in their keyed styles, roads autotiled from their four-neighbours, bridges (path cells off the buildable layer) with their own edge, and works stages: zoned (outline only), planned (hatched), servicing (filled to its share of work done) and serviced (solid). Queued, unsubmitted actions draw dashed.
+- **Core zoom** (a cell at least 14 screen pixels wide) adds the floor spread above as roofs within each cell, and **village thickening**: each settlement anchor's roofs multiply with its area's village floor over its footprint (§5.2). The roof pattern is a hash of the cell index, never the RNG.
+- **The chips' stats:** crews in use is last month's city works and project crew (the `constructionPosts` series ÷ `jobs_per_crew_unit`), and the total is `capacity.local_crew` plus the pool contracts active this month. Works running are live works orders and projects without a waiting reason; stalled are those with one. Net per quarter is 3 × `fiscalViews`' recurring balance. Review targets met counts this year's indicators whose value now reaches their target, out of all of them.
+- **Code:** `apps/slice-ui/src/` (`views.ts` for the ladder, the cue, the chips, the floor spread and the overlays; `tools.ts`; `render.ts`; `map.ts`; `main.ts`). sim-core only exports `prospectiveShare` and `utilityShare`, which it already had. **Tests** (`apps/slice-ui/test/r5.test.ts`): a quarter played with map tools alone; each rung of the ladder reached and read in the inspector; the briefing naming the finished work and the change at the cell the next turn; the floor spread (deterministic, frontage first, filled to `far`, never more than the zone's floor); the network and utility overlays; five chips of two values each and a cue with no digits; every drawer in both languages (§11.1's language checks); removing a queued zone keeps the queue valid.
 - **Closing:** "To the map" or the first click on the map. The Briefing button reopens it until End quarter.
 
 **Out of R5:**
