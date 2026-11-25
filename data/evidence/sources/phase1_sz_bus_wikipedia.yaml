@@ -1,0 +1,10 @@
+id: "phase1_sz_bus_wikipedia"
+title: "深圳公交巴士"
+published: { where: "维基百科", date: "2026-07-09" }
+url: "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%9C%B3%E5%85%AC%E4%BA%A4%E5%B7%B4%E5%A3%AB"
+retrieved: "2026-11-24"
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "A user-edited article that cites 《深圳市交通运输志》 (方志出版社, 2001), chapter 3, and the transport commission. Used for the 1979–85 route and fleet counts and for the minibus account. The gazetteer itself has not been opened."

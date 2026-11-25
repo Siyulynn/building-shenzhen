@@ -1,0 +1,126 @@
+# Roads and public transport in the core basin, 1975–1985 (docs/research/phase1-transport.md).
+# What the sources say, not what the game does. The road placements on our grid stay `lead`: the 1977 street sheet
+# is not georeferenced, so its alignments are read as topology only and the start-network waypoints carry no geometry
+# claim (phase1-slice.md §1.1, "Temporary routes").
+
+# ---- the pre-1979 road network ----
+
+- id: site.jianshe_road.exists_1979
+  source: phase1_shenzhenxu_1977_shenzhen_street_map
+  locator: "Sheet: vertical label 建设路 on the road along the east bank of the 铁路, from 解放路 south past 深圳站"
+  quote: "建设路"
+  summary: The 1977 street sheet labels the road along the east bank of the Kowloon–Canton railway as Jianshe Road, running from Jiefang Road in the town south to the Luohu station area.
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: Read from the reproduced 1:5,000 survey. The label and its road are legible; the sheet has not been georeferenced.
+- id: site.jianshe_road.town_to_station
+  source: phase1_old_shenzhen_roads_memoir
+  locator: "Section on the town's west side, paragraph describing the two roads beside the railway"
+  quote: "建设路南连罗湖火车站，北通解放路"
+  summary: Before 1980, Jianshe Road ran south from Jiefang Road to Luohu station, with the railway between it and the parallel Heping Road.
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: The author grew up in the town in the 1950s–70s. A transport wiki dates the modern 建设路 to 1982; that is its rebuilding, not its first appearance.
+- id: site.heping_road.exists_1979
+  source: phase1_old_shenzhen_roads_memoir
+  locator: "Section on the town's west side, paragraph describing the two roads beside the railway"
+  quote: "铁路两旁各有一条柏油路，东是建设路，西是和平路"
+  summary: Two asphalt roads flanked the railway before 1980, Jianshe Road on the east and Heping Road on the west.
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: The 1977 sheet draws a road on each bank; its west-bank label was not read clearly, so the memoir carries this claim.
+- id: site.dongmen_wenjindu_road.exists_1979
+  source: phase1_old_shenzhen_roads_memoir
+  locator: "Section on the town's east side, paragraph on the east gate and 文锦渡"
+  quote: "沙土路往南一直延伸至文锦渡桥头"
+  summary: A sand road ran from the Dongmen crossroads south to the Wenjindu bridge; the memoir calls it the only route for export goods to Hong Kong at the time.
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: The 1977 sheet shows the same road leaving 解放路 east through 湖贝 toward 文锦渡.
+- id: site.shenzhen_luohu_road.1929
+  source: phase1_sz_old_road_chronology_blog
+  locator: "Chronology, 1929 entries"
+  quote: "深(圳)羅(湖)公路"
+  summary: A Shenzhen–Luohu road is dated to 1929 in a local chronology, which equates it loosely with today's Jianshe Road.
+  status: lead
+  extracted_by: ai:phase1-transport-research
+  notes: Tier-E source with no citation. Not needed for the start network; it only suggests the corridor predates the 1950 station move.
+
+# ---- public transport ----
+
+- id: phase1.transport.bus_company_1975
+  source: phase1_sz_archive_bus_history
+  locator: "Opening paragraph"
+  quote: "仅有2辆营运车、12名员工、1条从侨社至东门的线路"
+  summary: In December 1975 the Bao'an County Shenzhen Town bus company was founded with two buses, twelve staff and one route from Qiaoshe to Dongmen.
+  date: { value: "1975-12", precision: month }
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: The 晶报 anniversary feature corroborates the 1975 route. The company's fleet grew to 31 vehicles and three routes by 1980.
+- id: phase1.transport.bus_route_1_stops
+  source: phase1_360_sz_bus_route_1
+  locator: "历史沿革, paragraph on the first stops"
+  quote: "十字街(现东门街道办)，深圳戏院，邮电局"
+  summary: Route 1's first stops ran from the Shenzhen bus station on Shaibu Road through Shizijie, the Shenzhen Theatre, the post office and Youyi Department Store to the railway station.
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: A user-edited encyclopedia; the stop order is a lead until a schedule or photograph confirms it. The corridor is the same town–station road as 建设路.
+- id: phase1.transport.bus_fleet_1979
+  source: phase1_sz_bus_wikipedia
+  locator: "历史, 1970年代, final paragraph"
+  quote: "公交线路增加至两条，共有12辆车"
+  summary: In 1979 the company was renamed the Shenzhen Municipal Bus Company and ran two routes with twelve vehicles; apart from the station squares, termini were temporary and there were no fixed intermediate stops.
+  date: { value: "1979", precision: year }
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: Wikipedia citing 《深圳市交通运输志》 (2001). The gazetteer has not been opened.
+- id: phase1.transport.bus_fleet_1980
+  source: phase1_sz_archive_bus_history
+  locator: "Second paragraph"
+  quote: "拥有31台车，开辟了3条线路"
+  summary: In 1980 the Shenzhen bus company had 31 vehicles and three routes, and from 23 February a Hong Kong joint operation added fifteen vehicles.
+  date: { value: "1980", precision: year }
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+- id: phase1.transport.fares_1981
+  source: phase1_sz_archive_bus_history
+  locator: "Paragraph quoting the 1981 fare notice"
+  quote: "罗湖火车站至沙头村、罗湖火车站至深圳水库"
+  summary: On 13 January 1981 the Planning Commission's fare notice listed five routes — Shenzhen bus station, Qiaoshe and Luohu station to Shatou village, and Luohu station and Qiaoshe to the Shenzhen Reservoir — with fares from 0.05 to 0.55 yuan.
+  date: { value: "1981-01-13", precision: day }
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: The notice is quoted from committee documents held by the archive. The modern reading of 沙头村 is open; the 1982 route list separately names 沙头角.
+- id: phase1.transport.routes_1982
+  source: phase1_sz_bus_wikipedia
+  locator: "历史, 1980年代, 公交大巴, second paragraph"
+  quote: "深圳共有5条公交车线路"
+  summary: By 1982 Shenzhen had five bus routes with 24 vehicles, including the station and Qiaoshe to the reservoir, the town to Futian junction, Beifang Building to Nantou, and Dongmen to Shatoujiao.
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: Wikipedia citing 《深圳市交通运输志》 (2001). The route list is the useful part for content; the counts need the gazetteer.
+- id: phase1.transport.fixed_stops_1983
+  source: phase1_sz_bus_wikipedia
+  locator: "历史, 1980年代, 公交大巴, third paragraph"
+  quote: "1983年，公交车开始定时定点行驶"
+  summary: In 1983 buses began running to fixed stops and timetables, with new termini at Futian junction, Huangbeiling and the reservoir and 60 new shelters.
+  date: { value: "1983", precision: year }
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+- id: phase1.transport.routes_1985
+  source: phase1_sz_bus_wikipedia
+  locator: "历史, 1980年代, 公交大巴, final paragraph"
+  quote: "至1985年，特区内公交线路达20条"
+  summary: By 1985 the special economic zone had 20 numbered bus routes, with headways of 2–5 minutes at peak.
+  date: { value: "1985", precision: year }
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+- id: phase1.transport.minibuses_1980s
+  source: phase1_sz_bus_wikipedia
+  locator: "历史, 1980年代, 公共中小巴, first paragraph"
+  quote: "逾1000辆营运中小型客车在深圳行驶"
+  summary: From about 1980 hail-anywhere minibuses served industrial areas, housing estates and lanes the big buses did not reach; by 1985 over a thousand were operating.
+  status: sourced
+  extracted_by: ai:phase1-transport-research
+  notes: The 1989 first formal minibus route and the 1985 count are separate milestones in the same article.

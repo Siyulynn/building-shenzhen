@@ -1,0 +1,11 @@
+id: "phase1_sz_archive_bus_history"
+title: "深圳故事｜从70年代起步的深圳巴士集团"
+issuer: "深圳市档案馆"
+published: { where: "深圳档案", date: "2023-03-04" }
+url: "https://www.szdag.gov.cn/dawh/tqssn/content/post_948099.html"
+retrieved: "2026-11-24"
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "An official archive feature that quotes archival documents and the 1981 fare notice. It cites 《深圳市交通运输志》 (2001), which is not in the store. Retrospective prose, so tier D despite the archive's authority."

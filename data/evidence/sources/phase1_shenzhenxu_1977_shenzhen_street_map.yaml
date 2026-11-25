@@ -1,0 +1,13 @@
+id: phase1_shenzhenxu_1977_shenzhen_street_map
+title: "深圳镇街道图（1977年）"
+issuer: "广东省测绘局、惠阳地区革委会、宝安县革委会"
+doc_date: "1977"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/1977_shenzhen_street_map.jpeg", sha256: "3b753a9c075cd8d7854c4bb2ca16cc2c14ea95b5f8b46aefa2f62e4d42aed55c" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "1:5,000 street sheet. Shows 渔民村, 罗湖, 文锦渡, 深圳站, 宝安县, 蔡屋围, 湖贝 and the Shenzhen River. Red boundary lines and 县革委/附城公社 labels appear on the sheet. The article pairs it with the 1977 county map. This is the closest detailed pre-1979 street source in the register."
