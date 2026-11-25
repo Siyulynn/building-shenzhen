@@ -317,7 +317,7 @@ interface WorksOrder {        // GameState.worksOrders, id order; ids from GameS
 | Action | Validates | Creates |
 |---|---|---|
 | `commit_works { zone, cells?, priority? }` | The zone exists. The cells (all of the zone's eligible cells when absent) are in it, are on the buildable layer (as M4's site preparation: an unbuildable cell adds no capacity), are outside `servicedLand` and outside every live site-preparation project, and have no works or only detached works (below). | A `service` order and one `planned` CellWork per new cell. A detached work is adopted: it keeps its sunk work, and the order takes on only its remaining units. |
-| `build_road { path, priority? }` | `path` holds orthogonal `[x,y]` waypoints, expanded like `start_network.yaml`. Every cell is on a playable area. No cell is already a road (start, built or in a live road order), a structure footprint or a cell with works. The first cell touches a road or a live road order's path. | A `road` order. A cell outside the buildable layer is a bridge. |
+| `build_road { path, priority? }` | `path` holds orthogonal `[x,y]` waypoints, expanded like `start_network.yaml`. Every cell is on a playable area. No cell is already a road (start, built or in a live road order), a structure footprint or a cell with works. The first or the last cell touches a road or a live road order's path. When only the last does, the path is reversed (R4.5), so it is always built from the network outward and a player can draw a road in either direction. | A `road` order. A cell outside the buildable layer is a bridge. |
 | `place_structure { kind, cell: [x,y], attach: [x,y], facility?, priority? }` | As `placeStructure` (§13.1). The footprint is not a road, nor another structure's or a live order's footprint. A facility names a type in params. | A `structure` order. Its params give its units, budget, capacity and any forex, which is drawn at commit as for a project. |
 | `cancel_works { order, cells? }` | The order is live. | Removes its unstarted cells (all of them when `cells` is absent): their works, path cells or structure, and their units and budget. Started cells and sunk spending stay. An order left with nothing to do is `cancelled`, or `done` if its remaining work is finished. No penalty: nothing was contracted. A road path has no holes, so cancelling an unstarted path cell cancels the rest of the path beyond it. A started structure has nothing to cancel. Cancelling an unstarted structure returns the forex quota it drew at commit. |
 | `set_works_paused { order, paused }` | The order is live. | A paused order takes no crew and no money. |
@@ -329,7 +329,13 @@ interface WorksOrder {        // GameState.worksOrders, id order; ids from GameS
 - Each order wants up to `works.crew_per_order` units a month, no more than it can use. A service order can use units only on works with road reach; a road order, on its path; a structure, when its attach cell is a road or the footprint has reach.
 - It is paid like a project. The cost of `k` units is `round(budget × (unitsDone + k) ÷ unitsTotal) − spent`. Payment comes from debt, then land, then general above the reserve floor, and it is posted as `project` with ref `works.<id>`. A fall from grace freezes orders as it freezes projects.
 - A service order pours its units into its own cells, using `advanceCellWorks`' order. A road order builds its path in order, and each finished cell joins `roads` at once. A structure order becomes a `PlacedStructure` when its units are done.
+- **A finished facility feeds its area (R4.5).** When a `facility` order's structure is placed, its capacity joins the area stock its type names, in the area of its footprint, as M4's school project does (phase1-slice §5.6). A `school` adds its capacity to `area.facilities.schoolPlaces`. From the next month it owes a payroll obligation of `staff × the state wage` (indexed to wages) and a service obligation of `capacity × service_per_place_month`, each only when above zero. Its maintenance is the done order's, as for every order (phase1-slice §5.11), so it is not added twice.
 - Units an order cannot use pass down the queue.
+
+**Credit in the M-series systems (R4.5).** Map works count where M4's projects count:
+- readiness (phase1-slice §5.7) adds built road cells to each area's road km and placed sources to its spare capacity; serviced cells already join `servicedLand`;
+- the annual review's `projects_completed` counts done orders (phase1-slice §5.8);
+- the `site_preparation_committed` milestone holds for a live or done `service` order (phase1-slice §5.8).
 
 **Preview.** `previewWorks(state, works, actions, apply)` applies the actions to a clone through `apply` (the turn-action path, `applyTurnAction` with the tick steps), so they go through the same validation, and reads off the orders they would create: cells, bridges, units, budget, forex, the most crew a month can take, and the months the work needs at full pace. The state is untouched, so showing a guide (a precedent's template) or previewing its cost spends nothing. A refused action comes back as its reason instead of an estimate.
 
@@ -338,11 +344,11 @@ interface WorksOrder {        // GameState.worksOrders, id order; ids from GameS
 - `service` and `road`: `units_per_cell` and `yuan_per_cell`;
 - `bridge`: four times a road cell, a guess. Road and bridge must cost the same per unit (`validateParams` checks this), so the cost formula stays exact after a cancel;
 - `structures.water_source` and `structures.power_source`: `units`, `yuan`, `capacity` and optional `forex_usd`;
-- `facilities.<type>`: the same fields.
+- `facilities.<type>`: the same fields, plus optional `staff` and `service_per_place_month` (R4.5; from `project.school`'s). The type must be one whose area stock exists: only `school` in Phase 1 (`validateParams` refuses others).
 
 **Not yet:**
-- staffing obligations on finished works. R4 adds their maintenance: a done order owes `spent × works.maint_rate_year ÷ 12` a month (phase1-slice §5.11);
-- finished works feeding the M-series area ledger: built roads do not raise `roadKm` (readiness), placed sources do not raise `area.utilities`, and facilities do not raise `area.facilities`. From R4, placed sources' supply reaches the firms' utility share through `spatialViews` (phase1-slice §5.11), not through the ledger;
+- staffing obligations on finished works other than facilities. R4 adds their maintenance: a done order owes `spent × works.maint_rate_year ÷ 12` a month (phase1-slice §5.11);
+- placed sources raising `area.utilities`, and built roads raising `area.roadKm` itself. Readiness counts both (above), and from R4 placed sources' supply reaches the firms' utility share through `spatialViews` (phase1-slice §5.11), not through the ledger, so neither is counted twice;
 - footprints larger than one cell;
 - removing a built road.
 

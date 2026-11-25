@@ -44,7 +44,9 @@ The player plans a quarter on the map, previews its cost and crew time, then adv
 
 **R1 spatial contract.** `buildings-and-construction.md` §13.1 owns the layers. The first increment compiles `sites_1979.yaml` with `data/starts/slice_site_cells.json` through `compileSlice` for both CLI and browser. Each playable point has its register ID, bilingual name, kind, area, proxy source/confidence, claims with their uses, projected `[x,y]` and nearest in-city land `[x,y]` for area validation. Rebuild the projection with `python -I pipeline/m1b_sites.py` using the M1b inputs. Draw the projected point, even at the border; never treat the validation cell as a road, serviced hectare or extra population. Card-only sites have no playable marker. Unplaced sites stay in the register; no straight lines inferred between endpoints. `site.shangbu_land` is a landscape point, distinct from `precedent.zone.shangbu_industrial`. The second increment adds the persistent records: cell works with their stage and sunk work, and the placed water and power sources and facilities. It also rebuilds the derived views (road frontage, interior reach and shared utility supply) from loaded state on every call, and never saves them (§13.1 "Persistent records" and "Derived views").
 
-**Temporary routes.** The researched alignments of `site.kcr_line` and `site.guangshen_road` remain unplaced. For play, `content/slice/start_network.yaml` explicitly supplies temporary orthogonal waypoints for their core segments. Names and existence claims come from those register IDs; the waypoints carry no geometry claim. The map keys the two line styles as temporary. At the 3D branch merge replace these paths against the shared grid, keeping the IDs; importing a mesh is not required. The road can demonstrate frontage in the planning view; the railway is a separate transport layer and confers no municipal utility access.
+**Temporary routes.** The researched alignments of `site.kcr_line`, `site.guangshen_road` and `site.jianshe_road` remain unplaced. For play, `content/slice/start_network.yaml` explicitly supplies temporary orthogonal waypoints for their core segments. Names and existence claims come from those register IDs; the waypoints carry no geometry claim. The map keys the two line styles as temporary. At the 3D branch merge replace these paths against the shared grid, keeping the IDs; importing a mesh is not required. The roads can demonstrate frontage in the planning view; the railway is a separate transport layer and confers no municipal utility access.
+- **建设路 / Jianshe Road (R4.5)** joins Area 1 (the market town) to Area 2 (the station, the Luohu crossing and Yumin) at the start. It is a 1.5 km temporary path from the market-town cell `(387,377)` south along the east side of the temporary railway to `(386,390)`, beside the station. The 1977 street sheet and a town memoir place a road between the town and the station before 1979 (`site.jianshe_road.exists_1979`, `site.jianshe_road.town_to_station`; [transport research](../../research/phase1-transport.md)). Without it, R4's reach rules (§5.11) cut Yumin's rental beds and the station off from the town on turn 1.
+- **Areas 4 and 6 stay unlinked at the start.** The research also places a sand road from Dongmen to 文锦渡 (Area 4, `site.dongmen_wenjindu_road.exists_1979`); it is not in the start network yet. Area 6 (the reservoir hills) had no 1979 road. Both are reached only by roads the player builds.
 
 ## 2. Time and turns
 - **Start:** 1979-Q1, when the area is still Bao'an County. **End:** 1984-Q1, with the January 1984 visit by Deng Xiaoping as the closing event. That is 21 quarterly turns of three monthly sub-steps each (PLAN §2). Quarterly turns are kept.
@@ -949,8 +951,10 @@ interface LeadershipState { leaders: Leader[]; entangled: { leader: string; ref:
 **Readiness** (§7.1). `readiness(state, params, buildable?)` is pure, like `fiscalViews`, and returns `{ roads, servicedLand, waterPower, bar, weakest, cells }`.
 - **The readiness cells:** the buildable cells (§5.5's layer; every cell without it) of the playable areas in `readiness.areas` (1, 2, 3 and 7).
 - **Roads and access.** M4's roads have no geometry, only `roadKm` per area (§5.6). So reach is counted, not traced: each completed km of city road reaches `(2 × road_reach_cells + 1) × 10` cells of its area (a 100 m grid has 10 cells per km), capped at the area's readiness cells. The part is the reached share ÷ `full_at.roads`, capped at 1. Every city road counts as connected to the Luohu crossing: the road template is the link toward it. The start has no city road, a placeholder until the 1979 network (§3.1) enters the start state.
-- **Serviced land.** The share of readiness cells in `servicedLand` (§5.6) ÷ `full_at.serviced_land`, capped at 1. Site preparation's budget stands for clearing, surveying and compensation together. A compensation dispute is M5b's village petition event (§7).
-- **Water and power.** The spare capacity of the readiness areas (each area's caps less the needs of every firm sited there, never below 0) against the needs of a standard first wave (`readiness.standard_wave`: jobs × that ownership's per-job needs). The part is the lower of the power and water ratios, capped at 1, as a factory's output is bound by the scarcer one (§5.5).
+  - **Map-built roads count too (R4.5).** Each built road cell (`GameState.roads`, from `build_road`, b&c §13.2) adds 0.1 km to the `roadKm` of the area it lies in, for this count only; `area.roadKm` itself is unchanged. A built road is counted as reach whether or not its component joins the start network, as M4's roads are.
+  - **The start network's routes do not count.** They are the inherited 1979 roads, and counting them would move the start's bar and the first wave of every M-series run. Readiness measures the city's new works.
+- **Serviced land.** The share of readiness cells in `servicedLand` (§5.6) ÷ `full_at.serviced_land`, capped at 1. Site preparation's budget stands for clearing, surveying and compensation together. A compensation dispute is M5b's village petition event (§7). Cells a works `service` order finishes join `servicedLand` (b&c §13.2), so map servicing counts here with no extra rule.
+- **Water and power.** The spare capacity of the readiness areas (each area's caps, plus the capacity of every placed `power_source` or `water_source` whose footprint lies in the area (R4.5), less the needs of every firm sited there, never below 0) against the needs of a standard first wave (`readiness.standard_wave`: jobs × that ownership's per-job needs). The part is the lower of the power and water ratios, capped at 1, as a factory's output is bound by the scarcer one (§5.5). A placed source exists only once its works order is done, which needs its attach cell on a road (b&c §13.2). Readiness is a forecast, so it does not check which road component the source feeds: the firms' utility share does (§5.11).
 - **The bar** is the weighted mean of the three parts (`readiness.weights`). **The weakest part** is the lowest (ties in the order roads, serviced land, water and power).
 - **The targets are shares, so the parts stay below 1 at the start:** the start has no roads and no serviced land, and the start utilities cover part of a standard wave (§5.5).
 
@@ -1000,7 +1004,7 @@ M5b fills the slice's calendar on M5a's events step: the prologue beats, the rem
 - **More trigger kinds.** The families are `anchor`, `scripted`, `recurring`, `emergent` and `milestone`.
   - `{ month_of_year: m, recurring: true }`: every year in month m (0 = January). This is seasonality, like Spring Festival, not a year.
   - `{ hazard: p, months_of_year?: […], from_turn?: n, guaranteed_by_turn?: n, condition?: c }`: an emergent event with probability p a month, drawn from the `events` stream. A draw is made each month the event can fire: in season, from that turn, with its condition true. With `guaranteed_by_turn`, it fires in the last month of that turn if it has not fired by then (the "guaranteed emergent beat" of §2.1). An emergent event fires at most once unless `recurring`, and a recurring event at most once a month.
-  - `{ condition: c }`: a milestone, the first month c holds. The conditions are `first_zone_firm_open` (a firm sited in a zone is open), `firm_open`, `shekou_captured` and `site_preparation_committed`.
+  - `{ condition: c }`: a milestone, the first month c holds. The conditions are `first_zone_firm_open` (a firm sited in a zone is open), `firm_open`, `shekou_captured` and `site_preparation_committed`. `site_preparation_committed` holds when an M4 site-preparation project or a works `service` order (b&c §13.2) exists and is not cancelled (R4.5).
   - **Gates:** `requires: <key>` (an unlock key must be set) and `until: <key>` (it must not be set yet). The SEZ's opening sets `investors.sez`.
 - **Per-option effects.** An `on_answer` effect with `option: <id>` applies only when that option was chosen.
 - **More effect kinds.** Their numbers are `params.events.<id>` (`scrutiny`, `cost`, `standing`, `factor` and `months`, `jobs`):
@@ -1090,7 +1094,7 @@ interface ReviewsState { held: ReviewRecord[]; vetoes: { date: YM; reason: strin
 - **The indicators** (trailing windows end at the last month the history recorded, so a view between turns reads the review's own values):
   - `exports_usd` and `forex_earned_usd` (the last 12 months);
   - `foreign_firm_jobs` (jobs posted now by firms of foreign or Hong Kong origin);
-  - `projects_completed` (city projects finished in the last 12 months);
+  - `projects_completed` (city projects finished in the last 12 months, plus works orders, b&c §13.2, that reached `done` in the same window (R4.5). Each done order counts as one, whatever its size: a one-cell road counts as a project, and so does an order closed `done` after a partial cancel. R6 decides whether orders need a minimum size or a weight);
   - `order_check`: the *visible* illegal-floor share.
 - **The score** = Σ w × clamp((value − floor) ÷ (target − floor), 0, 1) ÷ Σ w. It passes at `review.pass_mark`, unless:
   - the team caught a sweep;
@@ -1298,7 +1302,7 @@ R4 answers §5.10's labour constraint (option C) and traces jobs from the map: c
 - the area capacity is `area.utilities`, the M-series ledger of spare capacity, which start content and M4's projects raise;
 - the placed supply is what placed sources deliver to the area's zones, through `spatialViews(…).supply` (b&c §13.1). Each zone with open firms demands their need, spread evenly over its developable cells (largest remainder). Supply is allocated on the road components, and each zone's share is summed into its area.
 
-A placed source never adds to `area.utilities`, so no capacity is counted twice. Without placed sources the share is M3b's. The R3 prospective test uses the same share.
+A placed source never adds to `area.utilities`, so no capacity is counted twice. Without placed sources the share is M3b's. Because the placed supply is summed per area, one zone on a supplied road component lifts the share of every firm in the area, including firms on an unsupplied component; R5's per-cell supplied share can therefore differ from the area's posting (§11.2). The R3 prospective test uses the same share.
 
 **Matching keeps incumbents (replaces §5.2's matching).** `labour.held: { home, kind, area, sector, n }[]` records who holds which jobs. It is sorted by home area, kind, work area and sector in their state orders, and only rows with `n > 0` are kept. Each month:
 1. **Layoffs.** A row whose holders exceed its jobs lays off the excess, split over its holders by largest remainder: pro rata, not last in, first out.
@@ -1501,7 +1505,7 @@ The six prologue quarters (1979-Q1 to 1980-Q2, §2.1) are a **prologue with a de
 
   | Part | Measures |
   |---|---|
-  | **Roads and access** | Share of readiness cells within reach of a city road connected to the Luohu crossing. M4's roads have no geometry, so reach is counted per km of road in each area (§5.7) |
+  | **Roads and access** | Share of readiness cells within reach of a city road connected to the Luohu crossing. M4's roads have no geometry, so reach is counted per km of road in each area, M4's and map-built (§5.7) |
   | **Serviced land** | Share of readiness cells cleared, surveyed and with village compensation agreed |
   | **Water and power** | Built water and power capacity against the demand of a standard first wave, capped at 1 |
 
@@ -1726,6 +1730,90 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 - A drawn zone's preview equals the zone's runs after End turn. A throwing action leaves the session as it was.
 - Each overlay's colour for a cell reads its area's value.
 
+### 11.2 The planning-map HUD (R5)
+R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layout conventions of classic city builders: a tool rail, a stat strip and drawers. It doesn't borrow their look, and §11's "ugly on purpose" still holds. The rule is a clear first level: the map, five number pairs, the I/C/R demand cue and one button. Every other detail stays one click away.
+
+**Layout** (the map fills the window; everything else floats over it):
+- **The tool rail (left):** zones, roads, infrastructure (water and power sources, hookups), special buildings (facilities and approved landmarks), Service and Erase.
+  - Each tool opens a small flyout. For example, the zones tool offers the four uses and "show the Shangbu guide".
+  - While the player draws, a preview next to the cursor shows the area, the cost and the crew time. The preview uses the pure functions of §11.1 and never calls `step`.
+  - **The map is the one build system (R4.5 decision).** Roads, servicing, sources and facilities are all built as works orders from the rail (b&c §13.2). The UI hides M4's area-dropdown `commit_project` controls. `commit_project` stays in sim-core, for tests and for the projects that events spawn.
+  - **Zone painting queues servicing by default.** A drag with the Zones tool queues `create_zone` and then `commit_works` for the new zone, as one turn's pair of actions with one preview. A **Plan only** toggle in the Zones flyout queues `create_zone` alone.
+  - **Service** (a tool of its own): a click on an existing zone queues `commit_works` for its cells that have no works yet (the action's default when `cells` is absent). A drag limits it to the dragged cells.
+  - **Erase / Cancel:** on a cell with unstarted work it queues `cancel_works` for that cell (a service cell, a road path cell and the rest of its path beyond, or an unstarted structure). Started work, built roads and built structures cannot be erased; the inspector says why. On a zone with no works it queues `remove_zone`.
+- **The I/C/R demand cue (top centre, first level):** three short bars, derived in `views.ts` from R3/R4 state. They add no sim fields:
+  - **I (industrial):** organic industrial demand (the growth pass's floor demand, `floor_m2_per_month × order_index × orderFactor × regime factor`, plus `growth.carry`, b&c §13.3) and the utility headroom (the lower of the power and water utility shares, §5.11, that a new organic firm would see in the areas with industrial zones). The bar is low when either is.
+  - **C (commercial):** the shortfall of shop floor implied by spending: the formal service jobs that last month's spending supports (§13.3's induced jobs × `formal_share`) less the formal posts that have shop floor, as a share of the former.
+  - **R (residential):** rental crowding (demand crowding, §5.11) and the people turned away last month.
+  - Hovering a bar names its two inputs. The cue never shows a number on the first level.
+- **The quarter label (top left):** the year and quarter, and the turn out of 21.
+- **The overlay switcher (top right):** one dropdown listing the overlays of §11.1 plus the road and utility networks.
+- **The cell inspector (top right, under the switcher):** it opens when the player clicks a cell and shows:
+  - the area;
+  - use and stage;
+  - work progress;
+  - road reach;
+  - power and water supplied share;
+  - jobs and beds.
+
+  It ends with one line, **"Held back by: …"**, naming the limiting constraint at that cell.
+
+  The inspector keeps per-cell facts (works, road reach, supplied share) apart from the stocks it reads from the zone and the area (organic floor per zone, village stock per area), and labels which is which.
+- **The constraint ladder.** One pure function, `cellConstraint(state, content, cell)` in `views.ts`, names the first constraint that applies at a cell, in this order:
+  1. **unbuildable** (off the buildable layer, §5.5);
+  2. **unzoned**;
+  3. **not queued** (zoned, with no works and not serviced);
+  4. **order waiting**: its works order got less than its pace this month, with the order's `waiting` reason (paused, frozen, access, finance or capacity, b&c §13.2);
+  5. **no road frontage** (not in `spatialViews(…).frontage`);
+  6. **utility shortfall** (the cell's supplied share of power or water is below 1);
+  7. **low demand or crowding** (its zone's use reads low on the I/C/R cue, or the area's rental crowding holds builders back);
+  8. **building in progress** (a cohort or firm under construction in the zone);
+  9. **active** (nothing holds it back).
+
+  The inspector's "Held back by:" line and the briefing's "area most held back" both read it. The area most held back is the playable area with the most zoned cells whose constraint is earliest on the ladder (ties by area id), and the briefing names that constraint.
+- **Floor at core zoom.** Organic floor is stored per zone and village stock per area (b&c §13.3, §5.2). At core zoom R5 draws a zone's floor over its developable cells, frontage first (lower frontage depth, then cell index), filling each cell to `growth.far` before the next. The spread is deterministic and for drawing only: it is never saved and the sim never reads it.
+- **A known quirk (left as it is).** `placedSupply` (`growth.ts`) adds supply per road component into an area total, which the firms' utility share (`industry.ts`) reads. So one powered component lifts the whole area. The inspector's per-cell supplied share and the area's firm posting can therefore differ: a cell can read "utility shortfall" while the area's firms post fully. R5 shows both as they are and does not reconcile them.
+- **The chip strip (bottom):** five chips. Each shows two stats and opens its drawer.
+- **The bottom-right stack, from top to bottom:**
+  - the queued orders (each removable);
+  - Briefing, which reopens this turn's briefing;
+  - Pending decisions, with the number of cards and how many must be answered;
+  - End quarter. It becomes **Continue** while an interrupting card is pending (§11.1).
+
+  Errors show as a toast above the stack.
+
+**The chips** (a chip never shows more than two values; drawers carry the §11.1 panel contents):
+
+| Chip | Stat 1 · stat 2 | Drawer |
+|---|---|---|
+| Building 建设 | crews in use / total · works running / stalled | works queue by cell with stage, progress and remaining cost; pause and cancel; team contracts (no project commits: the map builds) |
+| Budget 预算 | money for projects · net per quarter | the ledger: `fiscalViews`' three views, obligations by kind, loans, forex quota |
+| Population 人口 | residents · turned away | pops by kind, beds and occupancy, rental crowding |
+| Economy 经济 | GDP this quarter · vacancies | jobs and filled posts by sector, firms, exports |
+| Politics 政治 | scrutiny · review targets met | leaders, mandate, review targets against actuals, enforcement and permit regime |
+
+"Net per quarter" and "review targets met" are derived in `views.ts` from existing state. They add no sim fields.
+
+**Drawers:**
+- **Placement:** a drawer floats over the map, so the map never resizes or jumps.
+- **One at a time:** opening a drawer closes the previous one.
+- **Closing:** ✕ or Esc.
+
+**The briefing:**
+- **When it shows:** at each turn's start, as a card over the dimmed map.
+- **Contents:**
+  - the §11.1 briefing deltas;
+  - where work finished;
+  - the area most held back, and the constraint holding it.
+- **Closing:** "To the map" or the first click on the map. The Briefing button reopens it until End quarter.
+
+**Out of R5:**
+- a minimap;
+- an ecology stat (Phase 1 has no such value);
+- the imagery layers;
+- animation;
+- phone layouts.
+
 ---
 
 ## 12. Build order (small commits, one system at a time)
@@ -1738,7 +1826,7 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 | R2 · Placement and municipal works | Road/bridge paths, infrastructure placement and zone edits validate playable terrain and preview crew time and cost. Test that displaying a guide spends nothing; phasing it develops the first frontage without funding the whole guide; cancelling unstarted work and pausing a queue conserve funds and work. Spec: `buildings-and-construction.md` §13.2. *Status:* done, headless. Works orders share M4's crew pool and accounts; save version 3. The browser does not issue works actions yet (R5). Params are placeholders from the M4 templates' rates. Unfunded, a road commit raises the project-loan offer; that is left for R6 and not tuned. Golden runs: content hashes only. Code: `packages/sim-core/src/orders.ts`; tests: `test/orders.test.ts` |
 | R3 · Organic growth | Under favourable policy, serviced I/C/R land can gain occupied floor without routine investor cards. Compare an isolated zone with connected land, and a pressured village with a quiet one. Charge stock, crews and costs to the responsible builder. Spec: `buildings-and-construction.md` §13.3. *Status:* done, headless. Small processing firms build and occupy their own factories with no card (`Firm.origin: 'organic'`), driven by orders and the fiscal regime and held back where the area's power and water could not supply them; private builders put up shops for worker spending, work units put up dormitories under rental pressure, and villages add informal shops. Builders pay their own way, with no ledger entry; private and work-unit crews take the pool at low priority. Routine card rates are cut to about a third. Save version 4. Golden runs (seed 1, end-1983 residents): historical_prologue 30,340 → 31,000 (12 organic firms in its Shangbu zone); aggressive 31,084 → 30,471 (rarer cards, and its card firms' power need leaves room for three organic firms); default, cautious and decline_all stay at 30,340 (no developable zone: default draws none, cautious never finishes its site preparation). Commercial tenants and informal shops post no jobs until R4. Code: `packages/sim-core/src/growth.ts`; tests: `test/growth.test.ts`. |
 | R4 · Jobs and migration | Trace construction jobs during works, industrial jobs after occupancy, then service jobs as wages are spent. Compare accessible vacancies, arrivals, housing and recurring revenue against an idle run. Preserve population and money accounting through layoffs and departures. Spec: §5.11. *Status:* done, headless. Projects' and works orders' crews post construction jobs where they work; organic firms post once open, and placed sources raise their utility share through the spatial views; spending from non-service wages posts formal service jobs on occupied shop floor and informal ones where workers live. Matching keeps incumbents, with layoffs and migrant turnover, and fills vacancies only within an area or its road-reach class (areas 2, 4 and 6 have no road at the start). Migrants answer accessible vacancies; those who find no bed are recorded as turned away and raise rents and building a month later. Formal service posts pay tax, shops and work-unit dormitories pay the land fee, and finished works owe maintenance. Save version 5. Golden runs (seed 1, end-1983 migrants): default 320 → 769, cautious 320 → 591, aggressive 451 → 654, historical_prologue 998 → 1,517, decline_all 320 → 316 (its one project, a road link in area 2, which has no road, works a few months and stalls for money: its crew posts draw 2 construction migrants, and the layoffs when it stalls fall pro rata on all holders, so 6 start migrants leave). Most of the rise is incumbency: locals no longer move into new posts each month, so the posts pull migrants (each commit names its share). No growth multiplier is claimed: R6 measures it. Code: `packages/sim-core/src/systems/labour.ts`, `reach.ts`, `systems/migration.ts`; tests: `test/jobs.test.ts`. |
-| R5 · Planning-map UI | Complete a quarter using map tools, read the limiting constraint at a cell and recognise the change at the next turn. Show sub-block detail at core zoom, network overlays, compact HUD, inspector and ledger/review drawers. |
+| R5 · Planning-map UI | Complete a quarter using map tools, read the limiting constraint at a cell and recognise the change at the next turn. Show sub-block detail at core zoom, network overlays, compact HUD, inspector and ledger/review drawers. Layout contract: §11.2 (tool rail, five chips with drawers, inspector naming the limiting constraint, start-of-turn briefing). |
 | R6 · Calibration | Run phased headless policies at the §9 checkpoints. Report population definitions, occupied floor, vacancies, housing, servicing and debt by policy; explain changed goldens and evidence gaps. No growth multiplier is an achieved result until measured. |
 
 **M-series build record:**
