@@ -3,8 +3,9 @@
  * news layer and the timed modifiers.
  */
 import { describe, expect, it } from 'vitest';
+import { parse } from 'yaml';
 import {
-  applyTurnAction, compileTools, conditionHolds, createTickSteps, gateRefusal, post, villageAreas, type GameState, type PlayerAction,
+  Rng, applyTurnAction, compileEvents, compileTools, declineAll, isFinished, step, conditionHolds, createTickSteps, gateRefusal, post, villageAreas, type GameState, type PlayerAction,
 } from '../src/index.js';
 import { initial, params, slice } from './fixtures.js';
 
@@ -92,5 +93,49 @@ describe('R9: tool gates (§5.8)', () => {
     const s = funded();
     apply(s, residential);
     expect(s.zones.at(-1)!.use).toBe('residential');
+  });
+});
+
+describe('R9: the news layer (§5.8)', () => {
+  const news = slice.tick.events!.filter((d) => d.family === 'news');
+  const compile = (body: string) => compileEvents(parse(`- id: news.x
+  name: { zh: 甲, en: X }
+  family: news
+${body}`), params, slice.tick.investors!, slice.tick.fiscal);
+  const ok = `  trigger: { date: 1981-03 }
+  news: { desk: city, tone: texture }
+  text: { zh: 甲, en: X }
+  claims: [ { id: phase1.local.shekou_slogan_1981, use: encyclopedia } ]`;
+
+  it('has the 25 records, each with text in both languages and no card', () => {
+    expect(news).toHaveLength(25);
+    for (const d of news) {
+      expect(d.text?.zh && d.text?.en, d.id).toBeTruthy();
+      expect(d.card, d.id).toBeUndefined();
+    }
+  });
+
+  it('each record fires once, in its month, and never raises a card or pauses', () => {
+    let s = initial();
+    const rng = new Rng(1);
+    for (let m = 0; m < 60 && !isFinished(s); m++) {
+      const r = step(s, declineAll(s, s.pendingCards), rng, STEPS);
+      expect(r.state.pendingCards.some((c) => c.card.startsWith('news.'))).toBe(false);
+      s = r.state;
+    }
+    for (const d of news) {
+      const fired = s.events.fired.filter((f) => f.id === d.id);
+      expect(fired, d.id).toHaveLength(1);
+      if ('date' in d.trigger) expect(fired[0]!.date, d.id).toBe(d.trigger.date);
+    }
+  });
+
+  it('the compiler accepts a plain record and refuses a card, a weather value or a non-unlock effect', () => {
+    expect(compile(ok)[0]!.news).toEqual({ desk: 'city', tone: 'texture' });
+    expect(() => compile(`${ok}\n  card: { options: [] }`)).toThrow(/no card/);
+    expect(() => compile(ok.replace('tone: texture', 'tone: texture, weather: -2'))).toThrow(/weather/);
+    expect(() => compile(`${ok}\n  effects: [ { kind: standing, delta: 1 } ]`)).toThrow(/effects may only/);
+    expect(() => compile(ok.replace('desk: city', 'desk: moscow'))).toThrow(/desk/);
+    expect(() => compile(ok.replace('claims: [ { id: phase1.local.shekou_slogan_1981, use: encyclopedia } ]', 'claims: []'))).toThrow(/claim/);
   });
 });

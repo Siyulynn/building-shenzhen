@@ -15,7 +15,8 @@ describe('R7: the opening beat fires at init', () => {
     const s = createInitialState(slice.init);
     expect(s.pendingCards.filter((c) => c.interrupting)).toHaveLength(1);
     expect(opening(s)).toEqual([expect.objectContaining({ interrupting: true, raisedAt: START, id: 'event.first_project@1979-01.0' })]);
-    expect(s.events.fired).toEqual([{ id: 'event.first_project', date: START }]);
+    // R9: the two opening letters (news, §5.8) fire at init with it; they raise no card
+    expect(s.events.fired).toEqual([{ id: 'event.first_project', date: START }, { id: 'news.1979q1.assignment', date: START }, { id: 'news.1979q1.office_note', date: START }]);
     expect(s.date).toBe(START);
     expect(s.turn).toBe(0);
     expect(createInitialState(slice.init)).toEqual(s);            // deterministic: init has no RNG

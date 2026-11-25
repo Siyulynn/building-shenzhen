@@ -63,8 +63,15 @@ export type EventTrigger =
 /** lapse: the option taken when a non-interrupting card expires unanswered (§5.8); without it, nothing happens. */
 export interface EventCard { interrupting: boolean; options: { id: string; name: LocalizedString }[]; lapse?: string }
 /** One record of content/slice/events.yaml, compiled. Content, never state. */
+/** R9 (§5.8): where a news record is read, and its tone. */
+export const NEWS_DESKS = ['beijing', 'province', 'city', 'hong_kong'] as const;
+export const NEWS_TONES = ['opening', 'warning', 'relief', 'texture'] as const;
+export interface NewsBlock { desk: (typeof NEWS_DESKS)[number]; tone: (typeof NEWS_TONES)[number] }
+/** The effect kinds a news record may carry (revision plan §4.4). */
+const NEWS_EFFECTS: readonly string[] = ['unlock'];
 export interface EventDef {
-  id: string; name: LocalizedString; family: 'anchor' | 'scripted' | 'recurring' | 'emergent' | 'milestone';
+  id: string; name: LocalizedString; family: 'anchor' | 'scripted' | 'recurring' | 'emergent' | 'milestone' | 'news';
+  news?: NewsBlock; text?: LocalizedString;                       // R9 (§5.8): a news record's block and its text
   description?: LocalizedString;                                  // R7 (§5.7): what happened and why it matters
   trigger: EventTrigger; recurring: boolean;
   requires?: string; until?: string;                              // gates: an unlock key that must be set, or not yet
@@ -76,7 +83,7 @@ export type EventContent = readonly EventDef[];
 export const READINESS_NOTED = 'noted';
 export const FAILURE_CARD = 'climate.failure';
 
-const FAMILIES = ['anchor', 'scripted', 'recurring', 'emergent', 'milestone'] as const;
+const FAMILIES = ['anchor', 'scripted', 'recurring', 'emergent', 'milestone', 'news'] as const;
 const monthOk = (m: unknown) => Number.isInteger(m) && (m as number) >= 0 && (m as number) <= 11;
 const wholeOk = (n: unknown) => Number.isInteger(n) && (n as number) >= 0;
 
@@ -163,6 +170,22 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
     }
     const { trigger, recurring } = triggerOf(r);
     if (r.family === 'anchor' && !('date' in trigger)) throw new Error(`${r.id}: an anchor fires on its date`);
+    // R9 (§5.8): a news record: a desk and tone, a text in both languages, a claim, no card, unlock-only effects
+    let news: NewsBlock | undefined, text: LocalizedString | undefined;
+    if (r.family === 'news') {
+      if (!(NEWS_DESKS as readonly string[]).includes(r.news?.desk)) throw new Error(`${r.id}: news.desk must be one of ${NEWS_DESKS.join(', ')}`);
+      if (!(NEWS_TONES as readonly string[]).includes(r.news?.tone)) throw new Error(`${r.id}: news.tone must be one of ${NEWS_TONES.join(', ')}`);
+      if (r.news.weather !== undefined) throw new Error(`${r.id}: news has no weather; a timed modifier carries it (§5.8)`);
+      if (typeof r.text?.zh !== 'string' || !r.text.zh.trim() || typeof r.text?.en !== 'string' || !r.text.en.trim()) {
+        throw new Error(`${r.id}: news text needs a non-empty zh and en`);
+      }
+      if (!Array.isArray(r.claims) || !r.claims.length) throw new Error(`${r.id}: a news record cites at least one claim`);
+      if (r.card !== undefined || r.on_answer !== undefined) throw new Error(`${r.id}: a news record has no card`);
+      if (!('date' in trigger) && !isOpeningBeat({ trigger, recurring })) throw new Error(`${r.id}: news fires on a date, or at turn 0`);
+      for (const e of r.effects ?? []) if (!NEWS_EFFECTS.includes(e?.kind)) throw new Error(`${r.id}: a news record's effects may only be ${NEWS_EFFECTS.join(' or ')}`);
+      news = { desk: r.news.desk, tone: r.news.tone };
+      text = { zh: r.text.zh, en: r.text.en };
+    } else if (r.news !== undefined || r.text !== undefined) throw new Error(`${r.id}: only a news record has news and text`);
     for (const g of ['requires', 'until']) if (r[g] !== undefined && (typeof r[g] !== 'string' || !r[g])) throw new Error(`${r.id}: ${g} names an unlock key`);
     let card: EventCard | undefined;
     if (r.card !== undefined) {
@@ -223,7 +246,7 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
       if ([...optionIds].sort().join(',') !== keys) throw new Error(`${r.id}: its options must be params.sez.priorities' keys`);
     }
     return { id: r.id, name: { zh: r.name.zh, en: r.name.en }, family: r.family,
-      ...(desc ? { description: { zh: desc.zh, en: desc.en } } : {}), trigger, recurring,
+      ...(desc ? { description: { zh: desc.zh, en: desc.en } } : {}), ...(news ? { news, text } : {}), trigger, recurring,
       ...(r.requires ? { requires: r.requires } : {}), ...(r.until ? { until: r.until } : {}),
       effects, ...(card ? { card } : {}), onAnswer };
   });

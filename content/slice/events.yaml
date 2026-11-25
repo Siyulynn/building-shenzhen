@@ -308,6 +308,304 @@
   claims:
     - { id: phase1.event.temporary_residence_documents, use: anchor_date }
 
+# ---- R9 (§5.8): the news layer. No card, no pause; shown in the next briefing (§11.2). Design and calendar:
+# docs/design/systems/prologue-flavor-and-news.md §3-§4. Every fact cites a sourced claim (use: encyclopedia);
+# a quotation is a claim's own quote, shortened. The two opening letters are fiction that carries cited facts. ----
+
+- id: news.1979q1.assignment
+  name: { zh: 省委组织部介绍信, en: A letter from the Provincial Organization Department }
+  family: news
+  trigger: { prologue_turn: 0 }          # the opening letters fire at init with the turn-0 beats (§5.8)
+  news: { desk: province, tone: opening }
+  text:
+    zh: "兹介绍×××同志前往深圳市革命委员会工作。该同志政治可靠，熟悉财经与城建，请予接洽。深圳市系新设省辖市，任务繁重。望到职后，依靠市委领导，团结原有干部，先把情况摸清，再定章程。此致革命敬礼。中共广东省委组织部，一九七九年三月。"
+    en: "Comrade ××× is assigned to the Shenzhen Municipal Revolutionary Committee. Politically reliable, with experience in finance and construction. Please receive this comrade. Shenzhen is a newly established provincial municipality with heavy duties. On arrival, work under the Municipal Party Committee, respect the cadres already here, and understand conditions before setting rules. With revolutionary greetings, Organization Department, CPC Guangdong Provincial Committee, March 1979."
+  claims:
+    - { id: phase1.politics.province_decision_1979, use: encyclopedia }
+    - { id: phase1.politics.city_reply_1979, use: encyclopedia }
+
+- id: news.1979q1.office_note
+  name: { zh: 市革委会办公室便笺, en: A note from the Revolutionary Committee office }
+  family: news
+  trigger: { prologue_turn: 0 }
+  news: { desk: city, tone: opening }
+  text:
+    zh: "同志：县里的印封了，市里的印还没刻好。你先用这张便条。省里让我们先按“出口基地”做方案。“特区”这个名字，等北京定了再说，先不要对外讲。眼下三件事：一、把地图挂起来。罗湖、上步、深圳墟，哪块地是谁的，哪条路通哪里，先弄清楚。二、选一块能开工的地。不要贪大，先把水、电、路通到地边。三、账上只有省里的补助，没有余钱。花每一笔，都要想着明年省里少给怎么办。饭堂在楼下，饭票自理。此致革命敬礼。市革委会办公室，一九七九年三月。"
+    en: "Comrade: the county seal is sealed up; the city's seal is not yet cut. Use this note for now. The province wants us to plan on the basis of an “export base”. The name “special zone” will wait for Beijing; do not use it in public yet. Three things for now. 1. Hang the map: find out who holds each plot in Luohu, Shangbu and the old market, and which road goes where. 2. Choose one piece of land you can actually start on. Do not be ambitious: get water, power and road to its edge first. 3. The account holds the provincial grant and little else. For every yuan you spend, ask what happens when the grant is smaller next year. The canteen is downstairs; meal tickets are your own. With revolutionary greetings, Office of the Municipal Revolutionary Committee, March 1979."
+  claims:
+    - { id: phase1.politics.city_reply_1979, use: encyclopedia }
+
+- id: news.1979q1.city_reply
+  name: { zh: 国务院批复：宝安县改设深圳市, en: "The State Council's reply: Bao'an becomes Shenzhen City" }
+  family: news
+  trigger: { date: 1979-03 }
+  news: { desk: province, tone: opening }
+  text:
+    zh: "国务院批复：将宝安县改设为深圳市，市革命委员会驻深圳。省委一月间已作出撤县设市的决定。"
+    en: "The State Council has replied: Bao'an County becomes Shenzhen City, and the municipal revolutionary committee sits at Shenzhen. The provincial committee had decided on the change in January."
+  claims:
+    - { id: phase1.politics.city_reply_1979, use: encyclopedia }
+    - { id: phase1.politics.province_decision_1979, use: encyclopedia }
+
+- id: news.1979q2.zone_name
+  name: { zh: 中央工作会议：“还是叫特区好”, en: "The work conference: call it a special zone" }
+  family: news
+  trigger: { date: 1979-04 }
+  news: { desk: beijing, tone: relief }
+  text:
+    zh: "四月中央工作会议上，广东请求先走一步。邓小平说：“还是叫特区好……中央没有钱，可以给些政策，你们自己去搞，杀出一条血路来。”"
+    en: "At the April central work conference Guangdong asked to go first. Deng Xiaoping said it should be called a special zone: the centre had no money, but could give policy, and Guangdong should go and do it itself."
+  claims:
+    - { id: phase1.politics.central_work_conference_1979, use: encyclopedia }
+
+- id: news.1979q3.document_50
+  name: { zh: 中央50号文件：特殊政策、灵活措施, en: "Document 50: special policies, flexible measures" }
+  family: news
+  trigger: { date: 1979-07 }
+  news: { desk: province, tone: relief }
+  text:
+    zh: "中央50号文件下达：对广东、福建两省对外经济活动实行特殊政策和灵活措施。"
+    en: "Central Document 50 is issued: Guangdong and Fujian may use special policies and flexible measures in their foreign economic activity."
+  claims:
+    - { id: phase1.politics.special_policies_1979, use: encyclopedia }
+
+- id: news.1979q3.organs
+  name: { zh: 市级机构六十一个, en: Sixty-one municipal organs }
+  family: news
+  trigger: { date: 1979-08 }
+  news: { desk: city, tone: texture }
+  text:
+    zh: "市级机构定为61个，比原来的宝安县机关多12个。"
+    en: "The city now has 61 municipal organs, twelve more than the old Bao'an county offices."
+  claims:
+    - { id: phase1.local.city_organs_1979, use: encyclopedia }
+
+- id: news.1979q4.provincial_city
+  name: { zh: 深圳升格为地区一级省辖市, en: Shenzhen becomes a prefecture-level provincial city }
+  family: news
+  trigger: { date: 1979-11 }
+  news: { desk: province, tone: relief }
+  text:
+    zh: "深圳市升格为地区一级的省辖市，由广东省委直接领导，政权机关仍称深圳市革命委员会。从明年一月一日起，市里的计划直接列入省的计划。"
+    en: "Shenzhen becomes a prefecture-level municipality under the provincial committee's direct leadership; its organ of government is still the Municipal Revolutionary Committee. From 1 January the city's plans go straight onto the province's list."
+  effects:                               # the province now plans for, and supplies, the city directly (revision plan §4.4)
+    - { kind: unlock, key: power.purchase }
+  claims:
+    - { id: phase1.politics.provincial_city_1979, use: encyclopedia }
+
+- id: news.1980q1.east_lake
+  name: { zh: 东湖丽苑：以地换资, en: "East Lake Garden: land for capital" }
+  family: news
+  trigger: { date: 1980-02 }             # the sale's month; the signing's day is in conflict (31 Dec / 1 Jan)
+  news: { desk: city, tone: texture }
+  text:
+    zh: "市里出让土地使用权，港商出钱盖楼并负责销售，利润按85%、15%分成。因为出租土地还不合法，合同按补偿贸易签。第一期108套在香港三天卖完。"
+    en: "The city supplies the land use, a Hong Kong developer the money and the sales, and the profit is split 85:15. Leasing land is not yet lawful, so the contract is signed as compensation trade. The first 108 flats sold out in Hong Kong in three days."
+  claims:
+    - { id: phase1.local.donghu_liyuan_contract_1979, use: encyclopedia }
+    - { id: phase1.local.donghu_liyuan_sales_1980, use: encyclopedia }
+
+- id: news.1980q2.build_shenzhen_first
+  name: { zh: 先把深圳特区建设好, en: Build the Shenzhen zone first }
+  family: news
+  trigger: { date: 1980-05 }
+  news: { desk: beijing, tone: relief }
+  text:
+    zh: "中央批转两省会议纪要：广东应首先集中力量把深圳特区建设好，其次是珠海；“出口特区”改称“经济特区”，特区主要是实行市场调节。"
+    en: "The centre approves the two-province minutes: Guangdong is to concentrate first on building the Shenzhen zone, then Zhuhai. “Export zone” becomes “special economic zone”, and the zone is to rely mainly on market regulation."
+  claims:
+    - { id: phase1.politics.shenzhen_first_1980, use: encyclopedia }
+    - { id: phase1.politics.sez_market_1980, use: encyclopedia }
+
+- id: news.1980q4.newspaper_decision
+  name: { zh: 市委决定办一份报纸, en: The city decides to found a newspaper }
+  family: news
+  trigger: { date: 1980-11 }
+  news: { desk: city, tone: texture }
+  text:
+    zh: "市委常委会决定，由市委宣传部负责筹办一份报纸。"
+    en: "The Municipal Party Committee's standing committee decides that the city will found a newspaper, with the propaganda department in charge."
+  claims:
+    - { id: phase1.local.sztqb_decision_1980, use: encyclopedia }
+
+- id: news.1981q1.shekou_slogan
+  name: { zh: 时间就是金钱，效率就是生命, en: "Time is money, efficiency is life" }
+  family: news
+  trigger: { date: 1981-03 }
+  news: { desk: city, tone: texture }
+  text:
+    zh: "蛇口工业区的袁庚提出口号：“时间就是金钱，效率就是生命”。口号引起争议，写着它的木牌后来几度拆下又竖起。"
+    en: "Yuan Geng of the Shekou industrial zone puts out a slogan: “Time is money, efficiency is life”. It is controversial, and the board that carries it will be taken down and put up again more than once."
+  claims:
+    - { id: phase1.local.shekou_slogan_1981, use: encyclopedia }
+    - { id: phase1.local.shekou_slogan_sign_1981, use: encyclopedia }
+
+- id: news.1981q2.newspaper_trial
+  name: { zh: 《深圳特区报》试刊, en: The Special Zone Daily's trial issue }
+  family: news
+  trigger: { date: 1981-06 }
+  news: { desk: city, tone: texture }
+  text:
+    zh: "《深圳特区报》出了第一期试刊。市里没有印刷厂，报纸在香港印；报头是红色的，头版登广告。"
+    en: "The Shenzhen Special Zone Daily prints its first trial issue. The city has no press, so it is printed in Hong Kong; the masthead is red and the front page carries advertising."
+  claims:
+    - { id: phase1.local.sztqb_trial_1981, use: encyclopedia }
+
+- id: news.1981q3.document_27
+  name: { zh: 中央27号文件：经济特区，不是政治特区, en: "Document 27: economic zones, not political ones" }
+  family: news
+  trigger: { date: 1981-07 }
+  news: { desk: beijing, tone: relief }
+  text:
+    zh: "中央27号文件批转特区工作会议纪要：“我国特区是经济特区，不是政治特区。”深圳特区应成立特区人民政府，归省直接领导，并恢复宝安县建制。"
+    en: "Central Document 27 approves the zones' work-meeting minutes: “Our special zones are economic special zones, not political special zones.” Shenzhen is to set up a zone people's government under the province's direct leadership, and Bao'an County is to be restored."
+  claims:
+    - { id: phase1.politics.sez_not_concession_1981, use: encyclopedia }
+    - { id: phase1.politics.sez_government_1981, use: encyclopedia }
+
+- id: news.1981q4.government
+  name: { zh: 深圳市人民政府, en: "The Shenzhen Municipal People's Government" }
+  family: news
+  trigger: { date: 1981-12 }
+  news: { desk: city, tone: relief }
+  text:
+    zh: "十月，深圳市经济特区人民政府正式成立，深圳市革命委员会取消。十二月，经国务院批准，定名为深圳市人民政府。"
+    en: "In October the Shenzhen Special Economic Zone People's Government was established and the Revolutionary Committee abolished. In December, with the State Council's approval, it takes the name Shenzhen Municipal People's Government."
+  claims:
+    - { id: phase1.local.sez_government_1981_10, use: encyclopedia }
+    - { id: phase1.local.sz_gov_rename_1981_12, use: encyclopedia }
+
+- id: news.1981q4.chenyun
+  name: { zh: 陈云：特区第一位的任务是总结经验, en: "Chen Yun: the zones' first task is to sum up experience" }
+  family: news
+  trigger: { date: 1981-12 }
+  news: { desk: beijing, tone: warning }
+  text:
+    zh: "在省市区第一书记座谈会上，陈云说：“特区第一位的任务是认真总结经验”，特区暂时不再增加。"
+    en: "At the forum of provincial first secretaries, Chen Yun said the zones' first task is to sum up experience conscientiously, and that no new zones should be added."
+  claims:
+    - { id: phase1.politics.chenyun_summary_1981, use: encyclopedia }
+
+- id: news.1982q1.concession_material
+  name: { zh: 旧中国租界的由来, en: The origin of the old concessions }
+  family: news
+  trigger: { date: 1982-02 }             # the forum's month; the newspaper route and January date stay in the conflict
+  news: { desk: beijing, tone: warning }
+  text:
+    zh: "中央书记处召开广东、福建两省座谈会，会上推荐印发了一份关于旧中国租界由来的材料。陈云批示：“此件发全国各省市。对于办经济特区，要警惕这类问题。”一月，中央已发出打击走私的紧急通知。"
+    en: "The Central Secretariat has held the Guangdong–Fujian forum and circulated a compilation on the origin of the old foreign concessions. Chen Yun's instruction: send it to every province; in special-zone work, be on guard against this kind of problem. In January the centre had already issued an emergency notice against smuggling."
+  claims:
+    - { id: phase1.politics.two_provinces_meeting_1982, use: encyclopedia }
+    - { id: phase1.politics.concession_material_1982, use: encyclopedia }
+    - { id: phase1.politics.chenyun_concession_warning_1982, use: encyclopedia }
+    - { id: phase1.politics.smuggling_notice_1982, use: encyclopedia }
+
+- id: news.1982q2.economic_crime
+  name: { zh: 打击经济领域严重犯罪活动的决定, en: The decision against serious economic crime }
+  family: news
+  trigger: { date: 1982-04 }
+  news: { desk: beijing, tone: warning }
+  text:
+    zh: "中央作出打击经济领域严重犯罪活动的决定：实行对外开放和对内搞活经济的政策，必须坚持以计划经济为主、市场调节为辅；这一政策决不会因打击犯罪而改变和动摇。"
+    en: "The centre decides on a campaign against serious economic crime. Opening up and enlivening the economy must keep to planning first and market regulation second; the policy itself, it says, will not change or waver because of the campaign."
+  claims:
+    - { id: phase1.politics.economic_crime_1982, use: encyclopedia }
+    - { id: phase1.politics.open_door_unchanged_1982, use: encyclopedia }
+
+- id: news.1982q2.newspaper_launch
+  name: { zh: 《深圳特区报》正式创刊, en: The Special Zone Daily is launched }
+  family: news
+  trigger: { date: 1982-05 }
+  news: { desk: city, tone: texture }
+  text:
+    zh: "试刊五期之后，《深圳特区报》正式创刊。"
+    en: "After five trial issues, the Shenzhen Special Zone Daily is formally launched."
+  claims:
+    - { id: phase1.local.sztqb_founded_1982, use: encyclopedia }
+
+- id: news.1982q3.census
+  name: { zh: 第三次全国人口普查, en: The third national census }
+  family: news
+  trigger: { date: 1982-07 }
+  news: { desk: city, tone: texture }
+  text:
+    zh: "第三次全国人口普查以七月一日零时为标准时间登记。市里第一次有了一份全市的人口普查数。"
+    en: "The third national census takes midnight on 1 July as its moment. For the first time the city has a census count of its own people."
+  claims:
+    - { id: phase1.local.census_1982, use: encyclopedia }
+    - { id: phase1.local.census_total_1982, use: design_note }   # context only: the count is never shown or targeted
+
+- id: news.1982q3.congress
+  name: { zh: 十二大：建设有中国特色的社会主义, en: "The Twelfth Congress: socialism with Chinese characteristics" }
+  family: news
+  trigger: { date: 1982-09 }
+  news: { desk: beijing, tone: texture }
+  text:
+    zh: "党的十二大开幕。邓小平说：“走自己的道路，建设有中国特色的社会主义。”大会报告提出，力争使全国工农业的年总产值翻两番。"
+    en: "The Twelfth Party Congress opens. Deng Xiaoping says China will take its own road and build socialism with Chinese characteristics. The congress report sets a target of quadrupling gross industrial and agricultural output."
+  claims:
+    - { id: phase1.politics.12th_congress_1982, use: encyclopedia }
+    - { id: phase1.politics.output_target_1982, use: encyclopedia }
+
+- id: news.1982q4.storm_passes
+  name: { zh: 特区要办, en: The zone is to be run }
+  family: news
+  trigger: { date: 1982-12 }
+  news: { desk: beijing, tone: relief }
+  text:
+    zh: "十月，陈云批准了广东试办特区的总结：“特区要办，必须不断总结经验，力求使特区办好。”十二月，中央新的特区工作纪要提出：特区要有更多的自主权，深圳、珠海要逐步办成综合性特区。"
+    en: "In October Chen Yun approved Guangdong's summary of the trial zones: the zone must be run, with experience constantly summed up. In December new central minutes give the zones more autonomy, and make Shenzhen and Zhuhai comprehensive zones of industry, commerce, agriculture, housing and tourism."
+  effects:                               # more autonomy once the summary is approved (revision plan §4.4)
+    - { kind: unlock, key: intensity.high }
+  claims:
+    - { id: phase1.politics.chenyun_summary_1982, use: encyclopedia }
+    - { id: phase1.politics.new_50_1982, use: encyclopedia }
+    - { id: phase1.politics.sez_comprehensive_1982, use: encyclopedia }
+
+- id: news.1983q1.hu_visit
+  name: { zh: 胡耀邦视察深圳, en: Hu Yaobang visits Shenzhen }
+  family: news
+  trigger: { date: 1983-02 }
+  news: { desk: beijing, tone: relief }
+  text:
+    zh: "胡耀邦视察深圳，要求创新：“新事新办、特事特办、立场不变、方法全新。”此行没有公开报道。"
+    en: "Hu Yaobang has visited Shenzhen and told the city to innovate: new things handled in new ways, special things handled specially, the stand unchanged, the methods wholly new. The trip is not publicly reported."
+  claims:
+    - { id: phase1.politics.hu_yaobang_1983, use: encyclopedia }
+
+- id: news.1983q2.deng_relay
+  name: { zh: 谷牧转达：特区办得不错, en: "Gu Mu relays: the zones are doing well" }
+  family: news
+  trigger: { date: 1983-06 }
+  news: { desk: beijing, tone: relief }
+  text:
+    zh: "谷牧转达邓小平的意见：特区“现在办得不错，中外承认，不存在抹掉不干的问题”。"
+    en: "Gu Mu relays Deng Xiaoping's view: the zones are doing well, are recognised at home and abroad, and there is no question of abolishing them."
+  claims:
+    - { id: phase1.politics.deng_via_gumu_1983, use: encyclopedia }
+
+- id: news.1983q3.strike_hard
+  name: { zh: 严厉打击刑事犯罪活动, en: The campaign against serious crime }
+  family: news
+  trigger: { date: 1983-08 }
+  news: { desk: beijing, tone: warning }
+  text:
+    zh: "中央作出严厉打击刑事犯罪活动的决定，开始为期三年的“严打”，依法“从重从快”。"
+    en: "The centre decides on a three-year campaign against serious crime, to be prosecuted heavily and quickly under the law."
+  claims:
+    - { id: phase1.politics.strike_hard_1983, use: encyclopedia }
+
+- id: news.1983q3.university
+  name: { zh: 深圳大学开学, en: Shenzhen University opens }
+  family: news
+  trigger: { date: 1983-09 }
+  news: { desk: city, tone: texture }
+  text:
+    zh: "深圳大学在深圳戏院举行成立暨首届开学典礼：216名学生，四个系，校园还在建设中。"
+    en: "Shenzhen University holds its founding and first opening ceremony in the Shenzhen Theatre: 216 students in four departments, on a campus still being built."
+  claims:
+    - { id: phase1.local.szu_opens_1983, use: encyclopedia }
+
 # ---- M5b: milestones ----
 
 - id: event.first_zone
