@@ -133,6 +133,7 @@ export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
   crew_share: 0.5, room_ahead_m2: 40_000,
   utilities: { headroom_jobs: 300, max_sources: 8, import_kw: 1000, import_from_turn: 8, station_turn: 9 }, facilities: [['school', 1]],
   teams: ['team.outside_soe'], reserve: 0,               // R9 (§5.6): the corps is an event's arrival, never a contract
+  borrow_until_turn: 3,
 });
 /**
  * The historical plan: the Shangbu template zone (§5.3), reached by a road south from the Guangshen road, with
@@ -145,6 +146,7 @@ export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
   crew_share: 0.34, room_ahead_m2: 30_000,
   utilities: { headroom_jobs: 200, max_sources: 8, import_kw: 1000, import_from_turn: 2, station_turn: 6 }, facilities: [['school', 1]],
   teams: ['team.outside_soe'], reserve: 0,               // R9 (§5.6): the corps is an event's arrival, never a contract
+  borrow_until_turn: 3,
 });
 
 /**

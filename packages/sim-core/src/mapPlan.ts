@@ -40,6 +40,12 @@ export interface MapPlan {
   teams: readonly string[];
   /** Money for projects the plan leaves unspent. */
   reserve: number;
+  /**
+   * R9 (§5.9): through this turn, while the state-bank project loan is not yet offered, the plan commits as if it had
+   * the loan's principal: its first works run ahead of the money and raise the loan, as a city that borrows to build.
+   * Absent: the plan commits only what it has.
+   */
+  borrow_until_turn?: number;
 }
 
 const neighbours = (c: number, w: number) => [c - w, c - 1, c + 1, c + w];
@@ -186,6 +192,9 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
   const out: PlayerAction[] = [];
   const w = s.grid.width;
   let money = moneyForProjects(s, p) - plan.reserve;
+  if (plan.borrow_until_turn !== undefined && s.turn <= plan.borrow_until_turn && s.fiscal.projectLoan === 'not_offered') {
+    money += p.fiscal.loan.principal;
+  }
   const live = s.worksOrders.filter(liveOrder);
   // keep the plan's road corridors free for the roads (a source must not take a cell a later plan road needs)
   const used = new Set<number>(plan.roads.flatMap((r) => pathCells(w, r) ?? []));   // cells this turn's works leave free
