@@ -15,8 +15,11 @@ const TICK: TickContent = { network: slice.tick.network!, buildable: slice.tick.
 const STEPS = createTickSteps(params, TICK);
 const G = params.growth!;
 /** R10b (§5.13): the processing stream alone, for the tests that count its firms against its own numbers. */
-const { collective: _collective, ...processingOnly } = G;
+const { collective: _collective, commercial: _commercial, ...processingOnly } = G;
 const PROCESSING = createTickSteps(validateParams({ ...params, growth: processingOnly }), TICK);
+// R10c (§5.13): without the trading firms, which build on serviced commercial land by themselves
+const { commercial: _trade, ...noTrade } = G;
+const NO_TRADE = createTickSteps(validateParams({ ...params, growth: noTrade }), TICK);
 /** An organic firm's stream: the collectives' or the processing firms'. */
 const streamOf = (f: GameState['firms'][number]) => (f.archetype === G.collective?.archetype ? G.collective : G.industrial);
 const rect = (x0: number, x1: number, y0: number, y1: number): CellRuns => {
@@ -149,8 +152,8 @@ describe('R3: shops, dormitories and villages', () => {
     const villageShops = end.blocks.flatMap((b) => b.cohorts).filter((c) => c.builder === 'village_household');
     expect(villageShops.length).toBeGreaterThan(0);
     expect(villageShops.every((c) => isVillageFloor(c) && c.archetype === 'shop_market')).toBe(true);
-    // the quiet start builds none of it
-    const quiet = run(landed([{ use: 'commercial', runs: CONNECTED }]), 13);
+    // the quiet start builds none of it (R10c: trading firms aside, whose own building work pays wages)
+    const quiet = run(landed([{ use: 'commercial', runs: CONNECTED }]), 13, NO_TRADE);
     expect(organicM2(quiet, () => true)).toBe(0);
   });
 

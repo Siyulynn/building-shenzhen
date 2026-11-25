@@ -11,7 +11,7 @@
   name: { zh: 县级财政, en: County budget }
   placeholder: true
   tax: { value_added_rate: { hk_processing: 0.1, inland_soe: 0.15, joint_venture: 0.1, foreign_owned: 0.1, overseas_chinese: 0.1,
-                                 local_collective: 0.15 },   # R10b: as the inland unit's (placeholder)
+                                 local_collective: 0.15, trading_company: 0.1 },   # R10b/R10c placeholders
          local_share: 1 }
   land_fee: []                           # no land-use fees before the land rules
   land_for_recurring: grey
@@ -31,7 +31,7 @@
   # the SEZ's incentive: lower rates for the new origins (placeholders). The 15% income tax is a design_note below:
   # it is a rate on income, and the slice taxes value added, so no rate here is set from it
   tax: { value_added_rate: { hk_processing: 0.08, inland_soe: 0.12, joint_venture: 0.05, foreign_owned: 0.05, overseas_chinese: 0.05,
-                                 local_collective: 0.12 },  # R10b: as the inland unit's (placeholder)
+                                 local_collective: 0.12, trading_company: 0.05 },  # R10b/R10c placeholders
          local_share: 1 }
   land_fee:                              # yuan per m² of land per year, from the rules' in-force date
     - { from: 1982-01, per_m2_year: 15 } # placeholder; the 1981 ranges are a lead (land.regulations_1981)

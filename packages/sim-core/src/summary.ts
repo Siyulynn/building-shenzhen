@@ -18,7 +18,7 @@ import type { TickContent } from './ticks.js';
 import { verdict, type Verdict } from './verdict.js';
 import { cellsOfRuns } from './zones.js';
 import { formatYM } from './ym.js';
-import { sectorValueAdded, type SectorGdp } from './systems/statistics.js';
+import { firmValueAdded, sectorValueAdded, type SectorGdp } from './systems/statistics.js';
 
 const r4 = (x: number) => Math.round(x * 1e4) / 1e4;
 const sum = (xs: readonly number[]) => xs.reduce((a, x) => a + x, 0);
@@ -33,10 +33,10 @@ export type { SectorGdp } from './systems/statistics.js';
  */
 export function gdpBySector(s: GameState, p: SliceParams): SectorGdp {
   const h = s.history;
-  const firm = last(h.valueAdded), total = last(h.gdp);
-  const noWork = sectorValueAdded(s, p, firm, 0);
+  const firm = last(h.valueAdded), total = last(h.gdp), bySector = firmValueAdded(s, p);
+  const noWork = sectorValueAdded(s, p, bySector, 0);
   const base = noWork.primary + noWork.secondary + noWork.tertiary - firm;
-  return sectorValueAdded(s, p, firm, Math.max(0, total - firm - base));
+  return sectorValueAdded(s, p, bySector, Math.max(0, total - firm - base));
 }
 
 /** R10a (§5.13): people present by registration, non-overlapping: registered + temporary.total = totalPresent. */
@@ -68,6 +68,8 @@ export interface YearPoint {
   foreignValueAddedShare: number;         // R9.3: foreign-invested firms' share of the firms' value added
   foreignCapitalUsdYear: number;          // R9.3: construction cost of foreign firms accepted in the year, a proxy
   landRevenueYear: number; landShare: number; debtToRevenue: number;   // R9.3 (§5.6): land finance and leverage
+  customsYear: number; customsShare: number;   // R10c (§5.13): the trailing year's customs and its share of revenue
+  importsUsdYear: number; forexEarnedUsdYear: number; forexUsd: number;   // R10c: forex spent on trade imports, retained, held
   reserve: number; debt: number; arrears: number; scrutiny: number; illegalShare: number;
 }
 export function yearPoint(s: GameState, p: SliceParams): YearPoint {
@@ -80,6 +82,7 @@ export function yearPoint(s: GameState, p: SliceParams): YearPoint {
   let firmVa = 0, foreignVa = 0;
   const FOREIGN = new Set(['hk_processing', 'joint_venture', 'foreign_owned', 'overseas_chinese']);
   for (const f of firms) {
+    if ((f.sector ?? 'factory') !== 'factory') continue;   // R10c: the share is of the factories' value added
     const o = p.industry.by_ownership[f.ownership];
     const va = f.posted * o.output_per_job_month * o.value_added_ratio;
     firmVa += va; if (FOREIGN.has(f.ownership)) foreignVa += va;
@@ -92,6 +95,9 @@ export function yearPoint(s: GameState, p: SliceParams): YearPoint {
   }
   const landRevenue = s.fiscal.ledger.reduce((a, e) => a + (e.type === 'land_fee' && e.date >= from ? e.amount : 0), 0);
   const revenue = trailing(h.revenue);
+  const sumLedger = (type: string, ref?: string) => s.fiscal.ledger.reduce((a, e) =>
+    a + (e.type === type && e.date >= from && (ref === undefined || e.ref === ref) ? e.amount : 0), 0);
+  const customs = sumLedger('customs');
   return {
     at: formatYM(last(h.months)),
     residents: last(h.resident), registered: last(h.registered),
@@ -109,6 +115,9 @@ export function yearPoint(s: GameState, p: SliceParams): YearPoint {
     foreignCapitalUsdYear: Math.round(foreignCapital / p.fiscal.forex.yuan_per_usd),
     landRevenueYear: Math.round(landRevenue), landShare: r4(revenue + landRevenue > 0 ? landRevenue / (revenue + landRevenue) : 0),
     debtToRevenue: r4(revenue > 0 ? last(h.debtOutstanding) / revenue : 0),
+    customsYear: Math.round(customs), customsShare: r4(revenue > 0 ? customs / revenue : 0),
+    importsUsdYear: Math.round(-sumLedger('import', 'import.trade')), forexEarnedUsdYear: Math.round(sumLedger('retention')),
+    forexUsd: Math.round(s.fiscal.balances.forex),
     reserve: Math.round(s.fiscal.balances.general), debt: Math.round(last(h.debtOutstanding)), arrears: Math.round(arrears),
     scrutiny: r4(s.climate.scrutiny), illegalShare: r4(realIllegalShare(s)),
   };

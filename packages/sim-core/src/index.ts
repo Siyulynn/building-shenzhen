@@ -16,7 +16,7 @@ export * from './freight.js';
 export * from './fiscal.js';
 export * from './events.js';
 export * from './gates.js';
-export { gdpNow } from './systems/statistics.js';
+export { firmValueAdded, gdpNow } from './systems/statistics.js';
 export { isOpeningBeat, openingBeats } from './opening.js';
 export * from './readiness.js';
 export * from './verdict.js';
@@ -32,7 +32,7 @@ export * from './play.js';
 export * from './summary.js';
 export * from './systems/reviews.js';
 export {
-  createFirm, firmTerms, inTaxHoliday, orderFactor, postFirmJobs, prospectiveShare, sizeOffer, utilityShare, utilityShares, type FirmOffer, type FirmSite,
+  createFirm, firmTerms, importsUsd, importsYuan, inTaxHoliday, orderFactor, postFirmJobs, prospectiveShare, sizeOffer, utilityShare, utilityShares, type FirmOffer, type FirmSite,
 } from './systems/industry.js';
 export { offerProjectLoan } from './systems/finance.js';
 export { crewPool } from './systems/projects.js';

@@ -40,10 +40,7 @@ export interface SliceParams {
   };
   industry: {
     max_far: number; premises_jobs_per_area: number; premises_output_factor: number; order_index: number;
-    by_ownership: Record<Ownership, {
-      output_per_job_month: number; value_added_ratio: number; export_share: number;
-      floor_m2_per_job: number; power_kw_per_job: number; water_m3_day_per_job: number;
-    }>;
+    by_ownership: Record<Ownership, OwnershipParams>;
   };
   investors: {
     offer_months: number;
@@ -103,6 +100,7 @@ export interface SliceParams {
   growth?: GrowthParams;                 // R3 (buildings-and-construction §13.3): absent = no organic growth
   power: { consumption: { hours_month: number; firm_load_factor: number; kwh_person_month: number; kwh_job_month: number } };
   freight?: FreightParams;               // R8d (§5.12): absent, or without works.roads or gateways, = no freight limit
+  trade?: TradeParams;                   // R10c (§5.13): absent = no customs
 }
 
 /** R3 organic growth (b&c §13.3). Placeholders, not sourced. */
@@ -114,12 +112,22 @@ export interface GrowthParams {
   far: { industrial: number; commercial: number; residential: number };
   industrial: OrganicStream;
   collective?: OrganicStream;            // R10b (phase1-slice §5.13): local collectives, a second stream; absent = none
+  commercial?: OrganicStream;            // R10c (§5.13): trading firms on commercial zones; absent = none
   services: { spend_per_job_month: number; formal_share: number; m2_per_job: number; tax_rate: number };
   residential: { min_crowding: number };
   village_shops: { m2_per_job: number };
   land_cover?: LandCoverParams;          // R8a (phase1-slice §5.5): absent = every cell at factor 1, no compensation
   intensity?: Record<Intensity, IntensityFactors>;   // R8b (phase1-slice §5.3): absent = every tier at factor 1
 }
+/** A firm ownership's numbers (§5.5); R10c (§5.13): its sector and the share of its turnover bought abroad. */
+export interface OwnershipParams {
+  output_per_job_month: number; value_added_ratio: number; export_share: number;
+  floor_m2_per_job: number; power_kw_per_job: number; water_m3_day_per_job: number;
+  sector?: 'factory' | 'services';       // absent = factory
+  import_share?: number;                 // absent = 0
+}
+/** R10c (§5.13): customs on firm inputs and commercial imports. Placeholders; local_share awaits a retention claim. */
+export interface TradeParams { customs: { input_rate: number; import_rate: number; local_share: number } }
 /** One organic firm stream (b&c §13.3): small firms that build their own premises from banked demand. */
 export interface OrganicStream {
   archetype: string; ownership: Ownership; firm_jobs: number;
@@ -128,6 +136,9 @@ export interface OrganicStream {
   min_utility_share: number;             // the area's utility share, with this firm and all sited ones open
   regime_factor: Record<string, number>; // by fiscal regime id; `default` for the rest
   max_backlog_m2?: number;               // R9 (b&c §13.3): no new organic firm in a zone with more floor under construction
+  zone_use?: 'industrial' | 'commercial'; // R10c (§5.13): the zones it builds on; absent = industrial
+  gateway_reach?: boolean;               // R10c: only in areas with a road path to a Hong Kong gateway
+  priority_factor?: Record<string, number>;   // R10c: by the SEZ's first priority; `default` for the rest and before it
 }
 /** A zone intensity's multiples (§5.3): of the FAR, of a cell's formation money and work, and of a sited firm's power. */
 export interface IntensityFactors { far: number; formation_cost: number; formation_work: number; power: number }
@@ -158,6 +169,17 @@ function validateStream(I: OrganicStream, w: string, p: SliceParams): void {
   if (I.max_backlog_m2 !== undefined && !(I.max_backlog_m2 >= 0)) throw new Error(`params: ${w}.max_backlog_m2 must be >= 0`);
   if (!(I.regime_factor?.default !== undefined)) throw new Error(`params: ${w}.regime_factor needs a default`);
   for (const [k, v] of Object.entries(I.regime_factor)) if (!(v >= 0)) throw new Error(`params: ${w}.regime_factor.${k} must be >= 0`);
+  if (I.zone_use !== undefined && I.zone_use !== 'industrial' && I.zone_use !== 'commercial') {
+    throw new Error(`params: ${w}.zone_use must be industrial or commercial`);
+  }
+  if (I.priority_factor !== undefined) {
+    if (I.priority_factor.default === undefined) throw new Error(`params: ${w}.priority_factor needs a default`);
+    for (const [k, v] of Object.entries(I.priority_factor)) if (!(v >= 0)) throw new Error(`params: ${w}.priority_factor.${k} must be >= 0`);
+  }
+  const sector = p.industry.by_ownership[I.ownership]?.sector ?? 'factory';
+  if ((I.zone_use === 'commercial') !== (sector === 'services')) {
+    throw new Error(`params: ${w}: a services ownership builds on commercial zones, a factory one on industrial zones`);
+  }
 }
 
 function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
@@ -172,6 +194,12 @@ function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
   if (g.collective !== undefined) {
     validateStream(g.collective, 'growth.collective', p);
     if (g.collective.archetype === g.industrial.archetype) throw new Error('params: growth.collective.archetype must differ from growth.industrial.archetype');
+  }
+  if (g.commercial !== undefined) {
+    validateStream(g.commercial, 'growth.commercial', p);
+    if ([g.industrial.archetype, g.collective?.archetype].includes(g.commercial.archetype)) {
+      throw new Error('params: growth.commercial.archetype must differ from the other streams');
+    }
   }
   if (!pos(g.services?.spend_per_job_month) || !share(g.services.formal_share) || !pos(g.services.m2_per_job)
     || !share(g.services.tax_rate)) {
@@ -356,6 +384,8 @@ export function validateParams(raw: unknown): SliceParams {
     if (!(b.value_added_ratio >= 0 && b.value_added_ratio <= 1)) throw new Error(`params: industry.by_ownership.${o}.value_added_ratio must be in [0, 1]`);
     if (!(b.export_share >= 0 && b.export_share <= 1)) throw new Error(`params: industry.by_ownership.${o}.export_share must be in [0, 1]`);
     if (!(b.floor_m2_per_job > 0)) throw new Error(`params: industry.by_ownership.${o}.floor_m2_per_job must be > 0`);
+    if (b.sector !== undefined && b.sector !== 'factory' && b.sector !== 'services') throw new Error(`params: industry.by_ownership.${o}.sector must be factory or services`);
+    if (b.import_share !== undefined && !(b.import_share >= 0 && b.import_share <= 1)) throw new Error(`params: industry.by_ownership.${o}.import_share must be in [0, 1]`);
     for (const k of ['output_per_job_month', 'power_kw_per_job', 'water_m3_day_per_job'] as const) {
       if (!(b[k] >= 0)) throw new Error(`params: industry.by_ownership.${o}.${k} must be >= 0`);
     }
@@ -389,6 +419,12 @@ export function validateParams(raw: unknown): SliceParams {
     }
   }
   if (p.growth !== undefined) validateGrowthParams(p.growth, p);
+  if (p.trade !== undefined) {
+    const c = p.trade.customs;
+    for (const k of ['input_rate', 'import_rate', 'local_share'] as const) {
+      if (!(c?.[k] >= 0 && c[k] <= 1)) throw new Error(`params: trade.customs.${k} must be in [0, 1]`);
+    }
+  }
   validateM5aParams(p);
   validateM5bParams(p);
   return p;

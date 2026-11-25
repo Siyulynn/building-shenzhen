@@ -6,12 +6,12 @@ import { BUILDER_OF, USE_OF, type Ownership } from '../enums.js';
 import { zonePowerKw, type SliceParams } from '../params.js';
 import { poolShares } from '../power.js';
 import { largestRemainder } from '../round.js';
-import type { Firm, FirmTerms, GameState, JobRow } from '../state.js';
+import type { Firm, FirmSector, FirmTerms, GameState, JobRow } from '../state.js';
 import type { TickContext } from '../step.js';
 
 /** What an offer brings, at full ramp: drawn when the offer arrives, so the card and the preview can show it. */
 export interface FirmOffer {
-  archetype: string; ownership: Ownership;
+  archetype: string; ownership: Ownership; sector: FirmSector;   // R10c (§5.13): the ownership's sector
   jobs: number; floorM2: number; dormM2: number; powerKw: number; waterM3Day: number;
 }
 export type FirmSite = { premises: 'new_factory'; area: number; zone: number } | { premises: 'existing'; area: number };
@@ -19,8 +19,9 @@ export type FirmSite = { premises: 'new_factory'; area: number; zone: number } |
 /** A firm archetype's numbers: an investor card's, or the organic firm's (b&c §13.3). */
 const archetypeParams = (p: SliceParams, id: string): { dorm_beds_per_job: number; build_months: number; ramp_months: number;
   tax_holiday_months?: number } => {
-  const a = p.investors.archetypes[id] ?? (p.growth?.industrial.archetype === id ? p.growth.industrial.firm
-    : p.growth?.collective?.archetype === id ? p.growth.collective.firm : undefined);
+  const G = p.growth;
+  const stream = [G?.industrial, G?.collective, G?.commercial].find((x) => x?.archetype === id);
+  const a = p.investors.archetypes[id] ?? stream?.firm;
   if (!a) throw new Error(`params: no firm archetype ${id} in investors.archetypes or growth.industrial`);
   return a;
 };
@@ -30,9 +31,9 @@ export function sizeOffer(p: SliceParams, archetype: string, ownership: Ownershi
   const o = p.industry.by_ownership[ownership];
   const a = archetypeParams(p, archetype);
   return {
-    archetype, ownership, jobs,
+    archetype, ownership, sector: o.sector ?? 'factory', jobs,
     floorM2: Math.round(jobs * o.floor_m2_per_job),
-    dormM2: Math.round(jobs * a.dorm_beds_per_job * p.housing.m2_per_bed.dormitory),
+    dormM2: o.sector === 'services' ? 0 : Math.round(jobs * a.dorm_beds_per_job * p.housing.m2_per_bed.dormitory),
     powerKw: jobs * o.power_kw_per_job,
     waterM3Day: jobs * o.water_m3_day_per_job,
   };
@@ -65,7 +66,7 @@ export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site:
   const existing = site.premises === 'existing';
   const terms = firmTerms(p, offer.archetype, shortcut, concession);
   const f: Firm = {
-    id: s.nextFirmId, archetype: offer.archetype, ownership: offer.ownership, sector: 'factory',
+    id: s.nextFirmId, archetype: offer.archetype, ownership: offer.ownership, sector: offer.sector ?? 'factory',
     area: site.area, ...(site.premises === 'new_factory' ? { zone: site.zone } : {}), premises: site.premises,
     jobs: offer.jobs, floorM2: existing ? 0 : offer.floorM2, dormM2: existing ? 0 : offer.dormM2,
     // R8b (§5.3): a firm built in a zone draws the zone tier's power
@@ -79,7 +80,9 @@ export function createFirm(s: GameState, p: SliceParams, offer: FirmOffer, site:
     const b = s.blocks.find((x) => x.area === site.area);
     if (!b) throw new Error(`area ${site.area} has no block stock`);
     const era = b.cohorts[0]?.era ?? 0;
-    for (const [archetype, m2] of [['standard_factory', f.floorM2], ['dormitory', f.dormM2]] as const) {
+    // R10c (§5.13): a services firm's premises are shop floor
+    const premises = f.sector === 'services' ? 'shop_market' : 'standard_factory';
+    for (const [archetype, m2] of [[premises, f.floorM2], ['dormitory', f.dormM2]] as const) {
       if (m2 <= 0) continue;
       b.cohorts.push({ era, use: USE_OF[archetype], stage: 'under_construction', legality: 'permitted', m2, archetype,
         due: s.date + a.build_months - 1, workDone: 0, workTotal: a.build_months, firm: f.id });
@@ -165,16 +168,35 @@ export function staffFirms(s: GameState, rows: readonly JobRow[]): void {
   }
 }
 
-/** Tick step 6: each firm's gross output this month (§5.5). Exports and value added follow from the ownership. */
+/**
+ * Tick step 6: each firm's gross output this month (§5.5). Exports and value added follow from the ownership. R10c
+ * (§5.13): a firm that imports (a trading firm) may not buy more abroad than the forex quota holds now; if the month's
+ * imports would pass it, every importer's output is scaled down by the same factor.
+ */
 export function production(p: SliceParams) {
   return (ctx: TickContext): void => {
-    const I = p.industry;
-    for (const f of ctx.state.firms) {
+    const I = p.industry, s = ctx.state;
+    for (const f of s.firms) {
       const factor = f.premises === 'existing' ? I.premises_output_factor : 1;
       f.output = f.staffed * I.by_ownership[f.ownership].output_per_job_month * factor;
     }
+    const usd = importsUsd(s, p);
+    if (usd > s.fiscal.balances.forex) {
+      const k = Math.max(0, s.fiscal.balances.forex) / usd;
+      for (const f of s.firms) if ((I.by_ownership[f.ownership].import_share ?? 0) > 0) f.output *= k;
+      ctx.events.push({ step: 'production', kind: 'forex_short', detail: { wanted: usd, quota: s.fiscal.balances.forex } });
+    }
   };
 }
+
+/** R10c (§5.13): this month's imports for resale in yuan: each firm's output × its ownership's `import_share`. */
+export function importsYuan(s: GameState, p: SliceParams): number {
+  let y = 0;
+  for (const f of s.firms) y += f.output * (p.industry.by_ownership[f.ownership].import_share ?? 0);
+  return y;
+}
+/** The same in USD, rounded down: what step 11 draws from the forex quota. */
+export const importsUsd = (s: GameState, p: SliceParams) => Math.floor(importsYuan(s, p) / p.fiscal.forex.yuan_per_usd + 1e-9);
 
 /** True while a firm is in its tax holiday (§5.7): from opening, for its terms' months. */
 export const inTaxHoliday = (f: Firm, date: number) =>

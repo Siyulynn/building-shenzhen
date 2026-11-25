@@ -33,6 +33,8 @@ export interface MapPlan {
   crew_share: number;
   /** A zone is serviced further only while its developable room is below this (m²): the next cells, not the whole zone. */
   room_ahead_m2: number;
+  /** R10c (§5.13): on equal room, service the zone with the fewest cells left first (a small new zone before a large one). */
+  small_zones_first?: boolean;
   utilities: UtilityPlan;
   /** Facilities placed once each, in order, when the money covers them: [facility type, area]. */
   facilities: readonly (readonly [string, number])[];
@@ -186,9 +188,9 @@ function structureSite(s: GameState, tick: TickContent, zoneCells: ReadonlySet<n
 /**
  * One turn's works for the plan (§5.9), at a turn's start after the first: the next outbound road, the next
  * servicing phase, water and power ahead of the firms' need, then facilities and pool teams, each only while money
- * for projects (less the plan's reserve) covers it.
+ * for projects (less the plan's reserve) covers it. `holdServicing` (R10c): no servicing this turn (new zones pending).
  */
-export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan: MapPlan): PlayerAction[] {
+export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan: MapPlan, holdServicing = false): PlayerAction[] {
   const W = p.works;
   if (!W || !tick.network) return [];
   const out: PlayerAction[] = [];
@@ -240,7 +242,7 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
   }
 
   // 2. servicing, phased to the crew pool: one service order at a time, the zone with the least room first
-  if (!live.some((o) => o.kind === 'service')) {
+  if (!holdServicing && !live.some((o) => o.kind === 'service')) {
     // R8a (§5.5): a cell's units and money follow its land cover, and an unrequisitioned cell owes compensation
     const capUnits = Math.floor(plan.crew_share * s.scenario.monthsPerTurn * p.capacity.local_crew);
     const rate = W.service.yuan_per_cell / W.service.units_per_cell;
@@ -264,7 +266,8 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
       const candidates = s.zones.filter((z) => z.use === 'industrial' || z.use === 'residential' || z.use === 'commercial')
         .map((z) => ({ z, room: zoneRoomM2(s, z, dev.get(z.id)?.length ?? 0, p.growth!), todo: cellsOfRuns(z.runs, s.grid).filter(ok) }))
         .filter((x) => x.todo.length > 0 && x.room < plan.room_ahead_m2)
-        .sort((a, b) => a.room - b.room || a.z.id - b.z.id);
+        // R10c (§5.13): a plan may put the zone with the fewest cells left first on equal room
+        .sort((a, b) => a.room - b.room || (plan.small_zones_first ? a.todo.length - b.todo.length : 0) || a.z.id - b.z.id);
       const pick = candidates[0];
       if (pick) {
         const cells: number[] = [];
@@ -293,6 +296,8 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
   const sub = W.structures.power_substation;
   const sited = s.firms.reduce((n, f) => n + f.powerKw, 0);
   const subOpen = gateAllows(s, tick, { type: 'place_structure', kind: 'power_substation', cell: [0, 0], attach: [0, 0] });
+  // R10c (§5.13): trading firms' imports draw on the same forex quota; a structure the quota cannot cover waits
+  let forex = s.fiscal.balances.forex;
   for (const z of s.zones.filter((x) => x.use === 'industrial')) {
     if (!per || !subOpen) break;
     const a = s.areas.find((x) => x.id === z.area)!;
@@ -304,12 +309,12 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
     const n = placements.filter((x) => (x.kind === 'power_substation' || x.kind === 'power_source') && serves(x.attach)).length;
     const need = kw + U.headroom_jobs * per.power_kw_per_job;
     if (n >= U.max_sources || a.utilities.powerCap + n * sub.capacity >= need) continue;
-    if (sub.yuan > money) break;
+    if (sub.yuan > money || (sub.forex_usd ?? 0) > forex) break;
     const site = structureSite(s, tick, zoneCells, used);
     if (!site) continue;
     used.add(site[0]);
     out.push({ type: 'place_structure', kind: 'power_substation', cell: xy(site[0], w), attach: xy(site[1], w) });
-    money -= sub.yuan;
+    money -= sub.yuan; forex -= sub.forex_usd ?? 0;
   }
   // purchases: the pool with what is on order, against every sited firm and the headroom; up to the line's limit
   if (per && U.import_kw > 0 && s.turn >= U.import_from_turn) {
@@ -325,13 +330,13 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
   const st = W.structures.power_station;
   if (per && U.station_turn !== undefined && s.turn >= U.station_turn && !placements.some((x) => x.kind === 'power_station')
     && gateAllows(s, tick, { type: 'place_structure', kind: 'power_station', cell: [0, 0], attach: [0, 0] })
-    && money >= (st.yuan * 12) / st.build_months) {
+    && money >= (st.yuan * 12) / st.build_months && (st.forex_usd ?? 0) <= forex) {
     const z = s.zones.find((x) => x.use === 'industrial');
     const site = z ? structureSite(s, tick, new Set(cellsOfRuns(z.runs, s.grid)), used) : undefined;
     if (site) {
       used.add(site[0]);
       out.push({ type: 'place_structure', kind: 'power_station', cell: xy(site[0], w), attach: xy(site[1], w) });
-      money -= (st.yuan * 12) / st.build_months;
+      money -= (st.yuan * 12) / st.build_months; forex -= st.forex_usd ?? 0;
     }
   }
 
@@ -344,12 +349,12 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
     if (!sp || placements.filter((x) => x.kind === 'facility' && x.facility === facility).length >= k) continue;
     if (!gateAllows(s, tick, { type: 'place_structure', kind: 'facility', facility, cell: [0, 0], attach: [0, 0] })) break;
     const z = s.zones.find((x) => x.area === area);
-    if (!z || sp.yuan > money) break;
+    if (!z || sp.yuan > money || (sp.forex_usd ?? 0) > forex) break;
     const site = structureSite(s, tick, new Set(cellsOfRuns(z.runs, s.grid)), used);
     if (!site) continue;
     used.add(site[0]);
     out.push({ type: 'place_structure', kind: 'facility', facility, cell: xy(site[0], w), attach: xy(site[1], w) });
-    money -= sp.yuan;
+    money -= sp.yuan; forex -= sp.forex_usd ?? 0;
     break;
   }
 

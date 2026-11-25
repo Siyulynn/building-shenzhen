@@ -1,14 +1,15 @@
 /**
  * R10's tests (phase1-slice.md §5.13). R10a: the construction line, the sector series, the population categories and
- * save version 9's unlock re-application, tested on a save built here and, when present, on the untracked version-5
+ * save version 9's unlock re-application; R10b: the start composition; R10c: trading firms, customs and forex; tested on a save built here and, when present, on the untracked version-5
  * save the pre-R8 code wrote (test/fixtures-data/save-v5.json).
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, SAVE_VERSION, createTickSteps, firmFreight, gateRefusal, gdpBySector, historical, loadGame, playQuarters, popCategories,
-  runMonths, saveFromJson, saveGame, saveToJson, validateParams, type GameState,
+  Rng, SAVE_VERSION, cloneState, createTickSteps, firmFreight, firmValueAdded, firstOption, freightContent, gatewayAreas, gateRefusal,
+  gdpBySector, historical, importsUsd, loadGame, playQuarters, popCategories, runMonths, saveFromJson, saveGame, saveToJson,
+  validateParams, yearPoint, type GameState,
 } from '../src/index.js';
 import { ROOT, events, initial, params, slice } from './fixtures.js';
 
@@ -140,5 +141,76 @@ describe('R10a save version 9 (§5.13)', () => {
     expect(() => loadGame(old, { events })).not.toThrow();
     const now = saveGame(played.rec.final, new Rng(1), slice.content);
     expect(loadGame(saveFromJson(saveToJson(now))).state.events.unlocked).toEqual(played.rec.final.events.unlocked);
+  });
+});
+
+describe('R10c trading firms, customs and forex (§5.13)', () => {
+  const G = params.growth!, T = G.commercial!;
+  const full = run(slice.init.scenario.turns);
+  const ledger = (s: GameState, type: string, ref?: string) =>
+    s.fiscal.ledger.filter((e) => e.type === type && (ref === undefined || e.ref === ref));
+
+  it('trading firms are services firms on commercial zones, in areas a road reaches a Hong Kong gateway from', () => {
+    const s = full.rec.final;
+    const t = s.firms.filter((f) => f.archetype === T.archetype);
+    expect(t.length).toBeGreaterThan(0);
+    const reached = gatewayAreas(s, { network: slice.tick.network!, freight: freightContent(params, slice.tick.network!, slice.tick.gateways)! })!;
+    for (const f of t) {
+      expect(f.sector).toBe('services');
+      expect(f.dormM2).toBe(0);
+      expect(s.zones.find((z) => z.id === f.zone)!.use).toBe('commercial');
+      expect(reached.has(f.area)).toBe(true);
+    }
+    expect(t.some((f) => f.posted > 0)).toBe(true);
+    expect(s.firms.filter((f) => f.sector === 'services').every((f) => f.archetype === T.archetype)).toBe(true);
+  });
+
+  it("the services firms' value added is tertiary, the factories' secondary", () => {
+    const s = full.rec.final, va = firmValueAdded(s, params);
+    expect(va.services).toBeGreaterThan(0);
+    let svc = 0;
+    for (const f of s.firms) if (f.sector === 'services') svc += f.output * params.industry.by_ownership[f.ownership].value_added_ratio;
+    expect(va.services).toBeCloseTo(svc, 6);
+  });
+
+  it('customs is general revenue; trade imports draw the forex quota, which never goes below zero', () => {
+    const s = full.rec.final;
+    const customs = ledger(s, 'customs');
+    expect(customs.length).toBeGreaterThan(0);
+    expect(customs.every((e) => e.account === 'general' && e.amount >= 0)).toBe(true);
+    const imports = ledger(s, 'import', 'import.trade');
+    expect(imports.length).toBeGreaterThan(0);
+    expect(imports.every((e) => e.account === 'forex' && e.amount < 0)).toBe(true);
+    for (const q of full.rec.quarterEnds) expect(q.fiscal.balances.forex).toBeGreaterThanOrEqual(0);
+  });
+
+  it('with no forex quota, the trading firms sell nothing and nothing is imported', () => {
+    const s0 = full.rec.quarterEnds.find((q) => q.firms.some((f) => f.sector === 'services' && f.posted > 0))!;
+    const dry = cloneState(s0);
+    dry.fiscal.balances.forex = 0;
+    const before = dry.fiscal.ledger.length;
+    const end = runMonths(dry, 1, new Rng(3), firstOption, STEPS);
+    // retention arrives in step 11, after production: the month's trade was capped at the empty quota
+    expect(end.firms.filter((f) => f.sector === 'services').every((f) => f.output === 0)).toBe(true);
+    expect(end.fiscal.ledger.slice(before).some((e) => e.ref === 'import.trade')).toBe(false);
+    expect(importsUsd(end, params)).toBe(0);
+  });
+
+  it('the SEZ\'s first priority steers the trading stream; a services ownership must build on commercial zones', () => {
+    expect(T.priority_factor!['priority.trade']!).toBeGreaterThan(T.priority_factor!.default!);
+    expect(T.priority_factor!['priority.commerce']!).toBeGreaterThan(T.priority_factor!.default!);
+    expect(() => validateParams({ ...params, growth: { ...G, commercial: { ...T, zone_use: 'industrial' } } })).toThrow(/commercial zones/);
+    expect(params.industry.by_ownership.trading_company.export_share).toBe(0);
+    expect(params.trade!.customs.local_share).toBeGreaterThan(0);
+  });
+
+  it('the year points report customs, its share of revenue, and the forex the trade spends and the exports earn', () => {
+    const y = full.rec.final;
+    const last = yearPoint(y, params);
+    expect(last.customsYear).toBeGreaterThan(0);
+    expect(last.customsShare).toBeCloseTo(last.customsYear / last.revenue, 3);
+    expect(last.importsUsdYear).toBeGreaterThan(0);
+    expect(last.forexEarnedUsdYear).toBeGreaterThan(0);
+    expect(last.forexUsd).toBe(Math.round(y.fiscal.balances.forex));
   });
 });

@@ -92,6 +92,10 @@ industry:                                # M3b (§5.5): firms, production and va
     # R10b (phase1-slice §5.13): local collectives (集体), small workshops selling mostly at home. Placeholders
     local_collective: { output_per_job_month: 160, value_added_ratio: 0.3, export_share: 0.1,
                      floor_m2_per_job: 12, power_kw_per_job: 0.4, water_m3_day_per_job: 0.1 }
+    # R10c (phase1-slice §5.13): trading companies (贸易公司) on commercial zones. Output is turnover; half of it is
+    # imported from Hong Kong for resale, paid in forex and dutiable. Placeholders, design_note
+    trading_company: { output_per_job_month: 800, value_added_ratio: 0.25, export_share: 0, sector: services, import_share: 0.35,
+                     floor_m2_per_job: 15, power_kw_per_job: 0.2, water_m3_day_per_job: 0.05 }
 
 investors:                               # M3b (§5.5): offers by archetype (content/slice/investors.yaml). Placeholders
   offer_months: 6                        # an offer outlives a quarter: runQuarter does not stop between months
@@ -208,6 +212,7 @@ freight:
     investor.joint_venture:     { t_per_yuan: 0.002, mode: rail, input_ratio: 0.3 }
     investor.foreign_owned:     { t_per_yuan: 0.002, mode: rail, input_ratio: 0.3 }
     investor.overseas_chinese:  { t_per_yuan: 0.003, mode: road, input_ratio: 0.3 }   # fresh food and light goods by lorry
+    organic.trading_company:    { t_per_yuan: 0.001, mode: road, input_ratio: 0 }     # R10c: imports for resale by lorry
 
 growth:                                  # R3 organic growth (buildings-and-construction §13.3). Placeholder design guesses,
                                          # not sourced. None of these is a growth multiplier; R6 measures what they give
@@ -239,6 +244,18 @@ growth:                                  # R3 organic growth (buildings-and-cons
     min_utility_share: 0.3
     regime_factor: { default: 0.6, regime.county_1979: 1 }   # strongest before the SEZ's contracting regime
     max_backlog_m2: 12000                # about 16 workshops building in one zone (placeholder)
+  commercial:                            # R10c (phase1-slice §5.13): trading companies on commercial zones within reach
+    archetype: organic.trading_company   # of a Hong Kong gateway by road
+    firm: { dorm_beds_per_job: 0, build_months: 4, ramp_months: 2 }
+    ownership: trading_company
+    zone_use: commercial
+    gateway_reach: true
+    firm_jobs: 40                        # 600 m² of shop and office floor (placeholder)
+    floor_m2_per_month: 2500             # placeholder
+    min_utility_share: 0.3
+    regime_factor: { default: 1, regime.county_1979: 0 }   # the SEZ's trade; commercial zones open with it anyway
+    priority_factor: { default: 1, priority.trade: 1.5, priority.commerce: 1.25 }   # the SEZ's first priority steers it
+    max_backlog_m2: 12000
   services:
     spend_per_job_month: 25              # local spending that supports one service job (yuan a month); R10b: was 60
     formal_share: 0.5                    # share of new service jobs that want shop floor; the rest is informal
@@ -297,9 +314,15 @@ readiness:                               # one bar of three parts over the readi
   standard_wave: { ownership: joint_venture, jobs: 2000 }   # its power need is above the start's spare power
   first_wave: { min_cards: 1, max_cards: 4 }
 
+trade:                                   # R10c (phase1-slice §5.13): customs, step 11. Placeholders, design_note
+  customs:
+    input_rate: 0.02                     # duty on processing firms' imported inputs (mostly bonded, so low)
+    import_rate: 0.35                    # duty on imports for resale
+    local_share: 0.5                     # share kept by the city; design_note until a retention claim is found
+
 sez:
   priorities:                            # the first wave's archetype weights by first priority (§7.1 step 2)
-    # every investor is a factory until service-sector investors arrive, so trade and commerce steer the origins only
+    # every investor is a factory; trade and commerce also speed the trading companies (growth.commercial, R10c)
     priority.industry: { investor.hk_processing: 2, investor.joint_venture: 2, investor.foreign_owned: 1,
                          investor.overseas_chinese: 1, investor.inland_state_unit: 1 }
     priority.trade:    { investor.hk_processing: 3, investor.joint_venture: 1, investor.foreign_owned: 1,

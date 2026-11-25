@@ -551,3 +551,35 @@ The split is read from `gdpSectorYear` (the trailing 12 months of `history.gdpSe
 - **Goldens (end-1983):** historical 60,375 → 63,252 residents, ¥42.17M → ¥42.64M; aggressive 53,661 → 56,778,
   ¥35.42M → ¥38.27M; cautious 37,265 → 39,904, ¥15.14M → ¥17.16M; default 30,822 → 30,917, ¥8.13M → ¥8.88M;
   decline_all 30,340, ¥7.65M → ¥8.33M. The idle runs' GDP rises 9% from the start's base value added alone.
+### R10c: trading firms, customs and forex
+
+| Attempt | Change | Historical 1983 GDP · split · customs share | Aggressive 1983 GDP · split · customs share | Bands |
+|---|---|---|---|---|
+| 0 | R10b | ¥42.64M · 4 / 69 / 27 · 0% | ¥38.27M · 4 / 71 / 24 · 0% | 20 + 20 |
+| 1 | trading stream (1,500 m²/month, 40 jobs, turnover 800, VA 0.2, imports 0.5), customs 0.02 / 0.25 × local 0.5, a Luohu commercial block | ¥44.84M · 4 / 69 / 27 · 5% | ¥38.39M · 4 / 71 / 24 · 5% | 20 + 20 |
+| 2 | fix: a services firm opens when its shop floor is complete (attempt 1's trading firms never opened) | ¥45.76M · 4 / 68 / 29 · 11% | unchanged | 20 + 20 |
+| 3 | historical plan: on equal room, the zone with fewest cells left is serviced first | ¥37.48M · 4 / 55 / 41 · 22% | (then global: ¥37.83M · 4 / 62 / 34) | 20 + 20 |
+| 4 | trading floor 2,500 m²/month | ¥38.23M · 4 / 55 / 40 · 22%; quota down to $0.4M | | 20 + 20 |
+| 5 | **VA 0.25, import share 0.35, import duty 0.35** | **¥41.25M · 4 / 51 / 45 · 28%** | **¥38.39M · 4 / 71 / 24 · 5%** | 20 + 20 |
+
+- **Kept: attempt 5.** Historical −3.3% against R10b, aggressive +0.3%. Historical spending ÷ revenue 0.846 (floor
+  0.722), aggressive 1.024.
+- **The binding constraint was servicing, not demand.** The plan services one zone at a time, least room first, ties
+  by id: the template zone (id 1) won every tie at zero room, so the new commercial zones waited until 1983. The
+  historical plan now breaks the tie by cells left (`small_zones_first`), so Luohu's 6 cells are serviced in 1981
+  and the rest of Shangbu after. That delay is what shrinks industry in the same pass (firm jobs 1983 18,940 →
+  17,420; exports ¥92M → ¥68M): no industry parameter moved. Made global, it also delayed the aggressive plan's
+  Sungang zone and R8d's freight limit stopped binding by 1982 (a test), so the aggressive plan keeps its
+  industry-first order: its 1983 tertiary stays 24%, a policy outcome, not a target.
+- **Forex binds trade.** At import share 0.5 the trading firms ran the quota down to $0.4M by end-1983 and their
+  turnover was capped; at 0.35 it ends at $1.2M (R10b: $10.5M unspent). The plans now check the quota before
+  placing a structure: trade imports had left a substation's $10,000 uncovered, and the order threw.
+- **The split (annual, historical):** 17 / 30 / 53 (1979), 13 / 43 / 43 (1980), 7 / 61 / 32 (1981),
+  5 / 59 / 36 (1982), 4 / 51 / 45 (1983). **1983 meets the target; 1981–82 miss it** (tertiary 32% and 36%
+  against 44%): Luohu is serviced in 1981 and its firms ramp through 1982. Customs is 3% / 13% / 28% of revenue in
+  1981–83 (target 25–60% by 1983: met at the low end). 1979–80 customs is zero (the border trade is inside the
+  county base, a stated gap).
+- **Goldens (end-1983):** historical 63,252 → 58,792 residents, ¥42.64M → ¥41.25M, split 4/69/27 → 4/51/45, revenue
+  ¥4.33M → ¥5.79M; aggressive 56,778 → 57,266, ¥38.27M → ¥38.39M, revenue ¥4.05M → ¥4.28M (customs on inputs and
+  a late trading block); cautious revenue ¥3.23M → ¥3.32M (customs on processing inputs), GDP and residents
+  unchanged; default and decline_all unchanged.

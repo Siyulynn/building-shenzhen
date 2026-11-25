@@ -88,10 +88,11 @@ describe('R4: service jobs as wages are spent', () => {
     // formal posts sit where the shops are: the commercial zone's area
     const shopArea = end.zones.find((z) => z.use === 'commercial')!.area;
     expect(end.labour.servicePosts.filter((x) => x.formal > 0).every((x) => x.area === shopArea)).toBe(true);
-    // they are jobs: the services rows carry them
+    // they are jobs: the services rows carry them, beside the trading firms' posts (R10c, §5.13)
     for (const x of end.labour.servicePosts) {
       const base = end.labour.baseJobs.find((j) => j.area === x.area && j.sector === 'services')!.jobs;
-      expect(end.labour.jobs.find((r) => r.area === x.area && r.sector === 'services')!.jobs).toBe(base + x.formal + x.informal);
+      const firms = end.firms.reduce((n, f) => n + (f.area === x.area && f.sector === 'services' ? f.posted : 0), 0);
+      expect(end.labour.jobs.find((r) => r.area === x.area && r.sector === 'services')!.jobs).toBe(base + x.formal + x.informal + firms);
     }
   });
 

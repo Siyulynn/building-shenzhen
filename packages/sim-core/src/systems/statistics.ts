@@ -40,10 +40,10 @@ export function gdpNow(s: GameState, p: SliceParams, work = 0): number {
 export interface SectorGdp { primary: number; secondary: number; tertiary: number; construction: number }
 /**
  * The month's GDP by sector (§5.13): primary is the base farming economy; secondary is the firms' value added
- * (`firmVa`), the base factory and construction jobs and the month's construction work value added (`workVa`);
- * tertiary is state, services and the service posts. Construction is the base construction jobs plus `workVa`.
+ * in factories (`firmVa.factory`), the base factory and construction jobs and the month's construction work value
+ * added (`workVa`); tertiary is state, services, the service posts and the services firms' value added (R10c). Construction is the base construction jobs plus `workVa`.
  */
-export function sectorValueAdded(s: GameState, p: SliceParams, firmVa: number, workVa: number): SectorGdp {
+export function sectorValueAdded(s: GameState, p: SliceParams, firmVa: FirmVa, workVa: number): SectorGdp {
   const find = (area: number, sector: string) => s.labour.jobs.find((r) => r.area === area && r.sector === sector);
   let primary = 0, secondary = 0, tertiary = 0, construction = 0;
   for (const j of s.labour.baseJobs) {
@@ -61,9 +61,18 @@ export function sectorValueAdded(s: GameState, p: SliceParams, firmVa: number, w
     if (!r || r.jobs <= 0) continue;
     tertiary += (sp.formal + sp.informal) * (r.filled / r.jobs) * p.gdp.base_va_per_job_month.services;
   }
-  secondary += firmVa + workVa;
+  secondary += firmVa.factory + workVa;
+  tertiary += firmVa.services;                 // R10c (§5.13): trading firms' value added is tertiary
   construction += workVa;
   return { primary, secondary, tertiary, construction };
+}
+
+/** R10c (§5.13): the firms' value added this month, by their sector. */
+export interface FirmVa { factory: number; services: number }
+export function firmValueAdded(s: GameState, p: SliceParams): FirmVa {
+  const out: FirmVa = { factory: 0, services: 0 };
+  for (const f of s.firms) out[f.sector ?? 'factory'] += f.output * p.industry.by_ownership[f.ownership].value_added_ratio;
+  return out;
 }
 
 /** Without params (the M1 pipeline) there are no firms, and the industry series are zero. */
@@ -111,7 +120,7 @@ export function statistics(p?: SliceParams, network?: StartNetwork, gateways?: r
     }
     h.gdp.push(p ? gdpNow(s, p, work) : 0);
     // R10a (§5.13): the month's value added by sector, with the month's construction work
-    const sec = p ? sectorValueAdded(s, p, t.valueAdded, work * p.gdp.construction_va_ratio)
+    const sec = p ? sectorValueAdded(s, p, firmValueAdded(s, p), work * p.gdp.construction_va_ratio)
       : { primary: 0, secondary: 0, tertiary: 0, construction: 0 };
     for (const k of ['primary', 'secondary', 'tertiary', 'construction'] as const) h.gdpSector[k].push(sec[k]);
     h.revenue.push(fin?.revenue ?? 0);

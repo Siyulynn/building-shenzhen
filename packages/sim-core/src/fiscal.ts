@@ -12,7 +12,8 @@ import { buyPower } from './power.js';
 
 export const ACCOUNTS = ['general', 'land', 'debt', 'forex'] as const;
 export type AccountId = (typeof ACCOUNTS)[number];          // forex is a quota to buy, in USD; never added to yuan
-export type TxType = 'tax' | 'grant' | 'land_fee' | 'obligation' | 'project' | 'loan' | 'retention' | 'import';
+export type TxType = 'tax' | 'grant' | 'land_fee' | 'obligation' | 'project' | 'loan' | 'retention' | 'import'
+  | 'customs';                                            // R10c (§5.13)
 export interface LedgerEntry { date: YM; type: TxType; account: AccountId; amount: number; ref: string }
 export type ObligationKind = 'payroll' | 'service' | 'maintenance' | 'transfer' | 'arrears'
   | 'compensation';                          // R8a (phase1-slice §5.5): one-off land compensation

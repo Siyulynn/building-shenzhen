@@ -100,7 +100,7 @@ export interface Zone {
 /** phase1-slice.md §5.5. A firm is a fact on the ground: it keeps its area when its zone is edited or removed. */
 export interface Firm {
   id: number;                     // from nextFirmId, never reused
-  archetype: string; ownership: Ownership; sector: 'factory';
+  archetype: string; ownership: Ownership; sector: FirmSector;   // R10c (§5.13): the ownership's sector
   area: number; zone?: number; premises: 'new_factory' | 'existing';
   jobs: number; floorM2: number; dormM2: number; powerKw: number; waterM3Day: number;
   accepted: YM; opens?: YM;        // set when its factory completes (the month after acceptance in existing premises)
@@ -108,6 +108,8 @@ export interface Firm {
   terms?: FirmTerms;               // M5a (§5.7): absent = no tax holiday, the full land-use fee
   origin?: 'organic';              // R3 (b&c §13.3): built with no card; absent = a card or an event's offer
 }
+/** R10c (§5.13): the labour row a firm posts in, and its GDP sector: factory (secondary) or services (tertiary). */
+export type FirmSector = 'factory' | 'services';
 /** A firm's incentives (§5.7): its tax holiday, its land-use fee factor, and the leader whose shortcut sited it. */
 export interface FirmTerms { taxHolidayMonths?: number; landFeeFactor?: number; shortcut?: string }
 
@@ -219,7 +221,7 @@ export interface GameState {
   crew: CrewArrival[];        // R9 (§5.6): permanent crew arrivals, sorted by from, then team; required from save v7
   roadClass?: Record<RoadClass, number[]>;   // R8d (§5.12): class overrides, sorted cells; absent: start route class, else street
   // R3 (b&c §13.3): m² of industrial demand banked toward the next organic firm; R10b (§5.13): the collectives' bank, absent = 0
-  growth: { carry: number; collectiveCarry?: number };
+  growth: { carry: number; collectiveCarry?: number; commercialCarry?: number };   // R10c: the trading firms' bank
   events: EventsState;        // M5a (§5.7)
   sez: SezState;
   shekou: ShekouState;

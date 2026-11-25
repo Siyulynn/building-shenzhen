@@ -14,8 +14,9 @@ import { bedsByPool, villageM2 } from './systems/common.js';
 import { createFirm, orderFactor, prospectiveShare, sizeOffer } from './systems/industry.js';
 import { ACTIVE_UTILITIES, SOURCE_KINDS, spatialViews } from './works.js';
 import { cellsOfRuns } from './zones.js';
+import { freightNetwork, type FreightContent } from './freight.js';
 
-export interface GrowthContent { network: StartNetwork; buildable?: { cells: Uint32Array } }
+export interface GrowthContent { network: StartNetwork; buildable?: { cells: Uint32Array }; freight?: FreightContent }
 
 const CELL_M2 = 10_000;
 type GrowthUse = 'industrial' | 'commercial' | 'residential';
@@ -196,11 +197,16 @@ function startInZones(ctx: TickContext, zones: { z: Zone; room: number }[], m2: 
  * One organic firm stream (b&c §13.3; R10b, §5.13): its banked demand becomes owner-built firms of `I.firm_jobs` in the
  * industrial zone with the most room that its area could supply. `bank` names the stream's carry in `s.growth`.
  */
-function organicFirms(ctx: TickContext, p: SliceParams, g: GrowthContent, I: OrganicStream, bank: 'carry' | 'collectiveCarry',
-  room: (z: Zone) => number): void {
+function organicFirms(ctx: TickContext, p: SliceParams, g: GrowthContent, I: OrganicStream,
+  bank: 'carry' | 'collectiveCarry' | 'commercialCarry', room: (z: Zone) => number): void {
   const s = ctx.state;
   const factor = I.regime_factor[s.fiscal.regime] ?? I.regime_factor.default!;
-  let carry = (s.growth[bank] ?? 0) + I.floor_m2_per_month * p.industry.order_index * orderFactor(s) * factor;
+  // R10c: the SEZ's first priority steers a stream that names priority factors
+  const PF = I.priority_factor;
+  const priority = PF ? (s.sez.priority !== undefined ? PF[s.sez.priority] : undefined) ?? PF.default! : 1;
+  let carry = (s.growth[bank] ?? 0) + I.floor_m2_per_month * p.industry.order_index * orderFactor(s) * factor * priority;
+  const use = I.zone_use ?? 'industrial';
+  let reached: Set<number> | undefined | null = I.gateway_reach ? null : undefined;   // null: not computed yet
   const offer = sizeOffer(p, I.archetype, I.ownership, I.firm_jobs);
   const need = offer.floorM2 + offer.dormM2;
   // R9 backlog brake (b&c §13.3): a zone's firms' factory and dormitory floor still under construction
@@ -213,8 +219,9 @@ function organicFirms(ctx: TickContext, p: SliceParams, g: GrowthContent, I: Org
   }
   while (carry >= offer.floorM2) {
     let best: Zone | undefined, bestRoom = 0;
+    if (reached === null && s.zones.some((z) => z.use === use)) reached = gatewayAreas(s, g);
     for (const z of s.zones) {
-      if (z.use !== 'industrial') continue;
+      if (z.use !== use || (reached && !reached.has(z.area))) continue;
       if (I.max_backlog_m2 !== undefined && (backlog.get(z.id) ?? 0) > I.max_backlog_m2) continue;
       const r = room(z);
       // a builder puts up no factory its area could not supply: every firm there open, this one too
@@ -234,6 +241,21 @@ function organicFirms(ctx: TickContext, p: SliceParams, g: GrowthContent, I: Org
   s.growth[bank] = Math.round(carry * 1e6) / 1e6;
 }
 
+/**
+ * R10c (§5.13): the playable areas with a road path to a Hong Kong gateway (§5.12's widest path, capacity > 0).
+ * Without the freight content every area counts, so a run without gateways is not held back.
+ */
+export function gatewayAreas(s: GameState, g: GrowthContent): Set<number> | undefined {
+  if (!g.freight) return undefined;
+  const net = freightNetwork(s, g.freight);
+  const out = new Set<number>();
+  for (const a of s.areas) {
+    if (a.access !== 'playable') continue;
+    if (g.freight.gateways.some((x) => x.faces === 'hong_kong' && net.path(a.id, x).capacity > 0)) out.add(a.id);
+  }
+  return out;
+}
+
 /** The month's organic pass (§13.3). */
 export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): void {
   const s = ctx.state;
@@ -245,6 +267,8 @@ export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): 
   // firms, then local collectives, each from its own bank, sharing the zones' room and backlog
   organicFirms(ctx, p, g, G.industrial, 'carry', room);
   if (G.collective) organicFirms(ctx, p, g, G.collective, 'collectiveCarry', room);
+  // R10c (§5.13): trading firms on commercial zones with a road path to a Hong Kong gateway, before the private shops
+  if (G.commercial) organicFirms(ctx, p, g, G.commercial, 'commercialCarry', room);
 
   // 2. commercial: private shop floor toward the target the induced spending sets
   const induced = inducedServiceJobs(s, p);

@@ -285,8 +285,10 @@ export function firmDemands(s: GameState, p: SliceParams, fc: FreightContent, pr
     if (!fr || posts <= 0) continue;
     const o = p.industry.by_ownership[f.ownership];
     const out = posts * o.output_per_job_month * o.export_share * fr.t_per_yuan;
+    // R10c (§5.13): a trading firm's imports for resale come in from Hong Kong beside the processing inputs
+    const imports = posts * o.output_per_job_month * (o.import_share ?? 0) * fr.t_per_yuan;
     add(f.area, 'hong_kong', fr.mode, 'out', out);
-    add(f.area, 'hong_kong', fr.mode, 'in', out * fr.input_ratio);
+    add(f.area, 'hong_kong', fr.mode, 'in', out * fr.input_ratio + imports);
   }
   return [...by.values()];
 }

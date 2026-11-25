@@ -12,7 +12,8 @@ import type { SliceParams } from '../params.js';
 import { largestRemainder } from '../round.js';
 import type { GameState } from '../state.js';
 import type { TickContext } from '../step.js';
-import { inTaxHoliday } from './industry.js';
+import { importsUsd, importsYuan, inTaxHoliday } from './industry.js';
+import { firmFreight } from '../freight.js';
 
 type LineKind = ObligationKind | 'baseline' | 'debt_service';
 interface Line { ref: string; kind: LineKind; amount: number }
@@ -96,6 +97,19 @@ export function finance(p: SliceParams, fc: FiscalContent) {
     let exports = 0;
     for (const f of s.firms) exports += f.output * p.industry.by_ownership[f.ownership].export_share;
     post(s, 'retention', 'forex', (exports * P.forex.retention_share) / P.forex.yuan_per_usd, 'retention');
+    // R10c (§5.13): imports for resale spend forex (capped in step 6), and customs is levied on them and on firm inputs
+    const usd = Math.min(importsUsd(s, p), Math.max(0, Math.floor(s.fiscal.balances.forex)));   // never below zero
+    if (usd > 0) post(s, 'import', 'forex', -usd, 'import.trade');
+    if (p.trade) {
+      const C = p.trade.customs;
+      let inputs = 0;
+      for (const f of s.firms) {
+        const fr = p.freight ? firmFreight(f, p.freight) : undefined;
+        if (fr) inputs += f.output * p.industry.by_ownership[f.ownership].export_share * fr.input_ratio;
+      }
+      const duty = inputs * C.input_rate + importsYuan(s, p) * C.import_rate;
+      revenue += post(s, 'customs', 'general', duty * P.collection_efficiency * C.local_share, 'customs');
+    }
 
     // 2. what is due
     const baseline = baselineDue(s, p);

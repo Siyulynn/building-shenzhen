@@ -50,9 +50,9 @@ export function construction(p: SliceParams, pool = false, buildable?: { cells: 
         ctx.events.push({ step: 'construction', kind: 'work', detail: { value: cohortMonthValue(c, p), builder: c.builder ?? BUILDER_OF[c.archetype] } });
         if (c.workDone >= (c.workTotal ?? 0)) {
           c.stage = 'completed';
-          if (c.firm !== undefined && c.archetype === 'standard_factory') {
-            const f = s.firms.find((x) => x.id === c.firm);
-            if (f) f.opens = s.date;
+          if (c.firm !== undefined && (c.archetype === 'standard_factory' || c.archetype === 'shop_market')) {
+            const f = s.firms.find((x) => x.id === c.firm);   // R10c (§5.13): a services firm opens with its shop floor
+            if (f && c.archetype === (f.sector === 'services' ? 'shop_market' : 'standard_factory')) f.opens = s.date;
           }
           delete c.due; delete c.workDone; delete c.workTotal; delete c.firm; delete c.crewBank;
           b.events.push({ date: s.date, kind: 'complete', use: c.use, m2: c.m2, builder: c.builder ?? BUILDER_OF[c.archetype] });

@@ -81,7 +81,10 @@ export function checkFirms(s: GameState): void {
     const m2 = (a: string) => b.cohorts.reduce((t, c) => t + (c.archetype === a && c.builder === undefined ? c.m2 : 0), 0);
     const startM2 = (a: string) => start.blocks.find((x) => x.area === b.area)!.cohorts
       .reduce((t, c) => t + (c.archetype === a ? c.m2 : 0), 0);
-    expect(m2('standard_factory') - startM2('standard_factory')).toBe(here.reduce((t, f) => t + f.floorM2, 0));
+    // R10c (§5.13): a services firm's premises are shop floor
+    const floorOf = (sec: 'factory' | 'services') => here.reduce((t, f) => t + (f.sector === sec ? f.floorM2 : 0), 0);
+    expect(m2('standard_factory') - startM2('standard_factory')).toBe(floorOf('factory'));
+    expect(m2('shop_market') - startM2('shop_market')).toBe(floorOf('services'));
     expect(m2('dormitory') - startM2('dormitory')).toBe(here.reduce((t, f) => t + f.dormM2, 0));
   }
   for (const f of s.firms) {

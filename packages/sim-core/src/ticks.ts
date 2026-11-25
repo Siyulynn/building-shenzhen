@@ -58,7 +58,8 @@ export function createTickSteps(params: SliceParams, content: TickContent = {}):
       ...(content.landcover ? { landcover: content.landcover } : {}), ...(freight ? { freight } : {}) } : undefined;
   // organic growth (R3, b&c §13.3) needs its params and the start network, for road reach
   const gc: GrowthContent | undefined = params.growth && content.network
-    ? { network: content.network, ...(content.buildable ? { buildable: content.buildable } : {}) } : undefined;
+    ? { network: content.network, ...(content.buildable ? { buildable: content.buildable } : {}), ...(freight ? { freight } : {}) }
+    : undefined;
   const impl: Record<string, (ctx: TickContext) => void> = {
     ...(content.events?.length ? {
       events: events(params, content),

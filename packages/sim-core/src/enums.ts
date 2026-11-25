@@ -56,7 +56,9 @@ export const HIGH_INTENSITY_KEY = 'intensity.high';
 
 /**
  * Firm ownership (§5.5, §5.7): the first two before the SEZ; joint ventures, foreign and overseas Chinese firms with it;
- * R10b (§5.13): local collectives (集体), small domestic-sales workshops that grow organically.
+ * R10b (§5.13): local collectives (集体), small domestic-sales workshops that grow organically; R10c: trading companies
+ * (商业贸易公司), service-sector firms that import and sell at home.
  */
-export const OWNERSHIPS = ['hk_processing', 'inland_soe', 'joint_venture', 'foreign_owned', 'overseas_chinese', 'local_collective'] as const;
+export const OWNERSHIPS = ['hk_processing', 'inland_soe', 'joint_venture', 'foreign_owned', 'overseas_chinese', 'local_collective',
+  'trading_company'] as const;
 export type Ownership = (typeof OWNERSHIPS)[number];

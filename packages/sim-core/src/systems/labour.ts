@@ -171,7 +171,8 @@ export function labour(p: SliceParams, network?: StartNetwork, buildable?: { cel
     // service posts from last month's spending (§5.11), with the growth params and the start network
     s.labour.servicePosts = p.growth && network ? servicePosts(s, p) : [];
     const jobs: JobRow[] = s.labour.baseJobs.map((j) => {
-      let n = j.jobs + (j.sector === 'factory' ? firmPosts(s, j.area, j.sector) : 0);
+      // R10c (§5.13): services firms post in the services row, factories in the factory row
+      let n = j.jobs + (j.sector === 'factory' || j.sector === 'services' ? firmPosts(s, j.area, j.sector) : 0);
       if (j.sector === 'services') {
         const sp = s.labour.servicePosts.find((x) => x.area === j.area);
         if (sp) n += sp.formal + sp.informal;

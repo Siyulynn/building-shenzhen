@@ -134,7 +134,7 @@ const LUOHU_LANE: MapPlan['roads'][number] = [[387, 380], [396, 380]];
  */
 export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
   zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'residential', area: 7, cells: 8 }, { use: 'commercial', area: 1, cells: 4 },
-    { use: 'industrial', area: 5, cells: 16 }],
+    { use: 'industrial', area: 5, cells: 16 }, { use: 'commercial', area: 2, cells: 8 }],   // R10c: Luohu's trading street
   roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]], LUOHU_STREET, LUOHU_LANE],
   upgrades: CORRIDOR_UPGRADES.map((u) => ({ ...u, from_turn: 12 })),   // R8d: from turn 12, once it has met the limit
   crew_share: 0.5, room_ahead_m2: 40_000,
@@ -147,11 +147,11 @@ export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
  * dormitories beside the road and shops in the market town; a third of the crews; a school in the town.
  */
 export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
-  zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'industrial', area: 7, cells: 18 },
-    { use: 'residential', area: 7, cells: 6 }, { use: 'commercial', area: 1, cells: 4 }],
+  zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'commercial', area: 2, cells: 6 },   // R10c: Luohu's
+    { use: 'industrial', area: 7, cells: 18 }, { use: 'residential', area: 7, cells: 6 }, { use: 'commercial', area: 1, cells: 4 }],
   roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]], LUOHU_STREET],
   upgrades: CORRIDOR_UPGRADES,
-  crew_share: 0.34, room_ahead_m2: 30_000,
+  crew_share: 0.34, room_ahead_m2: 30_000, small_zones_first: true,   // R10c: Luohu's trading street before Shangbu's rest
   utilities: { headroom_jobs: 200, max_sources: 8, import_kw: 1000, import_from_turn: 2, station_turn: 6 }, facilities: [['school', 1]],
   teams: ['team.outside_soe'], reserve: 0,               // R9 (§5.6): the corps is an event's arrival, never a contract
   borrow_until_turn: 3, roads_at_once: 2,
@@ -173,7 +173,9 @@ export function mapPolicy(answers: DecisionPolicy, plan: MapPlan, p: SliceParams
     if (s.turn === 0 && s.zones.length === 0) return [...out, ...firsts, ...planZones(s, tick, plan), ...(plan.borrow_until_turn !== undefined ? planWorks(s, tick, p, plan) : [])];
     // R9: an enforcement level the gate held back at the start, given once it opens (nothing else sets it)
     const held = firsts.filter((a) => a.type === 'set_enforcement' && a.level !== s.policy.enforcement);
-    return [...out, ...held, ...planZones(s, tick, plan, true), ...planWorks(s, tick, p, plan)];
+    // R10c (§5.13): a turn that zones new land leaves servicing to the next turn, so the new zones are weighed with the rest
+    const zones = planZones(s, tick, plan, true);
+    return [...out, ...held, ...zones, ...planWorks(s, tick, p, plan, zones.length > 0)];
   };
 }
 
