@@ -1,0 +1,85 @@
+/**
+ * R4.5: map works earn the M-series credit (phase1-slice §5.7, §5.8; buildings-and-construction §13.2). A run that
+ * builds only from the map moves readiness, the review's projects and the site-preparation milestone.
+ */
+import { describe, expect, it } from 'vitest';
+import {
+  Rng, applyTurnAction, conditionHolds, createTickSteps, firstOption, indicatorValue, post, readiness, runMonths,
+  type GameState, type PlayerAction,
+} from '../src/index.js';
+import { initial, params, slice } from './fixtures.js';
+
+const STEPS = createTickSteps(params, slice.tick);
+const W = slice.init.areas.grid.width;
+const at = (x: number, y: number) => y * W + x;
+const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
+
+// Shangbu (area 7, a readiness area) along the temporary Guangshen road's row 352
+const ZONE: PlayerAction = { type: 'create_zone', use: 'industrial', runs: [[353, 366, 368]] };
+const ROAD_TOWARD: [number, number][] = [[369, 357], [369, 353]];   // drawn toward the network: its end touches row 352
+const SOURCES: PlayerAction[] = [
+  { type: 'place_structure', kind: 'power_source', cell: [372, 351], attach: [372, 352], priority: 'high' },
+  { type: 'place_structure', kind: 'water_source', cell: [371, 351], attach: [371, 352], priority: 'high' },
+];
+
+function funded(): GameState {
+  const s = initial();
+  post(s, 'grant', 'general', 5_000_000, 'test.fund');
+  return s;
+}
+/** Month by month, answering every card with its first option; `first` are turn actions in the first month. */
+function months(s: GameState, n: number, rng: Rng, first: PlayerAction[], each: (s: GameState) => void = () => {}): GameState {
+  let todo = first;
+  for (let i = 0; i < n; i++) {
+    s = runMonths(s, 1, rng, (st, cards) => { const a = [...firstOption(st, cards), ...todo]; todo = []; return a; }, STEPS);
+    each(s);
+  }
+  return s;
+}
+const MAP_WORKS: PlayerAction[] = [ZONE, { type: 'build_road', path: ROAD_TOWARD, priority: 'high' },
+  { type: 'commit_works', zone: 1, priority: 'high' }, ...SOURCES];
+
+describe('R4.5 build_road accepts either end', () => {
+  it('reverses a path whose last cell touches the network, and still refuses one with neither end touching', () => {
+    const s = funded();
+    apply(s, { type: 'build_road', path: ROAD_TOWARD });
+    expect(s.worksOrders[0]!.path!.map((c) => c.cell)).toEqual([353, 354, 355, 356, 357].map((y) => at(369, y)));
+    expect(() => apply(s, { type: 'build_road', path: [[362, 360], [362, 365]] })).toThrow(/start or end next to a road/);
+  });
+});
+
+describe('R4.5 a map-only run earns the M-series credit', () => {
+  it('moves all three parts of readiness', () => {
+    // the same seed left idle: its cards' first options commit the same M4 projects (a road link in area 2)
+    const idle = months(funded(), 12, new Rng(5), []);
+    const before = readiness(idle, params, slice.tick.buildable);
+    const s = months(funded(), 12, new Rng(5), MAP_WORKS);
+    expect(s.fiscal.projects.map((x) => [x.template, x.area, x.stage])).toEqual(idle.fiscal.projects.map((x) => [x.template, x.area, x.stage]));
+    expect(s.areas.map((a) => [a.roadKm, a.utilities])).toEqual(idle.areas.map((a) => [a.roadKm, a.utilities]));
+    expect(s.worksOrders.every((o) => o.stage === 'done')).toBe(true);
+    const r = readiness(s, params, slice.tick.buildable);
+    expect(r.roads).toBeGreaterThan(before.roads);
+    expect(r.servicedLand).toBeGreaterThan(before.servicedLand);
+    expect(r.waterPower).toBeGreaterThan(before.waterPower);
+    expect(s.areas.find((a) => a.id === 7)!.roadKm).toBe(0);                  // the count is readiness's alone
+  });
+
+  it('counts done works orders as completed projects in the review window', () => {
+    const s = months(funded(), 12, new Rng(6), MAP_WORKS);
+    const end = s.history.months.at(-1)!;
+    const m4 = s.fiscal.projects.filter((x) => x.completed !== undefined && x.completed > end - 12).length;
+    expect(s.worksOrders.filter((o) => o.stage === 'done').length).toBe(MAP_WORKS.length - 1);   // the zone is not an order
+    expect(indicatorValue(s, params, 'projects_completed')).toBe(m4 + MAP_WORKS.length - 1);
+  });
+
+  it('meets the site-preparation milestone with a works service order, and not with a cancelled one', () => {
+    const s = funded();
+    expect(conditionHolds(s, 'site_preparation_committed')).toBe(false);
+    apply(s, ZONE);
+    apply(s, { type: 'commit_works', zone: 1 });
+    expect(conditionHolds(s, 'site_preparation_committed')).toBe(true);
+    apply(s, { type: 'cancel_works', order: s.worksOrders[0]!.id });
+    expect(s.worksOrders[0]!.stage).toBe('cancelled');
+    expect(conditionHolds(s, 'site_preparation_committed')).toBe(false);
+  });
+});

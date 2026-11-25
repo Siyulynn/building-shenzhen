@@ -66,7 +66,10 @@ export function indicatorValue(s: GameState, p: SliceParams, k: ReviewIndicator)
   }
   if (k === 'foreign_firm_jobs') return s.firms.reduce((a, f) => a + (f.ownership !== 'inland_soe' ? f.posted : 0), 0);
   if (k === 'projects_completed') {
-    return s.fiscal.projects.filter((x) => x.completed !== undefined && x.completed > end - 12 && x.completed <= end).length;
+    const inWindow = (d: number | undefined) => d !== undefined && d > end - 12 && d <= end;
+    // R4.5: a done works order counts as a project (§5.8)
+    return s.fiscal.projects.filter((x) => inWindow(x.completed)).length
+      + s.worksOrders.filter((o) => o.stage === 'done' && inWindow(o.completed)).length;
   }
   return visibleIllegalShare(s, p);
 }

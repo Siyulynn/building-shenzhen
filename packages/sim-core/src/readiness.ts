@@ -1,6 +1,7 @@
 /**
  * Readiness (phase1-slice.md §5.7, §7.1): one bar of three parts, roads and access, serviced land, and water and
- * power, over the readiness cells (the buildable cells of params.readiness.areas). Pure: no state change, no RNG.
+ * power, over the readiness cells (the buildable cells of params.readiness.areas). M4's projects and map works (R4.5)
+ * both count. Pure: no state change, no RNG.
  */
 import type { SliceParams } from './params.js';
 import type { GameState } from './state.js';
@@ -42,11 +43,20 @@ export function readiness(s: GameState, p: SliceParams, buildable?: { cells: Uin
   for (const a of areas) {
     const n = countBuildable(a.cells, buildable);
     cells += n;
-    reached += Math.min(n, a.roadKm * reachPerKm);
-    let pw = 0, w = 0;
+    // R4.5: map-built road cells add 0.1 km each; start-network routes are inherited, not counted (§5.7)
+    let built = 0;
+    for (const c of s.roads) if (inSorted(a.cells, c)) built++;
+    reached += Math.min(n, (a.roadKm + built / CELLS_PER_KM) * reachPerKm);
+    // R4.5: completed placed sources on the area's land add their capacity
+    let pw = 0, w = 0, srcP = 0, srcW = 0;
     for (const f of s.firms) if (f.area === a.id) { pw += f.powerKw; w += f.waterM3Day; }
-    freePower += Math.max(0, a.utilities.powerCap - pw);
-    freeWater += Math.max(0, a.utilities.waterCap - w);
+    for (const x of s.structures) {
+      if (x.kind !== 'power_source' && x.kind !== 'water_source') continue;
+      if (!inSorted(a.cells, x.cell)) continue;
+      if (x.kind === 'power_source') srcP += x.capacity; else srcW += x.capacity;
+    }
+    freePower += Math.max(0, a.utilities.powerCap + srcP - pw);
+    freeWater += Math.max(0, a.utilities.waterCap + srcW - w);
   }
   // serviced readiness cells: in servicedLand, in a readiness area, and buildable
   let served = 0;

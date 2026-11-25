@@ -59,7 +59,7 @@ const guide = (s: GameState) => templateZoneAction(s, SHANGBU);
 describe('R2 placement validates the map', () => {
   it('refuses a road that starts off the network, leaves playable land, or runs over a road', () => {
     const s = funded();
-    expect(() => apply(s, { type: 'build_road', path: [[362, 360], [362, 365]] })).toThrow(/start next to a road/);
+    expect(() => apply(s, { type: 'build_road', path: [[362, 360], [362, 365]] })).toThrow(/start or end next to a road/);
     expect(() => apply(s, { type: 'build_road', path: [[352, 347], [352, 349]] })).toThrow(/not playable/);
     expect(() => apply(s, { type: 'build_road', path: [[356, 345], [356, 346], [356, 347]] })).toThrow(/already a road/);
     expect(() => apply(s, { type: 'build_road', path: [[355, 347], [357, 349]] })).toThrow(/orthogonal/);

@@ -220,7 +220,9 @@ export function conditionHolds(s: GameState, c: EventCondition): boolean {
   if (c === 'first_zone_firm_open') return s.firms.some((f) => f.zone !== undefined && isOpen(f, s.date));
   if (c === 'firm_open') return s.firms.some((f) => isOpen(f, s.date));
   if (c === 'shekou_captured') return s.shekou.captured > 0;
-  return s.fiscal.projects.some((x) => x.kind === 'site_preparation' && x.stage !== 'cancelled');
+  // R4.5: a works service order prepares sites too (§5.8)
+  return s.fiscal.projects.some((x) => x.kind === 'site_preparation' && x.stage !== 'cancelled')
+    || s.worksOrders.some((o) => o.kind === 'service' && o.stage !== 'cancelled');
 }
 
 const gated = (s: GameState, d: EventDef) =>

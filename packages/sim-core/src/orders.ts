@@ -198,7 +198,7 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
 
 function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'build_road' }): WorksOrder {
   const priority = checkPriority(a.priority);
-  const cells = expandPath(s, a.path);
+  let cells = expandPath(s, a.path);
   const roads = roadSet(s, wc.network), queued = queuedPath(s), feet = footprints(s);
   const works = new Set(s.cellWorks.map((w) => w.cell));
   const seen = new Set<number>();
@@ -210,8 +210,11 @@ function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'bu
     if (feet.has(c)) throw new Error(`cell ${c} holds a structure`);
     if (works.has(c)) throw new Error(`cell ${c} has works`);
   }
-  if (!neighbours(cells[0]!, s.grid.width, s.grid.height).some((n) => roads.has(n) || queued.has(n))) {
-    throw new Error('a new road must start next to a road');
+  // either end may touch the network (R4.5): a path drawn toward it is reversed, so it is built from the network out
+  const touches = (c: number) => neighbours(c, s.grid.width, s.grid.height).some((n) => roads.has(n) || queued.has(n));
+  if (!touches(cells[0]!)) {
+    if (!touches(cells[cells.length - 1]!)) throw new Error('a new road must start or end next to a road');
+    cells = [...cells].reverse();
   }
   const W = wc.works;
   const path: PathCell[] = cells.map((cell) => {
