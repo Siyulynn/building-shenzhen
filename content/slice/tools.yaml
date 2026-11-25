@@ -3,4 +3,17 @@
 # event `unlock` effects (content/slice/events.yaml); the rail shows a locked tool greyed with the event that opens it.
 # Gate ids: zone.<use>, zone.intensity.<tier>, road.<class>, structure.<kind>, formation.bulk, works.priority,
 # policy.enforcement, team.contract, power.buy.
-[]
+# The schedule is phase1-slice.md §2.1's R9 table. Open from the start: industrial and reserve zones, low and standard
+# intensity, track and street roads, site formation on one zone at a time, and the cards.
+- { gate: formation.bulk, requires: tools.formation_bulk, name: { zh: 多片同时平整, en: Forming several zones at once } }
+- { gate: works.priority, requires: tools.priorities, name: { zh: 工程优先级, en: Works priority } }
+- { gate: policy.enforcement, requires: tools.priorities, name: { zh: 执法力度, en: Enforcement } }
+- { gate: zone.residential, requires: tools.corps, name: { zh: 居住区, en: Residential zones } }
+- { gate: structure.facility, requires: tools.corps, name: { zh: 公共设施, en: Facilities } }
+- { gate: team.contract, requires: tools.corps, name: { zh: 雇用施工队, en: Contracting teams } }
+- { gate: power.buy, requires: power.purchase, name: { zh: 购电, en: Buying power } }
+- { gate: structure.power_substation, requires: power.substations, name: { zh: 变电站, en: Substations } }
+- { gate: zone.commercial, requires: investors.sez, name: { zh: 商业区, en: Commercial zones } }
+- { gate: road.avenue, requires: investors.sez, name: { zh: 大道, en: Avenues } }
+- { gate: structure.power_station, requires: investors.sez, name: { zh: 电厂, en: Power stations } }
+- { gate: zone.intensity.high, requires: intensity.high, name: { zh: 高强度开发, en: High intensity } }

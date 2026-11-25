@@ -7,9 +7,9 @@ import { parse } from 'yaml';
 import {
   Rng, applyTurnAction, compileEvents, compileTools, declineAll, isFinished, step, conditionHolds, createTickSteps, gateRefusal, post, villageAreas, type GameState, type PlayerAction,
 } from '../src/index.js';
-import { initial, params, slice } from './fixtures.js';
+import { UNGATED, initial, params, slice } from './fixtures.js';
 
-const STEPS = createTickSteps(params, slice.tick);
+const STEPS = createTickSteps(params, UNGATED);
 const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
 function funded(): GameState {
   const s = initial();
@@ -50,11 +50,8 @@ describe('R9: tool gates (§5.8)', () => {
     { gate: 'formation.bulk', requires: 'tools.formation_bulk', name: { zh: '批量平整', en: 'Bulk site formation' } },
     { gate: 'policy.enforcement', requires: 'tools.priorities', name: { zh: '执法', en: 'Enforcement' } },
   ];
-  const gates = compileTools(RAW, slice.tick.events.map((d) => d.id === 'event.corps_advance'
-    ? { ...d, effects: [...d.effects, { kind: 'unlock' as const, key: 'tools.corps' }] }
-    : d.id === 'event.first_processing_contract' ? { ...d, effects: [...d.effects, { kind: 'unlock' as const, key: 'tools.formation_bulk' }] }
-    : d.id === 'event.permit_choice' ? { ...d, effects: [...d.effects, { kind: 'unlock' as const, key: 'tools.priorities' }] } : d));
-  const GATED = createTickSteps(params, { ...slice.tick, gates });
+  const gates = slice.tick.gates!;                                   // the slice's own schedule (§2.1)
+  const GATED = createTickSteps(params, slice.tick);
   const act = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, GATED);
   const residential: PlayerAction = { type: 'create_zone', use: 'residential', runs: [[353, 366, 368]] };
 
@@ -62,8 +59,8 @@ describe('R9: tool gates (§5.8)', () => {
     expect(gates.find((g) => g.gate === 'zone.residential')!.opener.id).toBe('event.corps_advance');
     const ev = slice.tick.events;
     expect(() => compileTools([{ ...RAW[0], gate: 'zone.public' }], ev)).toThrow(/unknown gate/);
-    expect(() => compileTools([RAW[0], RAW[0]], ev.map((d) => d.id === 'event.corps_advance'
-      ? { ...d, effects: [{ kind: 'unlock' as const, key: 'tools.corps' }] } : d))).toThrow(/duplicate/);
+    expect(compileTools(RAW, ev).map((g) => g.opener.id)).toEqual(['event.corps_advance', 'event.first_processing_contract', 'event.permit_choice']);
+    expect(() => compileTools([RAW[0], RAW[0]], ev)).toThrow(/duplicate/);
     expect(() => compileTools([{ ...RAW[0], requires: 'nobody.sets.this' }], ev)).toThrow(/no event unlocks/);
   });
 
@@ -84,7 +81,7 @@ describe('R9: tool gates (§5.8)', () => {
     act(s, { type: 'create_zone', use: 'industrial', runs: [[354, 366, 368]] });
     act(s, { type: 'commit_works', zone: 1, cells: [[353, 366, 367]] });
     act(s, { type: 'commit_works', zone: 1, cells: [[353, 368, 368]] });   // the same zone again is not bulk
-    expect(() => act(s, { type: 'commit_works', zone: 2 })).toThrow(/Bulk site formation is locked/);
+    expect(() => act(s, { type: 'commit_works', zone: 2 })).toThrow(/Forming several zones at once is locked/);
     s.events.unlocked.push('tools.formation_bulk');
     act(s, { type: 'commit_works', zone: 2 });
   });

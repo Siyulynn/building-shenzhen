@@ -10,9 +10,9 @@ import {
   validateParams, zoneCapacityM2, zoneRoomM2,
   type CellRuns, type GameState, type PlayerAction, type Zone,
 } from '../src/index.js';
-import { content, initial, params, slice } from './fixtures.js';
+import { content, initial, params, slice, UNGATED } from './fixtures.js';
 
-const STEPS = createTickSteps(params, slice.tick);
+const STEPS = createTickSteps(params, UNGATED);
 const NO_WORKS = createTickSteps(params, {});
 const apply = (s: GameState, a: PlayerAction, steps = STEPS) => applyTurnAction(s, a, steps);
 const G = params.growth!;
@@ -28,7 +28,7 @@ const unlocked = () => { const s = initial(); s.events.unlocked.push(HIGH_INTENS
 /** A 1-cell zone site 4-adjacent to a road cell, with that road cell: the first that a zone may take. */
 function besideRoad(s: GameState): { road: number; runs: CellRuns } {
   const W = s.grid.width;
-  for (const road of roadClasses(s, slice.tick.network!).keys()) {
+  for (const road of roadClasses(s, UNGATED.network!).keys()) {
     for (const n of [road - W, road + W, road - 1, road + 1]) {
       const t = initial();
       try { apply(t, { type: 'create_zone', use: 'industrial', runs: runsOfCells([n], W) }); } catch { continue; }

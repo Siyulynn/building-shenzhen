@@ -51,7 +51,7 @@ export type LandUse = (typeof LAND_USES)[number];
 /** Zone intensity (§5.3, R8b): absent on a zone means standard. */
 export const INTENSITIES = ['low', 'standard', 'high'] as const;
 export type Intensity = (typeof INTENSITIES)[number];
-/** The unlock key that offers `high` (§5.3); the SEZ beat sets it in Pass 3. */
+/** The unlock key that offers `high` (§5.3); `news.1982q4.storm_passes` sets it (R9, §2.1). */
 export const HIGH_INTENSITY_KEY = 'intensity.high';
 
 /** Firm ownership (§5.5, §5.7): the first two before the SEZ; joint ventures, foreign and overseas Chinese firms with it. */

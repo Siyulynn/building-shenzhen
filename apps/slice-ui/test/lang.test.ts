@@ -267,7 +267,7 @@ describe('each language shows only itself, except place labels', () => {
     x = enqueue(x, { ...a, runs: clipZone(x.state, x.queue, a.runs) });
     const c = x.state.areas.find((q) => q.id === 7)!.cells[0]!, W = x.state.grid.width;
     const [cx, cy] = [c % W, Math.floor(c / W)];
-    x = enqueue(x, { type: 'create_zone', use: 'residential', runs: previewZone(x.state, x.queue, cx - 2, cy, cx + 4, cy + 4) });
+    x = enqueue(x, { type: 'create_zone', use: 'industrial', runs: previewZone(x.state, x.queue, cx - 2, cy, cx + 4, cy + 4) });
     expect(x.error).toBeUndefined();
     let y = submit(x);
     while (y.mode === 'paused') { for (const q of y.state.pendingCards) y = choose(y, q.id, q.options[0]); y = submit(y); }

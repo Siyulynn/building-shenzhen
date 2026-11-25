@@ -10,11 +10,11 @@ import {
   postFirmJobs, roadClasses, runMonths, saveGame, saveFromJson, saveToJson, setRoadClass, step, widestPaths,
   type FreightContent, type FreightNetwork, type GameState, type Gateway, type PlayerAction,
 } from '../src/index.js';
-import { content, initial, params, slice } from './fixtures.js';
+import { content, initial, params, slice, UNGATED } from './fixtures.js';
 import { checkInvariants, checkLedger } from './invariants.js';
 
-const STEPS = createTickSteps(params, slice.tick);
-const FC = freightContent(params, slice.tick.network, slice.tick.gateways)!;
+const STEPS = createTickSteps(params, UNGATED);
+const FC = freightContent(params, UNGATED.network, UNGATED.gateways)!;
 const C = params.works!.roads!.classes;
 const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
 const W = initial().grid.width;
@@ -128,7 +128,7 @@ describe('R8d road classes', () => {
 
 describe('R8d where the shortfall lands', () => {
   it('an unmet export share lowers that firm\'s posts and nothing else', () => {
-    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, slice.tick), 12);
+    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, UNGATED), 12);
     const s = cloneState(rec.final);
     postFirmJobs(s, params);
     const before = s.firms.map((f) => f.posted);
@@ -147,7 +147,7 @@ describe('R8d where the shortfall lands', () => {
   });
 
   it('a short materials flow slows a works order without losing money or work', () => {
-    const tight = { ...slice.tick, gateways: slice.tick.gateways!.map((g) => g.id === 'gateway.shenzhen_station'
+    const tight = { ...UNGATED, gateways: UNGATED.gateways!.map((g) => g.id === 'gateway.shenzhen_station'
       ? { ...g, capacity: { ...g.capacity, in: 20 * params.freight!.t_per_crew_month } } : g) };
     const steps = { full: STEPS, tight: createTickSteps(params, tight) };
     const run = (k: keyof typeof steps) => {
@@ -178,7 +178,7 @@ describe('R8d where the shortfall lands', () => {
 
 describe('R8d the road is the lever', () => {
   it('at the aggressive plan\'s first short quarter, an avenue corridor posts more over the next quarter', () => {
-    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, slice.tick));
+    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, UNGATED));
     const unmet = (s: GameState) => (s.history.freightUnmet?.['gateway.luohu:out'] ?? []).slice(-3).reduce((a, b) => a + b, 0);
     const q = rec.quarterEnds.findIndex((s) => unmet(s) > 0);
     const s0 = rec.quarterEnds[q]!;
@@ -195,7 +195,7 @@ describe('R8d the road is the lever', () => {
 
 describe('R8d calibration', () => {
   const unmetBy = (s: GameState) => Object.values(s.history.freightUnmet ?? {}).reduce((n, row) => n + row.reduce((a, b) => a + b, 0), 0);
-  const run = (policy: string) => playQuarters(createInitialState(slice.init), new Rng(1), STEPS, policyNamed(policy, params, 1, slice.tick));
+  const run = (policy: string) => playQuarters(createInitialState(slice.init), new Rng(1), STEPS, policyNamed(policy, params, 1, UNGATED));
 
   it('the aggressive plan meets the limit by the end of the 1982 turns; the prologue years are never constrained', () => {
     const rec = run('aggressive');
@@ -212,7 +212,7 @@ describe('R8d calibration', () => {
 
 describe('R8d nothing is stored', () => {
   it('a clone and a saved and loaded state give the same allocation', () => {
-    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, slice.tick), 15);
+    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, UNGATED), 15);
     const s = rec.final;
     const alloc = (t: GameState) => {
       const net = freightNetwork(t, FC);

@@ -16,6 +16,7 @@
   # a guaranteed offer in the market town: "our first contract", not the city's (§6.5)
   effects:
     - { kind: offer, archetype: investor.hk_processing }
+    - { kind: unlock, key: tools.formation_bulk }   # R9 (§2.1): site formation on several zones at once
   claims:
     - { id: phase1.industry.processing_contract, use: design_note }
 
@@ -127,6 +128,7 @@
   trigger: { prologue_turn: 2 }          # 1979-Q3: the permit regime and the scrutiny gauge switch on (§2.1)
   effects:
     - { kind: unlock, key: scrutiny.gauge }
+    - { kind: unlock, key: tools.priorities }       # R9 (§2.1): works priority and enforcement
   card:
     interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:
@@ -165,6 +167,7 @@
   trigger: { prologue_turn: 3 }          # 1979-Q4 (§2.1)
   effects:
     - { kind: contract_team, team: team.corps_advance }
+    - { kind: unlock, key: tools.corps }            # R9 (§2.1): residential zones, facilities and teams
   card:
     interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:
@@ -186,6 +189,7 @@
   trigger: { prologue_turn: 4 }          # 1980-Q1 (§2.1)
   effects:
     - { kind: offer_loan }               # the state bank's project loan (§5.6), unless taken or pending
+    - { kind: unlock, key: power.substations }      # R9 (§2.1): substations
   card:
     interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:

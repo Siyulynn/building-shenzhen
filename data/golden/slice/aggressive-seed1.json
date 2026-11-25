@@ -9,27 +9,27 @@
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
     "landcover_sha256": "a8fc4372642be8e1f96c9dee10422e3724c4aee7cdb0a9c20c13570508538253",
     "fiscal_sha256": "7f52bc2bab3d93a40cef10762ae77b061bb0a04a41d558ce3e833e50afd42ca0",
-    "events_sha256": "6519b5b045b99fbc56b0605f4b4ab2b2180e36a29d64360785504025899dbfad",
+    "events_sha256": "639771af078fae6e90739014d596b3e035969b12581ecf97f1387ce189e96ee0",
     "leaders_sha256": "5bf3fe0aa081c85e6f538add149d93852b4fc6f34142656fd5dd599e8c520467",
     "targets_sha256": "0765576245b271083f2ef6ed448e1fe5afb2e03abdc03a5f8cd7a379356e3fd3",
     "network_sha256": "a3601777bfa004572dad4b6fd6ebe296cfc0983d341e3eaaded92313ad5c0cb9",
     "gateways_sha256": "462ba4d7b0b945a8919626912f36acf9e9df17afbc89051169535af233c4326a",
-    "tools_sha256": "1de72b78e69f568a069c0bdfb2563c43a831a999661091b7faf0900fa2592def"
+    "tools_sha256": "6834502caa1be529f1db3a1269a61c73249f00b51b84bd5e8a21db0777f5dd34"
   },
   "years": [
     {
       "at": "1979-12",
-      "residents": 30339,
+      "residents": 30336,
       "registered": 30000,
-      "presentNonlocal": 579,
-      "migrants": 579,
+      "presentNonlocal": 485,
+      "migrants": 485,
       "firmJobs": 120,
-      "gdp": 8514082,
+      "gdp": 8368343,
       "exports": 198016,
-      "revenue": 3399566,
-      "obligationsPaid": 2428503,
-      "projectSpend": 2280000,
-      "reserve": 702730,
+      "revenue": 3399565,
+      "obligationsPaid": 2087385,
+      "projectSpend": 1880000,
+      "reserve": 1043847,
       "debt": 3000000,
       "arrears": 0,
       "scrutiny": 24.0925,
@@ -37,17 +37,17 @@
     },
     {
       "at": "1980-12",
-      "residents": 30666,
+      "residents": 30739,
       "registered": 30000,
-      "presentNonlocal": 1602,
-      "migrants": 1602,
-      "firmJobs": 570,
-      "gdp": 8595703,
-      "exports": 1379872,
-      "revenue": 3411147,
-      "obligationsPaid": 3029522,
-      "projectSpend": 1198000,
-      "reserve": 1084355,
+      "presentNonlocal": 2122,
+      "migrants": 2122,
+      "firmJobs": 503,
+      "gdp": 9467479,
+      "exports": 843960,
+      "revenue": 3409220,
+      "obligationsPaid": 2669795,
+      "projectSpend": 1370000,
+      "reserve": 1783272,
       "debt": 3000000,
       "arrears": 0,
       "scrutiny": 21.6949,
@@ -55,57 +55,57 @@
     },
     {
       "at": "1981-12",
-      "residents": 33526,
+      "residents": 35714,
       "registered": 30000,
-      "presentNonlocal": 7811,
-      "migrants": 7811,
-      "firmJobs": 4262,
-      "gdp": 14060425,
-      "exports": 11171888,
-      "revenue": 3546093,
-      "obligationsPaid": 2740734,
-      "projectSpend": 922500,
-      "reserve": 1057547,
+      "presentNonlocal": 9108,
+      "migrants": 9108,
+      "firmJobs": 5241,
+      "gdp": 16549294,
+      "exports": 18578560,
+      "revenue": 3651597,
+      "obligationsPaid": 3233183,
+      "projectSpend": 1202500,
+      "reserve": 1317519,
       "debt": 2600000,
       "arrears": 0,
-      "scrutiny": 20.9596,
-      "illegalShare": 0.0176
+      "scrutiny": 20.5514,
+      "illegalShare": 0.0269
     },
     {
       "at": "1982-12",
-      "residents": 39963,
+      "residents": 38948,
       "registered": 30000,
-      "presentNonlocal": 12712,
-      "migrants": 12712,
-      "firmJobs": 8134,
-      "gdp": 20087893,
-      "exports": 34071456,
-      "revenue": 3879013,
-      "obligationsPaid": 3355346,
-      "projectSpend": 2019000,
-      "reserve": 1487623,
+      "presentNonlocal": 11077,
+      "migrants": 11077,
+      "firmJobs": 8457,
+      "gdp": 19508936,
+      "exports": 33857992,
+      "revenue": 3873755,
+      "obligationsPaid": 3614842,
+      "projectSpend": 1895000,
+      "reserve": 1483932,
       "debt": 2000000,
       "arrears": 0,
-      "scrutiny": 23.0814,
-      "illegalShare": 0.0758
+      "scrutiny": 22.9923,
+      "illegalShare": 0.0666
     },
     {
       "at": "1983-12",
-      "residents": 50023,
+      "residents": 49744,
       "registered": 30000,
-      "presentNonlocal": 25482,
-      "migrants": 25482,
-      "firmJobs": 15225,
-      "gdp": 29693408,
-      "exports": 73917224,
-      "revenue": 3776882,
-      "obligationsPaid": 3892635,
+      "presentNonlocal": 28006,
+      "migrants": 28006,
+      "firmJobs": 17409,
+      "gdp": 30875849,
+      "exports": 78820632,
+      "revenue": 3862633,
+      "obligationsPaid": 4219548,
       "projectSpend": 647500,
-      "reserve": 1371870,
+      "reserve": 1127017,
       "debt": 1400000,
       "arrears": 0,
-      "scrutiny": 47.4619,
-      "illegalShare": 0.1813
+      "scrutiny": 47.0213,
+      "illegalShare": 0.1536
     }
   ],
   "checkpoints": [
@@ -115,26 +115,26 @@
       "months": 12,
       "population": {
         "registered": 30000,
-        "resident": 30339,
-        "present": 30599,
-        "presentNonlocal": 579,
-        "migrants": 579
+        "resident": 30336,
+        "present": 30505,
+        "presentNonlocal": 485,
+        "migrants": 485
       },
       "land": {
         "plannedCells": {
           "industrial": 52,
-          "commercial": 4,
-          "residential": 8
+          "commercial": 0,
+          "residential": 0
         },
         "servicedCells": {
-          "industrial": 0,
+          "industrial": 3,
           "commercial": 0,
-          "residential": 5
+          "residential": 0
         },
         "developableCells": {
-          "industrial": 0,
+          "industrial": 3,
           "commercial": 0,
-          "residential": 5
+          "residential": 0
         }
       },
       "floor": {
@@ -147,29 +147,29 @@
       },
       "jobs": {
         "firmPosted": 120,
-        "filled": 15978,
+        "filled": 15971,
         "vacancies": 0
       },
       "housing": {
         "rentalBeds": 411,
-        "rentalOccupants": 579,
-        "crowding": 1.4087591240875912,
+        "rentalOccupants": 485,
+        "crowding": 1.1800486618004866,
         "turnedAway": 0
       },
       "works": {
         "roadCells": 20,
         "powerSources": 0,
         "waterSources": 0,
-        "facilities": 1
+        "facilities": 0
       },
       "fiscal": {
-        "reserve": 702730,
-        "moneyForProjects": 1373489,
+        "reserve": 1043847,
+        "moneyForProjects": 1782164,
         "debtOutstanding": 3000000,
         "arrears": 0,
-        "revenueYear": 3399566,
-        "spendingYear": 4708503,
-        "spendingOverRevenue": 1.3850306186142585
+        "revenueYear": 3399565,
+        "spendingYear": 3967385,
+        "spendingOverRevenue": 1.1670272520160667
       }
     },
     {
@@ -178,61 +178,61 @@
       "months": 18,
       "population": {
         "registered": 30000,
-        "resident": 30532,
-        "present": 30682,
-        "presentNonlocal": 662,
-        "migrants": 662
+        "resident": 30466,
+        "present": 30790,
+        "presentNonlocal": 770,
+        "migrants": 770
       },
       "land": {
         "plannedCells": {
           "industrial": 52,
-          "commercial": 4,
+          "commercial": 0,
           "residential": 8
         },
         "servicedCells": {
-          "industrial": 0,
+          "industrial": 7,
           "commercial": 0,
-          "residential": 8
+          "residential": 0
         },
         "developableCells": {
-          "industrial": 0,
+          "industrial": 7,
           "commercial": 0,
-          "residential": 8
+          "residential": 0
         }
       },
       "floor": {
-        "industrialBuiltM2": 0,
+        "industrialBuiltM2": 6500,
         "industrialOpenM2": 0,
         "commercialBuiltM2": 0,
         "commercialOccupiedM2": 0,
-        "residentialM2": 143,
-        "villageRentalM2": 3603
+        "residentialM2": 0,
+        "villageRentalM2": 2900
       },
       "jobs": {
-        "firmPosted": 220,
-        "filled": 16027,
-        "vacancies": 34
+        "firmPosted": 120,
+        "filled": 16203,
+        "vacancies": 12
       },
       "housing": {
-        "rentalBeds": 540,
-        "rentalOccupants": 662,
-        "crowding": 1.2259259259259259,
+        "rentalBeds": 411,
+        "rentalOccupants": 770,
+        "crowding": 1.8734793187347931,
         "turnedAway": 0
       },
       "works": {
         "roadCells": 40,
         "powerSources": 0,
         "waterSources": 0,
-        "facilities": 1
+        "facilities": 0
       },
       "fiscal": {
-        "reserve": 1042417,
-        "moneyForProjects": 1410966,
+        "reserve": 1393825,
+        "moneyForProjects": 1680257,
         "debtOutstanding": 3000000,
         "arrears": 0,
-        "revenueYear": 3404960,
-        "spendingYear": 4956514,
-        "spendingOverRevenue": 1.4556746628447912
+        "revenueYear": 3404959,
+        "spendingYear": 4377105,
+        "spendingOverRevenue": 1.2855088710319273
       }
     },
     {
@@ -241,10 +241,10 @@
       "months": 60,
       "population": {
         "registered": 30000,
-        "resident": 50023,
-        "present": 55502,
-        "presentNonlocal": 25482,
-        "migrants": 25482
+        "resident": 49744,
+        "present": 58026,
+        "presentNonlocal": 28006,
+        "migrants": 28006
       },
       "land": {
         "plannedCells": {
@@ -253,33 +253,33 @@
           "residential": 8
         },
         "servicedCells": {
-          "industrial": 25,
+          "industrial": 29,
           "commercial": 4,
-          "residential": 8
+          "residential": 1
         },
         "developableCells": {
-          "industrial": 25,
+          "industrial": 29,
           "commercial": 4,
-          "residential": 8
+          "residential": 1
         }
       },
       "floor": {
-        "industrialBuiltM2": 216300,
-        "industrialOpenM2": 151300,
-        "commercialBuiltM2": 21372,
-        "commercialOccupiedM2": 21372,
-        "residentialM2": 22353,
-        "villageRentalM2": 68160
+        "industrialBuiltM2": 226230,
+        "industrialOpenM2": 176230,
+        "commercialBuiltM2": 28746,
+        "commercialOccupiedM2": 28746,
+        "residentialM2": 26436,
+        "villageRentalM2": 61817
       },
       "jobs": {
-        "firmPosted": 15225,
-        "filled": 38476,
-        "vacancies": 278
+        "firmPosted": 17409,
+        "filled": 40588,
+        "vacancies": 481
       },
       "housing": {
-        "rentalBeds": 14206,
-        "rentalOccupants": 25482,
-        "crowding": 1.7937491200901028,
+        "rentalBeds": 14114,
+        "rentalOccupants": 28006,
+        "crowding": 1.9842709366586369,
         "turnedAway": 0
       },
       "works": {
@@ -289,13 +289,13 @@
         "facilities": 1
       },
       "fiscal": {
-        "reserve": 1371870,
-        "moneyForProjects": 4544315,
+        "reserve": 1127017,
+        "moneyForProjects": 4665146,
         "debtOutstanding": 1400000,
         "arrears": 0,
-        "revenueYear": 3776882,
-        "spendingYear": 4540135,
-        "spendingOverRevenue": 1.2020854768563063
+        "revenueYear": 3862633,
+        "spendingYear": 4867048,
+        "spendingOverRevenue": 1.2600337645331565
       }
     }
   ],
@@ -309,7 +309,7 @@
     {
       "index": 1,
       "at": "1980-12",
-      "score": 0.9566,
+      "score": 0.8003,
       "pass": true
     },
     {
@@ -334,16 +334,16 @@
   ],
   "sez": {
     "opened": "1980-09",
-    "readiness": 0.685,
-    "waveCards": 3
+    "readiness": 0.4181,
+    "waveCards": 2
   },
   "verdict": {
     "growth": {
-      "residents": 1.6488,
-      "gdp": 3.4876
+      "residents": 1.6398,
+      "gdp": 3.6896
     },
     "ledger": {
-      "reserve": 1371870,
+      "reserve": 1127017,
       "debtOutstanding": 1400000,
       "arrears": 0
     },
@@ -358,17 +358,17 @@
       "items": [
         {
           "indicator": "exports_usd",
-          "value": 49278149,
+          "value": 52547088,
           "score": 1
         },
         {
           "indicator": "forex_earned_usd",
-          "value": 4927813,
+          "value": 5254708,
           "score": 1
         },
         {
           "indicator": "foreign_firm_jobs",
-          "value": 15225,
+          "value": 17409,
           "score": 1
         },
         {
@@ -378,18 +378,18 @@
         },
         {
           "indicator": "order_check",
-          "value": 0.0906,
+          "value": 0.0768,
           "score": 1
         }
       ]
     },
-    "scrutiny": 47.4619,
-    "illegalShare": 0.1813,
+    "scrutiny": 47.0213,
+    "illegalShare": 0.1536,
     "fiscalTest": {
       "grantFactor": 0,
-      "revenuePerYear": 3349720,
-      "dueNext12": 3757780,
-      "balance": -408060
+      "revenuePerYear": 3568124,
+      "dueNext12": 3765532,
+      "balance": -197408
     }
   },
   "fired": [
@@ -422,15 +422,13 @@
     "event.sez_established@1980-08",
     "event.sweep@1980-10",
     "news.1980q4.newspaper_decision@1980-11",
-    "event.shekou_poach@1980-11",
+    "event.first_zone@1980-12",
+    "event.mandate_met@1980-12",
     "event.budget@1981-01",
     "event.bamboo_garden@1981-01",
     "news.1981q1.shekou_slogan@1981-03",
-    "event.orders_surge@1981-04",
     "news.1981q2.newspaper_trial@1981-06",
-    "event.first_zone@1981-06",
-    "event.mandate_met@1981-06",
-    "event.typhoon@1981-07",
+    "event.petition@1981-06",
     "news.1981q3.document_27@1981-07",
     "event.sweep@1981-10",
     "news.1981q4.government@1981-12",
@@ -442,17 +440,17 @@
     "news.1982q2.newspaper_launch@1982-05",
     "event.second_line@1982-06",
     "news.1982q3.census@1982-07",
-    "event.typhoon@1982-09",
+    "event.typhoon@1982-08",
     "event.corps_deployment@1982-09",
     "news.1982q3.congress@1982-09",
     "event.sweep@1982-10",
     "news.1982q4.storm_passes@1982-12",
     "event.budget@1983-01",
     "news.1983q1.hu_visit@1983-02",
-    "event.petition@1983-04",
     "news.1983q2.deng_relay@1983-06",
     "event.typhoon@1983-07",
     "event.temporary_residence@1983-07",
+    "event.typhoon@1983-08",
     "news.1983q3.strike_hard@1983-08",
     "news.1983q3.university@1983-09",
     "event.sweep@1983-10",

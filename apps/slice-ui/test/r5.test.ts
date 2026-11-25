@@ -21,7 +21,9 @@ import {
   isBuildable, mostHeldBack, overlayRgba, shareColor, type Rung,
 } from '../src/views.js';
 
-const slice: Slice = loadSlice();
+/** R9 (§5.8): without the tool gates, so these map-tool checks can use every tool from Turn 1. */
+const loaded: Slice = loadSlice();
+const slice: Slice = { ...loaded, tick: { ...loaded.tick, gates: undefined } };
 const W = createInitialState(slice.init).grid.width;
 const idx = (x: number, y: number) => y * W + x;
 const OPTS: ToolOptions = { use: 'industrial', planOnly: false, facility: 'school' };

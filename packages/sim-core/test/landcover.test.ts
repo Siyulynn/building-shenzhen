@@ -5,12 +5,12 @@ import {
   loadGame, saveFromJson, step, saveGame, saveToJson, zoneCapacityM2, type GameState, type LandCoverClass,
   type LandCoverContent, type PlayerAction,
 } from '../src/index.js';
-import { areasJson, buildable, content, initial, params, readRepo, sha256, slice } from './fixtures.js';
+import { areasJson, buildable, content, initial, params, readRepo, sha256, slice, UNGATED } from './fixtures.js';
 import { checkInvariants } from './invariants.js';
 
-const LC = slice.tick.landcover!;
+const LC = UNGATED.landcover!;
 const RAW = JSON.parse(readRepo('data/starts/slice_landcover.json')) as LandCoverContent;
-const STEPS = createTickSteps(params, slice.tick);
+const STEPS = createTickSteps(params, UNGATED);
 const W = slice.init.areas.grid.width;
 const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
 const S = params.works!.service, F = params.growth!.land_cover!;

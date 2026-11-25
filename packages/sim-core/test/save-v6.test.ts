@@ -11,16 +11,16 @@ import {
   Rng, SAVE_VERSION, cellsOfRuns, createTickSteps, firstOption, historical, loadGame, placeStructure, playQuarters, saveFromJson, saveGame,
   saveToJson, step,
 } from '../src/index.js';
-import { ROOT, initial, params, slice } from './fixtures.js';
+import { ROOT, initial, params, slice, UNGATED } from './fixtures.js';
 import { checkInvariants } from './invariants.js';
 
-const STEPS = createTickSteps(params, slice.tick);
+const STEPS = createTickSteps(params, UNGATED);
 const FIXTURE = join(ROOT, 'packages/sim-core/test/fixtures-data/save-v5.json');
 
 /** A version-5 save as the pre-R8 code wrote one, with what the migration has to change in it. */
 function builtV5(): string {
   const rng = new Rng(5);
-  const s = playQuarters(initial(), rng, STEPS, historical(params, slice.tick), 4).final;
+  const s = playQuarters(initial(), rng, STEPS, historical(params, UNGATED), 4).final;
   // the retired R2 source, placed as the old code could (the cell and attach road of jobs.test's fixture)
   const W = s.grid.width;
   placeStructure(s, { kind: 'power_source', cell: 345 * W + 361, attach: 346 * W + 361, capacity: 1000 });

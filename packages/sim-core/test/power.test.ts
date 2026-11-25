@@ -9,15 +9,15 @@ import {
   playQuarters, poolShares, post, powerPool, runMonths, step, utilityShares,
   type GameState, type PlayerAction,
 } from '../src/index.js';
-import { initial, params, slice } from './fixtures.js';
+import { initial, params, slice, UNGATED } from './fixtures.js';
 import { checkInvariants, checkLedger } from './invariants.js';
 
-const STEPS = createTickSteps(params, slice.tick);
+const STEPS = createTickSteps(params, UNGATED);
 const I = params.fiscal.power_import;
 const ST = params.works!.structures.power_station;
 const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
 const isOpen = (f: GameState['firms'][number], t: number) => f.opens !== undefined && f.opens <= t;
-const growth = { network: slice.startNetwork, buildable: slice.tick.buildable! };
+const growth = { network: slice.startNetwork, buildable: UNGATED.buildable! };
 const funded = () => { const s = initial(); post(s, 'grant', 'general', 5_000_000, 'test.fund'); return s; };
 
 describe('R8c the pool shares', () => {
@@ -36,7 +36,7 @@ describe('R8c the pool shares', () => {
   });
 
   it('never lets water block a firm', () => {
-    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, slice.tick), 12);
+    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, UNGATED), 12);
     const s = cloneState(rec.final);
     expect(s.firms.some((f) => isOpen(f, s.date))).toBe(true);
     const before = utilityShares(s, placedSupply(s, growth, (f) => isOpen(f, s.date)));
@@ -104,7 +104,7 @@ describe('R8c structures', () => {
 
 describe('R8c power binds', () => {
   // the aggressive plan outgrows its power: a quarter where the pool shares fall below 1, by the 1982 report
-  const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, slice.tick));
+  const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, UNGATED));
   const short = rec.quarterEnds.findIndex((s) =>
     [...utilityShares(s, placedSupply(s, growth, (f) => isOpen(f, s.date))).values()].some((v) => v < 0.99));
 

@@ -114,7 +114,7 @@ describe('M5a: the SEZ chain', () => {
     expect(s.events.fired.find((f) => f.id === 'event.sez_established')!.date).toBe(ym('1980-08'));
     expect(step(s, [], new Rng(1), STEPS).status).toBe('paused');
     expect(s.fiscal.regime).toBe('regime.county_1979');
-    expect(s.events.unlocked).toEqual(['shekou.competes']);
+    expect(s.events.unlocked).toEqual(['tools.formation_bulk', 'shekou.competes']);   // R9: the first contract opens bulk formation
 
     const report = card.payload!.report as { bar: number; forecastCards: number };
     const r2 = step(s, [{ type: 'answer_card', instance: card.id, option: 'priority.trade' }], new Rng(9), STEPS);

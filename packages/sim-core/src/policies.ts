@@ -9,7 +9,7 @@ import { runsOfCells } from './zones.js';
 import { isFinished, type CardInstance, type GameState, type PlayerAction } from './state.js';
 import { firstOption, type DecisionPolicy } from './step.js';
 import type { TickContent } from './ticks.js';
-import { planWorks, planZones, type MapPlan } from './mapPlan.js';
+import { gateAllows, planWorks, planZones, type MapPlan } from './mapPlan.js';
 
 /** The co-financing card of the prologue's briefing, and the prologue's first-project card (content/slice/events.yaml). */
 export const COFINANCING_CARD = 'event.cofinancing';
@@ -146,6 +146,8 @@ export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
 /**
  * A map-first policy (§5.9): `answers` answers the cards; in its first month it gives `first` and draws the plan's
  * zones, and at each later turn's start it gives the plan's works (mapPlan.ts). Nothing goes through M4's projects.
+ * R9 (§5.8): what a tool gate holds back waits for it: a gated zone is drawn, and `first`'s enforcement level set, at
+ * the first turn's start its gate is open.
  */
 export function mapPolicy(answers: DecisionPolicy, plan: MapPlan, p: SliceParams, tick: TickContent,
   first: readonly PlayerAction[] = []): DecisionPolicy {
@@ -153,8 +155,11 @@ export function mapPolicy(answers: DecisionPolicy, plan: MapPlan, p: SliceParams
     const out = answers(s, pending);
     // past the last turn only answers are accepted (§5.1): a closing card can still be pending
     if (s.subStep !== 0 || isFinished(s)) return out;
-    if (s.turn === 0 && s.zones.length === 0) return [...out, ...first, ...planZones(s, tick, plan)];
-    return [...out, ...planWorks(s, tick, p, plan)];
+    const firsts = first.filter((a) => gateAllows(s, tick, a));
+    if (s.turn === 0 && s.zones.length === 0) return [...out, ...firsts, ...planZones(s, tick, plan)];
+    // R9: an enforcement level the gate held back at the start, given once it opens (nothing else sets it)
+    const held = firsts.filter((a) => a.type === 'set_enforcement' && a.level !== s.policy.enforcement);
+    return [...out, ...held, ...planZones(s, tick, plan, true), ...planWorks(s, tick, p, plan)];
   };
 }
 

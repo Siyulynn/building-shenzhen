@@ -5,16 +5,16 @@ import {
   runMonths, saveFromJson, saveGame, saveToJson, spatialViews, step, templateZoneAction, unspentCommitments,
   type CellRuns, type GameState, type PlayerAction, type WorksOrder,
 } from '../src/index.js';
-import { content, initial, params, slice } from './fixtures.js';
+import { content, initial, params, slice, UNGATED } from './fixtures.js';
 import { checkInvariants, checkLedger } from './invariants.js';
 
 // A pace that does not divide a cell's units, so months end with cells part-serviced
 const WORKS = { ...params.works!, crew_per_order: 30 };
-const STEPS = createTickSteps({ ...params, works: WORKS }, slice.tick);
+const STEPS = createTickSteps({ ...params, works: WORKS }, UNGATED);
 const W = slice.init.areas.grid.width;
 const at = (x: number, y: number) => y * W + x;
 const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
-const SHANGBU = slice.tick.precedents!.find((p) => p.id === 'precedent.zone.shangbu_industrial')!;
+const SHANGBU = UNGATED.precedents!.find((p) => p.id === 'precedent.zone.shangbu_industrial')!;
 // The guide sits at rows 370–375, x 349–354; the temporary Guangshen road runs along row 346. A spur south down
 // x 360 from (360,346), over the hill cell (360,347) (a road, not a bridge, since R8a: only water and tidal flats
 // bridge), then west along row 369 fronts the guide's top row: 23 + 10 cells. The phase is that top row.
@@ -76,11 +76,11 @@ describe('R2 placement validates the map', () => {
     const o = s.worksOrders[0]!;
     const bridges = o.path!.filter((c) => c.bridge).length, cells = o.path!.length;
     expect(cells).toBe(SPUR_CELLS);
-    expect(landCoverAt(slice.tick.landcover!, at(360, 347))).toBe('hill');
+    expect(landCoverAt(UNGATED.landcover!, at(360, 347))).toBe('hill');
     expect(o.path![0]).toMatchObject({ cell: at(360, 347), bridge: false });
     expect(o.unitsTotal).toBe((cells - bridges) * WORKS.road.units_per_cell + bridges * WORKS.bridge.units_per_cell);
     expect(o.budget).toBe(Math.round(o.unitsTotal * WORKS.road.yuan_per_cell / WORKS.road.units_per_cell));
-    for (const c of o.path!) expect(c.bridge).toBe(needsBridge(slice.tick.landcover!, c.cell));
+    for (const c of o.path!) expect(c.bridge).toBe(needsBridge(UNGATED.landcover!, c.cell));
     expect(() => apply(s, { type: 'build_road', path: [[361, 350], [362, 350]] })).not.toThrow();   // may branch off a queued road
     expect(() => apply(s, { type: 'build_road', path: [[360, 349], [360, 352]] })).toThrow(/adds no new road/);
   });
@@ -259,7 +259,7 @@ describe('R2 queue rules and accounts', () => {
 
   it('serves the higher priority first on a scarce pool, and the other waits for capacity', () => {
     const scarce = { ...params, works: WORKS, capacity: { ...params.capacity, local_crew: 30 } };
-    const steps = createTickSteps(scarce, slice.tick);
+    const steps = createTickSteps(scarce, UNGATED);
     const rng = new Rng(12);
     const go = (s: GameState, acts: PlayerAction[]) =>
       runMonths(s, 1, rng, (st, cards) => { const a = [...firstOption(st, cards), ...acts]; acts = []; return a; }, steps);

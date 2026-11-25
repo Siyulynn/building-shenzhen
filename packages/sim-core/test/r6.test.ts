@@ -10,9 +10,9 @@ import {
   createInitialState, createTickSteps, historical, planZones, playQuarters, plannedRoads, stateAfter,
   type BandRecord, type ClaimInfo, type DecisionPolicy, type GameState, type PlayRecord, type PlayerAction,
 } from '../src/index.js';
-import { params, readRepo, slice } from './fixtures.js';
+import { params, readRepo, slice, UNGATED } from './fixtures.js';
 
-const STEPS = createTickSteps(params, slice.tick);
+const STEPS = createTickSteps(params, UNGATED);
 const fresh = () => createInitialState(slice.init);
 /** Play a policy, recording every turn action it gives (answers aside). */
 function play(policy: DecisionPolicy, seed = 1): { rec: PlayRecord; acts: PlayerAction[] } {
@@ -25,9 +25,9 @@ function play(policy: DecisionPolicy, seed = 1): { rec: PlayRecord; acts: Player
   return { rec: playQuarters(fresh(), new Rng(seed), STEPS, spy), acts };
 }
 const runs = {
-  cautious: play(cautious(params, slice.tick)),
-  aggressive: play(aggressive(params, slice.tick)),
-  historical: play(historical(params, slice.tick)),
+  cautious: play(cautious(params, UNGATED)),
+  aggressive: play(aggressive(params, UNGATED)),
+  historical: play(historical(params, UNGATED)),
 };
 
 describe('R6: the map-first policies', () => {
@@ -66,17 +66,17 @@ describe('R6: the map-first policies', () => {
     const s = runs.historical.rec.final;
     const z = s.zones.find((x) => x.template === 'precedent.zone.shangbu_industrial')!;
     expect(z).toBeDefined();
-    const roads = plannedRoads(s, slice.tick), w = s.grid.width;
+    const roads = plannedRoads(s, UNGATED), w = s.grid.width;
     expect(cellsOfRuns(z.runs, s.grid).some((c) => [c - 1, c + 1, c - w, c + w].some((n) => roads.has(n)))).toBe(true);
     expect(s.firms.some((f) => f.zone === z.id && f.origin === 'organic')).toBe(true);
   });
 
   it('zones take the cells nearest a road, and no zone takes a plan road cell', () => {
     const s = fresh();
-    const acts = planZones(s, slice.tick, AGGRESSIVE_PLAN);
+    const acts = planZones(s, UNGATED, AGGRESSIVE_PLAN);
     expect(acts.length).toBe(AGGRESSIVE_PLAN.zones.length);
-    const roads = plannedRoads(s, slice.tick), w = s.grid.width;
-    const first = cellsNearRoad(s, slice.tick, 7, 1, new Set())[0]!;
+    const roads = plannedRoads(s, UNGATED), w = s.grid.width;
+    const first = cellsNearRoad(s, UNGATED, 7, 1, new Set())[0]!;
     expect([first - 1, first + 1, first - w, first + w].some((n) => roads.has(n))).toBe(true);
     const zoned = acts.flatMap((a) => (a.type === 'create_zone' ? cellsOfRuns(a.runs, s.grid) : []));
     expect(new Set(zoned).size).toBe(zoned.length);

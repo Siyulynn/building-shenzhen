@@ -9,12 +9,12 @@
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
     "landcover_sha256": "a8fc4372642be8e1f96c9dee10422e3724c4aee7cdb0a9c20c13570508538253",
     "fiscal_sha256": "7f52bc2bab3d93a40cef10762ae77b061bb0a04a41d558ce3e833e50afd42ca0",
-    "events_sha256": "6519b5b045b99fbc56b0605f4b4ab2b2180e36a29d64360785504025899dbfad",
+    "events_sha256": "639771af078fae6e90739014d596b3e035969b12581ecf97f1387ce189e96ee0",
     "leaders_sha256": "5bf3fe0aa081c85e6f538add149d93852b4fc6f34142656fd5dd599e8c520467",
     "targets_sha256": "0765576245b271083f2ef6ed448e1fe5afb2e03abdc03a5f8cd7a379356e3fd3",
     "network_sha256": "a3601777bfa004572dad4b6fd6ebe296cfc0983d341e3eaaded92313ad5c0cb9",
     "gateways_sha256": "462ba4d7b0b945a8919626912f36acf9e9df17afbc89051169535af233c4326a",
-    "tools_sha256": "1de72b78e69f568a069c0bdfb2563c43a831a999661091b7faf0900fa2592def"
+    "tools_sha256": "6834502caa1be529f1db3a1269a61c73249f00b51b84bd5e8a21db0777f5dd34"
   },
   "years": [
     {
@@ -124,7 +124,7 @@
         "plannedCells": {
           "industrial": 12,
           "commercial": 0,
-          "residential": 4
+          "residential": 0
         },
         "servicedCells": {
           "industrial": 0,

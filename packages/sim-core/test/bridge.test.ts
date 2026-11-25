@@ -7,10 +7,10 @@ import {
   Rng, applyTurnAction, conditionHolds, createTickSteps, firstOption, indicatorValue, post, reachClasses, readiness, runMonths, validateParams,
   type GameState, type PlayerAction,
 } from '../src/index.js';
-import { initial, params, slice } from './fixtures.js';
+import { initial, params, slice, UNGATED } from './fixtures.js';
 
-const STEPS = createTickSteps(params, slice.tick);
-const NO_GROWTH = createTickSteps({ ...params, growth: undefined }, slice.tick);
+const STEPS = createTickSteps(params, UNGATED);
+const NO_GROWTH = createTickSteps({ ...params, growth: undefined }, UNGATED);
 const W = slice.init.areas.grid.width;
 const at = (x: number, y: number) => y * W + x;
 const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
@@ -53,13 +53,13 @@ describe('R4.5 a map-only run earns the M-series credit', () => {
   it('moves all three parts of readiness', () => {
     // the same seed left idle: its cards' first options commit the same M4 projects (a road link in area 2)
     const idle = months(funded(), 12, new Rng(5), [], () => {}, NO_GROWTH);
-    const before = readiness(idle, params, slice.tick.buildable);
+    const before = readiness(idle, params, UNGATED.buildable);
     // R8c: a substation delivers only what the city pool holds, so the run also buys power for it to carry
     const s = months(funded(), 12, new Rng(5), [...MAP_WORKS, { type: 'buy_power', kw: 1000 }], () => {}, NO_GROWTH);
     expect(s.fiscal.projects.map((x) => [x.template, x.area, x.stage])).toEqual(idle.fiscal.projects.map((x) => [x.template, x.area, x.stage]));
     expect(s.areas.map((a) => [a.roadKm, a.utilities])).toEqual(idle.areas.map((a) => [a.roadKm, a.utilities]));
     expect(s.worksOrders.every((o) => o.stage === 'done')).toBe(true);
-    const r = readiness(s, params, slice.tick.buildable);
+    const r = readiness(s, params, UNGATED.buildable);
     expect(r.roads).toBeGreaterThan(before.roads);
     expect(r.servicedLand).toBeGreaterThan(before.servicedLand);
     expect(r.waterPower).toBeGreaterThan(before.waterPower);

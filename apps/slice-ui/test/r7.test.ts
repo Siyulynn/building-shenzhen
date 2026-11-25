@@ -110,11 +110,11 @@ describe('R7 Turn 1 tells the truth: the opening decision', () => {
     expect(card.map((c) => c.card)).toEqual(['event.first_project']);
     expect(submit(x0).error).toBeDefined();                     // it must be answered first
     let x = choose(x0, card[0]!.id, 'later');
-    x = enqueue(x, { type: 'set_enforcement', level: 'high' });
+    x = enqueue(x, { type: 'set_permit_regime', regime: 'strict' });   // R9: enforcement is gated until 1979-Q4
     const y = submit(x);
     expect(y.error).toBeUndefined();
     const start = x0.state.date;
-    expect(y.state.actionLog.filter((e) => e.date === start).map((e) => e.action.type)).toEqual(['answer_card', 'set_enforcement']);
+    expect(y.state.actionLog.filter((e) => e.date === start).map((e) => e.action.type)).toEqual(['answer_card', 'set_permit_regime']);
     expect(y.state.pendingCards.some((c) => c.card === 'event.first_project')).toBe(false);
   });
 });

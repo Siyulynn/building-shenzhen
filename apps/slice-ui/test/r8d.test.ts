@@ -7,7 +7,9 @@ import { initialUi, renderDrawer, renderFlyout, type View } from '../src/render.
 import { planGesture } from '../src/tools.js';
 import { freightView } from '../src/views.js';
 
-const slice: Slice = loadSlice();
+/** R9 (§5.8): without the tool gates, so these map-tool checks can use every tool from Turn 1. */
+const loaded: Slice = loadSlice();
+const slice: Slice = { ...loaded, tick: { ...loaded.tick, gates: undefined } };
 const view = (x: Session, lang: 'en' | 'zh'): View => ({ slice, x, ui: initialUi(slice), lang });
 
 describe('R8d the road tier and the freight table', () => {

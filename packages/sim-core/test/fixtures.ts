@@ -28,4 +28,7 @@ export const leaders = slice.init.leaders;
 export const content = slice.content;
 export const MONTHS = scenario.turns * scenario.months_per_turn;
 
+/** R9 (§5.8): the slice's tick content without the tool gates, for tests that build before the prologue opens a tool. */
+export const UNGATED = { ...slice.tick, gates: undefined };
+
 export const initial = (): GameState => createInitialState({ scenario, areas: areasJson, start, params });
