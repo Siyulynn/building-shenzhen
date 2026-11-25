@@ -46,6 +46,8 @@ export interface MapPlan {
    * Absent: the plan commits only what it has.
    */
   borrow_until_turn?: number;
+  /** R9 (§5.9): live road orders at once (default 1): a later plan road that touches the network starts beside the first. */
+  roads_at_once?: number;
 }
 
 const neighbours = (c: number, w: number) => [c - w, c - 1, c + 1, c + w];
@@ -200,9 +202,10 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
   const used = new Set<number>(plan.roads.flatMap((r) => pathCells(w, r) ?? []));   // cells this turn's works leave free
   const newRoad = new Set<number>();                    // road cells this turn's actions take
 
-  // 1. outbound roads, one live road order at a time
-  if (!live.some((o) => o.kind === 'road')) {
-    let pending = false;
+  // 1. outbound roads, `roads_at_once` live road orders at a time (one by default)
+  let roadSlots = (plan.roads_at_once ?? 1) - live.filter((o) => o.kind === 'road').length;
+  if (roadSlots > 0) {
+    let pending = live.some((o) => o.kind === 'road');
     for (const path of plan.roads) {
       const r = roadOrder(s, tick, p, path);
       if (r === 'built' || r === 'blocked') continue;
@@ -211,6 +214,8 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
       if (r.cost <= money && gateAllows(s, tick, a)) {
         out.push(a);
         money -= r.cost;
+        for (const c of r.cells) newRoad.add(c);
+        if (--roadSlots > 0) continue;            // the next plan road that touches the network now
       }
       break;
     }

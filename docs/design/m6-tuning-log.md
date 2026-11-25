@@ -220,23 +220,35 @@ the 1979-Q4 band is [1.295, 2.158], the 1983 band [0.722, 1.204]):
 - **Retiring M4's road link from the prologue (b9ec2a1, plan §4.1).** This took most of it. The old opening card
   committed project.road_link (¥1.1m, tuned in M6b step 4 to hold this band). The commit ran ahead of the money, so it
   raised the ¥3m state-bank loan, and the run spent ¥2.18m on projects in 1979.
-- **No way back for the map plans.** They commit only what they have, and each works order draws at most
+- **The map plans could not make it up as they were.** They committed only what they had, and each works order draws at most
   `crew_per_order` (40) crew a month. A road order spends about ¥100,000 a month and a service order about ¥30,000.
 
 **What was tried (7d33d64 and after):**
 
 | Lever | historical 1979 | aggressive 1979 | Other bands | Kept |
 |---|---|---|---|---|
-| `borrow_until_turn: 3`: the plan counts the loan's principal while it is unoffered | 0.768 → 0.874 | 0.632 → 0.946; 1980-Q2 passes | no new failure | yes |
+| `borrow_until_turn: 3`: the plan counts the loan's principal while it is unoffered | 0.768 → 0.874 | 0.632 → 0.946; 1980-Q2 passes | no new failure | yes (7d33d64) |
 | plus 5 parallel service orders on one zone, each a turn of one order's crew | 0.874 | 0.909 | aggressive 1983 spending fails, 1.232 | no |
-| modifiers softened | none touch 1979 | | | not tried; no effect possible |
+| plus the turn works in the first month (the first road at turn 0) | 1.106 | 1.019 | none | yes |
+| plus `roads_at_once: 2` and a Luohu street (19 cells) | **1.337**, all 20 pass | 1.249 | none | yes, historical |
+| aggressive: `roads_at_once: 3` and a second Luohu street (10 cells) | | **1.338**, all 20 pass | none | yes |
+| modifiers softened | none touch 1979 | | | not needed |
 
-**Result:** historical_prologue and aggressive each pass 19 bands and fail 1, `band.1979q4.spending_to_revenue`.
-- **The gap.** About ¥1.3m more city works in 1979 in each run, which the plans have no road or frontage to spend on.
-- **Decision needed (not taken here).** Three options:
-  - a purposeful 1979 project the plans can build: an M4-style project, or a Luohu road with a cited purpose;
-  - re-scoping the band, which needs a person: bands are evidence records;
-  - allowing works pace in the plans' 1979 turns. Pace opens only in 1979-Q4 (`tools.priorities`), so it alone cannot close the gap.
+**Result:** historical_prologue and aggressive pass all 20 bands.
+
+| Band | historical | aggressive | Range |
+|---|---|---|---|
+| 1979-Q4 spending ÷ revenue | 1.337 | 1.338 | [1.295, 2.158] |
+| 1980-Q2 | 1.204 | 1.207 | [0.987, 2.158] |
+| 1983-Q4 | 1.070 | 1.082 | [0.722, 1.204] |
+
+- **The 1979 margin is thin.** A later change that cuts 1979 city works will trip this band first.
+- **The Luohu streets are design roads** (design_note): they run east from Jianshe Road into area 2, where the co-financed substation goes.
+
+**End-1983 goldens of the roads commit** (against 7d33d64):
+- historical: residents 51,317 → 52,360 (+2.0%), GDP +1.3%, readiness 0.44 → 0.51.
+- aggressive: residents 48,507 → 48,887 (+0.8%), GDP +1.3%.
+- default, cautious, decline_all: unchanged. They neither borrow nor run roads at once.
 
 **Modifiers (36ebbcd):** placeholders as in `params/slice.yaml` `events.*`. Neither required run's 1983 band moved out
 of range with the 1982 storm included, so no modifier was softened.

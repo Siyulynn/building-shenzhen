@@ -121,6 +121,13 @@ const CORRIDOR_UPGRADES: MapPlan['upgrades'] = [
   { path: [[378, 352], [380, 352], [380, 363]], class: 'avenue' }, { path: [[380, 363], [384, 363], [384, 377]], class: 'avenue' },
   { path: [[384, 377], [386, 377], [386, 390]], class: 'avenue' }];
 /**
+ * R9 (§5.9): a street into Luohu (area 2) east from Jianshe Road, then north: where the co-financed substation
+ * goes. A design road (design_note), not a historical alignment; built beside the Shangbu road from the first turn.
+ */
+const LUOHU_STREET: MapPlan['roads'][number] = [[387, 384], [397, 384], [397, 376]];
+/** R9 (§5.9): the aggressive plan's second Luohu street, east from Jianshe Road along the next block north (design_note). */
+const LUOHU_LANE: MapPlan['roads'][number] = [[387, 380], [396, 380]];
+/**
  * The aggressive plan: industrial zones in Shangbu (area 7) and Sungang (area 5), dormitories in Shangbu, shops in
  * the market town; a road south through Shangbu and one east into Dongmen–Wenjindu (area 4); half the crews on
  * servicing; power and water a year ahead; a school; both pool teams.
@@ -128,12 +135,12 @@ const CORRIDOR_UPGRADES: MapPlan['upgrades'] = [
 export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
   zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'residential', area: 7, cells: 8 }, { use: 'commercial', area: 1, cells: 4 },
     { use: 'industrial', area: 5, cells: 16 }],
-  roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]]],
+  roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]], LUOHU_STREET, LUOHU_LANE],
   upgrades: CORRIDOR_UPGRADES.map((u) => ({ ...u, from_turn: 12 })),   // R8d: from turn 12, once it has met the limit
   crew_share: 0.5, room_ahead_m2: 40_000,
   utilities: { headroom_jobs: 300, max_sources: 8, import_kw: 1000, import_from_turn: 8, station_turn: 9 }, facilities: [['school', 1]],
   teams: ['team.outside_soe'], reserve: 0,               // R9 (§5.6): the corps is an event's arrival, never a contract
-  borrow_until_turn: 3,
+  borrow_until_turn: 3, roads_at_once: 3,
 });
 /**
  * The historical plan: the Shangbu template zone (§5.3), reached by a road south from the Guangshen road, with
@@ -141,12 +148,12 @@ export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
  */
 export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
   zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'residential', area: 7, cells: 6 }, { use: 'commercial', area: 1, cells: 4 }],
-  roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]]],
+  roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]], LUOHU_STREET],
   upgrades: CORRIDOR_UPGRADES,
   crew_share: 0.34, room_ahead_m2: 30_000,
   utilities: { headroom_jobs: 200, max_sources: 8, import_kw: 1000, import_from_turn: 2, station_turn: 6 }, facilities: [['school', 1]],
   teams: ['team.outside_soe'], reserve: 0,               // R9 (§5.6): the corps is an event's arrival, never a contract
-  borrow_until_turn: 3,
+  borrow_until_turn: 3, roads_at_once: 2,
 });
 
 /**
@@ -162,7 +169,7 @@ export function mapPolicy(answers: DecisionPolicy, plan: MapPlan, p: SliceParams
     // past the last turn only answers are accepted (§5.1): a closing card can still be pending
     if (s.subStep !== 0 || isFinished(s)) return out;
     const firsts = first.filter((a) => gateAllows(s, tick, a));
-    if (s.turn === 0 && s.zones.length === 0) return [...out, ...firsts, ...planZones(s, tick, plan)];
+    if (s.turn === 0 && s.zones.length === 0) return [...out, ...firsts, ...planZones(s, tick, plan), ...(plan.borrow_until_turn !== undefined ? planWorks(s, tick, p, plan) : [])];
     // R9: an enforcement level the gate held back at the start, given once it opens (nothing else sets it)
     const held = firsts.filter((a) => a.type === 'set_enforcement' && a.level !== s.policy.enforcement);
     return [...out, ...held, ...planZones(s, tick, plan, true), ...planWorks(s, tick, p, plan)];
