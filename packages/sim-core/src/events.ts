@@ -47,10 +47,11 @@ export type EventEffect = { option?: string } & (
   | { kind: 'end_run' }
   // R9 (§5.8): timed modifiers; factor and months name params.events.<id> fields (defaults: the target, `months`)
   | { kind: 'modifier'; target: ModifierTarget; factor?: string; months?: string }
-  | { kind: 'modifier_shift'; source: string; months?: string });
+  | { kind: 'modifier_shift'; source: string; months?: string }
+  | { kind: 'crew_arrival'; team: string });          // R9 (§5.6): a permanent arrival of an event-only team
 const EFFECT_KINDS = ['offer', 'readiness_check', 'unlock', 'set_regime', 'sez_open', 'first_wave', 'scrutiny', 'cost',
   'standing', 'set_permit', 'commit_choice', 'offer_loan', 'cofinance', 'contract_team', 'rush', 'orders', 'budget_report',
-  'sweep', 'veto', 'end_run', 'modifier', 'modifier_shift'] as const;
+  'sweep', 'veto', 'end_run', 'modifier', 'modifier_shift', 'crew_arrival'] as const;
 /** The effect kinds whose number is params.events.<id>.<field>. */
 const NUMBER_OF: Partial<Record<EventEffect['kind'], string[]>> = {
   scrutiny: ['scrutiny'], cost: ['cost'], standing: ['standing'], orders: ['factor', 'months'],
@@ -108,7 +109,7 @@ function effectsOf(raw: unknown, id: string, what: string): EventEffect[] {
     if (e.kind === 'cofinance' && e.structure !== undefined && !OFFERED_STRUCTURES.includes(e.structure)) {
       throw new Error(`${id}: cofinance cannot order a ${e.structure}`);
     }
-    if (e.kind === 'contract_team' && typeof e.team !== 'string') throw new Error(`${id}: contract_team names a team`);
+    if ((e.kind === 'contract_team' || e.kind === 'crew_arrival') && typeof e.team !== 'string') throw new Error(`${id}: ${e.kind} names a team`);
     if (e.kind === 'veto' && typeof e.reason !== 'string') throw new Error(`${id}: a veto names its reason`);
     if (e.kind === 'modifier' && !(MODIFIER_TARGETS as readonly string[]).includes(e.target)) {
       throw new Error(`${id}: a modifier's target must be one of ${MODIFIER_TARGETS.join(', ')}`);
@@ -255,6 +256,10 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
         if (e.kind === 'cofinance' && e.template !== undefined && !fiscal.projects.some((x) => x.id === e.template && x.target === 'area')) {
           throw new Error(`${r.id}: cofinance needs an area project template, not ${e.template}`);
         }
+        if (e.kind === 'crew_arrival' && !fiscal.teams.some((x) => x.id === e.team && x.eventOnly)) {
+          throw new Error(`${r.id}: crew_arrival needs an event-only team, not ${e.team}`);
+        }
+        if (e.kind === 'crew_arrival' && !(p.teams[e.team]?.crew! > 0)) throw new Error(`${r.id}: params.teams.${e.team}.crew is not set`);
         if (e.kind === 'contract_team' && !fiscal.teams.some((x) => x.id === e.team && x.modes.includes('pool'))) {
           throw new Error(`${r.id}: contract_team needs a pool team, not ${e.team}`);
         }
@@ -466,6 +471,12 @@ export function events(p: SliceParams, content: {
           s.ended = { date: s.date, reason: 'visit' };
           ev('run_ended', { reason: 'visit', by: d.id });
           return fc ? { verdict: verdict(s, p, fc) } : undefined;
+        case 'crew_arrival': {                                     // R9 (§5.6): permanent, from this month
+          const a = { team: e.team, crew: p.teams[e.team]!.crew, from: s.date };
+          s.crew = [...s.crew, a].sort((x, y) => x.from - y.from || (x.team < y.team ? -1 : x.team > y.team ? 1 : 0));
+          ev('crew_arrived', { ...a, by: d.id });
+          return undefined;
+        }
         case 'modifier': {                                         // R9 (§5.8): a timed modifier from this month
           const m = { source: d.id, target: e.target, factor: num(d, e.factor ?? e.target), until: s.date + num(d, e.months ?? 'months') - 1 };
           s.events.modifiers = [...(s.events.modifiers ?? []), m];

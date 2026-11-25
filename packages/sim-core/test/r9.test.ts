@@ -172,7 +172,7 @@ describe('R9: timed modifiers (§5.8)', () => {
       const rng = new Rng(7);
       for (let m = 0; m < 24; m++) {
         const r = step(s, declineAll(s, s.pendingCards), rng, STEPS);
-        n += r.events.filter((e) => e.step === 'investment' && e.kind === 'offer_raised').length;
+        if (r.status === 'advanced') n += r.events.filter((e) => e.step === 'investment' && e.kind === 'offer_raised').length;
         s = r.state;
       }
       return n;

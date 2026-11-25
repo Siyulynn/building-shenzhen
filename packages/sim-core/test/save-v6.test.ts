@@ -39,11 +39,11 @@ function builtV5(): string {
 const CASES: [string, () => string][] = [['built here', builtV5],
   ...(existsSync(FIXTURE) ? [['written by the pre-R8 code', () => readFileSync(FIXTURE, 'utf8')] as [string, () => string]] : [])];
 
-describe('R8e save version 6', () => {
-  it('is version 6, and the header carries the gateways hash', () => {
-    expect(SAVE_VERSION).toBe(6);
+describe("R8e save version 6 (and R9's 7)", () => {
+  it('is version 7 (R9), and the header carries the gateways hash', () => {
+    expect(SAVE_VERSION).toBe(7);
     const save = saveGame(initial(), new Rng(1), slice.content);
-    expect(save.header.version).toBe(6);
+    expect(save.header.version).toBe(7);
     expect(save.header.content.gateways_sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(save.header.content.landcover_sha256).toMatch(/^[0-9a-f]{64}$/);
   });
@@ -62,7 +62,8 @@ describe('R8e save version 6', () => {
     expect(o.power).toBeUndefined();
 
     const { state: s, header } = loadGame(old);
-    expect(header.version).toBe(6);
+    expect(header.version).toBe(SAVE_VERSION);                                    // through 6, then R9's 7
+    expect(s.crew).toEqual([]);                                                   // R9: no arrivals before version 7
     expect(s.zones.map((z) => z.use)).toEqual(o.zones.map((z) => (z.use === 'public' ? 'reserve' : z.use)));
     expect(s.zones.every((z) => z.intensity === undefined)).toBe(true);           // absent: standard
     // the same cell and capacity, as the substation that R8c already read it as
@@ -84,7 +85,7 @@ describe('R8e save version 6', () => {
     }
   });
 
-  it.each(CASES)('a migrated save (%s) plays on, keeps its invariants, and round-trips as version 6', (_n, v5) => {
+  it.each(CASES)('a migrated save (%s) plays on, keeps its invariants, and round-trips as the current version', (_n, v5) => {
     const { state, rng } = loadGame(saveFromJson(v5()));
     const months = state.history.months.length;
     let s = state;
@@ -99,7 +100,20 @@ describe('R8e save version 6', () => {
     for (const row of Object.values(s.history.freightUnmet ?? {})) expect(row).toHaveLength(months + 3);
     const text = saveToJson(saveGame(s, rng, slice.content));
     const back = loadGame(saveFromJson(text));
-    expect(back.header.version).toBe(6);
+    expect(back.header.version).toBe(SAVE_VERSION);
     expect(saveToJson(saveGame(back.state, back.rng, slice.content))).toBe(text);
+  });
+});
+
+describe('R9 save version 7', () => {
+  it('migrates a version-6 save: no crew arrivals; the state then plays as built', () => {
+    const v7 = saveGame(initial(), new Rng(1), slice.content);
+    const body = { ...(v7.body.state as unknown as Record<string, unknown>) };
+    delete body.crew;
+    const v6 = { ...v7, header: { ...v7.header, version: 6 }, body: { ...v7.body, state: body } } as typeof v7;
+    const { state, header } = loadGame(v6);
+    expect(header.version).toBe(7);
+    expect(state.crew).toEqual([]);
+    expect(saveToJson(saveGame(state, new Rng(1), slice.content))).toBe(saveToJson(v7));
   });
 });

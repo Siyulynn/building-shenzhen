@@ -67,6 +67,7 @@
     - { kind: set_regime, regime: regime.contracting_1980s }
     - { kind: unlock, key: investors.sez }
     - { kind: first_wave }
+    - { kind: crew_arrival, team: team.sez_builders }    # R9 (§5.6): the zone's own construction companies
   claims:
     - { id: phase1.event.sez_regulations, use: anchor_date }
     - { id: phase1.fiscal.sez_income_tax_1980, use: design_note }
@@ -161,7 +162,7 @@
   family: scripted
   trigger: { prologue_turn: 3 }          # 1979-Q4 (§2.1)
   effects:
-    - { kind: contract_team, team: team.corps_advance }
+    - { kind: crew_arrival, team: team.corps_advance }   # R9 (§5.6): +crew from now on, not a nine-month contract
     - { kind: unlock, key: tools.corps }            # R9 (§2.1): residential zones, facilities and teams
   card:
     interrupting: true                   # a prologue decision: answered in its month (§5.8)
@@ -276,8 +277,8 @@
 - id: event.corps_deployment
   name: { zh: 基建工程兵大部队调深, en: The main engineering corps deployment }
   description:
-    zh: "一支基建工程兵大部队可以调来支援城市建设。接收后施工力量大增，但每月要付一笔费用。"
-    en: "A large engineering corps deployment is offered to the city's works. Taking them on adds a big team to the construction pool, at a monthly cost."
+    zh: "一支基建工程兵大部队可以调来支援城市建设。接收后，施工力量从此大增。"
+    en: "A large engineering corps deployment is offered to the city's works. Taking them on adds a large, lasting force to the construction pool."
   family: scripted                       # not an anchor: the claim gives the year and says autumn, so the month
   trigger: { date: 1982-09 }             # is a design choice within that season; it needs a source to be an anchor
   card:
@@ -286,7 +287,7 @@
       - { id: accept, name: { zh: 接收, en: Take them on } }
       - { id: decline, name: { zh: 婉拒, en: Decline } }
   on_answer:
-    - { kind: contract_team, team: team.engineering_corps, option: accept }
+    - { kind: crew_arrival, team: team.engineering_corps, option: accept }   # R9 (§5.6): permanent
   claims:
     - { id: phase1.event.construction_corps_arrival, use: design_note }
 

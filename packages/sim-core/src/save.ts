@@ -6,7 +6,7 @@ import { Rng, type RngState } from './rng.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
 
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 
 /** The content a save was made with (§5.1, §5.3). */
 export interface SaveContent {
@@ -73,6 +73,8 @@ const MIGRATIONS: Record<number, (s: Save) => Save> = {
         power: st.power ?? { purchases: [] },
         actionLog: st.actionLog.map((e) => ({ ...e, action: action(e.action) })) } } };
   },
+  // R9 (phase1-slice §5.6): crew arrivals. A version-6 run's corps advance was a pool contract, which it keeps
+  6: (s) => ({ ...s, header: { ...s.header, version: 7 }, body: { ...s.body, state: { ...(s.body.state as object), crew: [] } } }),
 };
 
 /** JSON turns NaN and Infinity into null without a word: a save must fail instead. */

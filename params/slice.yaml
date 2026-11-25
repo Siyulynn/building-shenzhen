@@ -133,7 +133,7 @@ fiscal:
   power_import: { yuan_per_kw_month: 8, lead_months: 3, max_kw: 3000 }
 
 capacity:                                # the construction-capacity pool (§5.6), in crew units (organised worker-months)
-  local_crew: 600                        # the county's own builders. Not either observed local count (§5.6 research)
+  local_crew: 600                        # R9 (§5.6): the county's core; arrivals add to it. A placeholder set against the 1979 spending floor
   crew_per_m2: 0.02                      # a firm cohort's crew at full pace, per m²
 
 construction:
@@ -149,9 +149,10 @@ projects:                                # by template id (content/slice/project
 
 teams:                                   # by team id (content/slice/teams.yaml). Not any historical headcount
   team.county_crew:       { crew: 60, mobilization_months: 1, duration_months: 12, cost_per_month: 0 }
-  team.engineering_corps: { crew: 200, mobilization_months: 2, duration_months: 12, cost_per_month: 20000 }
+  team.engineering_corps: { crew: 900, mobilization_months: 2, duration_months: 12, cost_per_month: 20000 }   # R9: the 1982 arrival
   team.outside_soe:       { crew: 120, mobilization_months: 2, duration_months: 12, cost_per_month: 30000 }
-  team.corps_advance:     { crew: 60, mobilization_months: 0, duration_months: 9, cost_per_month: 0 }   # M5b: paid centrally
+  team.corps_advance:     { crew: 100, mobilization_months: 0, duration_months: 9, cost_per_month: 0 }   # R9: a permanent arrival
+  team.sez_builders:      { crew: 150, mobilization_months: 0, duration_months: 12, cost_per_month: 0 }   # R9: with the SEZ
 
 works:                                   # R2 municipal works orders (buildings-and-construction §13.2). Placeholders taken
                                          # from the M4 templates' rates above, not sourced. Units are crew units (worker-months)
@@ -211,6 +212,7 @@ growth:                                  # R3 organic growth (buildings-and-cons
     floor_m2_per_month: 6000             # m² of demand a month at order index 1 and regime factor 1
     min_utility_share: 0.3               # no firm builds where its area's supply would fall below this share
     regime_factor: { default: 1, regime.county_1979: 0.3 }   # by fiscal regime id: the SEZ's regime favours firms
+    max_backlog_m2: 40000                # R9 (b&c §13.3): no new organic firm in a zone with more floor under construction (placeholder)
   services:
     spend_per_job_month: 60              # local spending that supports one service job (yuan a month)
     formal_share: 0.5                    # share of new service jobs that want shop floor; the rest is informal

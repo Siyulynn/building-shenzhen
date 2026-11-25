@@ -9,7 +9,7 @@ import { parse } from 'yaml';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  Rng, climate, compileEvents, compileLeaders, compileTargets, createInitialState, createTickSteps, declineAll, fiscalViews,
+  Rng, climate, compileEvents, contractLive, crewPool, compileLeaders, compileTargets, createInitialState, createTickSteps, declineAll, fiscalViews,
   historicalPrologue, indicatorValue, isFinished, parseYM, runQuarter, step, sweepActive, validateParams,
   type CardInstance, type DecisionPolicy, type EventDef, type ReviewIndicator, type GameState, type PlayerAction, type SimEvent, type SliceParams,
 } from '../src/index.js';
@@ -132,7 +132,9 @@ describe('M5b: the co-financing deal', () => {
     expect(() => step(s, [{ type: 'contract_team', team: 'team.corps_advance', mode: 'pool' }], new Rng(1), STEPS))
       .toThrow(/only with its event/);
     const r = run(declineAll, monthOf('1979-11'));
-    expect(r.state.fiscal.contracts.some((c) => c.team === 'team.corps_advance')).toBe(true);
+    // R9 (§5.6): the advance units arrive for good with their event; the SEZ brings the zone's builders
+    expect(r.state.crew.map((c) => c.team)).toEqual(['team.corps_advance']);
+    expect(() => step(fresh(), [{ type: 'contract_team', team: 'team.sez_builders', mode: 'pool' }], new Rng(1), STEPS)).toThrow(/only with its event/);
   });
 });
 
@@ -174,11 +176,13 @@ describe('M5b: milestones, orders, the fire, the Corps', () => {
     expect(review.score).toBeGreaterThanOrEqual(params.review.pass_mark);       // it would have passed
   });
 
-  it('accepting the Corps deployment signs a pool contract for the engineering corps', () => {
+  it('accepting the Corps deployment brings the engineering corps for good (R9, §5.6)', () => {
     const r = run(declineAll, monthOf('1982-10') + 1);
-    const k = r.state.fiscal.contracts.find((c) => c.team === 'team.engineering_corps')!;
-    expect(k.mode).toBe('pool');
-    expect(k.signed).toBe(START + monthOf('1982-10'));
+    expect(r.state.crew.find((c) => c.team === 'team.engineering_corps')).toEqual(
+      { team: 'team.engineering_corps', crew: params.teams['team.engineering_corps']!.crew, from: START + monthOf('1982-10') });
+    expect(r.state.fiscal.contracts.some((c) => c.team === 'team.engineering_corps')).toBe(false);
+    expect(crewPool(r.state, params)).toBe(params.capacity.local_crew + r.state.crew.reduce((n, c) => n + c.crew, 0)
+      + r.state.fiscal.contracts.filter((c) => contractLive(r.state, c) && c.mode === 'pool').reduce((n, c) => n + c.crew, 0));
   });
 });
 

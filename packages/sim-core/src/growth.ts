@@ -205,10 +205,19 @@ export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): 
   s.growth.carry += I.floor_m2_per_month * p.industry.order_index * orderFactor(s) * factor;
   const offer = sizeOffer(p, I.archetype, I.ownership, I.firm_jobs);
   const need = offer.floorM2 + offer.dormM2;
+  // R9 backlog brake (b&c §13.3): a zone's firms' factory and dormitory floor still under construction
+  const firmZone = new Map(s.firms.map((f) => [f.id, f.zone]));
+  const backlog = new Map<number, number>();
+  for (const b of s.blocks) for (const c of b.cohorts) {
+    if (c.stage !== 'under_construction' || c.firm === undefined) continue;
+    const z = firmZone.get(c.firm);
+    if (z !== undefined) backlog.set(z, (backlog.get(z) ?? 0) + c.m2);
+  }
   while (s.growth.carry >= offer.floorM2) {
     let best: Zone | undefined, bestRoom = 0;
     for (const z of s.zones) {
       if (z.use !== 'industrial') continue;
+      if (I.max_backlog_m2 !== undefined && (backlog.get(z.id) ?? 0) > I.max_backlog_m2) continue;
       const r = room(z);
       // a builder puts up no factory its area could not supply: every firm there open, this one too
       const kw = zonePowerKw(G, z, offer.powerKw);   // R8b (§5.3): the tier's power, as createFirm will set it
@@ -220,6 +229,7 @@ export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): 
     if (!best) { s.growth.carry = offer.floorM2; break; }
     const f = createFirm(s, p, offer, { premises: 'new_factory', area: best.area, zone: best.id });
     f.origin = 'organic';
+    backlog.set(best.id, (backlog.get(best.id) ?? 0) + need);   // its own floor is now under construction
     s.growth.carry -= offer.floorM2;
     ctx.events.push({ step: 'construction', kind: 'organic_firm', detail: { firm: f.id, zone: best.id, area: best.area } });
   }

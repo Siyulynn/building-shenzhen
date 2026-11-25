@@ -35,5 +35,6 @@ export {
   createFirm, firmTerms, inTaxHoliday, orderFactor, postFirmJobs, prospectiveShare, sizeOffer, utilityShare, utilityShares, type FirmOffer, type FirmSite,
 } from './systems/industry.js';
 export { offerProjectLoan } from './systems/finance.js';
+export { crewPool } from './systems/projects.js';
 export * from './reach.js';
 export * from './mapPlan.js';

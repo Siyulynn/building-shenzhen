@@ -33,9 +33,17 @@ export function cohortMonthValue(c: Cohort, p: SliceParams): number {
 
 /** Pool supply this month: the local crew plus every pool contract active this month. */
 export function poolSupply(ctx: TickContext, p: SliceParams): number {
-  const s = ctx.state;
-  return p.capacity.local_crew + s.fiscal.contracts.reduce((a, c) =>
-    a + (c.mode === 'pool' && c.starts <= s.date && s.date <= (c.ends ?? s.date) ? c.crew : 0), 0);
+  return crewPool(ctx.state, p);
+}
+/**
+ * R9 (§5.6): the month's crew pool: the county core (capacity.local_crew), every arrival from its month, and every
+ * live pool contract. The pool step, the map plans' preview and the chip read this one function.
+ */
+export function crewPool(s: GameState, p: SliceParams): number {
+  let n = p.capacity.local_crew;
+  for (const a of s.crew) if (a.from <= s.date) n += a.crew;
+  for (const c of s.fiscal.contracts) if (c.mode === 'pool' && c.starts <= s.date && s.date <= (c.ends ?? s.date)) n += c.crew;
+  return n;
 }
 
 const delivered = (x: Project) => x.workDone * x.crew + x.crewBank;

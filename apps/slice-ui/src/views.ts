@@ -9,7 +9,7 @@ import {
   zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
   VILLAGE_ARCHETYPES, SOURCE_KINDS, areaTakes, poolFactor, powerPool, importedKw, utilityShares,
-  firmFreight, freightContent, freightNetwork,
+  firmFreight, freightContent, freightNetwork, crewPool,
   type CardInstance, type CellRuns, type EventDef, type EventEffect, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
   type WorksOrder, type Zone, type LandCoverClass, landCoverAt,
 } from '@sz/sim-core';
@@ -142,7 +142,7 @@ function effectBadge(d: EventDef, e: EventEffect, option: string, slice: Slice):
     case 'set_permit': return [then(B.permit!, S.PERMIT[option] ?? raw(option))];
     case 'rush': return [B.rush!];
     case 'sweep': return [lv(B.cost!, yuan(p.sweep.cash_cost)), lv(B.sweepHides!, num(p.sweep.campaign_months)), B.sweepMood!];
-    case 'contract_team': {
+    case 'contract_team': case 'crew_arrival': {          // R9 (§5.6): an arrival reads as the team it adds
       const t = fc?.teams.find((x) => x.id === e.team);
       return [then(B.team!, t?.name ?? raw(e.team))];
     }
@@ -904,8 +904,7 @@ export function worksCounts(s: GameState): { running: number; stalled: number } 
 /** Crews in use last month (city works and projects) and the pool this month (§11.2's chip stats). */
 export function crewsView(s: GameState, slice: Slice): { used: number; total: number } {
   const p = slice.params;
-  const total = p.capacity.local_crew + s.fiscal.contracts.reduce((a, c) =>
-    a + (c.mode === 'pool' && c.starts <= s.date && s.date <= (c.ends ?? s.date) ? c.crew : 0), 0);
+  const total = crewPool(s, p);                          // R9 (§5.6): the core, the arrivals and the pool contracts
   return { used: Math.round(last(s.history.constructionPosts) / Math.max(1e-9, p.labour.jobs_per_crew_unit)), total };
 }
 /** This year's review targets met now, out of all of them. */

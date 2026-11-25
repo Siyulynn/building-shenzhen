@@ -13,6 +13,7 @@
 - id: team.engineering_corps
   name: { zh: 基建工程兵, en: Capital Construction Engineering Corps }
   modes: [pool]
+  event_only: true                       # R9 (§5.6): a permanent arrival with event.corps_deployment, never a contract
   # Their arrival is M5's: the 1979 advance units and the 1982 deployment, as cards
   claims:
     - { id: phase1.event.construction_corps_first_units, use: design_note }
@@ -31,3 +32,10 @@
   claims:
     - { id: phase1.event.construction_corps_first_units, use: design_note }
     - { id: phase1.event.construction_corps_survey, use: design_note }
+
+- id: team.sez_builders
+  name: { zh: 特区建筑公司, en: "The zone's construction companies" }
+  modes: [pool]
+  event_only: true                       # R9 (§5.6): a permanent arrival with the SEZ's establishment
+  # a composite (design_note): the zone's own construction companies, not a documented headcount or firm
+  claims: []

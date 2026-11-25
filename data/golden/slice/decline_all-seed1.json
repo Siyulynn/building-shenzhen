@@ -4,12 +4,12 @@
   "quarters": 21,
   "content": {
     "areas_sha256": "fc9003de49cb0d274f25b2b21ac1028c4dd8cb0c51f334af2e4caa9ad70212a6",
-    "params_sha256": "0f98271d572f2efe6ec9954b4610b25a88d9fcdf9040263d0245f937c6061e93",
+    "params_sha256": "7047dedfbc4688fc2c7684ed9ddb8b302c8e3011c1c9a0a82c86ace318f82df0",
     "precedents_sha256": "d54f17661a4348d98d655754b9e42dea47173e09d8f6d19566de79d2094104f4",
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
     "landcover_sha256": "a8fc4372642be8e1f96c9dee10422e3724c4aee7cdb0a9c20c13570508538253",
-    "fiscal_sha256": "7f52bc2bab3d93a40cef10762ae77b061bb0a04a41d558ce3e833e50afd42ca0",
-    "events_sha256": "d647a5fa75b33f1dd0f28581ede0215afed5c2be60a4abefa54217dc34e154ab",
+    "fiscal_sha256": "053ae8f43409a9004d335139665fdad7a23ab1aec2b76363e4dad72d3e7c607b",
+    "events_sha256": "c81ec02b26ae620faaf3358b4000ebdb84548611f208e4154ce8bd279867cab1",
     "leaders_sha256": "5bf3fe0aa081c85e6f538add149d93852b4fc6f34142656fd5dd599e8c520467",
     "targets_sha256": "0765576245b271083f2ef6ed448e1fe5afb2e03abdc03a5f8cd7a379356e3fd3",
     "network_sha256": "a3601777bfa004572dad4b6fd6ebe296cfc0983d341e3eaaded92313ad5c0cb9",
@@ -81,9 +81,9 @@
       "gdp": 7652400,
       "exports": 0,
       "revenue": 3396000,
-      "obligationsPaid": 1909516,
+      "obligationsPaid": 1849516,
       "projectSpend": 0,
-      "reserve": 6265936,
+      "reserve": 6325936,
       "debt": 0,
       "arrears": 0,
       "scrutiny": 18.8931,
@@ -99,9 +99,9 @@
       "gdp": 7652400,
       "exports": 0,
       "revenue": 2706000,
-      "obligationsPaid": 1949516,
+      "obligationsPaid": 1729516,
       "projectSpend": 0,
-      "reserve": 7022420,
+      "reserve": 7302420,
       "debt": 0,
       "arrears": 0,
       "scrutiny": 20.2091,
@@ -289,13 +289,13 @@
         "facilities": 0
       },
       "fiscal": {
-        "reserve": 7022420,
-        "moneyForProjects": 6878284,
+        "reserve": 7302420,
+        "moneyForProjects": 7158284,
         "debtOutstanding": 0,
         "arrears": 0,
         "revenueYear": 2706000,
-        "spendingYear": 1949516,
-        "spendingOverRevenue": 0.7204419807834442
+        "spendingYear": 1729516,
+        "spendingOverRevenue": 0.6391411677753142
       }
     }
   ],
@@ -342,7 +342,7 @@
       "gdp": 1
     },
     "ledger": {
-      "reserve": 7022420,
+      "reserve": 7302420,
       "debtOutstanding": 0,
       "arrears": 0
     },

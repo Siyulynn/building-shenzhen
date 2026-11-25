@@ -117,6 +117,7 @@ export interface GrowthParams {
     floor_m2_per_month: number;
     min_utility_share: number;           // the area's utility share, with this firm and all sited ones open
     regime_factor: Record<string, number>;   // by fiscal regime id; `default` for the rest
+    max_backlog_m2?: number;             // R9 (b&c §13.3): no new organic firm in a zone with more floor under construction
   };
   services: { spend_per_job_month: number; formal_share: number; m2_per_job: number; tax_rate: number };
   residential: { min_crowding: number };
@@ -156,6 +157,7 @@ function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
   if (!Number.isInteger(I.firm_jobs) || I.firm_jobs < 1) throw new Error('params: growth.industrial.firm_jobs must be a positive integer');
   if (!(I.floor_m2_per_month >= 0)) throw new Error('params: growth.industrial.floor_m2_per_month must be >= 0');
   if (!share(I.min_utility_share)) throw new Error('params: growth.industrial.min_utility_share must be in [0, 1]');
+  if (I.max_backlog_m2 !== undefined && !(I.max_backlog_m2 >= 0)) throw new Error('params: growth.industrial.max_backlog_m2 must be >= 0');
   if (!(I.regime_factor?.default !== undefined)) throw new Error('params: growth.industrial.regime_factor needs a default');
   for (const [k, v] of Object.entries(I.regime_factor)) if (!(v >= 0)) throw new Error(`params: growth.industrial.regime_factor.${k} must be >= 0`);
   if (!pos(g.services?.spend_per_job_month) || !share(g.services.formal_share) || !pos(g.services.m2_per_job)

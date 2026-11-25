@@ -207,7 +207,7 @@ describe('M4: the project loan', () => {
   it('lowers recurring money after its grace period, against the same run without the loan, by the debt service', () => {
     // the same roads, built by the Engineering Corps from month 2 in both runs (no local crew): from the loan, or from land money
     const L = params.fiscal.loan;
-    const script = { 0: [...FIVE, { type: 'contract_team', team: 'team.engineering_corps', mode: 'pool' } as PlayerAction] };
+    const script = { 0: [...FIVE, { type: 'contract_team', team: 'team.outside_soe', mode: 'pool' } as PlayerAction] };
     const months = 2 + L.grace_months + 2;
     // a reserve deep enough that neither run falls into arrears, which would roll into the next month and blur the difference
     const general = 2_000_000, B = params.fiscal.start_balances;
@@ -348,7 +348,7 @@ describe('M4: the construction-capacity pool', () => {
   const three = (extra: PlayerAction[]) => go(withFirm(), 24, { steps: S, script: { 0: [ROAD, ...extra] } }).state;
   const local = three([]);
   const dedicated = three([{ type: 'contract_team', team: 'team.county_crew', mode: 'dedicated', project: 1 }]);
-  const pooled = three([{ type: 'contract_team', team: 'team.engineering_corps', mode: 'pool' }]);
+  const pooled = three([{ type: 'contract_team', team: 'team.outside_soe', mode: 'pool' }]);
   const road = (s: GameState) => s.fiscal.projects[0]!;
   const t0 = start().date;
 
@@ -434,7 +434,7 @@ describe('M4 determinism', () => {
   const script: Record<number, PlayerAction[]> = {
     0: [ONE_CELL, commit('project.road_link', { area: 7 }, 'high')],
     1: [commit('project.site_preparation', { zone: 1 }), { type: 'contract_team', team: 'team.county_crew', mode: 'dedicated', project: 1 }],
-    2: [{ type: 'contract_team', team: 'team.engineering_corps', mode: 'pool' }, ...[1, 2, 3, 4, 5].map((a) => commit('project.school', { area: a }))],
+    2: [{ type: 'contract_team', team: 'team.outside_soe', mode: 'pool' }, ...[1, 2, 3, 4, 5].map((a) => commit('project.school', { area: a }))],
     5: [{ type: 'set_project_priority', project: 3, priority: 'low' }],
   };
   const P = withFiscal({ provincial_base_grant_per_year: 600_000, county_base_obligations_per_month: 250_000 });     // deficits early, so the card is in the run

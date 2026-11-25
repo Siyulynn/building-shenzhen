@@ -112,6 +112,8 @@ export interface Firm {
 export interface FirmTerms { taxHolidayMonths?: number; landFeeFactor?: number; shortcut?: string }
 
 /** M5a (§5.7): fired events and unlock keys; the SEZ's opening; Shekou's tally; the leaders. */
+/** R9 (§5.6): a permanent crew arrival, from an event's crew_arrival: the team, its crew units a month, from when. */
+export interface CrewArrival { team: string; crew: number; from: YM }
 /** R9 (§5.8): `modifiers`, the timed modifiers, is absent when there are none. */
 export interface EventsState { fired: { id: string; date: YM }[]; unlocked: string[]; modifiers?: Modifier[] }
 export interface SezState { opened?: YM; priority?: string; readiness?: number; waveCards?: number }
@@ -208,6 +210,7 @@ export interface GameState {
   nextOrderId: number;
   requisitioned: number[];    // R8a (§5.5): cells whose land compensation is owed or paid, sorted; required from save v6
   power: PowerState;          // R8c (§5.5): the city's purchased power; required from save v6
+  crew: CrewArrival[];        // R9 (§5.6): permanent crew arrivals, sorted by from, then team; required from save v7
   roadClass?: Record<RoadClass, number[]>;   // R8d (§5.12): class overrides, sorted cells; absent: start route class, else street
   growth: { carry: number };  // R3 (b&c §13.3): m² of industrial demand banked toward the next organic firm
   events: EventsState;        // M5a (§5.7)
@@ -420,6 +423,7 @@ export function createInitialState(content: {
     nextOrderId: 1,
     requisitioned: [],
     power: { purchases: [] },
+    crew: [],
     growth: { carry: 0 },
     events: { fired: [], unlocked: [] },
     sez: {},
@@ -484,6 +488,7 @@ export function cloneState(s: GameState): GameState {
     worksOrders: s.worksOrders.map(cloneOrder),
     requisitioned: [...s.requisitioned],
     power: { purchases: s.power.purchases.map((x) => ({ ...x })) },
+    crew: s.crew.map((x) => ({ ...x })),
     ...(s.roadClass ? { roadClass: { track: [...s.roadClass.track], street: [...s.roadClass.street], avenue: [...s.roadClass.avenue] } } : {}),
     growth: { ...s.growth },
     events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked],   // fired entries are never changed
