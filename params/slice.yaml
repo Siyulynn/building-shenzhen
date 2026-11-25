@@ -158,6 +158,12 @@ works:                                   # R2 municipal works orders (buildings-
                                          # from the M4 templates' rates above, not sourced. Units are crew units (worker-months)
   crew_per_order: 40                     # the most units one order takes in a month
   maint_rate_year: 0.02                  # R4 (phase1-slice §5.11): a done order's maintenance a year, on its spending (project.road_link's rate)
+  # R9 (phase1-slice §5.6, revision plan §4.6): works pace. A step's crew units per unit of work and its money per unit,
+  # times the normal rate: a rushed order takes fewer crew-months and more yuan. Placeholders (design_note), not figures
+  pace:
+    normal:  { units: 1,    money: 1 }
+    push:    { units: 0.75, money: 1.25 }
+    all_out: { units: 0.55, money: 1.6 }
   service: { units_per_cell: 40, yuan_per_cell: 30000 }   # project.site_preparation: 10 crew × 4 months; budget_per_cell
   road:    { units_per_cell: 12, yuan_per_cell: 30000 }    # project.road_link over its 2 km (20 cells): 40 × 6 ÷ 20; 600,000 ÷ 20
   bridge:  { units_per_cell: 48, yuan_per_cell: 120000 }   # a guess: four road cells, at a road's yuan per unit

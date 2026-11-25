@@ -60,10 +60,17 @@ export interface WorksOrder {
   path?: PathCell[];                       // road: build order, nearest the network first
   placement?: StructurePlacement;          // structure
   cofinanced?: true;                       // R9 (§5.8): an investor pays: rate 0, no forex, no maintenance
+  pace?: Exclude<WorksPace, 'normal'>;     // R9 (§5.6): absent = normal
+  paceCarry?: number;                      // R9: crew units given at this pace not yet turned into a unit of work (under one)
+  paceBase?: { units: number; spent: number };   // R9: units done and spent when the pace last changed; later units at its rate
 }
+/** R9 (§5.6): a works order's pace, the money-for-time lever. */
+export const WORKS_PACES = ['normal', 'push', 'all_out'] as const;
+export type WorksPace = (typeof WORKS_PACES)[number];
 export const liveOrder = (o: WorksOrder) => o.stage === 'queued' || o.stage === 'working';
 export const cloneOrder = (o: WorksOrder): WorksOrder => ({ ...o,
-  ...(o.path ? { path: o.path.map((c) => ({ ...c })) } : {}), ...(o.placement ? { placement: { ...o.placement } } : {}) });
+  ...(o.path ? { path: o.path.map((c) => ({ ...c })) } : {}), ...(o.placement ? { placement: { ...o.placement } } : {}),
+  ...(o.paceBase ? { paceBase: { ...o.paceBase } } : {}) });
 
 export const UTILITIES = ['water', 'power'] as const;
 export type Utility = (typeof UTILITIES)[number];

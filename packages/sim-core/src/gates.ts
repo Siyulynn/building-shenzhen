@@ -50,7 +50,10 @@ export function compileTools(raw: unknown, events: EventContent): ToolGate[] {
 /** The gates an action needs now (§5.8). */
 export function gatesOf(s: GameState, a: PlayerAction): string[] {
   const out: string[] = [];
-  const pri = (p?: string) => { if (p !== undefined && p !== 'normal') out.push('works.priority'); };
+  // a priority or a pace other than normal needs works.priority (R9 §5.6: pace is gated with priority)
+  const pri = (p?: string, k?: string) => {
+    if ((p !== undefined && p !== 'normal') || (k !== undefined && k !== 'normal')) out.push('works.priority');
+  };
   switch (a.type) {
     case 'create_zone':
       out.push(`zone.${a.use}`, `zone.intensity.${a.intensity ?? 'standard'}`);
@@ -60,18 +63,18 @@ export function gatesOf(s: GameState, a: PlayerAction): string[] {
       if (a.intensity !== undefined) out.push(`zone.intensity.${a.intensity}`);
       break;
     case 'build_road':
-      out.push(`road.${a.class ?? 'street'}`); pri(a.priority);
+      out.push(`road.${a.class ?? 'street'}`); pri(a.priority, a.pace);
       break;
     case 'place_structure':
-      out.push(`structure.${a.kind}`); pri(a.priority);
+      out.push(`structure.${a.kind}`); pri(a.priority, a.pace);
       break;
     case 'commit_works':
       // without bulk formation, one zone at a time: refused while another zone's service order is live
       if (s.worksOrders.some((o) => o.kind === 'service' && liveOrder(o) && o.zone !== a.zone)) out.push('formation.bulk');
-      pri(a.priority);
+      pri(a.priority, a.pace);
       break;
     case 'commit_project': pri(a.priority); break;
-    case 'set_works_priority': case 'set_project_priority': out.push('works.priority'); break;
+    case 'set_works_priority': case 'set_project_priority': case 'set_works_pace': out.push('works.priority'); break;
     case 'set_enforcement': out.push('policy.enforcement'); break;
     case 'contract_team': out.push('team.contract'); break;
     case 'buy_power': out.push('power.buy'); break;

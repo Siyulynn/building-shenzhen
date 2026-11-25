@@ -12,8 +12,8 @@ import type { StartNetwork } from './sites.js';
 import { cloneState, type GameState, type PlayerAction } from './state.js';
 import type { SimEvent, TickStep } from './step.js';
 import {
-  OFFERED_STRUCTURES, advanceCellWorks, checkPlacement, liveOrder, placeStructure, spatialViews, STRUCTURE_KINDS, type CellWork, type PathCell,
-  type PlacedStructure, type StructureKind, type StructurePlacement, type WorksOrder,
+  OFFERED_STRUCTURES, WORKS_PACES, advanceCellWorks, checkPlacement, liveOrder, placeStructure, spatialViews, STRUCTURE_KINDS, type CellWork, type PathCell,
+  type PlacedStructure, type StructureKind, type StructurePlacement, type WorksOrder, type WorksPace,
 } from './works.js';
 import { cellsOfRuns, checkHigh, type AvenueAt } from './zones.js';
 import { coverFactors, landCoverAt, needsBridge, type LandCover, type LandCoverClass } from './landcover.js';
@@ -25,7 +25,7 @@ export interface WorksContent {
 }
 
 const WORKS_ACTIONS: readonly string[] = ['commit_works', 'build_road', 'place_structure', 'cancel_works', 'set_works_paused',
-  'set_works_priority'];
+  'set_works_priority', 'set_works_pace'];
 export const isWorksAction = (a: PlayerAction) => WORKS_ACTIONS.includes(a.type);
 
 // ---- shared lookups ----
@@ -74,7 +74,48 @@ function rateOf(o: WorksOrder, w: WorksParams): number {
   const sp = structureParams(w, o.placement!.kind, o.placement!.facility);
   return sp.yuan / sp.units;
 }
-const costTo = (o: WorksOrder, w: WorksParams, units: number) => Math.round(rateOf(o, w) * units);
+/** R9 (§5.6): the order's pace step: crew units per unit of work, and money per unit times the normal rate. */
+export function paceStep(o: Pick<WorksOrder, 'pace'>, w: WorksParams): { units: number; money: number } {
+  return o.pace && w.pace ? w.pace[o.pace] : { units: 1, money: 1 };
+}
+/** The cost of the order's first `units` units: sunk money at the last pace change, then the current step's rate. */
+function costTo(o: WorksOrder, w: WorksParams, units: number): number {
+  const r = rateOf(o, w) * paceStep(o, w).money, b = o.paceBase;
+  return b ? b.spent + Math.round(r * (units - b.units)) : Math.round(r * units);
+}
+const EPS = 1e-9;
+/** R9 (§5.6): crew units to do `work` more units at the order's pace, net of its carry. Normal: the same number. */
+function crewFor(o: WorksOrder, w: WorksParams, work: number): number {
+  const u = paceStep(o, w).units;
+  return u === 1 ? work : Math.max(0, Math.ceil(work * u - (o.paceCarry ?? 0) - EPS));
+}
+/** R9: the units of work `crew` crew units do at the order's pace, with its carry. Normal: the same number. */
+function workFor(o: WorksOrder, w: WorksParams, crew: number): number {
+  const u = paceStep(o, w).units;
+  return u === 1 ? crew : Math.floor((crew + (o.paceCarry ?? 0)) / u + EPS);
+}
+function checkPace(w: WorksParams, k: unknown): WorksPace {
+  if (k === undefined) return 'normal';
+  if (!(WORKS_PACES as readonly unknown[]).includes(k)) throw new Error(`unknown pace ${String(k)}; one of ${WORKS_PACES.join(', ')}`);
+  if (k !== 'normal' && !w.pace) throw new Error('a works pace needs works.pace in the params');
+  return k as WorksPace;
+}
+/** Set a new order's pace before its budget is priced (§5.6). */
+function withPace(o: WorksOrder, w: WorksParams, k: unknown): WorksOrder {
+  const p = checkPace(w, k);
+  if (p !== 'normal') o.pace = p;
+  return o;
+}
+/** R9 (§5.6): change a live order's pace. Sunk work and money stay; the unworked units are re-priced at the new step. */
+function setPace(s: GameState, wc: WorksContent, o: WorksOrder, k: unknown): void {
+  const p = checkPace(wc.works, k);
+  if ((o.pace ?? 'normal') === p) return;
+  o.paceBase = { units: o.unitsDone, spent: o.spent };
+  delete o.paceCarry;
+  if (p === 'normal') delete o.pace; else o.pace = p;
+  o.budget = costTo(o, wc.works, o.unitsTotal);
+  if (moneyForProjects(s, wc.params) < 0) afterCommit(s, wc.params); else afterCancel(s, wc.params);
+}
 
 function findOrder(s: GameState, id: number): WorksOrder {
   const o = s.worksOrders.find((q) => q.id === id);
@@ -163,6 +204,7 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
   const z = s.zones.find((q) => q.id === a.zone);
   if (!z) throw new Error(`no zone ${a.zone}`);
   const priority = checkPriority(a.priority);
+  checkPace(wc.works, a.pace);
   const inZone = cellsOfRuns(z.runs, s.grid);
   if (z.intensity === 'high') checkHigh(s, inZone, avenueAt(wc));   // R8b (§5.3): the avenue may have gone since
   const tier = intensityOf(wc.params.growth, z);
@@ -212,6 +254,7 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
   const o: WorksOrder = { id, kind: 'service', priority, paused: false, committed: s.date, stage: 'queued',
     unitsTotal: units, unitsDone: 0, budget: 0, spent: 0, zone: z.id,
     ...(tier.formation_cost !== tier.formation_work ? { rateFactor: tier.formation_cost / tier.formation_work } : {}) };
+  withPace(o, wc.works, a.pace);
   o.budget = costTo(o, wc.works, units);
   s.worksOrders.push(o);
   requisition(s, wc, cells, `works.${id}`);
@@ -239,6 +282,7 @@ function requisition(s: GameState, wc: WorksContent, cells: readonly number[], r
  */
 function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'build_road' }): WorksOrder[] {
   const priority = checkPriority(a.priority);
+  checkPace(wc.works, a.pace);
   const k = a.class ?? 'street';
   if (!(ROAD_CLASSES as readonly string[]).includes(k)) throw new Error(`unknown road class ${k}`);
   if (k !== 'street' && !wc.works.roads) throw new Error('road classes need works.roads in the params');
@@ -284,6 +328,7 @@ function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'bu
     const units = path.reduce((n, c) => n + c.units, 0);
     const o: WorksOrder = { id: s.nextOrderId++, kind: 'road', priority, paused: false, committed: s.date, stage: 'queued',
       unitsTotal: units, unitsDone: 0, budget: 0, spent: 0, path };
+    withPace(o, W, a.pace);
     o.budget = costTo(o, W, units);
     s.worksOrders.push(o);
     return o;
@@ -299,6 +344,7 @@ function classUnits(W: WorksParams, k: RoadClass, bridge: boolean): number {
 
 function orderStructure(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'place_structure' }): WorksOrder {
   const priority = checkPriority(a.priority);
+  checkPace(wc.works, a.pace);
   if (!(STRUCTURE_KINDS as readonly string[]).includes(a.kind)) throw new Error(`unknown structure kind ${a.kind}`);
   // R8c (§5.5): water is not an active constraint and the one-quarter power source is retired; both load, neither is ordered
   if (!OFFERED_STRUCTURES.includes(a.kind)) throw new Error(`a ${a.kind} is no longer built: power comes from substations and stations`);
@@ -315,6 +361,7 @@ function orderStructure(s: GameState, wc: WorksContent, a: PlayerAction & { type
   if (fx > 0) post(s, 'import', 'forex', -fx, `works.${id}`);
   const o: WorksOrder = { id, kind: 'structure', priority, paused: false, committed: s.date, stage: 'queued',
     unitsTotal: sp.units, unitsDone: 0, budget: 0, spent: 0, placement };
+  withPace(o, wc.works, a.pace);
   o.budget = costTo(o, wc.works, sp.units);
   s.worksOrders.push(o);
   return o;
@@ -397,6 +444,9 @@ export function applyWorksAction(s: GameState, wc: WorksContent, a: PlayerAction
     const o = findOrder(s, a.order);
     if (a.priority === undefined) throw new Error('a priority is needed');
     o.priority = checkPriority(a.priority);
+  } else if (a.type === 'set_works_pace') {
+    if (a.pace === undefined) throw new Error('a pace is needed');
+    setPace(s, wc, findOrder(s, a.order), a.pace);
   } else throw new Error(`not a works action: ${a.type}`);
 }
 
@@ -421,41 +471,52 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
     for (const [i, c] of o.path!.entries()) { if (before + c.units > o.unitsDone) return i; before += c.units; }
     return o.path!.length;
   };
+  /** Units of work the order can do this month: access, and a power station's own build pace. */
+  const usableWork = (o: WorksOrder): number => {
+    const left = o.unitsTotal - o.unitsDone;
+    if (o.kind === 'service') {
+      return s.cellWorks.reduce((n, w) => n + (w.order === o.id && w.stage !== 'serviced' && views.frontage.has(w.cell)
+        ? w.workTotal - w.workDone : 0), 0);
+    }
+    if (o.kind === 'road') {
+      const i = remainingPath(o);
+      if (i >= o.path!.length) return 0;
+      const next = o.path![i]!.cell;
+      const started = i > 0 || o.unitsDone > 0 || o.path![i]!.upgrade === true;
+      return started || neighbours(next, s.grid.width, s.grid.height).some((n) => roads.has(n)) ? left : 0;
+    }
+    const pl = o.placement!;
+    if (!roads.has(pl.attach) && !views.frontage.has(pl.cell)) return 0;
+    // R8c (§5.5): a power station is built at its own pace, over build_months, whatever the pool could give it
+    const st = pl.kind === 'power_station' ? W.structures.power_station : undefined;
+    return st ? Math.min(left, Math.ceil(st.units / st.build_months)) : left;
+  };
   return {
-    usable(o) {
-      const left = o.unitsTotal - o.unitsDone;
-      if (o.kind === 'service') {
-        return s.cellWorks.reduce((n, w) => n + (w.order === o.id && w.stage !== 'serviced' && views.frontage.has(w.cell)
-          ? w.workTotal - w.workDone : 0), 0);
-      }
-      if (o.kind === 'road') {
-        const i = remainingPath(o);
-        if (i >= o.path!.length) return 0;
-        const next = o.path![i]!.cell;
-        const started = i > 0 || o.unitsDone > 0 || o.path![i]!.upgrade === true;
-        return started || neighbours(next, s.grid.width, s.grid.height).some((n) => roads.has(n)) ? left : 0;
-      }
-      const pl = o.placement!;
-      if (!roads.has(pl.attach) && !views.frontage.has(pl.cell)) return 0;
-      // R8c (§5.5): a power station is built at its own pace, over build_months, whatever the pool could give it
-      const st = pl.kind === 'power_station' ? W.structures.power_station : undefined;
-      return st ? Math.min(left, Math.ceil(st.units / st.build_months)) : left;
-    },
-    affordable(o, units) {
-      const rate = rateOf(o, W);
-      if (rate === 0) return units;
-      const f = projectFunds(s, wc.params), cash = f.debt + f.land + f.general;
-      let u = Math.min(units, Math.max(0, Math.floor((cash + o.spent) / rate) - o.unitsDone + 1));
+    // R9 (§5.6): the pool deals in crew units; an order's work is in units of work. At normal pace they are the same
+    usable(o) { return crewFor(o, W, usableWork(o)); },
+    affordable(o, crew) {
+      const units = Math.min(usableWork(o), workFor(o, W, crew));
+      const rate = rateOf(o, W) * paceStep(o, W).money;
+      if (rate === 0) return Math.min(crew, crewFor(o, W, units));
+      const f = projectFunds(s, wc.params), cash = f.debt + f.land + f.general, b = o.paceBase ?? { units: 0, spent: 0 };
+      let u = Math.min(units, Math.max(0, Math.floor((cash + o.spent - b.spent) / rate) + b.units - o.unitsDone + 1));
       while (u > 0 && costTo(o, W, o.unitsDone + u) - o.spent > cash) u--;
-      return u;
+      return Math.min(crew, crewFor(o, W, u));
     },
-    work(o, units, events) {
-      if (units <= 0) return 0;
+    work(o, crew, events) {
+      if (crew <= 0) return 0;
       const area = workArea(s, o);                       // R4 (phase1-slice §5.11): where this month's crew works
+      const units = Math.min(o.unitsTotal - o.unitsDone, workFor(o, W, crew));
       let used = units;
       if (o.kind === 'service') {
         const left = advanceCellWorks(s, units, views.frontage, (w) => w.order === o.id);
         used = units - left;
+      }
+      // R9: the crew this work took; what a partial unit took waits in the carry
+      const u = paceStep(o, W).units, crewUsed = u === 1 ? used : Math.min(crew, crewFor(o, W, used));
+      if (u !== 1) {
+        const carry = (o.paceCarry ?? 0) + crewUsed - used * u;
+        if (carry > EPS) o.paceCarry = carry; else delete o.paceCarry;
       }
       const pay = costTo(o, W, o.unitsDone + used) - o.spent;
       if (pay > 0) {
@@ -484,8 +545,9 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
         if (x.kind === 'facility') feedFacility(s, W, o, x);
       }
       settle(s, o, W);
-      if (used > 0 && area !== undefined) events.push({ step: 'construction', kind: 'crew', detail: { area, units: used } });
-      return used;
+      if ((o.stage as WorksOrder['stage']) === 'done') delete o.paceCarry;
+      if (crewUsed > 0 && area !== undefined) events.push({ step: 'construction', kind: 'crew', detail: { area, units: crewUsed } });
+      return crewUsed;
     },
   };
 }
@@ -578,7 +640,8 @@ export function previewWorks(s: GameState, w: WorksParams, actions: readonly Pla
       if (k) m[k] = (m[k] ?? 0) + 1;
       return m;
     }, {} as Partial<Record<LandCoverClass, number>>) } : {}),
-    crewPerMonth: Math.min(w.crew_per_order, o.unitsTotal), months: Math.ceil(o.unitsTotal / w.crew_per_order),
+    // R9 (§5.6): at the order's pace, its crew units are its units × the step's units
+    crewPerMonth: Math.min(w.crew_per_order, crewFor(o, w, o.unitsTotal)), months: Math.ceil(crewFor(o, w, o.unitsTotal) / w.crew_per_order),
   })) };
 }
 

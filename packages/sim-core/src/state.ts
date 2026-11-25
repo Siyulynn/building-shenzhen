@@ -12,7 +12,7 @@ import { openingBeats } from './opening.js';
 import type { EventContent } from './events.js';
 import type { PowerState } from './power.js';
 import type { Modifier } from './modifiers.js';
-import { cloneOrder, type CellWork, type PlacedStructure, type StructureKind, type WorksOrder } from './works.js';
+import { cloneOrder, type CellWork, type WorksPace, type PlacedStructure, type StructureKind, type WorksOrder } from './works.js';
 
 export interface LocalizedString { zh: string; en: string }
 
@@ -157,12 +157,13 @@ export type PlayerAction =
   | { type: 'contract_team'; team: string; mode: TeamMode; project?: number }
   | { type: 'buy_power'; kw: number; area?: number }   // R8c: city-level; an old action's area is ignored
   // R2 (buildings-and-construction §13.2): owned by the construction step, with works params, fiscal and network
-  | { type: 'commit_works'; zone: number; cells?: CellRuns; priority?: Priority }
-  | { type: 'build_road'; path: [number, number][]; class?: RoadClass; priority?: Priority }   // R8d: class defaults to street
-  | { type: 'place_structure'; kind: StructureKind; cell: [number, number]; attach: [number, number]; facility?: string; priority?: Priority }
+  | { type: 'commit_works'; zone: number; cells?: CellRuns; priority?: Priority; pace?: WorksPace }
+  | { type: 'build_road'; path: [number, number][]; class?: RoadClass; priority?: Priority; pace?: WorksPace }   // R8d: class defaults to street
+  | { type: 'place_structure'; kind: StructureKind; cell: [number, number]; attach: [number, number]; facility?: string; priority?: Priority; pace?: WorksPace }
   | { type: 'cancel_works'; order: number; cells?: CellRuns }
   | { type: 'set_works_paused'; order: number; paused: boolean }
-  | { type: 'set_works_priority'; order: number; priority: Priority };
+  | { type: 'set_works_priority'; order: number; priority: Priority }
+  | { type: 'set_works_pace'; order: number; pace: WorksPace };        // R9 (§5.6): re-prices the unworked units
 export type SubStep = 0 | 1 | 2;
 export interface ActionLogEntry { date: YM; subStep: SubStep; action: PlayerAction }
 

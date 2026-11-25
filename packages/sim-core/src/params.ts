@@ -215,12 +215,21 @@ export interface WorksParams {
     power_station: StructureWorksParams & { build_months: number };   // R8c: generation for the city pool, built over years
   };
   facilities: Record<string, StructureWorksParams>;
+  // R9 (§5.6): a step's crew units per unit of work and its money per unit, times the normal rate; absent = normal only
+  pace?: Record<'normal' | 'push' | 'all_out', { units: number; money: number }>;
 }
 
 function validateWorksParams(w: WorksParams): void {
   const whole = (n: unknown, min: number) => Number.isSafeInteger(n) && (n as number) >= min;
   if (!whole(w.crew_per_order, 1)) throw new Error('params: works.crew_per_order must be a whole number >= 1');
   if (!(w.maint_rate_year >= 0 && w.maint_rate_year <= 1)) throw new Error('params: works.maint_rate_year must be in [0, 1]');
+  if (w.pace !== undefined) {
+    for (const k of ['normal', 'push', 'all_out'] as const) {
+      const v = w.pace[k];
+      if (!(v && v.units > 0 && v.units <= 1 && v.money >= 1)) throw new Error(`params: works.pace.${k} needs units in (0, 1] and money >= 1`);
+    }
+    if (w.pace.normal.units !== 1 || w.pace.normal.money !== 1) throw new Error('params: works.pace.normal must be units 1, money 1');
+  }
   for (const k of ['service', 'road', 'bridge'] as const) {
     if (!whole(w[k]?.units_per_cell, 1) || !whole(w[k]?.yuan_per_cell, 0)) {
       throw new Error(`params: works.${k} needs whole units_per_cell >= 1 and yuan_per_cell >= 0`);
