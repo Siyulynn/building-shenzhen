@@ -57,11 +57,11 @@ function checkOrders(s: GameState): void {
 const guide = (s: GameState) => templateZoneAction(s, SHANGBU);
 
 describe('R2 placement validates the map', () => {
-  it('refuses a road that starts off the network, leaves playable land, or runs over a road', () => {
+  it('refuses a road that starts off the network, leaves playable land, or adds no new road', () => {
     const s = funded();
     expect(() => apply(s, { type: 'build_road', path: [[362, 360], [362, 365]] })).toThrow(/start or end next to a road/);
     expect(() => apply(s, { type: 'build_road', path: [[352, 347], [352, 349]] })).toThrow(/not playable/);
-    expect(() => apply(s, { type: 'build_road', path: [[356, 345], [356, 346], [356, 347]] })).toThrow(/already a road/);
+    expect(() => apply(s, { type: 'build_road', path: [[355, 346], [358, 346]] })).toThrow(/adds no new road/);
     expect(() => apply(s, { type: 'build_road', path: [[355, 347], [357, 349]] })).toThrow(/orthogonal/);
     expect(() => apply(s, { type: 'build_road', path: [[0, 0], [0, 1]] })).toThrow(/not playable/);
     expect(s.worksOrders).toEqual([]);
@@ -78,8 +78,9 @@ describe('R2 placement validates the map', () => {
     expect(o.budget).toBe(Math.round(o.unitsTotal * WORKS.road.yuan_per_cell / WORKS.road.units_per_cell));
     for (const c of o.path!) expect(c.bridge).toBe(!slice.tick.buildable!.cells.includes(c.cell));
     expect(() => apply(s, { type: 'build_road', path: [[361, 350], [362, 350]] })).not.toThrow();   // may branch off a queued road
-    expect(() => apply(s, { type: 'build_road', path: [[360, 348], [361, 348]] })).toThrow(/already a road/);
+    expect(() => apply(s, { type: 'build_road', path: [[360, 349], [360, 352]] })).toThrow(/adds no new road/);
   });
+
 
   it('places a structure only on playable, unoccupied land attached beside it, and draws its forex at commit', () => {
     const s = funded();
@@ -326,5 +327,57 @@ describe('R2 works are saved and replayed', () => {
     const rng = new Rng(9);
     const again = replay(funded(), full.mid.actionLog, 20, rng, STEPS);
     expect(saveToJson(saveGame(again, rng, content))).toBe(text);
+  });
+});
+
+describe('R7 road drags strip the cells that are already road (b&c §13.2)', () => {
+  const roadOrders = (s: GameState) => s.worksOrders.filter((o) => o.kind === 'road');
+  const cellsOf = (o: WorksOrder) => o.path!.map((c) => c.cell);
+
+  it('extends a road from a drag that begins on it', () => {
+    const s = funded();
+    apply(s, { type: 'build_road', path: [[358, 346], [358, 349]] });   // (358,346) is the Guangshen road
+    const [o, ...rest] = roadOrders(s);
+    expect(rest).toEqual([]);
+    expect(cellsOf(o!)).toEqual([at(358, 347), at(358, 348), at(358, 349)]);
+  });
+
+  it('builds both sides of a drag that crosses a road, each from the road outward', () => {
+    const s = funded();
+    apply(s, { type: 'build_road', path: [[356, 344], [356, 348]] });
+    const os = roadOrders(s);
+    expect(os.map(cellsOf)).toEqual([[at(356, 345), at(356, 344)], [at(356, 347), at(356, 348)]]);
+    expect(new Set(os.map((o) => o.id)).size).toBe(2);
+    // the preview prices both segments, and only the new cells
+    const p = previewWorks(funded(), WORKS, [{ type: 'build_road', path: [[356, 344], [356, 348]] }], apply);
+    expect(p.ok && p.orders.map((x) => x.cells)).toEqual([2, 2]);
+  });
+
+  it('strips a queued path too, and refuses a drag entirely along a road', () => {
+    const s = funded();
+    apply(s, { type: 'build_road', path: SPUR });
+    apply(s, { type: 'build_road', path: [[359, 348], [361, 348]] });   // crosses the queued spur at (360,348)
+    expect(roadOrders(s).slice(1).map(cellsOf)).toEqual([[at(359, 348)], [at(361, 348)]]);
+    expect(() => apply(s, { type: 'build_road', path: [[355, 346], [357, 346]] })).toThrow(/that drag adds no new road/);
+    expect(roadOrders(s)).toHaveLength(3);
+  });
+
+  it('still refuses a structure on the path, and a new cell that touches no road', () => {
+    const s = funded();
+    apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 345], attach: [356, 346] });
+    const before = s.worksOrders.length;
+    expect(() => apply(s, { type: 'build_road', path: [[356, 346], [356, 344]] })).toThrow(/holds a structure/);
+    expect(() => apply(s, { type: 'build_road', path: [[362, 360]] })).toThrow(/start or end next to a road/);
+    expect(s.worksOrders).toHaveLength(before);
+  });
+
+  it('cancelling one segment leaves the other', () => {
+    const s = funded();
+    apply(s, { type: 'build_road', path: [[356, 344], [356, 348]] });
+    const [a, b] = roadOrders(s);
+    apply(s, { type: 'cancel_works', order: a!.id });
+    expect(a!.stage).toBe('cancelled');
+    expect(b!.stage).toBe('queued');
+    expect(cellsOf(b!)).toEqual([at(356, 347), at(356, 348)]);
   });
 });

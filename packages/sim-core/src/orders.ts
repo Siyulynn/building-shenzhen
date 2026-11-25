@@ -196,37 +196,54 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
   return o;
 }
 
-function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'build_road' }): WorksOrder {
+/**
+ * A road drag (b&c §13.2, R7): cells that are already a road (start, built or in a live road order's path) are
+ * stripped anywhere along it, so a drag may start on, run along or cross a road. What is left is one or more
+ * segments; each becomes its own `road` order, built from the network outward.
+ */
+function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'build_road' }): WorksOrder[] {
   const priority = checkPriority(a.priority);
-  let cells = expandPath(s, a.path);
+  const cells = expandPath(s, a.path);
   const roads = roadSet(s, wc.network), queued = queuedPath(s), feet = footprints(s);
   const works = new Set(s.cellWorks.map((w) => w.cell));
   const seen = new Set<number>();
+  const segments: number[][] = [];
+  let run: number[] = [];
   for (const c of cells) {
     if (seen.has(c)) throw new Error(`the road path crosses itself at cell ${c}`);
     seen.add(c);
+    if (roads.has(c) || queued.has(c)) {               // already a road: stripped, and it ends the segment
+      if (run.length) segments.push(run);
+      run = [];
+      continue;
+    }
     if (!playable(s, c)) throw new Error(`cell ${c} is not playable land`);
-    if (roads.has(c) || queued.has(c)) throw new Error(`cell ${c} is already a road`);
     if (feet.has(c)) throw new Error(`cell ${c} holds a structure`);
     if (works.has(c)) throw new Error(`cell ${c} has works`);
+    run.push(c);
   }
-  // either end may touch the network (R4.5): a path drawn toward it is reversed, so it is built from the network out
+  if (run.length) segments.push(run);
+  if (!segments.length) throw new Error('that drag adds no new road');
+  // either end of each segment may touch the network (R4.5): one drawn toward it is reversed, so it is built outward
   const touches = (c: number) => neighbours(c, s.grid.width, s.grid.height).some((n) => roads.has(n) || queued.has(n));
-  if (!touches(cells[0]!)) {
-    if (!touches(cells[cells.length - 1]!)) throw new Error('a new road must start or end next to a road');
-    cells = [...cells].reverse();
-  }
-  const W = wc.works;
-  const path: PathCell[] = cells.map((cell) => {
-    const bridge = wc.buildable !== undefined && !inSorted(wc.buildable.cells, cell);
-    return { cell, bridge, units: (bridge ? W.bridge : W.road).units_per_cell };
+  const oriented = segments.map((seg) => {
+    if (touches(seg[0]!)) return seg;
+    if (touches(seg[seg.length - 1]!)) return [...seg].reverse();
+    throw new Error('a new road must start or end next to a road');
   });
-  const units = path.reduce((n, c) => n + c.units, 0);
-  const o: WorksOrder = { id: s.nextOrderId++, kind: 'road', priority, paused: false, committed: s.date, stage: 'queued',
-    unitsTotal: units, unitsDone: 0, budget: 0, spent: 0, path };
-  o.budget = costTo(o, W, units);
-  s.worksOrders.push(o);
-  return o;
+  const W = wc.works;
+  return oriented.map((seg) => {
+    const path: PathCell[] = seg.map((cell) => {
+      const bridge = wc.buildable !== undefined && !inSorted(wc.buildable.cells, cell);
+      return { cell, bridge, units: (bridge ? W.bridge : W.road).units_per_cell };
+    });
+    const units = path.reduce((n, c) => n + c.units, 0);
+    const o: WorksOrder = { id: s.nextOrderId++, kind: 'road', priority, paused: false, committed: s.date, stage: 'queued',
+      unitsTotal: units, unitsDone: 0, budget: 0, spent: 0, path };
+    o.budget = costTo(o, W, units);
+    s.worksOrders.push(o);
+    return o;
+  });
 }
 
 function orderStructure(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'place_structure' }): WorksOrder {
