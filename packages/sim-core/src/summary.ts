@@ -24,25 +24,83 @@ const sum = (xs: readonly number[]) => xs.reduce((a, x) => a + x, 0);
 const trailing = (xs: readonly number[]) => sum(xs.slice(-12));
 const last = (xs: readonly number[]) => xs[xs.length - 1] ?? 0;
 
+export interface SectorGdp { primary: number; secondary: number; tertiary: number }
+/**
+ * R9.3 (§5.6, §9): the month's GDP split into the three sectors the claims report. Primary is the base farming
+ * economy; secondary is the firms' factory value added plus the base factory and construction jobs plus the
+ * construction value added (the residual of the recorded GDP over the firms and the base); tertiary is state,
+ * services and the service posts. Pure, from state and params; never stored.
+ */
+export function gdpBySector(s: GameState, p: SliceParams): SectorGdp {
+  const h = s.history;
+  const find = (area: number, sector: string) => s.labour.jobs.find((r) => r.area === area && r.sector === sector);
+  let primary = 0, secondary = 0, tertiary = 0, base = 0;
+  for (const j of s.labour.baseJobs) {
+    const r = find(j.area, j.sector);
+    if (!r || r.jobs <= 0) continue;
+    const v = j.jobs * (r.filled / r.jobs) * p.gdp.base_va_per_job_month[j.sector];
+    base += v;
+    if (j.sector === 'farming_fishing') primary += v;
+    else if (j.sector === 'factory' || j.sector === 'construction') secondary += v;
+    else tertiary += v;
+  }
+  for (const sp of s.labour.servicePosts) {
+    const r = find(sp.area, 'services');
+    if (!r || r.jobs <= 0) continue;
+    const v = (sp.formal + sp.informal) * (r.filled / r.jobs) * p.gdp.base_va_per_job_month.services;
+    base += v; tertiary += v;
+  }
+  const firm = last(h.valueAdded), total = last(h.gdp);
+  secondary += firm + Math.max(0, total - firm - base);
+  return { primary, secondary, tertiary };
+}
+
 export interface YearPoint {
   at: string;                            // the last month the history recorded
   residents: number; registered: number; presentNonlocal: number; migrants: number; firmJobs: number;
   gdp: number; exports: number; revenue: number; obligationsPaid: number; projectSpend: number;   // the trailing year
   electricityKwhYear: number;             // R9.2 (§5.5): the month's consumption, annualised
+  gdpSector: SectorGdp;                   // R9.3 (§5.6): the month's value added by sector
+  foreignValueAddedShare: number;         // R9.3: foreign-invested firms' share of the firms' value added
+  foreignCapitalUsdYear: number;          // R9.3: construction cost of foreign firms accepted in the year, a proxy
+  landRevenueYear: number; landShare: number; debtToRevenue: number;   // R9.3 (§5.6): land finance and leverage
   reserve: number; debt: number; arrears: number; scrutiny: number; illegalShare: number;
 }
-export function yearPoint(s: GameState): YearPoint {
+export function yearPoint(s: GameState, p: SliceParams): YearPoint {
   const h = s.history;
   let arrears = 0;
   for (const o of s.fiscal.obligations) if (o.kind === 'arrears' && isLive(o, s.date)) arrears += obligationDue(o, s);
+  const lastMonth = last(h.months), from = lastMonth - 11;
+  const sector = gdpBySector(s, p);
+  const firms = s.firms.filter((f) => f.posted > 0);
+  let firmVa = 0, foreignVa = 0;
+  const FOREIGN = new Set(['hk_processing', 'joint_venture', 'foreign_owned', 'overseas_chinese']);
+  for (const f of firms) {
+    const o = p.industry.by_ownership[f.ownership];
+    const va = f.posted * o.output_per_job_month * o.value_added_ratio;
+    firmVa += va; if (FOREIGN.has(f.ownership)) foreignVa += va;
+  }
+  let foreignCapital = 0;
+  for (const f of s.firms) {
+    if (!FOREIGN.has(f.ownership) || f.accepted === undefined || f.accepted < from) continue;
+    const D = p.construction.cost_per_m2;
+    foreignCapital += (f.floorM2 * D.standard_factory + f.dormM2 * D.dormitory);
+  }
+  const landRevenue = s.fiscal.ledger.reduce((a, e) => a + (e.type === 'land_fee' && e.date >= from ? e.amount : 0), 0);
+  const revenue = trailing(h.revenue);
   return {
     at: formatYM(last(h.months)),
     residents: last(h.resident), registered: last(h.registered),
     presentNonlocal: s.pops.reduce((a, g) => a + (g.registration === 'nonlocal' ? g.present : 0), 0),
     migrants: last(h.migrants), firmJobs: last(h.firmJobs),
-    gdp: Math.round(trailing(h.gdp)), exports: Math.round(trailing(h.exports)), revenue: Math.round(trailing(h.revenue)),
+    gdp: Math.round(trailing(h.gdp)), exports: Math.round(trailing(h.exports)), revenue: Math.round(revenue),
     obligationsPaid: Math.round(trailing(h.obligationsPaid)), projectSpend: Math.round(trailing(h.projectSpend)),
     electricityKwhYear: Math.round(last(h.electricity) * 12),
+    gdpSector: { primary: Math.round(sector.primary), secondary: Math.round(sector.secondary), tertiary: Math.round(sector.tertiary) },
+    foreignValueAddedShare: r4(firmVa > 0 ? foreignVa / firmVa : 0),
+    foreignCapitalUsdYear: Math.round(foreignCapital / p.fiscal.forex.yuan_per_usd),
+    landRevenueYear: Math.round(landRevenue), landShare: r4(revenue + landRevenue > 0 ? landRevenue / (revenue + landRevenue) : 0),
+    debtToRevenue: r4(revenue > 0 ? last(h.debtOutstanding) / revenue : 0),
     reserve: Math.round(s.fiscal.balances.general), debt: Math.round(last(h.debtOutstanding)), arrears: Math.round(arrears),
     scrutiny: r4(s.climate.scrutiny), illegalShare: r4(realIllegalShare(s)),
   };
@@ -154,8 +212,8 @@ function rounded<T>(x: T): T {
 export function runSummary(rec: PlayRecord, meta: { policy: string; seed: number; quarters: number }, p: SliceParams,
   fc: FiscalContent, content: SaveContent, tick: TickContent): RunSummary {
   const f = rec.final;
-  const years = rec.quarterEnds.filter((s) => s.date % 12 === 0).map(yearPoint);
-  const end = yearPoint(f);
+  const years = rec.quarterEnds.filter((s) => s.date % 12 === 0).map((s) => yearPoint(s, p));
+  const end = yearPoint(f, p);
   if (years[years.length - 1]?.at !== end.at) years.push(end);
   const checkpoints = CHECKPOINT_MONTHS.flatMap((m) => {
     const s = stateAfter(rec, m);

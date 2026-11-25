@@ -452,3 +452,44 @@ not a parameter, or accepting that the slice's 1982 is flatter than the SEZ's be
 
 **Invariants.** `npm run check` green; save v8 migrates with zeros for the new series; determinism, conservation and
 the §9 bands unchanged.
+
+## R9.3 (sector split, foreign investment, land and debt, 2026-11-25)
+
+**New data, as leads.** Two secondary aggregator pages (聚汇数据, accessed 2026-11-25) give the city's GDP by sector
+and subsector for 1979–84 and foreign capital actually used. Their GDP totals agree with the existing 2014-yearbook
+claims; the sector detail and FDI await the yearbook pages. They are recorded in
+`docs/research/phase1-secondary-series.md` as a lead, not as claims, and no band uses them.
+
+**What was added (reporting only, no save change).**
+- `gdpBySector(s, p)` (§5.6): primary is base farming; secondary is the firms' factory value added plus base factory
+  and construction jobs plus the construction residual (recorded GDP less firms and base); tertiary is state,
+  services and service posts. Pure, from state and params.
+- `YearPoint` gains `gdpSector`, `foreignValueAddedShare`, `foreignCapitalUsdYear` (a proxy: the construction cost of
+  foreign firms accepted in the year), `landRevenueYear`, `landShare` and `debtToRevenue`.
+
+**The comparison** (`historical_prologue`, 1983; city shares from the lead):
+
+| | Primary | Secondary | Tertiary |
+|---|---:|---:|---:|
+| City 1979 → 1983 | 37% → 17% | 20% → 43% | 43% → 40% |
+| Slice 1979 → 1983 | 18% → 4% | 33% → 76% | 48% → 20% |
+
+- **The slice is an industrial core, not the city.** Its primary is small because the seven areas hold little
+  farmland; its secondary share grows to 76% because firm value added dominates and service jobs are induced from
+  spending only. The claim's construction share (25% of 1983 GDP) is not reproduced: the model's construction is a
+  small residual.
+- **A rebalance was tested and reverted.** Raising `gdp.base_va_per_job_month.services`/`state` to 55 and the
+  `hk_processing` value-added ratio to 0.18 moved the split only to 5 / 69 / 27. It also raised the 1979 base, cut
+  the GDP multiple from 4.87 to 4.19 and left aggressive at 3.52, near the band floor. A ratio cannot close the gap:
+  the service sector needs a size model (producer services, government employment), not a parameter.
+- **FDI is not modelled.** The proxy reads 0.45 / 4.95 / 8.55 / 5.85 / 7.65 US$m against the claim's 5 / 28 / 86 /
+  58 / 113 US$m: an order of magnitude low because equipment and working capital are absent. It is a
+  direction-of-travel indicator, not a target.
+- **Land and debt.** `landShare` (land ÷ recurring revenue + land) reads 0 / 0 / 0 / 46% / 57%; `debtToRevenue`
+  0.88 / 0.86 / 0.67 / 0.45 / 0.31. The 1983 land share is high but plausible for a land-financed infrastructure
+  push; 1979's debt ratio is the ¥3m project loan against a small base.
+
+**Goldens.** The reporting fields change every year point; the headline numbers do not. `historical_prologue`
+60,375 residents and 42.0M GDP, `aggressive` 53,661 and 35.4M, both 20 pass. No band widened.
+
+**Invariants.** `npm run check` green; no save version change (the fields are derived, never stored).
