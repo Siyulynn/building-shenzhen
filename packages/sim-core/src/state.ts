@@ -1,7 +1,7 @@
 /** The slice's game state (phase1-slice.md §5, §5.1, §5.2). Later milestones add modules from their specs. */
 import {
   HOUSING_ARCHETYPES, POP_KINDS, REGISTRATION, SECTORS, USE_OF, isMigrant,
-  type BuildingArchetype, type Enforcement, type HousingArchetype, type Intensity, type LandUse, type MigrantKind, type Ownership,
+  type BuildingArchetype, type Enforcement, type HousingArchetype, type ImportQuota, type Intensity, type LandUse, type MigrantKind, type Ownership,
   type PermitRegime, type PopKind, type Sector,
 } from './enums.js';
 import { cloneFiscal, initialFiscal, type FiscalState, type Priority, type TeamMode } from './fiscal.js';
@@ -79,7 +79,10 @@ export interface HousingMarket {
   turnedAway: number;         // R4 (§5.11): this month's arrivals who found no bed, split by vacancies; not people
 }
 export interface MigrationState { stockLag: Record<MigrantKind, number[]> }
-export interface PolicyLevers { permitRegime: PermitRegime; enforcement: Enforcement }
+export interface PolicyLevers {
+  permitRegime: PermitRegime; enforcement: Enforcement;
+  importQuota?: ImportQuota;              // R10d (§5.13): absent = balanced, so older saves need no migration
+}
 
 /** Row runs [y, x0, x1], inclusive, sorted by y then x0, disjoint: plain JSON (§5.3). */
 export type CellRuns = [number, number, number][];
@@ -147,6 +150,7 @@ export interface AnsweredCard { card: CardInstance; option: string }
 export type PlayerAction =
   | { type: 'answer_card'; instance: string; option: string }
   | { type: 'set_enforcement'; level: Enforcement }
+  | { type: 'set_import_quota'; level: ImportQuota }        // R10d (§5.13)
   | { type: 'set_permit_regime'; regime: PermitRegime }
   | { type: 'create_zone'; use: LandUse; runs: CellRuns; template?: string; intensity?: Intensity }
   | { type: 'edit_zone'; zone: number; add?: CellRuns; remove?: CellRuns; use?: LandUse; intensity?: Intensity }

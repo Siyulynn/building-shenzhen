@@ -4,7 +4,7 @@
  * page. The chrome shows one language; place labels (marked by place() in the views) read zh and en in both.
  */
 import {
-  ENFORCEMENT_LEVELS, HIGH_INTENSITY_KEY, INTENSITIES, LAND_USES, PERMIT_REGIMES, formatYM,
+  ENFORCEMENT_LEVELS, IMPORT_QUOTAS, HIGH_INTENSITY_KEY, INTENSITIES, LAND_USES, PERMIT_REGIMES, formatYM,
   type Slice, type StartSite,
 } from '@sz/sim-core';
 import { unanswered, type Session, type UiError } from './controller.js';
@@ -392,6 +392,12 @@ function drawerPolitics(v: View): string {
       return lock ? lockedButton(lock, v.lang, t(S.ENFORCEMENT[n]!))
         : `<button data-act="enforce" data-v="${n}" class="${p.enforcement === n ? 'sel' : ''}" ${off(v)}>${t(S.ENFORCEMENT[n]!)}</button>`;
     }).join('')}</div>
+    <h2>${t(S.T.importQuota)}</h2><div class="opts">${IMPORT_QUOTAS.map((n) => {
+      const cur = p.importQuota ?? 'balanced';                    // R10d (§5.13)
+      const lock = n !== cur ? gateLock(v.x.state, v.slice, 'policy.import_quota') : undefined;
+      return lock ? lockedButton(lock, v.lang, t(S.IMPORT_QUOTA[n]!))
+        : `<button data-act="quota" data-v="${n}" class="${cur === n ? 'sel' : ''}" ${off(v)}>${t(S.IMPORT_QUOTA[n]!)}</button>`;
+    }).join('')}</div>
     <h2>${t(S.T.permits)}</h2><div class="opts">${PERMIT_REGIMES.map((n) => `<button data-act="permit" data-v="${n}" class="${p.permitRegime === n ? 'sel' : ''}" ${off(v)}>${t(S.PERMIT[n]!)}</button>`).join('')}</div>`;
 }
 
@@ -417,7 +423,8 @@ export function renderVerdict(v: View): string | undefined {
     ${vd ? `<h2>${t(S.T.growth)}</h2><table>${tr(S.T.residents, `×${vd.growth.residents.toFixed(2)}`)}${tr(S.T.gdpYear, `×${vd.growth.gdp.toFixed(2)}`)}
       ${tr(S.T.reserve, yuan(vd.ledger.reserve))}${tr(S.T.debt, yuan(vd.ledger.debtOutstanding))}${tr(S.T.arrears, yuan(vd.ledger.arrears))}
       ${tr(S.T.scrutiny, num(vd.scrutiny))}${tr(S.T.illegalShare, pct(vd.illegalShare))}
-      ${tr(S.T.fiscalTest, yuan(vd.fiscalTest.balance))}</table>` : `<div class="muted">${t(S.T.ended)} · ${formatYM(x.state.date)}</div>`}
+      ${tr(S.T.fiscalTest, yuan(vd.fiscalTest.balance))}
+      ${tr(S.T.forexBurned, `$${num(vd.forex.burnedUsd)} · $${num(vd.forex.earnedUsd)} · $${num(vd.forex.quotaUsd)}`)}</table>` : `<div class="muted">${t(S.T.ended)} · ${formatYM(x.state.date)}</div>`}
     <h2>${t(S.T.held)}</h2>${reviewView(x.state, slice).held.map((r) => `<div>${r.at}: ${r.score.toFixed(2)} ${t(r.pass ? S.T.pass : S.T.fail)}</div>`).join('')}
     <button class="go" data-act="restart">${t(S.T.restart)}</button>`;
 }

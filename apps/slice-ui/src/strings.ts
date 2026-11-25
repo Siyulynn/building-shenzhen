@@ -38,6 +38,8 @@ export const LAND_USE: Readonly<Record<string, L>> = {
   reserve: l('储备', 'Reserve'),
 };
 export const ENFORCEMENT: Readonly<Record<string, L>> = { low: l('低', 'Low'), medium: l('中', 'Medium'), high: l('高', 'High') };
+/** R10d (phase1-slice §5.13): the import quota setting. */
+export const IMPORT_QUOTA: Readonly<Record<string, L>> = { strict: l('从严', 'Strict'), balanced: l('适中', 'Balanced'), open: l('放开', 'Open') };
 export const PERMIT: Readonly<Record<string, L>> = { loose: l('宽松', 'Loose'), standard: l('一般', 'Standard'), strict: l('严格', 'Strict') };
 export const PRIORITY: Readonly<Record<string, L>> = { high: l('优先', 'High'), normal: l('正常', 'Normal'), low: l('靠后', 'Low') };
 export const POP_KIND: Readonly<Record<string, L>> = {
@@ -209,6 +211,7 @@ export const T = {
   target: l('目标', 'Target'), floor: l('底线', 'Floor'), value: l('现值', 'Now'), held: l('已进行的考核', 'Reviews held'),
   pass: l('通过', 'pass'), fail: l('未通过', 'fail'), vetoed: l('一票否决', 'vetoed'), noReviewLeft: l('没有更多考核', 'No review left'),
   enforcement: l('违建执法力度', 'Enforcement against illegal floors'), permits: l('暂住证政策', 'Temporary permits'),
+  importQuota: l('进口额度', 'Import quota'), forexBurned: l('外汇：进口花去 · 留成所得 · 余额', 'Forex: spent on imports · earned · left'),
   drawZone: l('画一个区块：选用途，在地图上拖动', 'Draw a zone: pick a use, then drag on the map'),
   drawOff: l('不画', 'Not drawing'),
   template: l('历史规划', 'The historical plan'), apply: l('采用', 'Apply'),
@@ -334,7 +337,7 @@ export const BADGE: Readonly<Record<string, L>> = {
 
 /** Every table above, for the tests: each entry has an en and a zh. */
 export const TABLES: Readonly<Record<string, Readonly<Record<string, L>>>> = {
-  SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, LAND_COVER, ENFORCEMENT, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
+  SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, LAND_COVER, ENFORCEMENT, IMPORT_QUOTA, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
   ROLE, TRAIT, RISK, STAGE, WAITING, OVERLAYS, T, RUNG, ORDER_KIND, ORDER_STAGE, STRUCTURE, FACILITY, WORK_STAGE, TOOL,
   TOOL_HINT, CHIP, CHIP_STAT, CUE, CUE_INPUT, BADGE, PACE, DESK, MODIFIER_TARGET, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
 };

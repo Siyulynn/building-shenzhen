@@ -3,7 +3,7 @@
  * fiscal §6.8, §6.9). The climate runs in tick step 12 (stability), the fall and the review in step 14 (reviews).
  * Both run only with the events content; the review needs content/slice/targets.yaml too.
  */
-import type { SliceParams } from '../params.js';
+import { quotaParams, type SliceParams } from '../params.js';
 import type { GameState, ReviewRecord } from '../state.js';
 import type { TickContext } from '../step.js';
 import { FAILURE_CARD } from '../events.js';
@@ -96,6 +96,12 @@ export function climate(p: SliceParams) {
     for (const e of ctx.events) {
       if (e.kind === 'land_for_recurring' && e.detail?.status !== 'sanctioned') gains += C.gain.grey_land_per_100k * (e.detail!.amount as number) / 1e5;
       if (e.kind === 'offer_accepted' && e.detail?.shortcut !== undefined) gains += C.gain.shortcut;
+    }
+    // R10d (§5.13): an open import quota draws the province's eye while the forex quota is falling this month
+    const q = quotaParams(p, s.policy.importQuota);
+    if (q.scrutiny_gain > 0) {
+      const fx = s.fiscal.ledger.reduce((a, e) => a + (e.date === s.date && e.account === 'forex' ? e.amount : 0), 0);
+      if (fx < 0) gains += q.scrutiny_gain;
     }
     gains *= modifierFactor(s, 'scrutiny_gain');                 // R9 (§5.8): before the permit factor
     s.climate.scrutiny = clamp(s.climate.scrutiny * (1 - C.scrutiny_decay) + C.permit_factor[s.policy.permitRegime] * gains, 0, 100);

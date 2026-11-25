@@ -149,6 +149,7 @@ document.addEventListener('click', (e) => {
       break;
     }
     case 'enforce': return act({ type: 'set_enforcement', level: d.v as never });
+    case 'quota': return act({ type: 'set_import_quota', level: d.v as never });   // R10d (§5.13)
     case 'permit': return act({ type: 'set_permit_regime', regime: d.v as never });
     case 'cancel': return act({ type: 'cancel_project', project: Number(d.id) });
     case 'team': return act({ type: 'contract_team', team: d.id!, mode: 'pool' });

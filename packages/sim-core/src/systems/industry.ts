@@ -3,7 +3,7 @@
  * production in tick step 6. output = min(orders, staffed, floor, utilities): staffed ≤ posted ≤ each cap.
  */
 import { BUILDER_OF, USE_OF, type Ownership } from '../enums.js';
-import { zonePowerKw, type SliceParams } from '../params.js';
+import { quotaParams, zonePowerKw, type SliceParams } from '../params.js';
 import { poolShares } from '../power.js';
 import { largestRemainder } from '../round.js';
 import type { Firm, FirmSector, FirmTerms, GameState, JobRow } from '../state.js';
@@ -180,11 +180,15 @@ export function production(p: SliceParams) {
       const factor = f.premises === 'existing' ? I.premises_output_factor : 1;
       f.output = f.staffed * I.by_ownership[f.ownership].output_per_job_month * factor;
     }
-    const usd = importsUsd(s, p);
-    if (usd > s.fiscal.balances.forex) {
-      const k = Math.max(0, s.fiscal.balances.forex) / usd;
+    // R10d (§5.13): the import quota setting scales what an importer sells (the goods it may bring in), and lets a
+    // month's imports use only a share of the quota
+    const Q = quotaParams(p, s.policy.importQuota);
+    if (Q.turnover_factor !== 1) for (const f of s.firms) if ((I.by_ownership[f.ownership].import_share ?? 0) > 0) f.output *= Q.turnover_factor;
+    const usd = importsUsd(s, p), room = Math.max(0, s.fiscal.balances.forex) * Q.forex_share;
+    if (usd > room) {
+      const k = room / usd;
       for (const f of s.firms) if ((I.by_ownership[f.ownership].import_share ?? 0) > 0) f.output *= k;
-      ctx.events.push({ step: 'production', kind: 'forex_short', detail: { wanted: usd, quota: s.fiscal.balances.forex } });
+      ctx.events.push({ step: 'production', kind: 'forex_short', detail: { wanted: usd, quota: s.fiscal.balances.forex, room } });
     }
   };
 }

@@ -171,8 +171,10 @@ export function mapPolicy(answers: DecisionPolicy, plan: MapPlan, p: SliceParams
     if (s.subStep !== 0 || isFinished(s)) return out;
     const firsts = first.filter((a) => gateAllows(s, tick, a));
     if (s.turn === 0 && s.zones.length === 0) return [...out, ...firsts, ...planZones(s, tick, plan), ...(plan.borrow_until_turn !== undefined ? planWorks(s, tick, p, plan) : [])];
-    // R9: an enforcement level the gate held back at the start, given once it opens (nothing else sets it)
-    const held = firsts.filter((a) => a.type === 'set_enforcement' && a.level !== s.policy.enforcement);
+    // R9: an enforcement level the gate held back at the start, given once it opens (nothing else sets it); R10d: the
+    // import quota likewise
+    const held = firsts.filter((a) => (a.type === 'set_enforcement' && a.level !== s.policy.enforcement)
+      || (a.type === 'set_import_quota' && a.level !== (s.policy.importQuota ?? 'balanced')));
     // R10c (§5.13): a turn that zones new land leaves servicing to the next turn, so the new zones are weighed with the rest
     const zones = planZones(s, tick, plan, true);
     return [...out, ...held, ...zones, ...planWorks(s, tick, p, plan, zones.length > 0)];
@@ -184,7 +186,8 @@ export const cautious = (p: SliceParams, tick: TickContent): DecisionPolicy =>
   mapPolicy(cautiousAnswers, CAUTIOUS_PLAN, p, tick, [{ type: 'set_enforcement', level: 'high' }]);
 /** Takes every grey option, the loan and the co-financing; loose permits and low enforcement; the aggressive plan. */
 export const aggressive = (p: SliceParams, tick: TickContent): DecisionPolicy =>
-  mapPolicy(aggressiveAnswers, AGGRESSIVE_PLAN, p, tick, [{ type: 'set_enforcement', level: 'low' }]);
+  mapPolicy(aggressiveAnswers, AGGRESSIVE_PLAN, p, tick, [{ type: 'set_enforcement', level: 'low' },
+    { type: 'set_import_quota', level: 'open' }]);                 // R10d (§5.13): once its news beat opens it
 /** historicalPrologue's answers with the historical plan: the CLI's historical_prologue (§5.9). */
 export const historical = (p: SliceParams, tick: TickContent): DecisionPolicy =>
   mapPolicy(historicalAnswers, HISTORICAL_PLAN, p, tick);

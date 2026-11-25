@@ -404,6 +404,7 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
   const a = queue[k]!;
   switch (a.type) {
     case 'set_enforcement': return cat(S.T.enforcement, S.ENFORCEMENT[a.level] ?? raw(a.level), ': ');
+    case 'set_import_quota': return cat(S.T.importQuota, S.IMPORT_QUOTA[a.level] ?? raw(a.level), ': ');
     case 'set_permit_regime': return cat(S.T.permits, S.PERMIT[a.regime] ?? raw(a.regime), ': ');
     case 'create_zone': {
       const cells = a.runs.reduce((t, [, x0, x1]) => t + x1 - x0 + 1, 0);

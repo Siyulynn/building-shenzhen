@@ -1,15 +1,15 @@
 /**
  * R10's tests (phase1-slice.md §5.13). R10a: the construction line, the sector series, the population categories and
- * save version 9's unlock re-application; R10b: the start composition; R10c: trading firms, customs and forex; tested on a save built here and, when present, on the untracked version-5
+ * save version 9's unlock re-application; R10b: the start composition; R10c: trading firms, customs and forex; R10d: the import quota; tested on a save built here and, when present, on the untracked version-5
  * save the pre-R8 code wrote (test/fixtures-data/save-v5.json).
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, SAVE_VERSION, cloneState, createTickSteps, firmFreight, firmValueAdded, firstOption, freightContent, gatewayAreas, gateRefusal,
+  Rng, SAVE_VERSION, aggressive, applyTurnAction, cloneState, createTickSteps, firmFreight, firmValueAdded, firstOption, freightContent, gatewayAreas, gateRefusal,
   gdpBySector, historical, importsUsd, loadGame, playQuarters, popCategories, runMonths, saveFromJson, saveGame, saveToJson,
-  validateParams, yearPoint, type GameState,
+  validateParams, verdict, yearPoint, type GameState,
 } from '../src/index.js';
 import { ROOT, events, initial, params, slice } from './fixtures.js';
 
@@ -212,5 +212,71 @@ describe('R10c trading firms, customs and forex (§5.13)', () => {
     expect(last.importsUsdYear).toBeGreaterThan(0);
     expect(last.forexEarnedUsdYear).toBeGreaterThan(0);
     expect(last.forexUsd).toBe(Math.round(y.fiscal.balances.forex));
+  });
+});
+
+describe('R10d the import quota (§5.13)', () => {
+  const beat = 'news.1982q1.concession_material';
+  // the state of the first quarter end with the quota's tool open and trading firms posting
+  const full = run(slice.init.scenario.turns);
+  const s0 = full.rec.quarterEnds.find((q) => q.events.unlocked.includes('tools.import_quota')
+    && q.firms.some((f) => f.sector === 'services' && f.posted > 0))!;
+  const from = (level: 'strict' | 'balanced' | 'open', months: number, steps = STEPS) => {
+    const s = cloneState(s0);
+    s.policy.importQuota = level;
+    return runMonths(s, months, new Rng(5), firstOption, steps);
+  };
+
+  it('is gated by the February 1982 beat; an unknown level is refused', () => {
+    expect(events.find((d) => d.id === beat)!.effects!.some((e) => e.kind === 'unlock' && e.key === 'tools.import_quota')).toBe(true);
+    const before = full.rec.quarterEnds.find((q) => !q.events.unlocked.includes('tools.import_quota') && q.events.unlocked.includes('investors.sez'))!;
+    expect(gateRefusal(before, slice.tick.gates!, { type: 'set_import_quota', level: 'open' })).toBeDefined();
+    expect(gateRefusal(s0, slice.tick.gates!, { type: 'set_import_quota', level: 'open' })).toBeUndefined();
+    const s = cloneState(s0);
+    applyTurnAction(s, { type: 'set_import_quota', level: 'strict' }, STEPS);
+    expect(s.policy.importQuota).toBe('strict');
+    expect(() => applyTurnAction(cloneState(s0), { type: 'set_import_quota', level: 'lavish' as never }, STEPS)).toThrow(/unknown import quota/);
+  });
+
+  it('open sells more, collects more customs and burns more forex than balanced, and strict less', () => {
+    const r = (['strict', 'balanced', 'open'] as const).map((l) => {
+      const e = from(l, 12), y = yearPoint(e, params);
+      return { tertiary: y.gdpSectorYear.tertiary, customs: y.customsYear, imports: y.importsUsdYear, forex: y.forexUsd };
+    });
+    for (const k of ['tertiary', 'customs', 'imports'] as const) {
+      expect(r[0]![k]).toBeLessThan(r[1]![k]);
+      expect(r[1]![k]).toBeLessThan(r[2]![k]);
+    }
+    expect(r[2]!.forex).toBeLessThan(r[1]!.forex);
+    expect(r[1]!.forex).toBeLessThan(r[0]!.forex);
+  });
+
+  it('a month of imports uses only the setting\'s share of the quota', () => {
+    const s = cloneState(s0);
+    s.policy.importQuota = 'strict';
+    s.fiscal.balances.forex = 1000;
+    const end = runMonths(s, 1, new Rng(5), firstOption, STEPS);
+    const drawn = -end.fiscal.ledger.filter((e) => e.date === s0.date && e.ref === 'import.trade').reduce((a, e) => a + e.amount, 0);
+    expect(drawn).toBeLessThanOrEqual(1000 * params.trade!.import_quota!.strict.forex_share + 1);
+  });
+
+  it('open draws scrutiny while the quota is falling, and only then', () => {
+    // without retention the quota only falls while trade imports
+    const noRetention = validateParams({ ...params, fiscal: { ...params.fiscal, forex: { ...params.fiscal.forex, retention_share: 0 } } });
+    const steps = createTickSteps(noRetention, slice.tick);
+    const scrutiny = (l: 'balanced' | 'open', p = steps) => from(l, 1, p).climate.scrutiny;
+    expect(scrutiny('open')).toBeGreaterThan(scrutiny('balanced'));
+    expect(params.trade!.import_quota!.balanced.scrutiny_gain).toBe(0);
+  });
+
+  it('the aggressive player opens it once the beat fires; the verdict reports the forex burned', () => {
+    const agg = playQuarters(initial(), new Rng(1), STEPS, aggressive(params, slice.tick), slice.init.scenario.turns).final;
+    expect(agg.policy.importQuota).toBe('open');
+    expect(full.rec.final.policy.importQuota).toBeUndefined();          // the historical player keeps the default
+    const v = verdict(full.rec.final, params, slice.tick.fiscal!);
+    const burned = -full.rec.final.fiscal.ledger.filter((e) => e.ref === 'import.trade').reduce((a, e) => a + e.amount, 0);
+    expect(v.forex.burnedUsd).toBeCloseTo(burned, 6);
+    expect(v.forex.burnedUsd).toBeGreaterThan(0);
+    expect(v.forex.quotaUsd).toBe(full.rec.final.fiscal.balances.forex);
   });
 });

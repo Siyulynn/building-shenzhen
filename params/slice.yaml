@@ -319,6 +319,13 @@ trade:                                   # R10c (phase1-slice §5.13): customs, 
     input_rate: 0.02                     # duty on processing firms' imported inputs (mostly bonded, so low)
     import_rate: 0.35                    # duty on imports for resale
     local_share: 0.5                     # share kept by the city; design_note until a retention claim is found
+  import_quota:                          # R10d (§5.13): the standing setting, from the 1982-02 beat. Placeholders, design_note:
+                                         # demand_factor × the trading stream's demand; turnover_factor × an importer's turnover;
+                                         # forex_share: the share of the quota a month's imports may use; scrutiny_gain: points
+                                         # a month while the quota is falling
+    strict:   { demand_factor: 0.6, turnover_factor: 0.6, forex_share: 0.2, scrutiny_gain: 0 }
+    balanced: { demand_factor: 1,   turnover_factor: 1,   forex_share: 0.5, scrutiny_gain: 0 }
+    open:     { demand_factor: 1.4, turnover_factor: 1.5, forex_share: 1,   scrutiny_gain: 1.5 }
 
 sez:
   priorities:                            # the first wave's archetype weights by first priority (§7.1 step 2)

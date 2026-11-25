@@ -1667,6 +1667,16 @@ At most one gateway per face and mode. A gateway's **yard** is the set of road c
 - **Report.** Each year point adds `customsYear` (from the ledger), `customsShare` (÷ the year's revenue), `importsUsdYear` (the `import.trade` draws), `forexEarnedUsdYear` (retention) and the quota `forexUsd`.
 - **Plans** (§5.9). Both map plans zone a commercial block in Luohu (area 2) beside the town's, so trade has room. A turn that zones new land leaves servicing to the next turn, so the new zones are weighed with the rest. `MapPlan.small_zones_first` (optional) breaks a tie in room by the fewest cells left to service: the historical plan sets it, so Luohu's trading street is serviced before the rest of Shangbu; the aggressive plan does not, and keeps its industry-first order (and R8d's freight limit by 1982). The plans place no structure the forex quota cannot cover, since trade imports now draw on the same quota.
 
+**R10d: the import quota.** A standing setting beside enforcement: how freely the zone lets goods in.
+- **Action** `set_import_quota: { level: 'strict' | 'balanced' | 'open' }` (`IMPORT_QUOTAS`), stored as `PolicyLevers.importQuota` (absent = `balanced`, so no save migration). It is gated by `policy.import_quota`, which `tools.import_quota` opens. That key is unlocked by `news.1982q1.concession_material` (1982-02), the beat that already reports the January 1982 emergency notice against smuggling (`phase1.politics.smuggling_notice_1982`). No new historical text: the card's statements are the beat's, already cited. Gating the tool on that date is a game choice, not a claim that a quota rule began then (`design_note`).
+- **Effects** (`trade.import_quota.<level>`, each a placeholder):
+  - `demand_factor` × the trading stream's demand (§R10c), so the setting steers how many trading firms build;
+  - `turnover_factor` × an importer's turnover in step 6, before the forex cap: an open quota lets each firm sell more of what it brings in, so customs, tertiary value added and the forex burned rise together;
+  - `forex_share`: a month's imports may use at most this share of the quota at that moment (R10c's cap is `forex_share` 1);
+  - `scrutiny_gain`: in step 12, scrutiny points a month (before the permit factor and the modifiers) while the month's net forex postings are negative. Only `open` has one.
+- **The verdict** adds `forex: { burnedUsd, earnedUsd, quotaUsd }`: the run's `import.trade` draws, its retention, and the quota left at the visit. The fiscal test still reads the tax lines only: counting customs would turn the aggressive run's 1984 balance positive, against `band.1983q4.grant_test`'s note, so it waits for a decision on that note.
+- **Players.** The aggressive player sets `open` once the gate opens; the historical and cautious players keep `balanced`. The politics drawer has the three buttons, locked until the beat.
+
 ## 6. Systems and the monthly tick
 The tick follows PLAN §3.15's order. Steps marked *off* do nothing in the slice.
 

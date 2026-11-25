@@ -499,6 +499,9 @@
   effects:                               # R9: the storm's modifiers; the card that follows chooses a posture
     - { kind: modifier, target: investor_rate }
     - { kind: modifier, target: scrutiny_gain }
+    # R10d (phase1-slice §5.13): with the smuggling notice in the news, how freely goods come in becomes the city's
+    # call. A game gate on this beat's date, not a claim that a quota rule began then (design_note)
+    - { kind: unlock, key: tools.import_quota }
   claims:
     - { id: phase1.politics.two_provinces_meeting_1982, use: encyclopedia }
     - { id: phase1.politics.concession_material_1982, use: encyclopedia }

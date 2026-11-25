@@ -583,3 +583,31 @@ The split is read from `gdpSectorYear` (the trailing 12 months of `history.gdpSe
   ¥4.33M → ¥5.79M; aggressive 56,778 → 57,266, ¥38.27M → ¥38.39M, revenue ¥4.05M → ¥4.28M (customs on inputs and
   a late trading block); cautious revenue ¥3.23M → ¥3.32M (customs on processing inputs), GDP and residents
   unchanged; default and decline_all unchanged.
+
+### R10d: the import quota
+
+- **The gate.** `tools.import_quota` is unlocked by `news.1982q1.concession_material` (1982-02), which already reports
+  the January 1982 notice against smuggling. No claim describes an import quota rule, so no card text was written:
+  the gate's date is a design_note.
+- **First numbers** (demand ×0.6/1/1.4, forex share 0.2/0.5/1, scrutiny 0/0/1.5) had no bite: from the historical
+  run's 1982-Q2 state, all three settings gave the same 21 months (land and the quota did not bind). R10d adds a
+  turnover factor on importers (0.6 / 1 / 1.5).
+- **The counterfactual** (historical run's 1982-Q2 state, 21 months with no further plan, seed 5):
+
+  | Setting | GDP, last year | Tertiary | Customs | Trade imports | Quota at the end |
+  |---|---|---|---|---|---|
+  | strict | ¥27.91M | 39.6% | ¥469,424 | $1.34M | $6.07M |
+  | balanced | ¥28.86M | 41.6% | ¥680,472 | $2.23M | $4.64M |
+  | open | ¥30.06M | 43.9% | ¥944,279 | $3.35M | $2.84M |
+
+  Retention still outruns imports in that continuation, so the quota rises and open draws no scrutiny there; with
+  retention off it does (a test).
+- **Golden runs.** Historical keeps balanced: no value moves (the 0.5 share never binds; monthly imports are about a
+  tenth of the quota). Aggressive sets open from 1982-02, but its Luohu block is serviced last and no trading firm
+  opens before the visit (forex burned $0). The higher trading demand shifts the crew pool in late 1983: factory floor
+  built by the visit +1,800 m² (233,350 → 235,150), GDP ¥38,394,515 → ¥38,396,440. Cautious, default and decline_all:
+  only the new verdict field.
+- **The verdict's forex** (historical): $8.54M burned on trade imports, $9.80M earned by retention, $1.24M left.
+- **Not done: customs in the fiscal test.** Counting customs as recurring revenue turns the aggressive run's 1984
+  balance from −¥107,748 to +¥176,388 (historical −¥1,548 → +¥2.03M), against `band.1983q4.grant_test`'s note that
+  aggressive should end negative. It was reverted; the note needs a decision first.

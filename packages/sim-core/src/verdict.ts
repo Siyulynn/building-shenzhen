@@ -16,12 +16,14 @@ export interface Verdict {
   illegalShare: number;
   /** §7.2's fiscal test, with the grant at zero: a year of recurring revenue against the next 12 months' dues. */
   fiscalTest: { grantFactor: number; revenuePerYear: number; dueNext12: number; balance: number };
+  /** R10d (§5.13): the forex the run's trade burned (its `import.trade` draws), what retention earned, the quota left. */
+  forex: { burnedUsd: number; earnedUsd: number; quotaUsd: number };
 }
 
 const sum = (xs: readonly number[]) => xs.reduce((a, x) => a + x, 0);
 const last = (xs: readonly number[]) => xs[xs.length - 1] ?? 0;
 
-/** Recurring revenue without the grant in month t: the tax lines of the ledger. */
+/** Recurring revenue without the grant in month t: the tax lines of the ledger (customs is not counted: R10d, §5.13). */
 export const taxRevenueAt = (s: GameState, t: number) =>
   s.fiscal.ledger.reduce((a, e) => a + (e.date === t && e.type === 'tax' ? e.amount : 0), 0);
 
@@ -56,5 +58,10 @@ export function verdict(s: GameState, p: SliceParams, fc: FiscalContent): Verdic
     illegalShare: last(h.illegalShare),
     fiscalTest: { grantFactor: grantFactor(regimeOf(s, fc), s.date), revenuePerYear, dueNext12,
       balance: revenuePerYear - dueNext12 },
+    forex: {
+      burnedUsd: -s.fiscal.ledger.reduce((a, e) => a + (e.type === 'import' && e.ref === 'import.trade' ? e.amount : 0), 0),
+      earnedUsd: s.fiscal.ledger.reduce((a, e) => a + (e.type === 'retention' ? e.amount : 0), 0),
+      quotaUsd: s.fiscal.balances.forex,
+    },
   };
 }

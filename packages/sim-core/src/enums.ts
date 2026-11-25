@@ -44,6 +44,9 @@ export const PERMIT_REGIMES = ['loose', 'standard', 'strict'] as const;
 export const ENFORCEMENT_LEVELS = ['low', 'medium', 'high'] as const;
 export type PermitRegime = (typeof PERMIT_REGIMES)[number];
 export type Enforcement = (typeof ENFORCEMENT_LEVELS)[number];
+/** R10d (phase1-slice §5.13): the standing import quota setting. */
+export const IMPORT_QUOTAS = ['strict', 'balanced', 'open'] as const;
+export type ImportQuota = (typeof IMPORT_QUOTAS)[number];
 
 /** Zone uses (phase1-slice.md §5.3): buildings §2.2's plannedUse. R8b dropped `public`: facilities are placed directly. */
 export const LAND_USES = ['industrial', 'residential', 'commercial', 'reserve'] as const;

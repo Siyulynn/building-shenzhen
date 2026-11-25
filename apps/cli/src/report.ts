@@ -173,6 +173,7 @@ ${v ? `<table>
 <tr><td>Last review</td><td class="n">${v.lastReview ? `${v.lastReview.score.toFixed(2)} ${v.lastReview.pass ? 'pass' : 'fail'}` : '–'}</td></tr>
 <tr><td>Scrutiny · illegal-floor share</td><td class="n">${num(v.scrutiny)} · ${num(v.illegalShare)}</td></tr>
 <tr><td>1984 fiscal test: revenue a year − dues over 12 months (grant ${v.fiscalTest.grantFactor})</td><td class="n">${num(v.fiscalTest.revenuePerYear)} − ${num(v.fiscalTest.dueNext12)} = <b>${num(v.fiscalTest.balance)}</b></td></tr>
+<tr><td>Forex (USD): burned on trade imports · earned by retention · quota left</td><td class="n">${v.forex ? `${num(v.forex.burnedUsd)} · ${num(v.forex.earnedUsd)} · ${num(v.forex.quotaUsd)}` : '–'}</td></tr>
 </table>` : '<p class="muted">The run did not reach the visit.</p>'}
 
 <h2>Reviews · 年度考核</h2>

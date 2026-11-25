@@ -1,6 +1,6 @@
 /** params/slice.yaml, parsed (phase1-slice.md §5.2, §8). Validated once; never stored in GameState. */
-import type { Enforcement, HousingArchetype, Intensity, MigrantKind, Ownership, PermitRegime, PopKind, Sector } from './enums.js';
-import { ENFORCEMENT_LEVELS, HOUSING_ARCHETYPES, MIGRANT_KINDS, OWNERSHIPS, PERMIT_REGIMES, POP_KINDS, SECTORS } from './enums.js';
+import type { Enforcement, HousingArchetype, ImportQuota, Intensity, MigrantKind, Ownership, PermitRegime, PopKind, Sector } from './enums.js';
+import { ENFORCEMENT_LEVELS, HOUSING_ARCHETYPES, IMPORT_QUOTAS, MIGRANT_KINDS, OWNERSHIPS, PERMIT_REGIMES, POP_KINDS, SECTORS } from './enums.js';
 
 export interface SliceParams {
   eras: { id: string; structural_max_floors: number }[];
@@ -127,7 +127,16 @@ export interface OwnershipParams {
   import_share?: number;                 // absent = 0
 }
 /** R10c (§5.13): customs on firm inputs and commercial imports. Placeholders; local_share awaits a retention claim. */
-export interface TradeParams { customs: { input_rate: number; import_rate: number; local_share: number } }
+export interface TradeParams {
+  customs: { input_rate: number; import_rate: number; local_share: number };
+  /** R10d (§5.13): by setting, the trading stream's demand factor, the importers' turnover factor, the share of the
+   *  quota a month's imports may use, and scrutiny points a month while the quota falls. Absent = as R10c. */
+  import_quota?: Record<ImportQuota, ImportQuotaParams>;
+}
+export interface ImportQuotaParams { demand_factor: number; turnover_factor: number; forex_share: number; scrutiny_gain: number }
+/** R10d: the current setting's numbers; balanced when the run has no setting. */
+export const quotaParams = (p: SliceParams, level: ImportQuota | undefined): ImportQuotaParams =>
+  p.trade?.import_quota?.[level ?? 'balanced'] ?? { demand_factor: 1, turnover_factor: 1, forex_share: 1, scrutiny_gain: 0 };
 /** One organic firm stream (b&c §13.3): small firms that build their own premises from banked demand. */
 export interface OrganicStream {
   archetype: string; ownership: Ownership; firm_jobs: number;
@@ -423,6 +432,13 @@ export function validateParams(raw: unknown): SliceParams {
     const c = p.trade.customs;
     for (const k of ['input_rate', 'import_rate', 'local_share'] as const) {
       if (!(c?.[k] >= 0 && c[k] <= 1)) throw new Error(`params: trade.customs.${k} must be in [0, 1]`);
+    }
+    const Q = p.trade.import_quota;
+    if (Q !== undefined) for (const level of IMPORT_QUOTAS) {
+      const q = Q[level];
+      if (!q || !(q.demand_factor >= 0) || !(q.turnover_factor >= 0) || !(q.forex_share >= 0 && q.forex_share <= 1) || !(q.scrutiny_gain >= 0)) {
+        throw new Error(`params: trade.import_quota.${level} needs demand_factor and turnover_factor >= 0, forex_share in [0, 1], scrutiny_gain >= 0`);
+      }
     }
   }
   validateM5aParams(p);

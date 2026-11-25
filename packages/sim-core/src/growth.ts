@@ -5,7 +5,7 @@
  * Deterministic: no draw.
  */
 import { SECTORS, USE_OF } from './enums.js';
-import { intensityOf, zonePowerKw, type GrowthParams, type OrganicStream, type SliceParams } from './params.js';
+import { intensityOf, quotaParams, zonePowerKw, type GrowthParams, type OrganicStream, type SliceParams } from './params.js';
 import { largestRemainder } from './round.js';
 import type { StartNetwork } from './sites.js';
 import type { BlockStock, Cohort, GameState, OrganicBuilder, ServicePosts, Zone } from './state.js';
@@ -198,13 +198,14 @@ function startInZones(ctx: TickContext, zones: { z: Zone; room: number }[], m2: 
  * industrial zone with the most room that its area could supply. `bank` names the stream's carry in `s.growth`.
  */
 function organicFirms(ctx: TickContext, p: SliceParams, g: GrowthContent, I: OrganicStream,
-  bank: 'carry' | 'collectiveCarry' | 'commercialCarry', room: (z: Zone) => number): void {
+  bank: 'carry' | 'collectiveCarry' | 'commercialCarry', room: (z: Zone) => number, quota = 1): void {
   const s = ctx.state;
   const factor = I.regime_factor[s.fiscal.regime] ?? I.regime_factor.default!;
   // R10c: the SEZ's first priority steers a stream that names priority factors
   const PF = I.priority_factor;
   const priority = PF ? (s.sez.priority !== undefined ? PF[s.sez.priority] : undefined) ?? PF.default! : 1;
-  let carry = (s.growth[bank] ?? 0) + I.floor_m2_per_month * p.industry.order_index * orderFactor(s) * factor * priority;
+  let carry = (s.growth[bank] ?? 0) + I.floor_m2_per_month * p.industry.order_index * orderFactor(s) * factor * priority
+    * quota;                                               // R10d (§5.13): the import quota setting's demand factor
   const use = I.zone_use ?? 'industrial';
   let reached: Set<number> | undefined | null = I.gateway_reach ? null : undefined;   // null: not computed yet
   const offer = sizeOffer(p, I.archetype, I.ownership, I.firm_jobs);
@@ -268,7 +269,7 @@ export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): 
   organicFirms(ctx, p, g, G.industrial, 'carry', room);
   if (G.collective) organicFirms(ctx, p, g, G.collective, 'collectiveCarry', room);
   // R10c (§5.13): trading firms on commercial zones with a road path to a Hong Kong gateway, before the private shops
-  if (G.commercial) organicFirms(ctx, p, g, G.commercial, 'commercialCarry', room);
+  if (G.commercial) organicFirms(ctx, p, g, G.commercial, 'commercialCarry', room, quotaParams(p, s.policy.importQuota).demand_factor);
 
   // 2. commercial: private shop floor toward the target the induced spending sets
   const induced = inducedServiceJobs(s, p);

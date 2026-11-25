@@ -150,7 +150,8 @@ describe('R9: timed modifiers (§5.8)', () => {
   }
 
   it('the storm sets two modifiers for nine months, and they drop when they end', () => {
-    expect(at('news.1982q1.concession_material').effects.map((e) => e.kind)).toEqual(['modifier', 'modifier']);
+    // R10d (§5.13): the beat also opens the import quota
+    expect(at('news.1982q1.concession_material').effects.map((e) => e.kind)).toEqual(['modifier', 'modifier', 'unlock']);
     const { s, states } = runTo('1983-01');
     const feb = states.find((x) => x.date === parseYM('1982-03'))!;   // the state after February's month
     const n = params.events['news.1982q1.concession_material']!;

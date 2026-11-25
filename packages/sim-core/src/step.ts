@@ -4,7 +4,7 @@
  */
 import type { Rng, Stream } from './rng.js';
 import { cloneState, isFinished, type CardInstance, type GameState, type PlayerAction, type SubStep } from './state.js';
-import { ENFORCEMENT_LEVELS, PERMIT_REGIMES } from './enums.js';
+import { ENFORCEMENT_LEVELS, IMPORT_QUOTAS, PERMIT_REGIMES } from './enums.js';
 import { formatYM, type YM } from './ym.js';
 import { statistics } from './systems/statistics.js';
 import { applyZoneAction, isZoneAction, type AvenueAt } from './zones.js';
@@ -82,6 +82,9 @@ export function applyTurnAction(s: GameState, action: PlayerAction, steps: reado
   if (action.type === 'set_enforcement') {
     if (!(ENFORCEMENT_LEVELS as readonly string[]).includes(action.level)) throw new Error(`unknown enforcement ${action.level}`);
     s.policy.enforcement = action.level;
+  } else if (action.type === 'set_import_quota') {
+    if (!(IMPORT_QUOTAS as readonly string[]).includes(action.level)) throw new Error(`unknown import quota ${action.level}`);
+    s.policy.importQuota = action.level;
   } else if (action.type === 'set_permit_regime') {
     if (!(PERMIT_REGIMES as readonly string[]).includes(action.regime)) throw new Error(`unknown permit regime ${action.regime}`);
     s.policy.permitRegime = action.regime;

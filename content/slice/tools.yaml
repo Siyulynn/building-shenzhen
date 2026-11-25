@@ -2,12 +2,13 @@
 # opens it. step refuses a gated action while its key is unset; a gate not listed here is open. Keys are set only by
 # event `unlock` effects (content/slice/events.yaml); the rail shows a locked tool greyed with the event that opens it.
 # Gate ids: zone.<use>, zone.intensity.<tier>, road.<class>, structure.<kind>, formation.bulk, works.priority,
-# policy.enforcement, team.contract, power.buy.
+# policy.enforcement, policy.import_quota, team.contract, power.buy.
 # The schedule is phase1-slice.md §2.1's R9 table. Open from the start: industrial and reserve zones, low and standard
 # intensity, track and street roads, site formation on one zone at a time, and the cards.
 - { gate: formation.bulk, requires: tools.formation_bulk, name: { zh: 多片同时平整, en: Forming several zones at once } }
 - { gate: works.priority, requires: tools.priorities, name: { zh: 工程优先级, en: Works priority } }
 - { gate: policy.enforcement, requires: tools.priorities, name: { zh: 执法力度, en: Enforcement } }
+- { gate: policy.import_quota, requires: tools.import_quota, name: { zh: 进口额度, en: Import quota } }   # R10d (phase1-slice §5.13)
 - { gate: zone.residential, requires: tools.corps, name: { zh: 居住区, en: Residential zones } }
 - { gate: structure.facility, requires: tools.corps, name: { zh: 公共设施, en: Facilities } }
 - { gate: team.contract, requires: tools.corps, name: { zh: 雇用施工队, en: Contracting teams } }
