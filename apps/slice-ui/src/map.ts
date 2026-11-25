@@ -72,7 +72,7 @@ function outlines(s: GameState): HTMLCanvasElement {
   for (let i = 0; i < W * H; i++) {
     const x = i % W;
     const r = x < W - 1 ? id[i + 1]! : id[i]!, d = i + W < W * H ? id[i + W]! : id[i]!;
-    if ((id[i] !== r || id[i] !== d) && (id[i]! || r || d)) px.set([255, 236, 120, 230], i * 4);
+    if ((id[i] !== r || id[i] !== d) && (id[i]! || r || d)) px.set([168, 50, 45, 170], i * 4);   // the planning red line (红线)
   }
   return layerOf(W, H, px);
 }
@@ -138,10 +138,10 @@ export class SliceMap {
     const { ctx, view } = this, { width: W, height: H } = sc.state.grid;
     const px = devicePixelRatio / view.scale;                  // one screen pixel, in cells
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#0e1a24'; ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.fillStyle = '#cfc3a5'; ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);   // the drafting table
     ctx.setTransform(view.scale, 0, 0, view.scale, view.ox, view.oy);
     ctx.imageSmoothingEnabled = false;
-    if (this.ground) ctx.drawImage(this.ground, 0, 0); else { ctx.fillStyle = '#26343c'; ctx.fillRect(0, 0, W, H); }
+    if (this.ground) ctx.drawImage(this.ground, 0, 0); else { ctx.fillStyle = '#b9ae90'; ctx.fillRect(0, 0, W, H); }
     ctx.drawImage(this.lines, 0, 0);
     if (this.zones) ctx.drawImage(this.zones, 0, 0);
     if (this.overlay) ctx.drawImage(this.overlay, 0, 0);
@@ -167,10 +167,16 @@ export class SliceMap {
     if (sc.preview) {
       ctx.fillStyle = sc.preview.ok ? 'rgba(120,230,255,.55)' : 'rgba(255,90,80,.55)';
       for (const c of sc.preview.cells) { const [x, y] = at(c); ctx.fillRect(x, y, 1, 1); }
+      if (!sc.preview.ok) {                                    // refused cells are crossed, not only red
+        ctx.save(); ctx.strokeStyle = 'rgba(92,20,20,.9)'; ctx.lineWidth = Math.max(1.5 * px, .07); ctx.setLineDash([]); ctx.beginPath();
+        for (const c of sc.preview.cells) { const [x, y] = at(c); ctx.moveTo(x + .2, y + .2); ctx.lineTo(x + .8, y + .8); ctx.moveTo(x + .8, y + .2); ctx.lineTo(x + .2, y + .8); }
+        ctx.stroke(); ctx.restore();
+      }
     }
     if (sc.selected) {
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(2 * px, 0.1); ctx.setLineDash([]);
-      ctx.strokeRect(sc.selected.x, sc.selected.y, 1, 1);
+      ctx.setLineDash([]);
+      ctx.strokeStyle = '#f3ecd8'; ctx.lineWidth = Math.max(4 * px, 0.18); ctx.strokeRect(sc.selected.x, sc.selected.y, 1, 1);
+      ctx.strokeStyle = '#5c1f24'; ctx.lineWidth = Math.max(2 * px, 0.08); ctx.strokeRect(sc.selected.x, sc.selected.y, 1, 1);
     }
   }
 
@@ -272,11 +278,11 @@ export class SliceMap {
       ctx.fillStyle = s.layer === 'settlement' ? '#ffc78e' : s.layer === 'landmark' ? '#a3e7ff' : '#c3df92';
       if (!(s.layer === 'settlement' && this.cellPx >= CORE_ZOOM_PX)) ctx.fillRect(x + (1 - size) / 2, y + (1 - size) / 2, size, size);
       if (px <= 1 / 20) {
-        ctx.font = `${11 * px}px sans-serif`;
-        ctx.strokeStyle = '#19232a'; ctx.lineWidth = 3 * px;
+        ctx.font = `bold ${11 * px}px "Courier New", Courier, ui-monospace, SimHei, "Heiti SC", "Microsoft YaHei", sans-serif`;
+        ctx.strokeStyle = 'rgba(243,236,216,.92)'; ctx.lineWidth = 3.5 * px; ctx.lineJoin = 'round';
         const label = `≈ ${bi(s.name)}`;                // a place label: bilingual in both languages (§11.1)
         ctx.strokeText(label, x + 1.1, y + .7);
-        ctx.fillStyle = '#fff'; ctx.fillText(label, x + 1.1, y + .7);
+        ctx.fillStyle = '#2b1d17'; ctx.fillText(label, x + 1.1, y + .7);
       }
     }
     void sc;
