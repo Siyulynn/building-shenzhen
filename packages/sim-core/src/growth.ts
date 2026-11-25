@@ -5,7 +5,7 @@
  * Deterministic: no draw.
  */
 import { SECTORS, USE_OF } from './enums.js';
-import { intensityOf, zonePowerKw, type GrowthParams, type SliceParams } from './params.js';
+import { intensityOf, zonePowerKw, type GrowthParams, type OrganicStream, type SliceParams } from './params.js';
 import { largestRemainder } from './round.js';
 import type { StartNetwork } from './sites.js';
 import type { BlockStock, Cohort, GameState, OrganicBuilder, ServicePosts, Zone } from './state.js';
@@ -192,17 +192,15 @@ function startInZones(ctx: TickContext, zones: { z: Zone; room: number }[], m2: 
   });
 }
 
-/** The month's organic pass (§13.3). */
-export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): void {
+/**
+ * One organic firm stream (b&c §13.3; R10b, §5.13): its banked demand becomes owner-built firms of `I.firm_jobs` in the
+ * industrial zone with the most room that its area could supply. `bank` names the stream's carry in `s.growth`.
+ */
+function organicFirms(ctx: TickContext, p: SliceParams, g: GrowthContent, I: OrganicStream, bank: 'carry' | 'collectiveCarry',
+  room: (z: Zone) => number): void {
   const s = ctx.state;
-  const G = p.growth!;
-  const cells = developableCells(s, g);
-  const room = (z: Zone) => zoneRoomM2(s, z, cells.get(z.id)?.length ?? 0, G);
-
-  // 1. industrial: banked demand becomes owner-built firms in the zone with the most room
-  const I = G.industrial;
   const factor = I.regime_factor[s.fiscal.regime] ?? I.regime_factor.default!;
-  s.growth.carry += I.floor_m2_per_month * p.industry.order_index * orderFactor(s) * factor;
+  let carry = (s.growth[bank] ?? 0) + I.floor_m2_per_month * p.industry.order_index * orderFactor(s) * factor;
   const offer = sizeOffer(p, I.archetype, I.ownership, I.firm_jobs);
   const need = offer.floorM2 + offer.dormM2;
   // R9 backlog brake (b&c §13.3): a zone's firms' factory and dormitory floor still under construction
@@ -213,27 +211,40 @@ export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): 
     const z = firmZone.get(c.firm);
     if (z !== undefined) backlog.set(z, (backlog.get(z) ?? 0) + c.m2);
   }
-  while (s.growth.carry >= offer.floorM2) {
+  while (carry >= offer.floorM2) {
     let best: Zone | undefined, bestRoom = 0;
     for (const z of s.zones) {
       if (z.use !== 'industrial') continue;
       if (I.max_backlog_m2 !== undefined && (backlog.get(z.id) ?? 0) > I.max_backlog_m2) continue;
       const r = room(z);
       // a builder puts up no factory its area could not supply: every firm there open, this one too
-      const kw = zonePowerKw(G, z, offer.powerKw);   // R8b (§5.3): the tier's power, as createFirm will set it
+      const kw = zonePowerKw(p.growth, z, offer.powerKw);   // R8b (§5.3): the tier's power, as createFirm will set it
       if (r >= need && r > bestRoom && prospectiveShare(s, z.area, kw, offer.waterM3Day,
         placedSupply(s, g, () => true, { zone: z.id, kw, m3: offer.waterM3Day })) >= I.min_utility_share) {
         best = z; bestRoom = r;
       }
     }
-    if (!best) { s.growth.carry = offer.floorM2; break; }
+    if (!best) { carry = offer.floorM2; break; }
     const f = createFirm(s, p, offer, { premises: 'new_factory', area: best.area, zone: best.id });
     f.origin = 'organic';
     backlog.set(best.id, (backlog.get(best.id) ?? 0) + need);   // its own floor is now under construction
-    s.growth.carry -= offer.floorM2;
+    carry -= offer.floorM2;
     ctx.events.push({ step: 'construction', kind: 'organic_firm', detail: { firm: f.id, zone: best.id, area: best.area } });
   }
-  s.growth.carry = Math.round(s.growth.carry * 1e6) / 1e6;
+  s.growth[bank] = Math.round(carry * 1e6) / 1e6;
+}
+
+/** The month's organic pass (§13.3). */
+export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): void {
+  const s = ctx.state;
+  const G = p.growth!;
+  const cells = developableCells(s, g);
+  const room = (z: Zone) => zoneRoomM2(s, z, cells.get(z.id)?.length ?? 0, G);
+
+  // 1. industrial: banked demand becomes owner-built firms in the zone with the most room; R10b (§5.13): processing
+  // firms, then local collectives, each from its own bank, sharing the zones' room and backlog
+  organicFirms(ctx, p, g, G.industrial, 'carry', room);
+  if (G.collective) organicFirms(ctx, p, g, G.collective, 'collectiveCarry', room);
 
   // 2. commercial: private shop floor toward the target the induced spending sets
   const induced = inducedServiceJobs(s, p);

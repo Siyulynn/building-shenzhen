@@ -19,7 +19,8 @@ export type FirmSite = { premises: 'new_factory'; area: number; zone: number } |
 /** A firm archetype's numbers: an investor card's, or the organic firm's (b&c §13.3). */
 const archetypeParams = (p: SliceParams, id: string): { dorm_beds_per_job: number; build_months: number; ramp_months: number;
   tax_holiday_months?: number } => {
-  const a = p.investors.archetypes[id] ?? (p.growth?.industrial.archetype === id ? p.growth.industrial.firm : undefined);
+  const a = p.investors.archetypes[id] ?? (p.growth?.industrial.archetype === id ? p.growth.industrial.firm
+    : p.growth?.collective?.archetype === id ? p.growth.collective.firm : undefined);
   if (!a) throw new Error(`params: no firm archetype ${id} in investors.archetypes or growth.industrial`);
   return a;
 };

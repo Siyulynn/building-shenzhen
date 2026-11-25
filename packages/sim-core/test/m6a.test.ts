@@ -138,12 +138,12 @@ describe('M6a: the policies', () => {
   it('the 1983 checkpoint note: the aggressive run ends closer to its means than the cautious one', async () => {
     // The design intent is a margin, not an absolute surplus: a bigger tax base can carry a bigger balance while
     // running nearer the cliff. R9 made the corps an arrival instead of a paid contract and R9.1 lifted the tax base,
-    // so aggressive's absolute balance now exceeds cautious's; its margin is still the thinner one.
+    // so aggressive's balance was positive; R10b's smaller firms pay less tax, and it is negative again, as
+    // band.1983q4.grant_test's note expects. Cautious stays above zero, and its margin is the thicker one.
     const { verdict } = await import('../src/verdict.js');
     const va = verdict(runs.aggressive.final, params, slice.tick.fiscal!), vc = verdict(runs.cautious.final, params, slice.tick.fiscal!);
     const margin = (v: typeof va) => v.fiscalTest.balance / Math.max(1, v.fiscalTest.revenuePerYear);
     expect(vc.fiscalTest.balance).toBeGreaterThan(0);
-    expect(va.fiscalTest.balance).toBeGreaterThan(0);
     expect(margin(vc)).toBeGreaterThan(margin(va));
   });
   it('a random policy is reproducible from its seed and never touches the sim\'s streams', () => {

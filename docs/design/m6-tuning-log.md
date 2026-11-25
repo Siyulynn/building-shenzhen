@@ -523,3 +523,31 @@ The split is read from `gdpSectorYear` (the trailing 12 months of `history.gdpSe
 - **Goldens:** every pre-existing value is identical (checked by stripping the new fields and comparing with the
   R9.3 files); the new fields are `gdpSector.construction`, `gdpSectorYear`, `population` and
   `checkpoints[].population.categories`. No content hash moved.
+
+### R10b: the start's composition, local collectives and workshop-sized firms
+
+| Attempt | Change | Historical 1983 GDP · split | Aggressive 1983 GDP · split | Bands |
+|---|---|---|---|---|
+| 0 | R10a | ¥42.17M · 4 / 79 / 18 | ¥35.42M · 5 / 79 / 16 | 20 + 20 |
+| 1 | collectives (1,500 m²/month, 60 jobs) only | ¥41.59M · 4 / 79 / 17 | ¥33.79M · 5 / 78 / 17 | 20 + 20 |
+| 2 | + processing firm 120 jobs, floor 5,500, backlog 12,000, spend per service job 35 | ¥36.58M · 5 / 73 / 23 | ¥29.38M · 6 / 73 / 22 | 20 + 18: aggressive GDP multiple 3.333 < 3.341, spending ÷ revenue 1.2047 > 1.204 |
+| 3 | floor 7,000, spend 25 | ¥35.96M · 5 / 69 / 26 | ¥30.82M · 5 / 72 / 23 | 20 + 19: aggressive spending ÷ revenue 1.2097 |
+| 4 | processing backlog back to 40,000, floor 6,500 | ¥43.95M · 4 / 75 / 22 | ¥38.89M · 4 / 76 / 20 | 20 + 20 |
+| 5 | base services and state value added 50 a job-month, floor 6,000 | ¥45.85M · 4 / 71 / 25 | ¥40.56M · 4 / 73 / 23 | 20 + 20; aggressive +14.5% |
+| 6 | floor 5,000 / **4,500** / 4,000 | ¥44.51M / **¥42.64M** / ¥40.20M | ¥39.45M / **¥38.27M** / ¥37.08M | 20 + 20 each |
+
+- **Kept: attempt 6 at 4,500 m² a month.** Historical +1.1%, aggressive +8.0%, both inside ±15%.
+- **The backlog brake counts floor.** At 12,000 m² it throttled the small firms (1983 firm jobs 17,400 against
+  19,900), so it stays at 40,000 m² for processing: the same pipeline of floor, four times as many firms.
+- **The split (annual, historical):** 17 / 30 / 53 (1979), 13 / 43 / 43 (1980), 8 / 63 / 30 (1981),
+  5 / 68 / 26 (1982), 4 / 69 / 27 (1983). Against the SEZ's 5 / 50 / 45, tertiary 1981–83 is still about 15 points
+  short. That gap is R10c's (trade); R10b's levers are the induced services and the start's value added.
+- **The firms (historical, end-1983):** 164 organic processing firms of 120 jobs (17,160 posted), 50 collectives of
+  60 (2,940 posted), 7 card firms. Collectives are 13% of firm jobs.
+- **The binding band is spending ÷ revenue.** Smaller firms pay less tax: historical 1.02 → 1.13 against 1.204,
+  aggressive 1.08. Customs (R10c) is new revenue.
+- **The aggressive run's projected 1984 balance turned negative** (−¥102,000), as `band.1983q4.grant_test`'s note
+  expects; m6a's test now asks only that cautious stays positive with the thicker margin.
+- **Goldens (end-1983):** historical 60,375 → 63,252 residents, ¥42.17M → ¥42.64M; aggressive 53,661 → 56,778,
+  ¥35.42M → ¥38.27M; cautious 37,265 → 39,904, ¥15.14M → ¥17.16M; default 30,822 → 30,917, ¥8.13M → ¥8.88M;
+  decline_all 30,340, ¥7.65M → ¥8.33M. The idle runs' GDP rises 9% from the start's base value added alone.

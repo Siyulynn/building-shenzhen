@@ -112,19 +112,22 @@ export interface GrowthParams {
   build_months: number;                  // shop and dormitory cohorts
   spend_share: number;                   // share of wages spent locally
   far: { industrial: number; commercial: number; residential: number };
-  industrial: {
-    archetype: string; ownership: Ownership; firm_jobs: number;
-    firm: { dorm_beds_per_job: number; build_months: number; ramp_months: number };   // the archetype's numbers
-    floor_m2_per_month: number;
-    min_utility_share: number;           // the area's utility share, with this firm and all sited ones open
-    regime_factor: Record<string, number>;   // by fiscal regime id; `default` for the rest
-    max_backlog_m2?: number;             // R9 (b&c §13.3): no new organic firm in a zone with more floor under construction
-  };
+  industrial: OrganicStream;
+  collective?: OrganicStream;            // R10b (phase1-slice §5.13): local collectives, a second stream; absent = none
   services: { spend_per_job_month: number; formal_share: number; m2_per_job: number; tax_rate: number };
   residential: { min_crowding: number };
   village_shops: { m2_per_job: number };
   land_cover?: LandCoverParams;          // R8a (phase1-slice §5.5): absent = every cell at factor 1, no compensation
   intensity?: Record<Intensity, IntensityFactors>;   // R8b (phase1-slice §5.3): absent = every tier at factor 1
+}
+/** One organic firm stream (b&c §13.3): small firms that build their own premises from banked demand. */
+export interface OrganicStream {
+  archetype: string; ownership: Ownership; firm_jobs: number;
+  firm: { dorm_beds_per_job: number; build_months: number; ramp_months: number };   // the archetype's numbers
+  floor_m2_per_month: number;
+  min_utility_share: number;             // the area's utility share, with this firm and all sited ones open
+  regime_factor: Record<string, number>; // by fiscal regime id; `default` for the rest
+  max_backlog_m2?: number;               // R9 (b&c §13.3): no new organic firm in a zone with more floor under construction
 }
 /** A zone intensity's multiples (§5.3): of the FAR, of a cell's formation money and work, and of a sited firm's power. */
 export interface IntensityFactors { far: number; formation_cost: number; formation_work: number; power: number }
@@ -138,6 +141,25 @@ export interface LandCoverParams {
 }
 export interface LandCoverFactor { cost: number; compensation: number }
 
+/** An organic firm stream's params (b&c §13.3; R10b, §5.13); `w` names it in the error. */
+function validateStream(I: OrganicStream, w: string, p: SliceParams): void {
+  const share = (n: unknown) => typeof n === 'number' && n >= 0 && n <= 1;
+  if (typeof I?.archetype !== 'string' || !I.archetype || p.investors.archetypes[I.archetype]) {
+    throw new Error(`params: ${w}.archetype must be an id of its own, not an investor card archetype`);
+  }
+  if (!(I.firm?.dorm_beds_per_job >= 0) || !Number.isInteger(I.firm.build_months) || I.firm.build_months < 1
+    || !Number.isInteger(I.firm.ramp_months) || I.firm.ramp_months < 1) {
+    throw new Error(`params: ${w}.firm needs dorm_beds_per_job >= 0 and whole build_months and ramp_months >= 1`);
+  }
+  if (!(OWNERSHIPS as readonly string[]).includes(I.ownership)) throw new Error(`params: ${w}.ownership ${I.ownership} is unknown`);
+  if (!Number.isInteger(I.firm_jobs) || I.firm_jobs < 1) throw new Error(`params: ${w}.firm_jobs must be a positive integer`);
+  if (!(I.floor_m2_per_month >= 0)) throw new Error(`params: ${w}.floor_m2_per_month must be >= 0`);
+  if (!share(I.min_utility_share)) throw new Error(`params: ${w}.min_utility_share must be in [0, 1]`);
+  if (I.max_backlog_m2 !== undefined && !(I.max_backlog_m2 >= 0)) throw new Error(`params: ${w}.max_backlog_m2 must be >= 0`);
+  if (!(I.regime_factor?.default !== undefined)) throw new Error(`params: ${w}.regime_factor needs a default`);
+  for (const [k, v] of Object.entries(I.regime_factor)) if (!(v >= 0)) throw new Error(`params: ${w}.regime_factor.${k} must be >= 0`);
+}
+
 function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
   const pos = (n: unknown) => typeof n === 'number' && n > 0;
   const share = (n: unknown) => typeof n === 'number' && n >= 0 && n <= 1;
@@ -146,21 +168,11 @@ function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
   if (!Number.isInteger(g.build_months) || g.build_months < 1) throw new Error('params: growth.build_months must be a positive integer');
   need(g.far as unknown as Record<string, unknown>, ['industrial', 'commercial', 'residential'], 'growth.far');
   for (const k of ['industrial', 'commercial', 'residential'] as const) if (!pos(g.far[k])) throw new Error(`params: growth.far.${k} must be > 0`);
-  const I = g.industrial;
-  if (typeof I.archetype !== 'string' || !I.archetype || p.investors.archetypes[I.archetype]) {
-    throw new Error('params: growth.industrial.archetype must be an id of its own, not an investor card archetype');
+  validateStream(g.industrial, 'growth.industrial', p);
+  if (g.collective !== undefined) {
+    validateStream(g.collective, 'growth.collective', p);
+    if (g.collective.archetype === g.industrial.archetype) throw new Error('params: growth.collective.archetype must differ from growth.industrial.archetype');
   }
-  if (!(I.firm?.dorm_beds_per_job >= 0) || !Number.isInteger(I.firm.build_months) || I.firm.build_months < 1
-    || !Number.isInteger(I.firm.ramp_months) || I.firm.ramp_months < 1) {
-    throw new Error('params: growth.industrial.firm needs dorm_beds_per_job >= 0 and whole build_months and ramp_months >= 1');
-  }
-  if (!(OWNERSHIPS as readonly string[]).includes(I.ownership)) throw new Error(`params: growth.industrial.ownership ${I.ownership} is unknown`);
-  if (!Number.isInteger(I.firm_jobs) || I.firm_jobs < 1) throw new Error('params: growth.industrial.firm_jobs must be a positive integer');
-  if (!(I.floor_m2_per_month >= 0)) throw new Error('params: growth.industrial.floor_m2_per_month must be >= 0');
-  if (!share(I.min_utility_share)) throw new Error('params: growth.industrial.min_utility_share must be in [0, 1]');
-  if (I.max_backlog_m2 !== undefined && !(I.max_backlog_m2 >= 0)) throw new Error('params: growth.industrial.max_backlog_m2 must be >= 0');
-  if (!(I.regime_factor?.default !== undefined)) throw new Error('params: growth.industrial.regime_factor needs a default');
-  for (const [k, v] of Object.entries(I.regime_factor)) if (!(v >= 0)) throw new Error(`params: growth.industrial.regime_factor.${k} must be >= 0`);
   if (!pos(g.services?.spend_per_job_month) || !share(g.services.formal_share) || !pos(g.services.m2_per_job)
     || !share(g.services.tax_rate)) {
     throw new Error('params: growth.services needs spend_per_job_month > 0, formal_share and tax_rate in [0, 1] and m2_per_job > 0');

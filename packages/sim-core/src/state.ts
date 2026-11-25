@@ -218,7 +218,8 @@ export interface GameState {
   power: PowerState;          // R8c (§5.5): the city's purchased power; required from save v6
   crew: CrewArrival[];        // R9 (§5.6): permanent crew arrivals, sorted by from, then team; required from save v7
   roadClass?: Record<RoadClass, number[]>;   // R8d (§5.12): class overrides, sorted cells; absent: start route class, else street
-  growth: { carry: number };  // R3 (b&c §13.3): m² of industrial demand banked toward the next organic firm
+  // R3 (b&c §13.3): m² of industrial demand banked toward the next organic firm; R10b (§5.13): the collectives' bank, absent = 0
+  growth: { carry: number; collectiveCarry?: number };
   events: EventsState;        // M5a (§5.7)
   sez: SezState;
   shekou: ShekouState;

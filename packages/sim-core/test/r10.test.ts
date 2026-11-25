@@ -7,8 +7,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, SAVE_VERSION, createTickSteps, gateRefusal, gdpBySector, historical, loadGame, playQuarters, popCategories, saveFromJson,
-  saveGame, saveToJson, type GameState,
+  Rng, SAVE_VERSION, createTickSteps, firmFreight, gateRefusal, gdpBySector, historical, loadGame, playQuarters, popCategories,
+  runMonths, saveFromJson, saveGame, saveToJson, validateParams, type GameState,
 } from '../src/index.js';
 import { ROOT, events, initial, params, slice } from './fixtures.js';
 
@@ -56,6 +56,40 @@ describe('R10a reporting (§5.13)', () => {
     expect(g.secondary).toBeCloseTo(h.gdpSector.secondary.at(-1)!, 3);
     expect(g.tertiary).toBeCloseTo(h.gdpSector.tertiary.at(-1)!, 3);
     expect(g.construction).toBeCloseTo(h.gdpSector.construction.at(-1)!, 3);
+  });
+});
+
+describe('R10b start composition and workshop-sized firms (§5.13)', () => {
+  const G = params.growth!, C = G.collective!;
+  const organic = (s: GameState, archetype: string) => s.firms.filter((f) => f.origin === 'organic' && f.archetype === archetype);
+
+  it('organic processing firms are workshop-sized; collectives are smaller, sell at home and have no freight', () => {
+    expect(G.industrial.firm_jobs).toBeGreaterThanOrEqual(100);
+    expect(G.industrial.firm_jobs).toBeLessThanOrEqual(150);
+    expect(C.firm_jobs).toBeLessThan(G.industrial.firm_jobs);
+    expect(C.ownership).toBe('local_collective');
+    const o = params.industry.by_ownership.local_collective;
+    expect(o.export_share).toBeLessThan(0.5);
+    expect(params.industry.by_ownership.hk_processing.export_share).toBe(1);          // processing stays 100% export (§4b.2 item 2)
+    const s = played.rec.final;
+    const coll = organic(s, C.archetype), proc = organic(s, G.industrial.archetype);
+    expect(coll.length).toBeGreaterThan(0);
+    expect(proc.length).toBeGreaterThan(0);
+    expect(coll.every((f) => f.ownership === 'local_collective' && f.jobs === C.firm_jobs)).toBe(true);
+    expect(proc.every((f) => f.jobs === G.industrial.firm_jobs)).toBe(true);
+    expect(coll.every((f) => firmFreight(f, params.freight!) === undefined)).toBe(true);
+  });
+
+  it('the collectives bank their own demand, no more than one firm while no land fits', () => {
+    const end = runMonths(initial(), 3, new Rng(1), undefined, STEPS);
+    expect(end.firms.filter((f) => f.origin === 'organic')).toEqual([]);
+    expect(end.growth.collectiveCarry).toBeGreaterThan(0);
+    expect(end.growth.collectiveCarry!).toBeLessThanOrEqual(C.firm_jobs * params.industry.by_ownership.local_collective.floor_m2_per_job);
+  });
+
+  it('a collective stream needs an archetype of its own', () => {
+    expect(() => validateParams({ ...params, growth: { ...G, collective: { ...C, archetype: G.industrial.archetype } } }))
+      .toThrow(/collective.archetype must differ/);
   });
 });
 

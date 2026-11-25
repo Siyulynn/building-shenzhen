@@ -89,6 +89,9 @@ industry:                                # M3b (§5.5): firms, production and va
                      floor_m2_per_job: 12, power_kw_per_job: 1.0, water_m3_day_per_job: 0.15 }
     overseas_chinese: { output_per_job_month: 300, value_added_ratio: 0.25, export_share: 0.8,
                      floor_m2_per_job: 10, power_kw_per_job: 0.6, water_m3_day_per_job: 0.12 }
+    # R10b (phase1-slice §5.13): local collectives (集体), small workshops selling mostly at home. Placeholders
+    local_collective: { output_per_job_month: 160, value_added_ratio: 0.3, export_share: 0.1,
+                     floor_m2_per_job: 12, power_kw_per_job: 0.4, water_m3_day_per_job: 0.1 }
 
 investors:                               # M3b (§5.5): offers by archetype (content/slice/investors.yaml). Placeholders
   offer_months: 6                        # an offer outlives a quarter: runQuarter does not stop between months
@@ -222,13 +225,22 @@ growth:                                  # R3 organic growth (buildings-and-cons
     archetype: organic.small_processing  # the firms' archetype id; not an investor card
     firm: { dorm_beds_per_job: 0.3, build_months: 5, ramp_months: 2 }   # as an investors.archetypes entry; R9.1: 6/3
     ownership: hk_processing
-    firm_jobs: 500                       # one organic firm: 5,000 m² of factory and 750 m² of dormitory
-    floor_m2_per_month: 8000             # m² of demand a month at order index 1 and regime factor 1; R9.1: was 6000
+    firm_jobs: 120                       # one organic firm: 1,200 m² of factory and 180 m² of dormitory; R10b: was 500
+    floor_m2_per_month: 4500             # m² of demand a month at order index 1 and regime factor 1; R9.1: 6000 → 8000; R10b: 4500
     min_utility_share: 0.3               # no firm builds where its area's supply would fall below this share
     regime_factor: { default: 1, regime.county_1979: 0.4 }   # by fiscal regime id: the SEZ's regime favours firms (R9.1)
     max_backlog_m2: 40000                # R9 (b&c §13.3): no new organic firm in a zone with more floor under construction (placeholder)
+  collective:                            # R10b (phase1-slice §5.13): local collectives (集体), workshop-sized, domestic sales
+    archetype: organic.local_collective  # no freight entry: they sell at home by the old ways
+    firm: { dorm_beds_per_job: 0.1, build_months: 4, ramp_months: 2 }
+    ownership: local_collective
+    firm_jobs: 60                        # 720 m² of workshop and 30 m² of dormitory
+    floor_m2_per_month: 1500             # placeholder
+    min_utility_share: 0.3
+    regime_factor: { default: 0.6, regime.county_1979: 1 }   # strongest before the SEZ's contracting regime
+    max_backlog_m2: 12000                # about 16 workshops building in one zone (placeholder)
   services:
-    spend_per_job_month: 60              # local spending that supports one service job (yuan a month)
+    spend_per_job_month: 25              # local spending that supports one service job (yuan a month); R10b: was 60
     formal_share: 0.5                    # share of new service jobs that want shop floor; the rest is informal
     m2_per_job: 15                       # shop floor per formal service job
     tax_rate: 0.05                       # R4 placeholder, not sourced: tax on a staffed formal post's value added
@@ -246,7 +258,7 @@ growth:                                  # R3 organic growth (buildings-and-cons
     town:         { cost: 1.2, compensation: 1.5 }   # the town fringe; existing users move
 
 gdp:                                     # nominal value added (fiscal §8.2)
-  base_va_per_job_month: { farming_fishing: 30, factory: 50, construction: 50, services: 40, state: 45 }
+  base_va_per_job_month: { farming_fishing: 30, factory: 50, construction: 50, services: 50, state: 50 }   # R10b: services 40, state 45
   construction_va_ratio: 0.35            # fiscal §12's starting guess
 
 # ---- M5a (§5.7): events, readiness, the SEZ's priorities, Shekou and the shortcut. Placeholder design guesses ----

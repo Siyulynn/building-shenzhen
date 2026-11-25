@@ -14,6 +14,11 @@ const SEZ = 'regime.contracting_1980s', COUNTY = 'regime.county_1979';
 const TICK: TickContent = { network: slice.tick.network!, buildable: slice.tick.buildable!, fiscal: slice.tick.fiscal! };
 const STEPS = createTickSteps(params, TICK);
 const G = params.growth!;
+/** R10b (§5.13): the processing stream alone, for the tests that count its firms against its own numbers. */
+const { collective: _collective, ...processingOnly } = G;
+const PROCESSING = createTickSteps(validateParams({ ...params, growth: processingOnly }), TICK);
+/** An organic firm's stream: the collectives' or the processing firms'. */
+const streamOf = (f: GameState['firms'][number]) => (f.archetype === G.collective?.archetype ? G.collective : G.industrial);
 const rect = (x0: number, x1: number, y0: number, y1: number): CellRuns => {
   const runs: CellRuns = [];
   for (let y = y0; y <= y1; y++) runs.push([y, x0, x1]);
@@ -58,7 +63,7 @@ describe('R3: organic industry on reachable land', () => {
     const open = organicFirms(end).filter((f) => f.opens !== undefined && f.opens < end.date);
     expect(open.length).toBeGreaterThan(0);
     expect(open.reduce((n, f) => n + f.posted, 0)).toBeGreaterThan(0);
-    expect(open.every((f) => f.floorM2 === G.industrial.firm_jobs * params.industry.by_ownership.hk_processing.floor_m2_per_job)).toBe(true);
+    expect(open.every((f) => f.floorM2 === streamOf(f).firm_jobs * params.industry.by_ownership[f.ownership].floor_m2_per_job)).toBe(true);
     // never beyond the zone's room: 12 developable cells × 10,000 m² × far
     expect(organicFirms(end).reduce((n, f) => n + f.floorM2 + f.dormM2, 0)).toBeLessThanOrEqual(12 * 10_000 * G.far.industrial);
   });
@@ -74,7 +79,7 @@ describe('R3: organic industry on reachable land', () => {
     const area = s.areas.find((a) => a.id === s.zones[0]!.area)!;
     const kw = G.industrial.firm_jobs * params.industry.by_ownership.hk_processing.power_kw_per_job;
     area.utilities.powerCap = 2 * kw;                                  // two firms in full, a third at two thirds…
-    const end = run(s, 24);
+    const end = run(s, 24, PROCESSING);
     const firms = organicFirms(end).length;
     expect(firms).toBe(Math.floor(2 / G.industrial.min_utility_share));   // …and a fourth would fall to one half
   });
@@ -91,7 +96,7 @@ describe('R3: the builder pays', () => {
   it('posts nothing to the city ledger: the accounts match a run without growth until a firm opens', () => {
     const { growth: _off, ...rest } = params;
     const noGrowth = createTickSteps(validateParams(rest), TICK);
-    const a = run(landed([{ use: 'industrial', runs: CONNECTED }]), 5);
+    const a = run(landed([{ use: 'industrial', runs: CONNECTED }]), 5, PROCESSING);
     const b = run(landed([{ use: 'industrial', runs: CONNECTED }]), 5, noGrowth);
     expect(organicFirms(a).length).toBeGreaterThan(0);
     expect(a.firms.every((f) => f.opens === undefined || f.opens >= a.date)).toBe(true);   // none open yet: no taxes
