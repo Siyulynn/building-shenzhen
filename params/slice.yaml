@@ -27,7 +27,7 @@ labour:
 
 migration:
   inland_wage: 45                        # the reference wage migrants compare with
-  base: { migrant_factory: 2000, migrant_construction: 1000 }   # people per month at gap 1, full pull, network 1
+  base: { migrant_factory: 2300, migrant_construction: 1150 }   # people per month at gap 1, full pull, network 1
   sector: { migrant_factory: factory, migrant_construction: construction }
   pull_sectors:                          # R4 (§5.11): the sectors whose vacancies pull each kind (fill_order lets them in)
     migrant_factory: [factory, services]
@@ -130,7 +130,7 @@ fiscal:
   # R8c (phase1-slice §5.5): purchased power joins the city pool after lead_months, each kW a permanent monthly
   # service obligation from then; max_kw is the line's limit. Placeholders (design_note), to be replaced when the source
   # (Hong Kong or Guangdong) and its terms have claims: data/evidence/claims/phase1_power_supply.yaml holds only leads.
-  power_import: { yuan_per_kw_month: 8, lead_months: 3, max_kw: 3000 }
+  power_import: { yuan_per_kw_month: 8, lead_months: 3, max_kw: 4500 }   # R9.1: max_kw was 3000; the line bridges the 1982 station
 
 capacity:                                # the construction-capacity pool (§5.6), in crew units (organised worker-months)
   local_crew: 600                        # R9 (§5.6): the county's core; arrivals add to it. A placeholder set against the 1979 spending floor
@@ -212,12 +212,12 @@ growth:                                  # R3 organic growth (buildings-and-cons
     high:     { far: 1.8, formation_cost: 1.6, formation_work: 1.5, power: 1.3 }
   industrial:                            # small Hong Kong processing firms that build and occupy their own premises
     archetype: organic.small_processing  # the firms' archetype id; not an investor card
-    firm: { dorm_beds_per_job: 0.3, build_months: 6, ramp_months: 3 }   # as an investors.archetypes entry
+    firm: { dorm_beds_per_job: 0.3, build_months: 5, ramp_months: 2 }   # as an investors.archetypes entry; R9.1: 6/3
     ownership: hk_processing
     firm_jobs: 500                       # one organic firm: 5,000 m² of factory and 750 m² of dormitory
-    floor_m2_per_month: 6000             # m² of demand a month at order index 1 and regime factor 1
+    floor_m2_per_month: 8000             # m² of demand a month at order index 1 and regime factor 1; R9.1: was 6000
     min_utility_share: 0.3               # no firm builds where its area's supply would fall below this share
-    regime_factor: { default: 1, regime.county_1979: 0.3 }   # by fiscal regime id: the SEZ's regime favours firms
+    regime_factor: { default: 1, regime.county_1979: 0.4 }   # by fiscal regime id: the SEZ's regime favours firms (R9.1)
     max_backlog_m2: 40000                # R9 (b&c §13.3): no new organic firm in a zone with more floor under construction (placeholder)
   services:
     spend_per_job_month: 60              # local spending that supports one service job (yuan a month)

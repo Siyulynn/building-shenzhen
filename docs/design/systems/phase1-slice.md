@@ -703,6 +703,7 @@ interface AnsweredCard { card: CardInstance; option: string }   // answered, awa
   7. `upland`: slope > 6%;
   8. `lowland_farm`: everything else.
   Two deviations from the plan's first wording, both forced by the inputs: every 1979 water cell in the playable areas is also coast change 3, so `water` takes only large bodies; and about a fifth of 1979 inland water lies on hills (shadow), so `pond` has an elevation ceiling.
+
 - **The compiler checks** the classes and their order, the grid and the areas hash, and that each playable area's classes **partition** its cells: no gap, no overlap, nothing outside the area.
 - **Formable classes** (decided): `upland`, `lowland_farm`, `pond`, `town`. **Villages are not formable**: development wraps around them and their `village_rental` floor keeps growing. `water`, `tidal_flat` and `hill` are not formable either (no reclamation or terracing in Phase 1). A road on a `water` or `tidal_flat` cell is a bridge (§5.6 works); a road may cross `hill` and `village` cells at the road rate.
 - **Formation cost** (`growth.land_cover.<class>.cost`, placeholders): a formable cell's service work is `round(works.service.units_per_cell × cost)` units, at the order's one rate (`works.service.yuan_per_cell ÷ units_per_cell`), so work and money scale together: upland 1.6, lowland_farm 1.2, pond 1.8, town 1.2. A zone that spans classes has a mixed cost; the preview shows the total and the split by class.
@@ -1458,6 +1459,23 @@ M6b calibrated with named parameters only, in `params/slice.yaml`, and with the 
 - **What broke the 1979-Q4 spending floor.** The old opening card's M4 road link (¥1.1m, tuned in M6b to hold this band) is retired from the prologue, and the gates hold back 1979 tools. That took historical to 0.768 and aggressive to 0.632, against 1.295.
 - **What restored it.** The map plans now borrow and build like the city they model (§5.9): `borrow_until_turn` raises the state-bank loan in 1979, the first road is ordered in the first month, and `roads_at_once` builds a Luohu street beside the Shangbu road.
 - **The result.** 1979-Q4 at 1.337 and 1.338, a thin margin over the 1.295 floor. 1983 at 1.070 and 1.082, against the 1.204 ceiling. The attempts are in `docs/design/m6-tuning-log.md` (R9).
+
+**R9.1: matching the yearly path (2026-11-25).** The claims store has annual values for 1980–84, not only 1979, 1980 and 1983. A calibration that checks only the endpoints can pass while the slice falls further behind every year, and that is what had happened: the slice's multiple of its end-1979 position, divided by the SEZ's (population) or the city's (GDP) multiple, drifted from 0.86 in 1980 to 0.74 in 1983 for residents and from 0.82 to 0.60 for GDP. The cause was a slow 1980–81 (demand and firm build time) and a four-quarter power cliff before the 1982-10 station.
+
+The pass moved five named parameters: `growth.industrial.floor_m2_per_month` 6,000 → 8,000, the organic firm's build and ramp months 6/3 → 5/2, `migration.base` 2,000/1,000 → 2,300/1,150, `fiscal.power_import.max_kw` 3,000 → 4,500, and the county regime factor 0.3 → 0.4. The resident ratio now sits in a 0.79–0.91 band and the 1982 dip is gone; the GDP ratio settles at 0.66.
+
+| End | Residents | Ratio to claim | GDP | Ratio to claim | Temporary | Spending ÷ revenue |
+|---|---:|---:|---:|---:|---:|---:|
+| 1979 | 30,338 | 1.00 | 8M | 1.00 | 566 | 1.34 |
+| 1980 | 31,059 | 0.86 | 10M | 0.90 | 3,452 | 0.97 |
+| 1981 | 38,307 | 0.91 | 21M | 0.97 | 13,887 | 1.29 |
+| 1982 | 46,726 | 0.85 | 28M | 0.78 | 19,816 | 1.23 |
+| 1983 | 55,451 | 0.79 | 37M | 0.66 | 31,085 | 1.11 |
+
+- **The GDP ratio has a structural floor at about 0.66.** The Shangbu plan's 36 cells are full at end-1983; more FAR adds land, not finished firms. Construction capacity and labour set the 1983 output, and widening the plan trades against the 1979 and 1983 spending bands. Recorded, not forced.
+- **Realism checks kept in the log:** 430 jobs and ~5,125 m² a firm, 45 W of industrial power a m², village rental outgrowing planned housing by 66,613 to 65,850 m² (thin), and rents of ¥3–10 a m² that follow crowding. Employment stays at 95–99% of the participating labour force: a town whose migrants come for jobs.
+- **Goldens:** historical_prologue 52,360 → 55,451 residents and 33.6M → 37.4M GDP; aggressive 48,887 → 53,626 and 32.7M → 35.7M. All 20 bands stay green for both; `decline_all` moves only its hash. No band was widened.
+- **One design check changed measure.** The m6a fiscal check now asserts a thinner *margin* rather than a smaller absolute 1984 balance: after R9 made the corps a free arrival, aggressive's tax base outruns its obligations (290,220 against cautious's 200,064), while its margin is still the thinner one (7.2% against 8.0%). Recorded in the tuning log.
 
 ### 5.11 Jobs, labour and migration on the map (R4)
 R4 answers §5.10's labour constraint (option C) and traces jobs from the map: construction jobs while works and builds are active, industrial jobs once floor is occupied, then service jobs as wages are spent. It replaces §5.2's from-scratch matching and its lost arrivals, and it adds the occupied city's revenue. Organic floor is buildings-and-construction §13.3's (R3).

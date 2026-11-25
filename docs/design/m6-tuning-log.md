@@ -255,3 +255,120 @@ of range with the 1982 storm included, so no modifier was softened.
 
 **Crew waves (69a80ce):** the core stays at 600. 200 failed the aggressive power and freight run-shape tests at every
 backlog brake tried. The brake is 40,000 mÂ² (15,000 failed the same tests).
+
+
+## R9.1 (path calibration, 2026-11-25)
+
+**Goal.** R6–R9 checked three points: end-1979, 1980-Q2 and end-1983. The claims store also holds annual values for
+1980, 1981, 1982 and 1984 — population by category, nominal GDP and its sectors, budget revenue and spending,
+employment (`data/evidence/claims/phase1_statistics.yaml`). This pass tests the slice's **path** against them and
+audits the realism of the system numbers. Named parameters only; no mechanic changed.
+
+**The measure.** Per year, the model's multiple over its end-1979 value divided by the claim's multiple over 1979.
+1.0 means the slice grows exactly like the SEZ (population) or the city (GDP); below 1 means it lags. Levels are not
+compared: the slice is a subset and no claim covers its own geography (§9). A good calibration keeps this ratio
+*stable*, not equal to 1.
+
+**The path before this pass** (`historical_prologue`, seed 1; quarter ends are January, so the 1981 row is end-1980):
+
+| Year end | Residents | Model × | Claim × | Ratio | GDP ¥m | Model × | Claim × | Ratio | Temporary |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1979 | 30,338 | 1.000 | 1.000 | 1.00 | 8 | 1.000 | 1.000 | 1.00 | 559 |
+| 1980 | 30,901 | 1.019 | 1.186 | 0.86 | 10 | 1.133 | 1.375 | 0.82 | 2,347 |
+| 1981 | 35,569 | 1.172 | 1.386 | 0.85 | 17 | 1.995 | 2.524 | 0.79 | 10,191 |
+| 1982 | 42,087 | 1.387 | 1.814 | 0.76 | 24 | 2.806 | 4.205 | 0.67 | 17,369 |
+| 1983 | 52,360 | 1.726 | 2.327 | 0.74 | 34 | 3.988 | 6.682 | 0.60 | 27,344 |
+
+**What was wrong.** The ratio eroded every year: the slice started at 0.86 of the claim's growth and fell to 0.74
+(residents) and 0.60 (GDP). Two causes:
+
+- **1980–81 barely grew.** Industrial demand was 6,000 m² a month with the county regime's 0.3 factor, and a firm
+  needed six months of work plus a three-month ramp. End-1980 showed 1,008 factory posts and one open firm.
+- **1982 had a power cliff.** The plan's 6,000 kW station finished in 1982-10; from 1981-10 to 1982-09 the pool
+  share sat at 0.71–0.89, so firms posted 11–29% fewer jobs for four quarters. The 1982 column fell, then 1983
+  jumped when the station came on.
+
+**Levers kept** (now in `params/slice.yaml`):
+
+| Lever | Before | After | Why |
+|---|---|---|---|
+| `growth.industrial.floor_m2_per_month` | 6,000 | 8,000 | firms start earlier, so 1981 and 1982 fill |
+| `growth.industrial.firm.build_months` / `ramp_months` | 6 / 3 | 5 / 2 | a small factory rises in five months; posts arrive sooner |
+| `migration.base` | 2,000 / 1,000 | 2,300 / 1,150 | the vacancies exist; 2,400 breaks the quiet-village test below, so this is the ceiling |
+| `fiscal.power_import.max_kw` | 3,000 | 4,500 | the line bridges the station, removing the 1982 cliff (cost: ¥36k a month) |
+| `growth.industrial.regime_factor.county_1979` | 0.3 | 0.4 | a little building before the SEZ, without erasing the regime's effect |
+
+**The path after this pass:**
+
+| Year end | Residents | Model × | Ratio | GDP ¥m | Model × | Ratio | Temporary | Spending ÷ revenue |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1979 | 30,338 | 1.000 | 1.00 | 8 | 1.000 | 1.00 | 566 | 1.34 |
+| 1980 | 31,059 | 1.024 | 0.86 | 10 | 1.239 | 0.90 | 3,452 | 0.97 |
+| 1981 | 38,307 | 1.263 | 0.91 | 21 | 2.441 | 0.97 | 13,887 | 1.29 |
+| 1982 | 46,726 | 1.540 | 0.85 | 28 | 3.294 | 0.78 | 19,816 | 1.23 |
+| 1983 | 55,451 | 1.828 | 0.79 | 37 | 4.428 | 0.66 | 31,085 | 1.11 |
+
+The resident ratio now sits in a 0.79–0.91 band instead of eroding to 0.74, and the 1982 cliff is gone (0.76 ? 0.85).
+The temporary population is 31,085 at end-1983 (was 27,344), against the 120,000 SEZ bound.
+
+**Levers rejected, with the reason.**
+
+- **Migration base 2,400+.** It makes a *quiet* village add rental floor in `growth.test.ts` (migrants arrive in an
+  area with no pressure, crowding rises and the village builds). The property is a start-of-game guard; 2,300 keeps
+  it and still adds 3,700 temporary residents.
+- **County factor 0.6.** It erased the "SEZ builds more than the county" property in `growth.test.ts` (both runs hit
+  the fixture's land cap) and bought only 1.6% residents. 0.4 keeps the property.
+- **`village_build.response` 0.6–0.8.** Same quiet-village failure (a 21–28 m² boundary effect of the response
+  rate). 0.5 keeps the property; `village_outgrows_planned` still passes.
+- **`housing.base_rent` 3.0 / `rent_elasticity` 1.5.** A more realistic rent level, but it also let the quiet village
+  clear its build hurdle. Reverted; rents stay crowding-driven.
+- **Industrial FAR 1.25.** +0.2 GDP multiple but it broke the per-cell floor arithmetic in `offers.test.ts` and adds
+  land, not finished firms. The builders and the labour supply are the cap.
+- **Higher street freight capacity** (8,000 ? 12,000 t): no effect. The historical run never leaves a gateway unmet;
+  the 1982 constraint was power, not the road.
+- **A global works rush** (§4.6): tested and rejected earlier; every variant trips the spending band.
+
+**Realism panel** (`historical_prologue`, end-1983):
+
+| Number | Value | Read |
+|---|---|---|
+| Factory posts | 19,765 from 46 open firms | 430 jobs and ~5,125 m² of factory + dormitory each |
+| Industrial power | 10,543 kW over 235,750 m² | 45 W/m², plausible for light processing |
+| Employment | 95–99% of the participating labour force | a migration-fed boom town; the model has no separate unemployment series |
+| Rents | ¥2.8 ? 9.3 ? 9.8 ? 5.5 ? 4.7 a m² | follows crowding; real rents were stickier (see below) |
+| Village vs planned floor | +66,613 vs +65,850 m² | village rental outgrows planned housing, by 763 m²: passes, but thinly |
+| Exports | ¥68m a year | a slice of the city's total; no slice claim to test against |
+| 1984 balance without the grant | ¥69,728 (1.8% of revenue) | the grant cliff bites the historical run first |
+
+**Structural notes, recorded not forced.**
+
+- **The GDP ratio settles at 0.66, not 1.0.** The Shangbu plan's 36 cells are full at end-1983, with 46 open firms.
+  Wider FAR adds land, not finished firms: construction capacity and labour set the 1983 output, and widening the
+  plan trades against the 1979 and 1983 spending bands. A 0.8 ratio needs a larger plan, which is a policy change,
+  not a parameter.
+- **Rents follow crowding, so they fall after 1982** as the village response catches up. A rent trend with income is
+  a mechanic (a spec change), not a parameter; not in this pass.
+- **`aggressive` tracks less closely** (resident ratio 0.86/0.85/0.73/0.76; GDP 0.89/0.80/0.65/0.62). Its plan
+  spends early on the station and the avenue and its 1982 spending ÷ revenue is 1.44. It passes the §9 bands at
+  end-1983; the path is not forced, because that needs a different plan.
+- **The village design check is thin.** 763 m² of margin means the next change that favours dormitories will flip
+  `village_outgrows_planned`. It is kept and flagged rather than widened.
+- **One test changed its measure.** The m6a fiscal check used to assert that cautious's projected 1984 balance
+  exceeded aggressive's in *absolute* yuan. After R9 made the corps an arrival rather than a paid contract, and R9.1
+  lifted the aggressive tax base, aggressive's balance is larger (290,220 against 200,064). The check now asserts the
+  design intent, a thinner *margin* (7.2% against 8.0%), and that both stay positive.
+
+**Goldens (end-1983, seed 1).** Against R9:
+
+| Policy | Residents | GDP | Spending ÷ revenue | Bands |
+|---|---:|---:|---:|---|
+| historical_prologue | 52,360 ? 55,451 | 33.6M ? 37.4M | 1.07 ? 1.11 | 20 pass |
+| aggressive | 48,887 ? 53,626 | 32.7M ? 35.7M | 1.08 ? 1.02 | 20 pass |
+| cautious | 37,167 ? 37,204 | 14.9M ? 15.0M | 0.75 ? 0.79 | 16 pass, 4 structural |
+| default | 30,828 ? 30,822 | 8.1M | 0.94 | idle |
+| decline_all | 30,340 | 7.65M | 0.64 | idle |
+
+`decline_all` moves only `params_sha256`. Every playing policy keeps its band count.
+
+**Invariants.** `npm run check` green: determinism, population and money conserved, no negative stock, M5b's
+properties, and the §9 bands unchanged (no band was widened; the pass moved parameters, not targets).
