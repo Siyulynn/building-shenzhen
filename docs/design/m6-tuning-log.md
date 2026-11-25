@@ -165,11 +165,12 @@ The numbers are those of commit 2b1d766 (seed 1, end-1983).
 | Plan | Upgrades | Binds | 1983 GDP multiple |
 |---|---|---|---|
 | aggressive, no upgrade | none | 1982-07 to the end | ×2.275, **fails** 3 bands |
-| aggressive, upgrades as soon as its roads are built | 1980-10 to 1981-06 | never | ×2.747, **fails** 3 bands: the money and crew go before the first wave |
+| aggressive, upgrades as soon as its roads are built | 1980-10 to 1981-06 | never | ×2.747, **fails** 3 bands: power binds instead (below) |
 | aggressive, from turn 12, kept | 1982-04 to 1982-12 | 1982-07 to 1983-01 | ×3.486, passes |
 | historical, kept | first leg 1981-04, then 1982-04 to 1982-09 (money) | 1982-04 to 1982-09 | ×3.418, passes |
 
-- The first-wave effect (the early upgrade's row) is the largest move in this pass: the R4.5 readiness rule makes a pre-SEZ quarter's crews and money matter more than a later year's freight.
+- **Why the early upgrade fails.** It is not the first wave: readiness, formed cells and firm counts match the kept run quarter for quarter until 1983. The upgrade's money is spent in turn 9, the plan's `station_turn`, so the plan orders its power station a year late (1982-04). The station is still unfinished at the end, the pool stays at 4,250 kW against 10,250 kW in the kept run, and posts plateau near 8,400. It is an ordering effect inside the plan script (works before utilities), but a player can fall into the same trap: an upgrade ordered ahead of need can starve the power that the firms need first.
+- **Materials are inert at these settings.** At 2 t a crew unit, one street carries 4,000 crew units a month per area, far above the pool. So the station never limits building in these runs. Lowering the rate from 5 t hid the overstated demand (each job's pace, not the pool's supply) rather than fixing it. Capping the materials demand at the pool is the fix to make before the materials flow is tuned to bind.
 - Raising capacities was not needed.
 
 **Goldens (end-1983):**

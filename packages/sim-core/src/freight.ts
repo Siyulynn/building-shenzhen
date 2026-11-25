@@ -220,24 +220,32 @@ export interface GatewayFlow { gateway: string; dir: Direction; demand: number; 
 export interface FreightAllocation { areas: AreaFlow[]; gateways: GatewayFlow[] }
 
 /**
- * Allocate demands to gateways (§5.12). A flow goes to its face's gateway of its mode when the area reaches it, else
- * to the face's other gateway, else it is not constrained (no gateway, flow = demand). A gateway's capacity is shared
- * pro rata to what each area can bring (min of demand and path), by largest remainder in area order.
+ * Allocate demands to gateways (§5.12). A flow goes to the face's gateway with the wider path from the area, its own
+ * mode's on a tie; with neither reached it is not constrained (no gateway, flow = demand). An area's flows into one
+ * gateway and direction are summed before its path caps them, so together they never pass its weakest cell. A
+ * gateway's capacity is shared pro rata to what each area can bring (min of demand and path), by largest remainder in
+ * area order.
  */
 export function allocateFreight(fc: FreightContent, net: FreightNetwork, demands: readonly FreightDemand[]): FreightAllocation {
-  const areas: AreaFlow[] = [];
-  const queues = new Map<string, { i: number; want: number }[]>();
+  const areas: AreaFlow[] = [], at = new Map<string, number>();
   for (const d of [...demands].sort((a, b) => a.area - b.area)) {
     if (!(d.t > 0)) continue;
-    const pick = [d.mode, d.mode === 'rail' ? 'road' : 'rail'].map((m) => fc.gateways.find((g) => g.faces === d.face && g.mode === m))
-      .find((g) => g && net.path(d.area, g).capacity > 0);
-    const i = areas.push({ area: d.area, face: d.face, dir: d.dir, demand: d.t, flow: d.t }) - 1;
-    if (!pick) continue;
-    areas[i]!.gateway = pick.id;
-    const key = `${pick.id}:${d.dir}`;
-    const q = queues.get(key) ?? (queues.set(key, []), queues.get(key)!);
-    q.push({ i, want: Math.min(d.t, net.path(d.area, pick).capacity) });
+    const own = fc.gateways.find((g) => g.faces === d.face && g.mode === d.mode);
+    const other = fc.gateways.find((g) => g.faces === d.face && g.mode !== d.mode);
+    const width = (g?: Gateway) => (g ? net.path(d.area, g).capacity : 0);
+    const pick = width(own) > 0 && width(own) >= width(other) ? own : width(other) > 0 ? other : undefined;
+    const key = `${d.area}:${d.face}:${d.dir}:${pick?.id ?? ''}`;
+    const i = at.get(key);
+    if (i !== undefined) { areas[i]!.demand += d.t; areas[i]!.flow += d.t; continue; }
+    at.set(key, areas.push({ area: d.area, face: d.face, dir: d.dir, ...(pick ? { gateway: pick.id } : {}), demand: d.t, flow: d.t }) - 1);
   }
+  const queues = new Map<string, { i: number; want: number }[]>();
+  areas.forEach((x, i) => {
+    if (x.gateway === undefined) return;
+    const g = fc.gateways.find((y) => y.id === x.gateway)!, key = `${g.id}:${x.dir}`;
+    const q = queues.get(key) ?? (queues.set(key, []), queues.get(key)!);
+    q.push({ i, want: Math.min(x.demand, net.path(x.area, g).capacity) });
+  });
   const gateways: GatewayFlow[] = [];
   for (const g of fc.gateways) for (const dir of ['in', 'out'] as const) {
     const q = queues.get(`${g.id}:${dir}`) ?? [];

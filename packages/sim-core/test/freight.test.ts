@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 import {
   Rng, aggressive, allocateFreight, applyTurnAction, areaShare, cloneState, createInitialState, createTickSteps,
   firmFreight, firstOption, freightContent, freightNetwork, loadGame, parseYM, playQuarters, policyNamed, post,
-  postFirmJobs, roadClasses, runMonths, saveGame, saveFromJson, saveToJson, step, widestPaths,
+  postFirmJobs, roadClasses, runMonths, saveGame, saveFromJson, saveToJson, setRoadClass, step, widestPaths,
   type FreightContent, type FreightNetwork, type GameState, type Gateway, type PlayerAction,
 } from '../src/index.js';
 import { content, initial, params, slice } from './fixtures.js';
@@ -59,6 +59,21 @@ describe('R8d allocation', () => {
     expect(c.areas[0]).toMatchObject({ flow: 500, demand: 500 });
     expect(c.areas[0]!.gateway).toBeUndefined();
     expect(areaShare(c, 4, 'out')).toBe(1);
+  });
+
+  it('sums an area\'s rail and road flows into one gateway before its weakest cell caps them', () => {
+    const road: Gateway = { ...g, id: 'gateway.road', mode: 'road', capacity: { out: 1000, in: 0 } };
+    const two: FreightContent = { ...FC, gateways: [{ ...g, capacity: { out: 1000, in: 0 } }, road] };
+    const d = (mode: 'rail' | 'road', t: number) => ({ area: 1, face: 'hong_kong' as const, mode, dir: 'out' as const, t });
+    // the road gateway is not reached: the road flow joins the rail one, and the two together get the path's 30 t
+    const one: FreightNetwork = { reach: [], access: new Map(), path: (_a, x) => ({ capacity: x.id === 'gateway.test' ? 30 : 0 }) };
+    const a = allocateFreight(two, one, [d('rail', 40), d('road', 40)]);
+    expect(a.areas).toEqual([expect.objectContaining({ gateway: 'gateway.test', demand: 80, flow: 30 })]);
+    // a flow takes the wider path, its own mode's on a tie: a narrow road to the road gateway does not narrow it
+    const narrow: FreightNetwork = { reach: [], access: new Map(), path: (_a, x) => ({ capacity: x.id === 'gateway.test' ? 30 : 5 }) };
+    expect(allocateFreight(two, narrow, [d('road', 40)]).areas[0]).toMatchObject({ gateway: 'gateway.test', flow: 30 });
+    const even: FreightNetwork = { reach: [], access: new Map(), path: () => ({ capacity: 30 }) };
+    expect(allocateFreight(two, even, [d('road', 40)]).areas[0]).toMatchObject({ gateway: 'gateway.road', flow: 30 });
   });
 });
 
@@ -158,6 +173,23 @@ describe('R8d where the shortfall lands', () => {
       expect(o.spent).toBe(Math.round((params.works!.road.yuan_per_cell / params.works!.road.units_per_cell) * o.unitsDone));
     }
     expect(tightRun.s.history.freightUnmet!['gateway.shenzhen_station:in']!.some((v) => v > 0)).toBe(true);
+  });
+});
+
+describe('R8d the road is the lever', () => {
+  it('at the aggressive plan\'s first short quarter, an avenue corridor posts more over the next quarter', () => {
+    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, slice.tick));
+    const unmet = (s: GameState) => (s.history.freightUnmet?.['gateway.luohu:out'] ?? []).slice(-3).reduce((a, b) => a + b, 0);
+    const q = rec.quarterEnds.findIndex((s) => unmet(s) > 0);
+    const s0 = rec.quarterEnds[q]!;
+    const wide = cloneState(s0);
+    for (const c of roadClasses(wide, slice.startNetwork).keys()) setRoadClass(wide, c, 'avenue');
+    const posts = (s: GameState) => {
+      let n = 0;
+      for (let m = 0; m < 3; m++) { s = runMonths(s, 1, new Rng(9 + m), firstOption, STEPS); n += s.firms.reduce((k, f) => k + f.posted, 0); }
+      return n;
+    };
+    expect(posts(wide)).toBeGreaterThan(posts(cloneState(s0)));
   });
 });
 

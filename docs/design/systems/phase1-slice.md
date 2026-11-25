@@ -1187,7 +1187,7 @@ M6 is built in three parts. **M6a** (this section) builds the instruments: one w
 The report says pass or fail honestly. A failing band is a finding for M6b, never a reason to widen a band or a tolerance.
 
 **One way to load the slice** (`src/content.ts`, pure). Today the composition lives in `test/fixtures.ts`. M6a moves it into sim-core, so the tests, the CLI and the UI load the same slice.
-- `SLICE_FILES`: the repo-relative path of every file the slice reads (the areas and buildable JSON, the scenario, start, params, precedents, investors, fiscal regimes, projects, teams, events, targets and leaders).
+- `SLICE_FILES`: the repo-relative path of every file the slice reads (the areas and land-cover JSON (R8a; it replaced the buildable JSON), the site register and its cells, the start network, the gateways (R8d), the scenario, start, params, precedents, investors, fiscal regimes, projects, teams, events, targets and leaders).
 - `compileSlice(read, parse, hash)`: `read(path)` gives a file's text, `parse` is the caller's YAML parser, and `hash(text)` is the caller's sha256 of the text with LF endings. It returns:
   - `init`, the input of `createInitialState`;
   - `tick`, the full `TickContent`;
@@ -1352,7 +1352,7 @@ R4 answers §5.10's labour constraint (option C) and traces jobs from the map: c
 
   Both use §13.3's spending rule, from last month's matching. It counts wages earned outside services only, so service posts do not feed their own spending and the loop stays open. `labour.servicePosts` keeps this month's split for finance and GDP.
 
-**The utility share, with placed sources.** For each area, the share is now `min(1, (area capacity + placed supply) ÷ the firms' need)`, the lower of power and water:
+**The utility share, with placed sources.** For each area, the share is now `min(1, (area capacity + placed supply) ÷ the firms' need)`, the lower of power and water. (From R8c it is power only, and the area's part comes from the city pool: §5.5.)
 - the area capacity is `area.utilities`, the M-series ledger of spare capacity, which start content and M4's projects raise;
 - the placed supply is what placed sources deliver to the area's zones, through `spatialViews(…).supply` (b&c §13.1). Each zone with open firms demands their need, spread evenly over its developable cells (largest remainder). Supply is allocated on the road components, and each zone's share is summed into its area.
 
@@ -1449,8 +1449,8 @@ At most one gateway per face and mode. A gateway's **yard** is the set of road c
 
 **Allocation.** This is computed for each gateway and direction. Each area's **access** is its road cells and the road cells within `max_frontage_depth` (Chebyshev) of its cells.
 - The path capacity `P` comes from one widest-path (maximin) search per gateway from its yard, over road cells weighted by class capacity. `P` is the widest value over the area's access, and ties go to the lower cell.
-- Route: an area's flow of a face and mode goes to that face's gateway of the mode if `P > 0`, else to the face's other gateway. If neither is reached, the flow is **not constrained** (share 1, not reported). That way an unconnected area can still build the road that connects it.
-- Want `W = min(demand, P)`. If ΣW ≤ the gateway's capacity, each area gets its `W`. Otherwise the capacity (whole tonnes) is shared pro rata to `W`, by largest remainder in area order.
+- Route: an area's flow of a face goes to the face's gateway with the wider path `P` from the area, its own mode's on a tie, so a new road never narrows a flow. If neither is reached, the flow is **not constrained** (share 1, not reported). That way an unconnected area can still build the road that connects it.
+- An area's flows into one gateway and direction are summed first, so together they never pass its weakest cell. Want `W = min(demand, P)`. If ΣW ≤ the gateway's capacity, each area gets its `W`. Otherwise the capacity (whole tonnes) is shared pro rata to `W`, by largest remainder in area order.
 - Unmet = demand − flow.
 - **Simplification:** two areas whose paths share a street do not share that street's capacity. Only gateways and each area's weakest link are capacities.
 
