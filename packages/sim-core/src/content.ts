@@ -22,7 +22,7 @@ export const SLICE_FILES = Object.freeze({
   sites: 'content/slice/sites_1979.yaml',
   siteCells: 'data/starts/slice_site_cells.json',
   network: 'content/slice/start_network.yaml',
-  gateways: 'content/slice/gateways.yaml',          // R8d (§5.12); its hash joins the header in R8e
+  gateways: 'content/slice/gateways.yaml',          // R8d (§5.12); its hash is in the header from R8e
   scenario: 'content/slice/scenario.yaml',
   start: 'content/slice/start_1979.yaml',
   params: 'params/slice.yaml',
@@ -83,7 +83,7 @@ export function compileSlice(read: (path: string) => string, parse: (text: strin
       investors_sha256: hash(text.investors), landcover_sha256: hash(text.landcover),
       fiscal_sha256: hash([text.regimes, text.projects, text.teams].join('\n---\n')),
       events_sha256: hash(text.events), leaders_sha256: hash(text.leaders), targets_sha256: hash(text.targets),
-      network_sha256: hash(text.network),
+      network_sha256: hash(text.network), gateways_sha256: hash(text.gateways),
     },
   };
 }

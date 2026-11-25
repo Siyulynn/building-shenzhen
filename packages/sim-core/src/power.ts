@@ -16,7 +16,7 @@ export interface PowerState { purchases: { kw: number; from: YM }[] }
 /** Purchased kW that has arrived, and the kW still on order. */
 export function importedKw(s: GameState): { arrived: number; pending: number } {
   let arrived = 0, pending = 0;
-  for (const x of s.power?.purchases ?? []) { if (x.from <= s.date) arrived += x.kw; else pending += x.kw; }
+  for (const x of s.power.purchases) { if (x.from <= s.date) arrived += x.kw; else pending += x.kw; }
   return { arrived, pending };
 }
 
@@ -74,7 +74,7 @@ export function buyPower(s: GameState, p: SliceParams, a: PlayerAction & { type:
     throw new Error(`the line carries at most ${I.max_kw} kW; ${arrived + pending} kW is bought or on order`);
   }
   const from = s.date + I.lead_months;
-  s.power = { purchases: [...(s.power?.purchases ?? []), { kw: a.kw, from }] };
+  s.power = { purchases: [...s.power.purchases, { kw: a.kw, from }] };
   const perMonth = Math.round(a.kw * I.yuan_per_kw_month);
   if (perMonth > 0) addObligation(s, { kind: 'service', perMonth, index: 'none', from, createdBy: 'power_import' });
 }

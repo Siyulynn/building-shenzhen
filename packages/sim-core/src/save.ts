@@ -6,7 +6,7 @@ import { Rng, type RngState } from './rng.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
 
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 /** The content a save was made with (§5.1, §5.3). */
 export interface SaveContent {
@@ -17,6 +17,7 @@ export interface SaveContent {
   events_sha256: string; leaders_sha256: string;          // M5a, §5.7
   targets_sha256: string;                                 // M5b, §5.8
   network_sha256: string;                                 // R2, b&c §13.2: content/slice/start_network.yaml
+  gateways_sha256: string;                                // R8e, §5.12: content/slice/gateways.yaml (older headers lack it)
 }
 export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed: number; content: SaveContent }
 export interface Save { header: SaveHeader; body: { state: unknown; rng: RngState }; arrays: Record<string, Uint32Array> }
@@ -41,6 +42,35 @@ const MIGRATIONS: Record<number, (s: Save) => Save> = {
       body: { ...s.body, state: { ...st, labour: { ...st.labour, held: [], servicePosts: [] },
         housing: st.housing.map((m) => ({ ...m, turnedAway: 0 })),
         history: { ...st.history, vacancies: zeros(), turnedAway: zeros(), servicePosts: zeros(), constructionPosts: zeros() } } } };
+  },
+  // R8 (phase1-slice §5.1's table): no public zone, the retired power source, the land already taken, the power pool
+  5: (s) => {
+    type Runs = [number, number, number][];
+    type Kinded = { kind: string };
+    const st = s.body.state as {
+      grid: { width: number }; zones: { use: string }[]; structures: Kinded[];
+      worksOrders: { placement?: Kinded }[]; cellWorks: { cell: number }[]; servicedLand: Runs;
+      fiscal: { projects: { cells?: Runs }[] }; actionLog: { action: Record<string, unknown> }[];
+      requisitioned?: number[]; power?: unknown;
+    };
+    const use = (u: unknown) => (u === 'public' ? 'reserve' : u);
+    const kind = <T extends Kinded>(x: T): T => (x.kind === 'power_source' ? { ...x, kind: 'power_substation' } : x);
+    const cells = (r: Runs) => r.flatMap(([y, x0, x1]) => Array.from({ length: x1 - x0 + 1 }, (_, i) => y * st.grid.width + x0 + i));
+    const taken = new Set([...st.cellWorks.map((w) => w.cell), ...cells(st.servicedLand),
+      ...st.fiscal.projects.flatMap((p) => (p.cells ? cells(p.cells) : []))]);
+    const action = (a: Record<string, unknown>) => {
+      if ((a.type === 'create_zone' || a.type === 'edit_zone') && a.use === 'public') return { ...a, use: 'reserve' };
+      if (a.type === 'place_structure' && a.kind === 'power_source') return { ...a, kind: 'power_substation' };
+      return a;
+    };
+    return { ...s, header: { ...s.header, version: 6 },
+      body: { ...s.body, state: { ...st,
+        zones: st.zones.map((z) => ({ ...z, use: use(z.use) })),
+        structures: st.structures.map(kind),
+        worksOrders: st.worksOrders.map((o) => (o.placement ? { ...o, placement: kind(o.placement) } : o)),
+        requisitioned: st.requisitioned ?? [...taken].sort((a, b) => a - b),
+        power: st.power ?? { purchases: [] },
+        actionLog: st.actionLog.map((e) => ({ ...e, action: action(e.action) })) } } };
   },
 };
 

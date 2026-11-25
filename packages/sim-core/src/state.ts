@@ -204,8 +204,8 @@ export interface GameState {
   roads: number[];            // R2 (b&c §13.2): built road cells, sorted; start-network roads stay content
   worksOrders: WorksOrder[];  // R2: municipal works orders, id order
   nextOrderId: number;
-  requisitioned?: number[];   // R8a (§5.5): cells whose land compensation is owed or paid, sorted; required from R8e's save bump
-  power?: PowerState;         // R8c (§5.5): the city's purchased power; required from R8e's save bump
+  requisitioned: number[];    // R8a (§5.5): cells whose land compensation is owed or paid, sorted; required from save v6
+  power: PowerState;          // R8c (§5.5): the city's purchased power; required from save v6
   roadClass?: Record<RoadClass, number[]>;   // R8d (§5.12): class overrides, sorted cells; absent: start route class, else street
   growth: { carry: number };  // R3 (b&c §13.3): m² of industrial demand banked toward the next organic firm
   events: EventsState;        // M5a (§5.7)
@@ -480,8 +480,8 @@ export function cloneState(s: GameState): GameState {
     structures: s.structures.map((x) => ({ ...x })),
     roads: [...s.roads],
     worksOrders: s.worksOrders.map(cloneOrder),
-    ...(s.requisitioned ? { requisitioned: [...s.requisitioned] } : {}),
-    ...(s.power ? { power: { purchases: s.power.purchases.map((x) => ({ ...x })) } } : {}),
+    requisitioned: [...s.requisitioned],
+    power: { purchases: s.power.purchases.map((x) => ({ ...x })) },
     ...(s.roadClass ? { roadClass: { track: [...s.roadClass.track], street: [...s.roadClass.street], avenue: [...s.roadClass.avenue] } } : {}),
     growth: { ...s.growth },
     events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked] },   // fired entries are never changed

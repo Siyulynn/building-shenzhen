@@ -210,7 +210,7 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
     // R8a (§5.5): a cell's units and money follow its land cover, and an unrequisitioned cell owes compensation
     const capUnits = Math.floor(plan.crew_share * s.scenario.monthsPerTurn * p.capacity.local_crew);
     const rate = W.service.yuan_per_cell / W.service.units_per_cell;
-    const req = new Set(s.requisitioned ?? []);
+    const req = new Set(s.requisitioned);
     // R8b (§5.3): and its zone's tier scales the work, and the money per unit of it
     const cellCost = (z: Zone, c: number) => {
       const f = coverFactors(p, tick.landcover, c), k = intensityOf(p.growth, z);

@@ -279,7 +279,7 @@ describe('R4: saves', () => {
     // employment stays as saved until the next labour step, which matches once from scratch
     expect(back.state.pops.map((g) => g.employed)).toEqual(mid.pops.map((g) => g.employed));
     walk(back.state, 3, back.rng, STEPS, (b, a, e) => checkInvariants(b, a, e));
-    expect(SAVE_VERSION).toBe(5);
+    expect(SAVE_VERSION).toBeGreaterThanOrEqual(5);   // R8e's version 6 migrates on from here
   });
 });
 

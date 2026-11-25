@@ -223,7 +223,7 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
  */
 function requisition(s: GameState, wc: WorksContent, cells: readonly number[], ref: string): void {
   if (!wc.landcover) return;
-  const have = new Set(s.requisitioned ?? []);
+  const have = new Set(s.requisitioned);
   const fresh = cells.filter((c) => !have.has(c));
   if (!fresh.length) return;
   const owed = fresh.reduce((n, c) => n + coverFactors(wc.params, wc.landcover, c).compensation * wc.works.service.yuan_per_cell, 0);
