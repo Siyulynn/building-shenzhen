@@ -19,6 +19,7 @@ import { parseYM, type YM } from './ym.js';
 import { isOpeningBeat } from './opening.js';
 import { LAND_COVER_CLASSES, type LandCover } from './landcover.js';
 import { OFFERED_STRUCTURES, liveOrder, type StructureKind } from './works.js';
+import { MODIFIER_TARGETS, dropExpired, type ModifierTarget } from './modifiers.js';
 import { orderCofinanced } from './orders.js';
 import type { StartNetwork } from './sites.js';
 
@@ -43,10 +44,13 @@ export type EventEffect = { option?: string } & (
   | { kind: 'budget_report' }
   | { kind: 'sweep' }
   | { kind: 'veto'; reason: string }
-  | { kind: 'end_run' });
+  | { kind: 'end_run' }
+  // R9 (§5.8): timed modifiers; factor and months name params.events.<id> fields (defaults: the target, `months`)
+  | { kind: 'modifier'; target: ModifierTarget; factor?: string; months?: string }
+  | { kind: 'modifier_shift'; source: string; months?: string });
 const EFFECT_KINDS = ['offer', 'readiness_check', 'unlock', 'set_regime', 'sez_open', 'first_wave', 'scrutiny', 'cost',
   'standing', 'set_permit', 'commit_choice', 'offer_loan', 'cofinance', 'contract_team', 'rush', 'orders', 'budget_report',
-  'sweep', 'veto', 'end_run'] as const;
+  'sweep', 'veto', 'end_run', 'modifier', 'modifier_shift'] as const;
 /** The effect kinds whose number is params.events.<id>.<field>. */
 const NUMBER_OF: Partial<Record<EventEffect['kind'], string[]>> = {
   scrutiny: ['scrutiny'], cost: ['cost'], standing: ['standing'], orders: ['factor', 'months'],
@@ -70,7 +74,7 @@ export const NEWS_DESKS = ['beijing', 'province', 'city', 'hong_kong'] as const;
 export const NEWS_TONES = ['opening', 'warning', 'relief', 'texture'] as const;
 export interface NewsBlock { desk: (typeof NEWS_DESKS)[number]; tone: (typeof NEWS_TONES)[number] }
 /** The effect kinds a news record may carry (revision plan §4.4). */
-const NEWS_EFFECTS: readonly string[] = ['unlock'];
+const NEWS_EFFECTS: readonly string[] = ['unlock', 'modifier'];
 export interface EventDef {
   id: string; name: LocalizedString; family: 'anchor' | 'scripted' | 'recurring' | 'emergent' | 'milestone' | 'news';
   news?: NewsBlock; text?: LocalizedString;                       // R9 (§5.8): a news record's block and its text
@@ -106,6 +110,10 @@ function effectsOf(raw: unknown, id: string, what: string): EventEffect[] {
     }
     if (e.kind === 'contract_team' && typeof e.team !== 'string') throw new Error(`${id}: contract_team names a team`);
     if (e.kind === 'veto' && typeof e.reason !== 'string') throw new Error(`${id}: a veto names its reason`);
+    if (e.kind === 'modifier' && !(MODIFIER_TARGETS as readonly string[]).includes(e.target)) {
+      throw new Error(`${id}: a modifier's target must be one of ${MODIFIER_TARGETS.join(', ')}`);
+    }
+    if (e.kind === 'modifier_shift' && (typeof e.source !== 'string' || !e.source)) throw new Error(`${id}: modifier_shift names its source event`);
     if (e.option !== undefined && what !== 'on_answer') throw new Error(`${id}: only an on_answer effect names an option`);
     return { ...e } as EventEffect;
   });
@@ -165,7 +173,7 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
     for (const a of Object.keys(mix)) if (!investors.some((x) => x.id === a)) throw new Error(`params: sez.priorities.${pr} names unknown archetype ${a}`);
   }
   const seen = new Set<string>();
-  return raw.map((r: Record<string, any>, i): EventDef => {
+  const defs = raw.map((r: Record<string, any>, i): EventDef => {
     if (typeof r?.id !== 'string' || !r.id) throw new Error(`events[${i}]: id is missing`);
     if (seen.has(r.id)) throw new Error(`events: duplicate id ${r.id}`);
     seen.add(r.id);
@@ -225,6 +233,16 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
       for (const f of NUMBER_OF[e.kind] ?? []) {
         if (typeof num?.[f] !== 'number') throw new Error(`${r.id}: params.events.${r.id}.${f} is not set`);
       }
+      // R9 (§5.8): a modifier's factor is positive and its months a positive integer; a shift's months a non-zero integer
+      if (e.kind === 'modifier') {
+        const f = num?.[e.factor ?? e.target], m = num?.[e.months ?? 'months'];
+        if (!(typeof f === 'number' && f > 0)) throw new Error(`${r.id}: params.events.${r.id}.${e.factor ?? e.target} must be a positive factor`);
+        if (!(Number.isInteger(m) && m! >= 1)) throw new Error(`${r.id}: params.events.${r.id}.${e.months ?? 'months'} must be a positive integer`);
+      }
+      if (e.kind === 'modifier_shift') {
+        const m = num?.[e.months ?? 'months'];
+        if (!(Number.isInteger(m) && m !== 0)) throw new Error(`${r.id}: params.events.${r.id}.${e.months ?? 'months'} must be a non-zero integer`);
+      }
       if (e.kind === 'offer') {
         if (!investors.some((a) => a.id === e.archetype)) throw new Error(`${r.id}: unknown archetype ${e.archetype}`);
         if (!num?.jobs) throw new Error(`${r.id}: params.events.${r.id}.jobs is not set`);
@@ -257,6 +275,13 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
       ...(r.requires ? { requires: r.requires } : {}), ...(r.until ? { until: r.until } : {}),
       effects, ...(card ? { card } : {}), onAnswer };
   });
+  // R9 (§5.8): a shift names an event that carries a modifier
+  for (const d of defs) for (const e of [...d.effects, ...d.onAnswer]) {
+    if (e.kind !== 'modifier_shift') continue;
+    const src = defs.find((x) => x.id === e.source);
+    if (!src || ![...src.effects, ...src.onAnswer].some((x) => x.kind === 'modifier')) throw new Error(`${d.id}: modifier_shift's source ${e.source} carries no modifier`);
+  }
+  return defs;
 }
 
 /** The playable areas with village-class cells (§5.5); without a land-cover layer, none. */
@@ -441,6 +466,19 @@ export function events(p: SliceParams, content: {
           s.ended = { date: s.date, reason: 'visit' };
           ev('run_ended', { reason: 'visit', by: d.id });
           return fc ? { verdict: verdict(s, p, fc) } : undefined;
+        case 'modifier': {                                         // R9 (§5.8): a timed modifier from this month
+          const m = { source: d.id, target: e.target, factor: num(d, e.factor ?? e.target), until: s.date + num(d, e.months ?? 'months') - 1 };
+          s.events.modifiers = [...(s.events.modifiers ?? []), m];
+          ev('modifier_set', { ...m });
+          return undefined;
+        }
+        case 'modifier_shift': {                                   // R9: move a source's modifiers; one now over drops
+          const by = num(d, e.months ?? 'months');
+          s.events.modifiers = (s.events.modifiers ?? []).map((m) => (m.source === e.source ? { ...m, until: m.until + by } : m));
+          dropExpired(s);
+          ev('modifier_shifted', { source: e.source, months: by, by: d.id });
+          return undefined;
+        }
       }
     };
     const tryFiscal = (d: EventDef, a: Parameters<typeof applyFiscalAction>[3]) => {
@@ -467,6 +505,8 @@ export function events(p: SliceParams, content: {
       ev('first_wave', { cards: raisedCards, readiness: bar, by: d.id });
     };
 
+    // 0. R9 (§5.8): modifiers that ended last month drop, before any answer
+    dropExpired(s);
     // 1. event cards past their expiry leave; a card with a lapse option takes it, so ignoring a crisis is a choice
     const lapsed: { d: EventDef; option: string }[] = [];
     s.pendingCards = s.pendingCards.filter((c: CardInstance) => {

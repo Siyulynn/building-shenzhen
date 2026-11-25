@@ -12,6 +12,7 @@ import { cellsOfRuns } from './zones.js';
 import { zoneBuiltM2 } from './growth.js';
 import { landFeeRate, regimeOf, withdrawCofinanced, type FiscalContent } from './fiscal.js';
 import { withdrawCofinancedOrder } from './orders.js';
+import { modifierFactor } from './modifiers.js';
 
 /**
  * One record of content/slice/investors.yaml, compiled. Its numbers are params.investors.archetypes[id].
@@ -236,11 +237,13 @@ export function offers(p: SliceParams, content: InvestorContent) {
       else if (c.card === SHORTCUT_CARD) c.options = shortcutOptions(s, offerOf(c), p, content.buildable);
     }
 
-    // 4. arrivals, in content order; a locked archetype makes no draw (§5.7)
+    // 4. arrivals, in content order; a locked archetype makes no draw (§5.7). R9: live investor_rate modifiers scale
+    //    the chance, never the number of draws, so the stream stays aligned (§5.8)
+    const rateF = modifierFactor(s, 'investor_rate');
     for (const a of archetypes) {
       if (!archetypeAvailable(s, a)) continue;
       const ap = p.investors.archetypes[a.id]!;
-      if (ctx.rng.float() >= ap.rate_per_quarter / 3) continue;
+      if (ctx.rng.float() >= Math.min(1, (ap.rate_per_quarter / 3) * rateF)) continue;
       const [lo, hi] = ap.jobs;
       raiseOffer(ctx, 'investment', a, lo + ctx.rng.int(hi - lo + 1), p, content.buildable);
     }

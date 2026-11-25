@@ -156,12 +156,26 @@ function effectBadge(d: EventDef, e: EventEffect, option: string, slice: Slice):
     case 'offer_loan': return [B.loan!];
     case 'sez_open': return [B.sezOpen!];
     case 'set_regime': return [B.regime!];
-    case 'unlock': return [e.key.startsWith('investors.') ? B.unlockInvestment! : B.unlock!];
+    case 'unlock': {
+      // R9 (§11.2): a key that opens tool gates names them
+      const gs = (slice.tick.gates ?? []).filter((g) => g.requires === e.key);
+      const opened = gs.length ? [then(B.opens!, { zh: gs.map((g) => g.name.zh).join('、'), en: gs.map((g) => g.name.en).join(', ') })] : [];
+      return e.key.startsWith('investors.') ? [B.unlockInvestment!, ...opened] : opened.length ? opened : [B.unlock!];
+    }
     case 'first_wave': return [B.firstWave!];
     case 'orders': return [lv(B.orders!, `×${n.factor ?? 1}`)];
     case 'veto': return [B.veto!];
     case 'end_run': return [B.endRun!];
     case 'readiness_check': case 'budget_report': return [B.report!];
+    case 'modifier': {                                     // R9 (§11.2): "Investor arrivals ×0.75 for 9 months"
+      const f = n[e.factor ?? e.target] ?? 1, m = n[e.months ?? 'months'] ?? 0, t = S.MODIFIER_TARGET[e.target] ?? raw(e.target);
+      return [{ zh: `${t.zh} ×${f}${B.monthsFor!.zh}${m}${B.months!.zh}`, en: `${t.en} ×${f}${B.monthsFor!.en} ${m} ${B.months!.en}` }];
+    }
+    case 'modifier_shift': {                               // R9: "‹source›'s effects end 3 months sooner"
+      const m = n[e.months ?? 'months'] ?? 0, src = slice.tick.events.find((x) => x.id === e.source)?.name ?? raw(e.source);
+      const w = m < 0 ? B.sooner! : B.later!;
+      return [{ zh: `${src.zh}${B.effectsOf!.zh}${w.zh}${Math.abs(m)}${B.months!.zh}`, en: `${src.en}${B.effectsOf!.en} ${w.en} ${Math.abs(m)} ${B.months!.en}` }];
+    }
     default: { const never: never = e; return never; }
   }
 }

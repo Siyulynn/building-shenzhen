@@ -54,7 +54,8 @@ export interface SliceParams {
   };
   // M5a (§5.7)
   events: Record<string, { jobs?: number; cost?: number; scrutiny?: number; standing?: number; area?: number; factor?: number;
-    months?: number; tax_holiday_months?: number; land_fee_factor?: number }>;
+    months?: number; tax_holiday_months?: number; land_fee_factor?: number;
+    [field: string]: number | undefined }>;   // R9 (§5.8): a modifier's factor and months, by the field names its effect gives
   readiness: {
     areas: number[];
     weights: { roads: number; serviced_land: number; water_power: number };

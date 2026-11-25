@@ -12,14 +12,17 @@ import { orderMonth, workArea, type WorksContent } from '../orders.js';
 import { allocateFreight, freightEvents, freightNetwork, materialBudgets, materialDemands } from '../freight.js';
 import type { SliceParams } from '../params.js';
 import { liveOrder, type WorksOrder } from '../works.js';
-import type { Cohort } from '../state.js';
+import type { Cohort, GameState } from '../state.js';
+import { modifierFactor } from '../modifiers.js';
 import type { TickContext } from '../step.js';
 
 /** Cohorts whose work comes from the pool (§5.6): firms', and private and work-unit builds (b&c §13.3). */
 export const pooledCohort = (c: Cohort) => c.firm !== undefined || c.builder === 'private' || c.builder === 'work_unit';
 
 /** A firm cohort's crew at full pace (§5.6). */
-export const cohortCrew = (c: Cohort, p: SliceParams) => Math.max(1, Math.ceil(c.m2 * p.capacity.crew_per_m2));
+/** A firm cohort's crew per month (§5.6). R9 (§5.8): live `cohort_crew` modifiers scale it; city works never. */
+export const cohortCrew = (c: Cohort, p: SliceParams, s?: GameState) =>
+  Math.max(1, Math.ceil(c.m2 * p.capacity.crew_per_m2 * (s ? modifierFactor(s, 'cohort_crew') : 1)));
 
 /** The value of one month of work on a cohort, for GDP (§5.6): its m² × cost per m² ÷ its months of work. */
 export function cohortMonthValue(c: Cohort, p: SliceParams): number {
@@ -97,8 +100,8 @@ function complete(ctx: TickContext, p: SliceParams, x: Project): void {
 }
 
 /** A firm cohort's crew units still to do, at most one month at full pace. */
-function cohortRest(c: Cohort, p: SliceParams): number {
-  const crew = cohortCrew(c, p);
+function cohortRest(c: Cohort, p: SliceParams, s: GameState): number {
+  const crew = cohortCrew(c, p, s);
   return Math.max(0, Math.min(crew, crew * ((c.workTotal ?? 1) - (c.workDone ?? 0)) - (c.crewBank ?? 0)));
 }
 
@@ -155,7 +158,7 @@ export function allocatePool(ctx: TickContext, p: SliceParams, wc?: WorksContent
   // the pool, so a short area's spare units pass down the queue and nothing is lost
   const budget = wc?.freight ? materials(ctx, wc, jobs.map((j): [number | undefined, number] => {
     if (j.order) return [j.area, j.order.paused || frozen ? 0 : Math.min(wc.works.crew_per_order, month!.usable(j.order))];
-    if (j.cohort) return [j.area, cohortRest(j.cohort, p)];
+    if (j.cohort) return [j.area, cohortRest(j.cohort, p, s)];
     const x = j.project!, k = x.contract !== undefined ? s.fiscal.contracts.find((c) => c.id === x.contract) : undefined;
     if (frozen || (k && s.date < k.starts)) return [j.area, 0];
     return [j.area, Math.min(k ? Math.min(k.crew, x.crew) : x.crew, x.crew * x.workTotal - delivered(x))];
@@ -181,9 +184,9 @@ export function allocatePool(ctx: TickContext, p: SliceParams, wc?: WorksContent
       continue;
     }
     if (j.cohort) {
-      const c = j.cohort, crew = cohortCrew(c, p);
+      const c = j.cohort, crew = cohortCrew(c, p, s);
       // no more than the work left, so a final partial month passes its spare units down the queue
-      const got = Math.max(0, Math.min(crew, left, cohortRest(c, p), take(j.area, crew)));
+      const got = Math.max(0, Math.min(crew, left, cohortRest(c, p, s), take(j.area, crew)));
       out.set(j.cohort, got);
       left -= got;
       spend(j.area, got);

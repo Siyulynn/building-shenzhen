@@ -41,7 +41,7 @@ export function construction(p: SliceParams, pool = false, buildable?: { cells: 
       for (const c of b.cohorts) {
         if (c.stage !== 'under_construction') continue;
         if (alloc && pooledCohort(c)) {
-          const crew = cohortCrew(c, p);
+          const crew = cohortCrew(c, p, s);
           c.crewBank = (c.crewBank ?? 0) + (alloc.get(c) ?? 0);
           if (c.crewBank < crew) continue;
           c.crewBank -= crew;

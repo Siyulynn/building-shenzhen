@@ -291,6 +291,12 @@ export const T = {
   queuedThisTurn: l('本回合排队的指令', "This turn's queued orders"), oneOffDue: l('本季度到期的一次性支出', 'One-off costs due this quarter'),
 } as const satisfies Record<string, L>;
 
+/** R9 (§5.8, §11.2): what each timed-modifier target scales, in words. */
+export const MODIFIER_TARGET: Readonly<Record<string, L>> = {
+  investor_rate: l('投资者到来', 'Investor arrivals'), scrutiny_gain: l('上级关注的增长', 'Scrutiny gains'),
+  cohort_crew: l('民间施工每平方米所需人力', "Builders' crew per m²"),
+};
+
 /** R7 (§11.2): an option's effect badges, derived from its on_answer effects in views.ts effectBadges. */
 export const BADGE: Readonly<Record<string, L>> = {
   cost: l('花费', 'Cost'), scrutiny: l('上级关注', 'Scrutiny'), standing: l('上级评价', 'Standing'),
@@ -303,6 +309,9 @@ export const BADGE: Readonly<Record<string, L>> = {
   unlock: l('开启新的一步', 'Unlocks the next step'), firstWave: l('第一批投资者', 'The first wave of investors'),
   orders: l('香港订单变化', 'Hong Kong orders change'), veto: l('今年考核一项不及格', "Fails one of this year's review items"),
   endRun: l('试玩结束', 'Ends the slice'), report: l('一份汇报', 'A report'), noEffect: l('没有影响', 'No effect'),
+  // R9 (§11.2): a key that opens tool gates, a timed modifier and its shift
+  opens: l('开放：', 'Opens '), months: l('个月', 'months'), monthsFor: l('，为期', ' for'),
+  sooner: l('提前结束', 'end sooner by'), later: l('推迟结束', 'end later by'), effectsOf: l('的影响', "'s effects"),
 };
 
 /** Every table above, for the tests: each entry has an en and a zh. */

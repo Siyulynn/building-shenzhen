@@ -11,6 +11,7 @@ import { parseYM, type YM } from './ym.js';
 import { openingBeats } from './opening.js';
 import type { EventContent } from './events.js';
 import type { PowerState } from './power.js';
+import type { Modifier } from './modifiers.js';
 import { cloneOrder, type CellWork, type PlacedStructure, type StructureKind, type WorksOrder } from './works.js';
 
 export interface LocalizedString { zh: string; en: string }
@@ -111,7 +112,8 @@ export interface Firm {
 export interface FirmTerms { taxHolidayMonths?: number; landFeeFactor?: number; shortcut?: string }
 
 /** M5a (§5.7): fired events and unlock keys; the SEZ's opening; Shekou's tally; the leaders. */
-export interface EventsState { fired: { id: string; date: YM }[]; unlocked: string[] }
+/** R9 (§5.8): `modifiers`, the timed modifiers, is absent when there are none. */
+export interface EventsState { fired: { id: string; date: YM }[]; unlocked: string[]; modifiers?: Modifier[] }
 export interface SezState { opened?: YM; priority?: string; readiness?: number; waveCards?: number }
 export interface ShekouState { captured: number; jobs: number; carry: number }
 export type LeaderRole = 'secretary' | 'mayor';
@@ -484,7 +486,8 @@ export function cloneState(s: GameState): GameState {
     power: { purchases: s.power.purchases.map((x) => ({ ...x })) },
     ...(s.roadClass ? { roadClass: { track: [...s.roadClass.track], street: [...s.roadClass.street], avenue: [...s.roadClass.avenue] } } : {}),
     growth: { ...s.growth },
-    events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked] },   // fired entries are never changed
+    events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked],   // fired entries are never changed
+      ...(s.events.modifiers ? { modifiers: s.events.modifiers.map((m) => ({ ...m })) } : {}) },
     sez: { ...s.sez },
     shekou: { ...s.shekou },
     leadership: { leaders: s.leadership.leaders.map((l) => ({ ...l, name: { ...l.name }, traits: [...l.traits] })),

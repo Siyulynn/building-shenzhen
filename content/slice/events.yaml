@@ -482,6 +482,8 @@
   text:
     zh: "在省市区第一书记座谈会上，陈云说：“特区第一位的任务是认真总结经验”，特区暂时不再增加。"
     en: "At the forum of provincial first secretaries, Chen Yun said the zones' first task is to sum up experience conscientiously, and that no new zones should be added."
+  effects:                               # R9 (revision plan §4.4): the weather turns; params.events.<id>
+    - { kind: modifier, target: investor_rate }
   claims:
     - { id: phase1.politics.chenyun_summary_1981, use: encyclopedia }
 
@@ -493,6 +495,9 @@
   text:
     zh: "中央书记处召开广东、福建两省座谈会，会上推荐印发了一份关于旧中国租界由来的材料。陈云批示：“此件发全国各省市。对于办经济特区，要警惕这类问题。”一月，中央已发出打击走私的紧急通知。"
     en: "The Central Secretariat has held the Guangdong–Fujian forum and circulated a compilation on the origin of the old foreign concessions. Chen Yun's instruction: send it to every province; in special-zone work, be on guard against this kind of problem. In January the centre had already issued an emergency notice against smuggling."
+  effects:                               # R9: the storm's modifiers; the card that follows chooses a posture
+    - { kind: modifier, target: investor_rate }
+    - { kind: modifier, target: scrutiny_gain }
   claims:
     - { id: phase1.politics.two_provinces_meeting_1982, use: encyclopedia }
     - { id: phase1.politics.concession_material_1982, use: encyclopedia }
@@ -556,6 +561,7 @@
     en: "In October Chen Yun approved Guangdong's summary of the trial zones: the zone must be run, with experience constantly summed up. In December new central minutes give the zones more autonomy, and make Shenzhen and Zhuhai comprehensive zones of industry, commerce, agriculture, housing and tourism."
   effects:                               # more autonomy once the summary is approved (revision plan §4.4)
     - { kind: unlock, key: intensity.high }
+    - { kind: modifier, target: investor_rate }
   claims:
     - { id: phase1.politics.chenyun_summary_1982, use: encyclopedia }
     - { id: phase1.politics.new_50_1982, use: encyclopedia }
@@ -591,6 +597,8 @@
   text:
     zh: "中央作出严厉打击刑事犯罪活动的决定，开始为期三年的“严打”，依法“从重从快”。"
     en: "The centre decides on a three-year campaign against serious crime, to be prosecuted heavily and quickly under the law."
+  effects:
+    - { kind: modifier, target: scrutiny_gain }
   claims:
     - { id: phase1.politics.strike_hard_1983, use: encyclopedia }
 
@@ -604,6 +612,71 @@
     en: "Shenzhen University holds its founding and first opening ceremony in the Shenzhen Theatre: 216 students in four departments, on a campus still being built."
   claims:
     - { id: phase1.local.szu_opens_1983, use: encyclopedia }
+
+# ---- R9 (§5.8): the cards that follow the news. Their options are postures, not outcomes; the numbers are
+# params.events.<id> placeholders. The text keeps to the claims; the options are game choices, not history. ----
+
+- id: event.1981q1.slogan
+  name: { zh: 要不要支持蛇口的口号, en: "Shekou's slogan: do we back it?" }
+  description:
+    zh: "蛇口的口号引起争议。市里表态支持，民间建房的人会干得更快，上级也看在眼里；不表态，什么也不变。"
+    en: "Shekou's slogan is controversial. If the city backs it, the private builders work faster, and the province notices; if it says nothing, nothing changes."
+  family: anchor
+  trigger: { date: 1981-03 }             # the slogan's claimed month (news.1981q1.shekou_slogan)
+  card:
+    interrupting: false
+    lapse: decline
+    options:
+      - { id: decline, name: { zh: 不表态, en: Say nothing } }
+      - { id: endorse, name: { zh: 表态支持, en: Back it } }
+  on_answer:
+    - { kind: modifier, target: cohort_crew, option: endorse }
+    - { kind: standing, option: endorse }
+  claims:
+    - { id: phase1.local.shekou_slogan_1981, use: encyclopedia }
+
+- id: event.1982q1.concession_storm
+  name: { zh: 省里要一份总结, en: The province wants a summary }
+  description:
+    zh: "关于旧中国租界的材料在各省传阅，陈云批示要警惕这类问题。省里要你们写一份总结。写什么、怎么写，北京在看。你只能选一个姿态，争论不由你来了结。"
+    en: "The compilation on the old concessions is circulating, with Chen Yun's instruction to be on guard. The province wants your summary. What you write, and how, is being read in Beijing. You can choose a posture; you cannot settle the argument."
+  family: anchor
+  trigger: { date: 1982-02 }             # follows news.1982q1.concession_material, the same month
+  card:
+    interrupting: true
+    options:
+      - { id: honest, name: { zh: 如实写, en: Write it honestly } }
+      - { id: public, name: { zh: 公开反驳, en: Answer in public } }
+      - { id: numbers, name: { zh: 只报数字, en: Send numbers only } }
+  on_answer:                             # the storm's modifiers end sooner or later; the public answer costs scrutiny
+    - { kind: modifier_shift, source: news.1982q1.concession_material, months: shift_honest, option: honest }
+    - { kind: scrutiny, option: public }
+    - { kind: modifier_shift, source: news.1982q1.concession_material, months: shift_numbers, option: numbers }
+  claims:
+    - { id: phase1.politics.concession_material_1982, use: encyclopedia }
+    - { id: phase1.politics.chenyun_concession_warning_1982, use: encyclopedia }
+    - { id: phase1.politics.two_provinces_meeting_1982, use: encyclopedia }
+
+- id: event.1983q4.rectification
+  name: { zh: 整党, en: Rectifying the party }
+  description:
+    zh: "十二届二中全会决定整党。邓小平说，思想战线不能搞精神污染。省里要你们组织学习。怎么组织，会影响上级对你的关注。"
+    en: "The second plenum has decided to rectify the party. Deng Xiaoping says the ideological front must not produce spiritual pollution. The province wants you to organise the study. How you do it changes how closely you are watched."
+  family: anchor
+  trigger: { date: 1983-10 }
+  card:
+    interrupting: true
+    options:
+      - { id: follow, name: { zh: 按规定学习, en: Follow the schedule } }
+      - { id: strict, name: { zh: 从严检查, en: Check strictly } }
+      - { id: transmit, name: { zh: 只传达, en: Transmit only } }
+  on_answer:                             # a scrutiny_gain modifier by option (revision plan §4.4)
+    - { kind: modifier, target: scrutiny_gain, factor: follow, option: follow }
+    - { kind: modifier, target: scrutiny_gain, factor: strict, option: strict }
+    - { kind: modifier, target: scrutiny_gain, factor: transmit, option: transmit }
+  claims:
+    - { id: phase1.politics.rectification_1983, use: encyclopedia }
+    - { id: phase1.politics.spiritual_pollution_1983, use: encyclopedia }
 
 # ---- M5b: milestones ----
 

@@ -93,6 +93,8 @@ export const AGGRESSIVE_CHOICES: Readonly<Record<string, string>> = Object.freez
   'event.corps_advance': 'tents', 'event.fire': 'noted', 'event.escapes': 'noted', 'event.petition': 'noted',
   'event.readiness_check': 'rush', 'event.sweep': 'sweep', 'event.corps_deployment': 'accept',
   [COFINANCING_CARD]: 'accept', [LOAN_CARD]: 'take', [DEFICIT_CARD]: 'borrow_short',
+  // R9 (§5.8): it backs the slogan, answers the storm in public and only transmits the rectification
+  'event.1981q1.slogan': 'endorse', 'event.1982q1.concession_storm': 'public', 'event.1983q4.rectification': 'transmit',
 });
 /** The aggressive player's card answers: every investor and shortcut at its first site, every grey option. */
 export const aggressiveAnswers: DecisionPolicy = (_s, pending) => pending.map((c) => {

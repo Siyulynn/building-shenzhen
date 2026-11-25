@@ -8,6 +8,7 @@ import type { GameState, ReviewRecord } from '../state.js';
 import type { TickContext } from '../step.js';
 import { FAILURE_CARD } from '../events.js';
 import { illegalShare, villageM2 } from './common.js';
+import { modifierFactor } from '../modifiers.js';
 
 export const REVIEW_INDICATORS = ['exports_usd', 'forex_earned_usd', 'foreign_firm_jobs', 'projects_completed', 'order_check'] as const;
 export type ReviewIndicator = (typeof REVIEW_INDICATORS)[number];
@@ -96,6 +97,7 @@ export function climate(p: SliceParams) {
       if (e.kind === 'land_for_recurring' && e.detail?.status !== 'sanctioned') gains += C.gain.grey_land_per_100k * (e.detail!.amount as number) / 1e5;
       if (e.kind === 'offer_accepted' && e.detail?.shortcut !== undefined) gains += C.gain.shortcut;
     }
+    gains *= modifierFactor(s, 'scrutiny_gain');                 // R9 (§5.8): before the permit factor
     s.climate.scrutiny = clamp(s.climate.scrutiny * (1 - C.scrutiny_decay) + C.permit_factor[s.policy.permitRegime] * gains, 0, 100);
     if (s.subStep !== 2) return;
     s.climate.overQuarters = s.climate.scrutiny > C.failure_threshold ? s.climate.overQuarters + 1 : 0;
