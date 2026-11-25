@@ -4,7 +4,7 @@ import {
   Rng, SAVE_VERSION, advanceCellWorks, applyZoneAction, cellsOfRuns, cloneState, commitCellWorks, createTickSteps, loadGame, placeStructure,
   runMonths, saveFromJson, saveGame, saveToJson, spatialViews, type GameState, type Save, type StartNetwork,
 } from '../src/index.js';
-import { content, initial, params, slice } from './fixtures.js';
+import { content, initial, params, slice, events } from './fixtures.js';
 
 const W = slice.init.areas.grid.width;
 const at = (x: number, y: number) => y * W + x;
@@ -158,7 +158,7 @@ describe('R1 derived views', () => {
     const state = { ...(save.body.state as Record<string, unknown>) };
     delete state.cellWorks; delete state.structures; delete state.nextStructureId;
     const v1: Save = { ...save, header: { ...save.header, version: 1 }, body: { ...save.body, state } };
-    const back = loadGame(v1);
+    const back = loadGame(v1, { events });
     expect(back.header.version).toBe(SAVE_VERSION);
     expect(back.state).toEqual(loadGame(save).state);
   });

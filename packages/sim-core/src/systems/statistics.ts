@@ -36,6 +36,36 @@ export function gdpNow(s: GameState, p: SliceParams, work = 0): number {
   return t.valueAdded + base + work * p.gdp.construction_va_ratio;
 }
 
+/** R9.3, R10a (§5.6, §5.13): a month's value added by sector; `construction` is a part of `secondary`, not added to it. */
+export interface SectorGdp { primary: number; secondary: number; tertiary: number; construction: number }
+/**
+ * The month's GDP by sector (§5.13): primary is the base farming economy; secondary is the firms' value added
+ * (`firmVa`), the base factory and construction jobs and the month's construction work value added (`workVa`);
+ * tertiary is state, services and the service posts. Construction is the base construction jobs plus `workVa`.
+ */
+export function sectorValueAdded(s: GameState, p: SliceParams, firmVa: number, workVa: number): SectorGdp {
+  const find = (area: number, sector: string) => s.labour.jobs.find((r) => r.area === area && r.sector === sector);
+  let primary = 0, secondary = 0, tertiary = 0, construction = 0;
+  for (const j of s.labour.baseJobs) {
+    const r = find(j.area, j.sector);
+    if (!r || r.jobs <= 0) continue;
+    const v = j.jobs * (r.filled / r.jobs) * p.gdp.base_va_per_job_month[j.sector];
+    if (j.sector === 'farming_fishing') primary += v;
+    else if (j.sector === 'factory' || j.sector === 'construction') {
+      secondary += v;
+      if (j.sector === 'construction') construction += v;
+    } else tertiary += v;
+  }
+  for (const sp of s.labour.servicePosts) {
+    const r = find(sp.area, 'services');
+    if (!r || r.jobs <= 0) continue;
+    tertiary += (sp.formal + sp.informal) * (r.filled / r.jobs) * p.gdp.base_va_per_job_month.services;
+  }
+  secondary += firmVa + workVa;
+  construction += workVa;
+  return { primary, secondary, tertiary, construction };
+}
+
 /** Without params (the M1 pipeline) there are no firms, and the industry series are zero. */
 export function statistics(p?: SliceParams, network?: StartNetwork, gateways?: readonly Gateway[]) {
   return (ctx: TickContext): void => {
@@ -80,6 +110,10 @@ export function statistics(p?: SliceParams, network?: StartNetwork, gateways?: r
       else if (e.step === 'finance' && e.kind === 'month') fin = e.detail as Record<string, number>;
     }
     h.gdp.push(p ? gdpNow(s, p, work) : 0);
+    // R10a (§5.13): the month's value added by sector, with the month's construction work
+    const sec = p ? sectorValueAdded(s, p, t.valueAdded, work * p.gdp.construction_va_ratio)
+      : { primary: 0, secondary: 0, tertiary: 0, construction: 0 };
+    for (const k of ['primary', 'secondary', 'tertiary', 'construction'] as const) h.gdpSector[k].push(sec[k]);
     h.revenue.push(fin?.revenue ?? 0);
     h.obligationsDue.push(fin?.due ?? 0);
     h.baselineDue.push(fin?.baseline ?? 0);

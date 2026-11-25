@@ -183,7 +183,10 @@ export interface History {
   freightUnmet?: Record<string, number[]>;
   // R9.2 (§5.5): the month's electricity consumption in kWh, aligned with months; required from save v8
   electricity: number[];
+  // R10a (§5.13): the month's value added by sector, aligned with months; construction is a part of secondary. From save v9
+  gdpSector: SectorSeries;
 }
+export interface SectorSeries { primary: number[]; secondary: number[]; tertiary: number[]; construction: number[] }
 
 export interface GameState {
   date: YM;
@@ -285,7 +288,7 @@ export function emptyHistory(): History {
     inflow: [], outflow: [], firmJobs: [], firmStaffed: [], output: [], exports: [], valueAdded: [],
     gdp: [], revenue: [], obligationsDue: [], baselineDue: [], obligationsPaid: [], projectSpend: [], reserve: [],
     debtOutstanding: [], austerity: [], vacancies: [], turnedAway: [], servicePosts: [], constructionPosts: [],
-    electricity: [] };
+    electricity: [], gdpSector: { primary: [], secondary: [], tertiary: [], construction: [] } };
 }
 
 /** content/slice/leaders.yaml (§5.7): the pair, fictional, with the Phase 1 traits. */
@@ -524,6 +527,8 @@ export function cloneState(s: GameState): GameState {
       debtOutstanding: [...h.debtOutstanding], austerity: [...h.austerity],
       vacancies: [...h.vacancies], turnedAway: [...h.turnedAway], servicePosts: [...h.servicePosts],
       constructionPosts: [...h.constructionPosts], electricity: [...h.electricity],
+      gdpSector: { primary: [...h.gdpSector.primary], secondary: [...h.gdpSector.secondary], tertiary: [...h.gdpSector.tertiary],
+        construction: [...h.gdpSector.construction] },
       ...(h.freightUnmet ? { freightUnmet: Object.fromEntries(Object.entries(h.freightUnmet).map(([k, v]) => [k, [...v]])) } : {}),
     },
   };

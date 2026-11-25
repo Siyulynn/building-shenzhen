@@ -5,8 +5,12 @@
 import { Rng, type RngState } from './rng.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
+import type { EventContent } from './events.js';
 
-export const SAVE_VERSION = 8;
+export const SAVE_VERSION = 9;
+
+/** The content a migration may read (R10a, §5.13): the events, for the unlock keys of events already fired. */
+export interface MigrationContent { events?: EventContent }
 
 /** The content a save was made with (§5.1, §5.3). */
 export interface SaveContent {
@@ -24,7 +28,7 @@ export interface SaveHeader { format: 'sz-save'; version: number; date: YM; seed
 export interface Save { header: SaveHeader; body: { state: unknown; rng: RngState }; arrays: Record<string, Uint32Array> }
 
 /** Migration from version v to v + 1, keyed by v. */
-const MIGRATIONS: Record<number, (s: Save) => Save> = {
+const MIGRATIONS: Record<number, (s: Save, c: MigrationContent) => Save> = {
   // R1 (buildings-and-construction §13.1): cell works and placed structures, empty before they existed
   1: (s) => ({ ...s, header: { ...s.header, version: 2 },
     body: { ...s.body, state: { ...(s.body.state as object), cellWorks: [], structures: [], nextStructureId: 1 } } }),
@@ -81,6 +85,23 @@ const MIGRATIONS: Record<number, (s: Save) => Save> = {
     return { ...s, header: { ...s.header, version: 8 },
       body: { ...s.body, state: { ...st, history: { ...st.history, electricity: st.history.months.map(() => 0) } } } };
   },
+  // R10a (§5.13): the sector series as zeros, and the unlock keys of the events already fired (revision plan §4b.2
+  // item 7): each fire-time `unlock` of a fired event still in the content, in firing order, once
+  8: (s, c) => {
+    if (!c.events) throw new Error('loading a save older than version 9 needs the events content (its unlock keys)');
+    const st = s.body.state as { history: { months: unknown[]; gdpSector?: unknown };
+      events: { fired: { id: string }[]; unlocked: string[] } };
+    const zeros = () => st.history.months.map(() => 0);
+    const unlocked = [...st.events.unlocked];
+    for (const f of st.events.fired) {
+      const d = c.events.find((x) => x.id === f.id);
+      for (const e of d?.effects ?? []) if (e.kind === 'unlock' && !unlocked.includes(e.key)) unlocked.push(e.key);
+    }
+    return { ...s, header: { ...s.header, version: 9 },
+      body: { ...s.body, state: { ...st, events: { ...st.events, unlocked },
+        history: { ...st.history,
+          gdpSector: st.history.gdpSector ?? { primary: zeros(), secondary: zeros(), tertiary: zeros(), construction: zeros() } } } } };
+  },
 };
 
 /** JSON turns NaN and Infinity into null without a word: a save must fail instead. */
@@ -109,14 +130,15 @@ export function saveGame(state: GameState, rng: Rng, content: SaveContent): Save
   };
 }
 
-export function loadGame(save: Save): { state: GameState; rng: Rng; header: SaveHeader } {
+/** Load a save, migrating it to this version. A save older than version 9 needs `content.events` (§5.13). */
+export function loadGame(save: Save, content: MigrationContent = {}): { state: GameState; rng: Rng; header: SaveHeader } {
   if (save.header.format !== 'sz-save') throw new Error('not a save file');
   if (save.header.version > SAVE_VERSION) throw new Error(`save version ${save.header.version} is newer than ${SAVE_VERSION}`);
   let s = save;
   for (let v = s.header.version; v < SAVE_VERSION; v++) {
     const m = MIGRATIONS[v];
     if (!m) throw new Error(`no migration from save version ${v}`);
-    s = m(s);
+    s = m(s, content);
   }
   const raw = JSON.parse(JSON.stringify(s.body.state)) as GameState & { areas: { cells: unknown }[] };
   const state: GameState = {

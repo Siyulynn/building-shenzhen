@@ -6,7 +6,7 @@ import {
   type SliceParams, type TickContent,
 } from '../src/index.js';
 import { isVillageFloor } from '../src/systems/common.js';
-import { content, initial, params, slice } from './fixtures.js';
+import { content, initial, params, slice, events } from './fixtures.js';
 import { checkInvariants, checkLedger, walk } from './invariants.js';
 
 const SEZ = 'regime.contracting_1980s', COUNTY = 'regime.county_1979';
@@ -188,7 +188,7 @@ describe('R3: rest and saves', () => {
     const save = saveFromJson(saveToJson(saveGame(initial(), new Rng(3), content)));
     const state = { ...(save.body.state as Record<string, unknown>) };
     delete state.growth;
-    const back = loadGame({ ...save, header: { ...save.header, version: 3 }, body: { ...save.body, state } });
+    const back = loadGame({ ...save, header: { ...save.header, version: 3 }, body: { ...save.body, state } }, { events });
     expect(back.state.growth).toEqual({ carry: 0 });
   });
 });

@@ -493,3 +493,33 @@ claims; the sector detail and FDI await the yearbook pages. They are recorded in
 60,375 residents and 42.0M GDP, `aggressive` 53,661 and 35.4M, both 20 pass. No band widened.
 
 **Invariants.** `npm run check` green; no save version change (the fields are derived, never stored).
+
+## R10 (Pass 4: composition and the revenue base, 2026-11-25)
+
+**Targets, not bands** (revision plan §4b.2 item 6). The 1987 Statistical Bureau compilation
+(`docs/research/phase1-statistics-1979-1985.md`, claims in `phase1_statistics.yaml`) is all `lead`, so none of this
+is a §9 band. Each pass reports the historical run (seed 1) against:
+
+| Target | Evidence (lead) | Tolerance |
+|---|---|---|
+| Sector split 1981–83, annual | SEZ 7 / 49 / 44 (1981), 5 / 51 / 44 (1982), 5 / 50 / 45 (1983) | tertiary 35–55%, secondary 40–60% |
+| Customs share of budget revenue | 39% (1979), 53%, 71% ⚠, 39%, 39% (1983) | 25–60% by 1983 |
+| GDP level, end-1983 | today's ¥42.17M (historical), ¥35.42M (aggressive) | ±15% |
+
+The split is read from `gdpSectorYear` (the trailing 12 months of `history.gdpSector`), not December's month.
+
+### R10a: reporting and save version 9 (no golden value moves)
+
+- **Construction** is now a line under secondary: base construction jobs plus the month's work × 0.35. It is not a
+  small residual: 17% of 1979 GDP, 26–32% in 1980–82 and 18% in 1983 (the claim: 25% of 1983 GDP). R9.3's "small
+  residual" read the December month only.
+- **The baseline split (annual, historical):** 19 / 31 / 50 (1979), 15 / 47 / 39 (1980), 8 / 70 / 23 (1981),
+  5 / 76 / 18 (1982), 4 / 79 / 18 (1983). Aggressive: 19 / 30 / 51 → 5 / 79 / 16. **The start is near the evidence**
+  (1979 tertiary 50% against the city's 42.5% and the SEZ's 50% in 1980); the gap opens in 1981, when organic
+  factories arrive and services grow only with wages.
+- **Population categories** (present, non-overlapping), historical end-1983: registered 30,000, temporary 32,329
+  (construction 1,735, factory 30,574, other 20). The SEZ's 1983 ratio is 16.5万 registered : 12万 temporary; the
+  slice's registered stock does not grow (no transfers in), which is outside R10.
+- **Goldens:** every pre-existing value is identical (checked by stripping the new fields and comparing with the
+  R9.3 files); the new fields are `gdpSector.construction`, `gdpSectorYear`, `population` and
+  `checkpoints[].population.categories`. No content hash moved.

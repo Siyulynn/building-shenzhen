@@ -4,7 +4,7 @@ import {
   Rng, SAVE_VERSION, addServicedLand, applyTurnAction, applyZoneAction, createTickSteps, inducedServiceJobs, loadGame, placeStructure,
   post, runMonths, saveFromJson, saveGame, saveToJson, type CellRuns, type GameState, type TickContent,
 } from '../src/index.js';
-import { content, initial, params, slice } from './fixtures.js';
+import { content, initial, params, slice, events } from './fixtures.js';
 import { checkInvariants, checkLedger, walk } from './invariants.js';
 
 const SEZ = 'regime.contracting_1980s';
@@ -273,7 +273,7 @@ describe('R4: saves', () => {
     delete state.labour.held; delete state.labour.servicePosts;
     for (const m of state.housing) delete m.turnedAway;
     for (const k of ['vacancies', 'turnedAway', 'servicePosts', 'constructionPosts']) delete state.history[k];
-    const back = loadGame({ ...save, header: { ...save.header, version: 4 }, body: { ...save.body, state } });
+    const back = loadGame({ ...save, header: { ...save.header, version: 4 }, body: { ...save.body, state } }, { events });
     expect(back.state.labour.held).toEqual([]);
     expect(back.state.history.vacancies.length).toBe(back.state.history.months.length);
     // employment stays as saved until the next labour step, which matches once from scratch

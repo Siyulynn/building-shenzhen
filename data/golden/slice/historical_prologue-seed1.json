@@ -33,7 +33,24 @@
       "gdpSector": {
         "primary": 138600,
         "secondary": 250935,
-        "tertiary": 363280
+        "tertiary": 363280,
+        "construction": 144901
+      },
+      "gdpSectorYear": {
+        "primary": 1663200,
+        "secondary": 2667457,
+        "tertiary": 4336000,
+        "construction": 1477550
+      },
+      "population": {
+        "registered": 30000,
+        "temporary": {
+          "migrantConstruction": 327,
+          "migrantFactory": 354,
+          "other": 20,
+          "total": 701
+        },
+        "totalPresent": 30701
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 450000,
@@ -62,7 +79,24 @@
       "gdpSector": {
         "primary": 138600,
         "secondary": 793917,
-        "tertiary": 380560
+        "tertiary": 380560,
+        "construction": 447313
+      },
+      "gdpSectorYear": {
+        "primary": 1663200,
+        "secondary": 5319035,
+        "tertiary": 4430760,
+        "construction": 2973508
+      },
+      "population": {
+        "registered": 30000,
+        "temporary": {
+          "migrantConstruction": 1384,
+          "migrantFactory": 3836,
+          "other": 20,
+          "total": 5240
+        },
+        "totalPresent": 35240
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 4950000,
@@ -91,7 +125,24 @@
       "gdpSector": {
         "primary": 138600,
         "secondary": 1642415,
-        "tertiary": 428720
+        "tertiary": 428720,
+        "construction": 545498
+      },
+      "gdpSectorYear": {
+        "primary": 1663200,
+        "secondary": 15055218,
+        "tertiary": 4895640,
+        "construction": 6811115
+      },
+      "population": {
+        "registered": 30000,
+        "temporary": {
+          "migrantConstruction": 2069,
+          "migrantFactory": 13286,
+          "other": 20,
+          "total": 15375
+        },
+        "totalPresent": 45375
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 8550000,
@@ -120,7 +171,24 @@
       "gdpSector": {
         "primary": 138600,
         "secondary": 2401590,
-        "tertiary": 472680
+        "tertiary": 472680,
+        "construction": 671718
+      },
+      "gdpSectorYear": {
+        "primary": 1663200,
+        "secondary": 23068256,
+        "tertiary": 5502400,
+        "construction": 7910040
+      },
+      "population": {
+        "registered": 30000,
+        "temporary": {
+          "migrantConstruction": 2579,
+          "migrantFactory": 21339,
+          "other": 20,
+          "total": 23938
+        },
+        "totalPresent": 53938
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 5850000,
@@ -149,7 +217,24 @@
       "gdpSector": {
         "primary": 138600,
         "secondary": 2552727,
-        "tertiary": 689280
+        "tertiary": 689280,
+        "construction": 407974
+      },
+      "gdpSectorYear": {
+        "primary": 1663200,
+        "secondary": 33108851,
+        "tertiary": 7402560,
+        "construction": 7767294
+      },
+      "population": {
+        "registered": 30000,
+        "temporary": {
+          "migrantConstruction": 1735,
+          "migrantFactory": 30574,
+          "other": 20,
+          "total": 32329
+        },
+        "totalPresent": 62329
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 7650000,
@@ -173,7 +258,17 @@
         "resident": 30339,
         "present": 30701,
         "presentNonlocal": 681,
-        "migrants": 681
+        "migrants": 681,
+        "categories": {
+          "registered": 30000,
+          "temporary": {
+            "migrantConstruction": 327,
+            "migrantFactory": 354,
+            "other": 20,
+            "total": 701
+          },
+          "totalPresent": 30701
+        }
       },
       "land": {
         "plannedCells": {
@@ -239,7 +334,17 @@
         "resident": 30640,
         "present": 31845,
         "presentNonlocal": 1825,
-        "migrants": 1825
+        "migrants": 1825,
+        "categories": {
+          "registered": 30000,
+          "temporary": {
+            "migrantConstruction": 699,
+            "migrantFactory": 1126,
+            "other": 20,
+            "total": 1845
+          },
+          "totalPresent": 31845
+        }
       },
       "land": {
         "plannedCells": {
@@ -305,7 +410,17 @@
         "resident": 60375,
         "present": 62329,
         "presentNonlocal": 32309,
-        "migrants": 32309
+        "migrants": 32309,
+        "categories": {
+          "registered": 30000,
+          "temporary": {
+            "migrantConstruction": 1735,
+            "migrantFactory": 30574,
+            "other": 20,
+            "total": 32329
+          },
+          "totalPresent": 62329
+        }
       },
       "land": {
         "plannedCells": {

@@ -5,7 +5,7 @@ import {
   runMonths, saveFromJson, saveGame, saveToJson, spatialViews, step, templateZoneAction, unspentCommitments,
   type CellRuns, type GameState, type PlayerAction, type WorksOrder,
 } from '../src/index.js';
-import { content, initial, params, slice, UNGATED } from './fixtures.js';
+import { content, initial, params, slice, UNGATED, events } from './fixtures.js';
 import { checkInvariants, checkLedger } from './invariants.js';
 
 // A pace that does not divide a cell's units, so months end with cells part-serviced
@@ -305,7 +305,7 @@ describe('R2 queue rules and accounts', () => {
     const state = { ...(save.body.state as Record<string, unknown>) };
     delete state.roads; delete state.worksOrders; delete state.nextOrderId; delete state.growth;
     const v2 = { ...save, header: { ...save.header, version: 2 }, body: { ...save.body, state } };
-    const back = loadGame(v2);
+    const back = loadGame(v2, { events });
     expect(back.header.version).toBe(SAVE_VERSION);   // through every later migration (R3: version 4)
     expect(back.state).toEqual(loadGame(save).state);
   });

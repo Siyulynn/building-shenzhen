@@ -18,41 +18,43 @@ import type { TickContent } from './ticks.js';
 import { verdict, type Verdict } from './verdict.js';
 import { cellsOfRuns } from './zones.js';
 import { formatYM } from './ym.js';
+import { sectorValueAdded, type SectorGdp } from './systems/statistics.js';
 
 const r4 = (x: number) => Math.round(x * 1e4) / 1e4;
 const sum = (xs: readonly number[]) => xs.reduce((a, x) => a + x, 0);
 const trailing = (xs: readonly number[]) => sum(xs.slice(-12));
 const last = (xs: readonly number[]) => xs[xs.length - 1] ?? 0;
 
-export interface SectorGdp { primary: number; secondary: number; tertiary: number }
+export type { SectorGdp } from './systems/statistics.js';
 /**
- * R9.3 (§5.6, §9): the month's GDP split into the three sectors the claims report. Primary is the base farming
- * economy; secondary is the firms' factory value added plus the base factory and construction jobs plus the
- * construction value added (the residual of the recorded GDP over the firms and the base); tertiary is state,
- * services and the service posts. Pure, from state and params; never stored.
+ * R9.3, R10a (§5.6, §5.13): the month's GDP split into the three sectors the claims report, with construction a part
+ * of secondary. The construction work's value added is the residual of the recorded GDP over the firms and the base.
+ * Pure, from state and params; never stored (the series is `history.gdpSector`).
  */
 export function gdpBySector(s: GameState, p: SliceParams): SectorGdp {
   const h = s.history;
-  const find = (area: number, sector: string) => s.labour.jobs.find((r) => r.area === area && r.sector === sector);
-  let primary = 0, secondary = 0, tertiary = 0, base = 0;
-  for (const j of s.labour.baseJobs) {
-    const r = find(j.area, j.sector);
-    if (!r || r.jobs <= 0) continue;
-    const v = j.jobs * (r.filled / r.jobs) * p.gdp.base_va_per_job_month[j.sector];
-    base += v;
-    if (j.sector === 'farming_fishing') primary += v;
-    else if (j.sector === 'factory' || j.sector === 'construction') secondary += v;
-    else tertiary += v;
-  }
-  for (const sp of s.labour.servicePosts) {
-    const r = find(sp.area, 'services');
-    if (!r || r.jobs <= 0) continue;
-    const v = (sp.formal + sp.informal) * (r.filled / r.jobs) * p.gdp.base_va_per_job_month.services;
-    base += v; tertiary += v;
-  }
   const firm = last(h.valueAdded), total = last(h.gdp);
-  secondary += firm + Math.max(0, total - firm - base);
-  return { primary, secondary, tertiary };
+  const noWork = sectorValueAdded(s, p, firm, 0);
+  const base = noWork.primary + noWork.secondary + noWork.tertiary - firm;
+  return sectorValueAdded(s, p, firm, Math.max(0, total - firm - base));
+}
+
+/** R10a (§5.13): people present by registration, non-overlapping: registered + temporary.total = totalPresent. */
+export interface PopCategories {
+  registered: number;
+  temporary: { migrantConstruction: number; migrantFactory: number; other: number; total: number };
+  totalPresent: number;
+}
+export function popCategories(s: GameState): PopCategories {
+  let registered = 0, migrantConstruction = 0, migrantFactory = 0, other = 0;
+  for (const g of s.pops) {
+    if (g.registration === 'local') registered += g.present;
+    else if (g.kind === 'migrant_construction') migrantConstruction += g.present;
+    else if (g.kind === 'migrant_factory') migrantFactory += g.present;
+    else other += g.present;
+  }
+  const total = migrantConstruction + migrantFactory + other;
+  return { registered, temporary: { migrantConstruction, migrantFactory, other, total }, totalPresent: registered + total };
 }
 
 export interface YearPoint {
@@ -61,6 +63,8 @@ export interface YearPoint {
   gdp: number; exports: number; revenue: number; obligationsPaid: number; projectSpend: number;   // the trailing year
   electricityKwhYear: number;             // R9.2 (§5.5): the month's consumption, annualised
   gdpSector: SectorGdp;                   // R9.3 (§5.6): the month's value added by sector
+  gdpSectorYear: SectorGdp;               // R10a (§5.13): the trailing year's value added by sector
+  population: PopCategories;              // R10a (§5.13): present people by registration, non-overlapping
   foreignValueAddedShare: number;         // R9.3: foreign-invested firms' share of the firms' value added
   foreignCapitalUsdYear: number;          // R9.3: construction cost of foreign firms accepted in the year, a proxy
   landRevenueYear: number; landShare: number; debtToRevenue: number;   // R9.3 (§5.6): land finance and leverage
@@ -96,7 +100,11 @@ export function yearPoint(s: GameState, p: SliceParams): YearPoint {
     gdp: Math.round(trailing(h.gdp)), exports: Math.round(trailing(h.exports)), revenue: Math.round(revenue),
     obligationsPaid: Math.round(trailing(h.obligationsPaid)), projectSpend: Math.round(trailing(h.projectSpend)),
     electricityKwhYear: Math.round(last(h.electricity) * 12),
-    gdpSector: { primary: Math.round(sector.primary), secondary: Math.round(sector.secondary), tertiary: Math.round(sector.tertiary) },
+    gdpSector: { primary: Math.round(sector.primary), secondary: Math.round(sector.secondary), tertiary: Math.round(sector.tertiary),
+      construction: Math.round(sector.construction) },
+    gdpSectorYear: { primary: Math.round(trailing(h.gdpSector.primary)), secondary: Math.round(trailing(h.gdpSector.secondary)),
+      tertiary: Math.round(trailing(h.gdpSector.tertiary)), construction: Math.round(trailing(h.gdpSector.construction)) },
+    population: popCategories(s),
     foreignValueAddedShare: r4(firmVa > 0 ? foreignVa / firmVa : 0),
     foreignCapitalUsdYear: Math.round(foreignCapital / p.fiscal.forex.yuan_per_usd),
     landRevenueYear: Math.round(landRevenue), landShare: r4(revenue + landRevenue > 0 ? landRevenue / (revenue + landRevenue) : 0),
@@ -123,7 +131,8 @@ export const CHECKPOINT_MONTHS = [12, 18, 60] as const;
 type LandUseKey = 'industrial' | 'commercial' | 'residential';
 export interface Checkpoint {
   id: string; at: string; months: number;
-  population: { registered: number; resident: number; present: number; presentNonlocal: number; migrants: number };
+  population: { registered: number; resident: number; present: number; presentNonlocal: number; migrants: number;
+    categories: PopCategories };          // R10a (§5.13)
   land: { plannedCells: Record<LandUseKey, number>; servicedCells: Record<LandUseKey, number>;
     developableCells: Record<LandUseKey, number> };
   floor: { industrialBuiltM2: number; industrialOpenM2: number; commercialBuiltM2: number; commercialOccupiedM2: number;
@@ -179,6 +188,7 @@ export function checkpoint(s: GameState, months: number, p: SliceParams, tick: T
       present: s.pops.reduce((a, g) => a + g.present, 0),
       presentNonlocal: s.pops.reduce((a, g) => a + (g.registration === 'nonlocal' ? g.present : 0), 0),
       migrants: s.pops.reduce((a, g) => a + (g.registration === 'nonlocal' ? g.size : 0), 0),
+      categories: popCategories(s),
     },
     land: { plannedCells: planned, servicedCells: serviced, developableCells: developable },
     floor: { industrialBuiltM2, industrialOpenM2, commercialBuiltM2: privateShopM2, commercialOccupiedM2: occupiedShops,

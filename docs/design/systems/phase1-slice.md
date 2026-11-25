@@ -1632,6 +1632,20 @@ At most one gateway per face and mode. A gateway's **yard** is the set of road c
 - The historical plan upgrades its corridor from Shangbu to Luohu to avenue, after its outbound roads (`MapPlan.upgrades`).
 - If a §9 band fails because of freight, the capacities are raised, never the bands.
 
+### 5.13 The economy's composition and the revenue base (R10)
+
+`docs/design/phase1-revision-plan.md` §4b. The 1979–85 statistics (`docs/research/phase1-statistics-1979-1985.md`, claims in `phase1_statistics.yaml`) are all `lead`. They are **tuning targets in `m6-tuning-log.md`, never §9 bands** (§4b.2 item 6).
+
+**R10a: reporting and the save.** Nothing here moves a run: these are reports of what the sim already computes, and one save migration.
+- **Construction value added** is its own line under secondary. `SectorGdp` gains `construction`, a part of `secondary`, not added to it: the base construction rows' value added plus the month's work × `gdp.construction_va_ratio` (municipal works, firm builds, housing and village builds, §5.6). `gdpBySector` keeps its other three lines unchanged.
+- **The sector series.** `History.gdpSector: { primary, secondary, tertiary, construction }`, each a number per month aligned with `months`, recorded by step 13 with the month's work. Each year point reports `gdpSectorYear`, the trailing 12 months of each line, beside the December month's `gdpSector`. The tuning log's targets read the annual lines.
+- **Population categories** (`popCategories(state)`), on people present and non-overlapping, beside the existing `resident`, `registered` (local size), `presentNonlocal` and `migrants`, which do not change:
+  - `registered`: present people of local registration (常住, with local hukou: villagers and urban residents);
+  - `temporary`: present people without it (暂住), split `migrant_construction`, `migrant_factory` and `other` (Hong Kong managers), with their `total`;
+  - `totalPresent`: everyone present. `registered + temporary.total = totalPresent` always (a test).
+  Each year point carries them as `population`, each checkpoint as `population.categories`.
+- **Save version 9.** It adds the sector series (zeros for months an older run recorded) and **re-applies the unlock keys** of the events already fired (§4b.2 item 7). The migration walks `events.fired` in order and, for each fired event still in the events content, adds the key of each `unlock` in its fire-time `effects` that is not already set (the content has no `unlock` under `on_answer`; one there would need the chosen option, which `fired` does not record, so it is not re-applied). A fired id no longer in the content is skipped. So a save from before R9 opens the tools whose beats have fired. Events still set every key at fire time; the migration is the one other writer. `loadGame(save, { events })` takes the content; loading a save older than version 9 **without** it throws, rather than stamping it version 9 with keys missing.
+
 ## 6. Systems and the monthly tick
 The tick follows PLAN §3.15's order. Steps marked *off* do nothing in the slice.
 

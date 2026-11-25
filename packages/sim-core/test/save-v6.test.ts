@@ -11,7 +11,7 @@ import {
   Rng, SAVE_VERSION, cellsOfRuns, createTickSteps, firstOption, historical, loadGame, placeStructure, playQuarters, saveFromJson, saveGame,
   saveToJson, step,
 } from '../src/index.js';
-import { ROOT, initial, params, slice, UNGATED } from './fixtures.js';
+import { ROOT, initial, params, slice, UNGATED, events } from './fixtures.js';
 import { checkInvariants } from './invariants.js';
 
 const STEPS = createTickSteps(params, UNGATED);
@@ -41,10 +41,10 @@ const CASES: [string, () => string][] = [['built here', builtV5],
   ...(existsSync(FIXTURE) ? [['written by the pre-R8 code', () => readFileSync(FIXTURE, 'utf8')] as [string, () => string]] : [])];
 
 describe("R8e save version 6 (and R9's 7, R9.2's 8)", () => {
-  it('is version 8 (R9.2), and the header carries the gateways hash', () => {
-    expect(SAVE_VERSION).toBe(8);
+  it('is version 9 (R10a), and the header carries the gateways hash', () => {
+    expect(SAVE_VERSION).toBe(9);
     const save = saveGame(initial(), new Rng(1), slice.content);
-    expect(save.header.version).toBe(8);
+    expect(save.header.version).toBe(9);
     expect(save.header.content.gateways_sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(save.header.content.landcover_sha256).toMatch(/^[0-9a-f]{64}$/);
   });
@@ -64,7 +64,7 @@ describe("R8e save version 6 (and R9's 7, R9.2's 8)", () => {
     expect(o.power).toBeUndefined();
     expect(o.history.electricity).toBeUndefined();
 
-    const { state: s, header } = loadGame(old);
+    const { state: s, header } = loadGame(old, { events });
     expect(header.version).toBe(SAVE_VERSION);                                    // through 6, R9's 7, R9.2's 8
     expect(s.crew).toEqual([]);                                                   // R9: no arrivals before version 7
     expect(s.history.electricity).toHaveLength(s.history.months.length);          // R9.2: zeros, aligned
@@ -91,7 +91,7 @@ describe("R8e save version 6 (and R9's 7, R9.2's 8)", () => {
   });
 
   it.each(CASES)('a migrated save (%s) plays on, keeps its invariants, and round-trips as the current version', (_n, v5) => {
-    const { state, rng } = loadGame(saveFromJson(v5()));
+    const { state, rng } = loadGame(saveFromJson(v5()), { events });
     const months = state.history.months.length;
     let s = state;
     for (let m = 0; m < 3; m++) {
@@ -120,7 +120,7 @@ describe('R9 save version 7 and R9.2 version 8', () => {
     delete history.electricity;
     body.history = history;
     const v6 = { ...v8, header: { ...v8.header, version: 6 }, body: { ...v8.body, state: body } } as typeof v8;
-    const { state, header } = loadGame(v6);
+    const { state, header } = loadGame(v6, { events });
     expect(header.version).toBe(SAVE_VERSION);
     expect(state.crew).toEqual([]);
     expect(state.history.electricity).toEqual(state.history.months.map(() => 0));
