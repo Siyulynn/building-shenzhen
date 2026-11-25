@@ -136,6 +136,13 @@ capacity:                                # the construction-capacity pool (§5.6
   local_crew: 600                        # R9 (§5.6): the county's core; arrivals add to it. A placeholder set against the 1979 spending floor
   crew_per_m2: 0.02                      # a firm cohort's crew at full pace, per m²
 
+power:                                   # R9.2 (§5.5): the consumption series, for calibration only. Placeholders.
+  consumption:
+    hours_month: 730                     # hours in a month
+    firm_load_factor: 0.35               # average firm load as a share of connected kW (one to two shifts)
+    kwh_person_month: 8                  # households, per person present
+    kwh_job_month: 60                    # the base economy: state, farming, services and existing industry, per filled job
+
 construction:
   cost_per_m2: { standard_factory: 120, dormitory: 100, state_flats: 110, shop_market: 110 }   # value of the work, for GDP
 

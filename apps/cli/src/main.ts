@@ -25,7 +25,7 @@ export function checkpointTable(summaries: readonly RunSummary[]): string {
     'planned I/C/R', 'serviced I/C/R', 'developable I/C/R', 'industrial built/open m²', 'commercial built/occupied m²',
     'residential dormitory m²', 'village rental m²', 'firm posted', 'filled', 'vacancies', 'rental beds', 'occupants',
     'crowding', 'turned away', 'road cells', 'power/water sources', 'facilities', 'reserve', 'money for projects',
-    'debt', 'arrears', 'revenue year', 'spending year', 'spending ÷ revenue'];
+    'debt', 'arrears', 'revenue year', 'spending year', 'spending ÷ revenue', 'electricity kWh/yr'];
   const rows: string[][] = [head];
   for (const r of summaries) for (const c of r.checkpoints) rows.push([
     r.policy, c.at, String(c.population.registered), String(c.population.resident), String(c.population.present),
@@ -41,7 +41,7 @@ export function checkpointTable(summaries: readonly RunSummary[]): string {
     String(c.works.facilities), String(Math.round(c.fiscal.reserve)), String(Math.round(c.fiscal.moneyForProjects)),
     String(Math.round(c.fiscal.debtOutstanding)), String(Math.round(c.fiscal.arrears)),
     String(Math.round(c.fiscal.revenueYear)), String(Math.round(c.fiscal.spendingYear)),
-    c.fiscal.spendingOverRevenue.toFixed(2),
+    c.fiscal.spendingOverRevenue.toFixed(2), String(Math.round(c.energy.electricityKwhYear)),
   ]);
   const widths = head.map((_, i) => Math.max(...rows.map((r) => r[i]!.length)));
   const line = (r: string[]) => `| ${r.map((x, i) => x.padEnd(widths[i]!)).join(' | ')} |`;

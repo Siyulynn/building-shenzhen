@@ -6,7 +6,7 @@ import { Rng, type RngState } from './rng.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
 
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 8;
 
 /** The content a save was made with (§5.1, §5.3). */
 export interface SaveContent {
@@ -75,6 +75,12 @@ const MIGRATIONS: Record<number, (s: Save) => Save> = {
   },
   // R9 (phase1-slice §5.6): crew arrivals. A version-6 run's corps advance was a pool contract, which it keeps
   6: (s) => ({ ...s, header: { ...s.header, version: 7 }, body: { ...s.body, state: { ...(s.body.state as object), crew: [] } } }),
+  // R9.2 (§5.5): the electricity series. An older run never recorded it: zeros keep the series aligned.
+  7: (s) => {
+    const st = s.body.state as { history: { months: unknown[] } };
+    return { ...s, header: { ...s.header, version: 8 },
+      body: { ...s.body, state: { ...st, history: { ...st.history, electricity: st.history.months.map(() => 0) } } } };
+  },
 };
 
 /** JSON turns NaN and Infinity into null without a word: a save must fail instead. */

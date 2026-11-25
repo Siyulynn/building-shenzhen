@@ -20,6 +20,26 @@ export function importedKw(s: GameState): { arrived: number; pending: number } {
   return { arrived, pending };
 }
 
+/**
+ * R9.2 (§5.5): the month's electricity consumption in kWh. A reporting series, not a constraint: firm load is
+ * `staffed / jobs` of each open firm's connected kW, at a load factor, plus households and the base economy's jobs.
+ * Pure: derived each time from state and params, never stored except as the month's history entry.
+ */
+export function electricityMonthly(s: GameState, p: SliceParams): number {
+  const C = p.power.consumption;
+  let firmKw = 0, firmStaffed = 0;
+  for (const f of s.firms) {
+    if (f.opens === undefined || f.opens > s.date || f.jobs <= 0) continue;
+    const share = Math.min(1, Math.max(0, (f.staffed ?? 0) / f.jobs));
+    firmKw += f.powerKw * share;
+    firmStaffed += f.staffed ?? 0;
+  }
+  const present = s.pops.reduce((a, g) => a + g.present, 0);
+  const filled = s.labour.jobs.reduce((a, r) => a + r.filled, 0);
+  const baseJobs = Math.max(0, filled - firmStaffed);
+  return C.hours_month * C.firm_load_factor * firmKw + present * C.kwh_person_month + baseJobs * C.kwh_job_month;
+}
+
 export interface PowerPool { local: number; imported: number; stations: number; total: number }
 /** The city pool now (§5.5): local plant + arrived purchases + finished stations, in kW. */
 export function powerPool(s: GameState): PowerPool {

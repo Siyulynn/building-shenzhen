@@ -75,7 +75,8 @@ function checkpointRows(cs: readonly Checkpoint[]): string {
     <td class="n">${num(c.fiscal.arrears)}</td>
     <td class="n">${num(c.fiscal.revenueYear)}</td>
     <td class="n">${num(c.fiscal.spendingYear)}</td>
-    <td class="n">${c.fiscal.spendingOverRevenue.toFixed(2)}</td></tr>`).join('\n');
+    <td class="n">${c.fiscal.spendingOverRevenue.toFixed(2)}</td>
+    <td class="n">${num(c.energy.electricityKwhYear)}</td></tr>`).join('\n');
 }
 
 export function reportHtml(a: Analysis, wallMs: number): string {
@@ -151,7 +152,7 @@ ${bandRows(c.c3.bands)}
 <th>Industrial floor built/open m²</th><th>Commercial floor built/occupied m²</th><th>Dormitory m²</th><th>Village rental m²</th>
 <th>Firm jobs posted</th><th>Filled</th><th>Vacancies</th><th>Rental beds</th><th>Occupants</th><th>Crowding</th><th>Turned away</th>
 <th>Road cells</th><th>Power/water sources</th><th>Facilities</th><th>Reserve</th><th>Money for projects</th><th>Debt</th>
-<th>Arrears</th><th>Revenue year</th><th>Spending year</th><th>Spending ÷ revenue</th></tr>
+<th>Arrears</th><th>Revenue year</th><th>Spending year</th><th>Spending ÷ revenue</th><th>Electricity kWh/yr</th></tr>
 ${checkpointRows(summary.checkpoints)}
 </table></div>
 

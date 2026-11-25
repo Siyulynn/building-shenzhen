@@ -101,6 +101,7 @@ export interface SliceParams {
   gdp: { base_va_per_job_month: Record<Sector, number>; construction_va_ratio: number };
   works?: WorksParams;                   // R2 (buildings-and-construction §13.2): absent = no works actions
   growth?: GrowthParams;                 // R3 (buildings-and-construction §13.3): absent = no organic growth
+  power: { consumption: { hours_month: number; firm_load_factor: number; kwh_person_month: number; kwh_job_month: number } };
   freight?: FreightParams;               // R8d (§5.12): absent, or without works.roads or gateways, = no freight limit
 }
 

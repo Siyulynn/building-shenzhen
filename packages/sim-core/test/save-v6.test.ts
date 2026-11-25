@@ -29,6 +29,7 @@ function builtV5(): string {
     zones: { id: number; use: string }[]; structures: { kind: string }[]; actionLog: { action: Record<string, unknown> }[];
   };
   delete st.requisitioned; delete st.power; delete st.roadClass; delete (st.history as { freightUnmet?: unknown }).freightUnmet;
+  delete (st.history as { electricity?: unknown }).electricity;
   const z = st.zones.find((q) => q.use !== 'industrial')!;
   z.use = 'public';
   const made = st.actionLog.filter((e) => e.action.type === 'create_zone')[z.id - 1];
@@ -39,11 +40,11 @@ function builtV5(): string {
 const CASES: [string, () => string][] = [['built here', builtV5],
   ...(existsSync(FIXTURE) ? [['written by the pre-R8 code', () => readFileSync(FIXTURE, 'utf8')] as [string, () => string]] : [])];
 
-describe("R8e save version 6 (and R9's 7)", () => {
-  it('is version 7 (R9), and the header carries the gateways hash', () => {
-    expect(SAVE_VERSION).toBe(7);
+describe("R8e save version 6 (and R9's 7, R9.2's 8)", () => {
+  it('is version 8 (R9.2), and the header carries the gateways hash', () => {
+    expect(SAVE_VERSION).toBe(8);
     const save = saveGame(initial(), new Rng(1), slice.content);
-    expect(save.header.version).toBe(7);
+    expect(save.header.version).toBe(8);
     expect(save.header.content.gateways_sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(save.header.content.landcover_sha256).toMatch(/^[0-9a-f]{64}$/);
   });
@@ -54,16 +55,20 @@ describe("R8e save version 6 (and R9's 7)", () => {
     const o = old.body.state as {
       zones: { use: string }[]; structures: { kind: string; cell: number; capacity: number }[];
       requisitioned?: unknown; power?: unknown; actionLog: { action: { type: string; use?: string; kind?: string } }[];
+      history: { electricity?: unknown };
     };
     // the fixture holds what the migration has to change
     expect(o.zones.map((z) => z.use)).toContain('public');
     expect(o.structures.map((x) => x.kind)).toContain('power_source');
     expect(o.requisitioned).toBeUndefined();
     expect(o.power).toBeUndefined();
+    expect(o.history.electricity).toBeUndefined();
 
     const { state: s, header } = loadGame(old);
-    expect(header.version).toBe(SAVE_VERSION);                                    // through 6, then R9's 7
+    expect(header.version).toBe(SAVE_VERSION);                                    // through 6, R9's 7, R9.2's 8
     expect(s.crew).toEqual([]);                                                   // R9: no arrivals before version 7
+    expect(s.history.electricity).toHaveLength(s.history.months.length);          // R9.2: zeros, aligned
+    expect(s.history.electricity.every((x) => x === 0)).toBe(true);
     expect(s.zones.map((z) => z.use)).toEqual(o.zones.map((z) => (z.use === 'public' ? 'reserve' : z.use)));
     expect(s.zones.every((z) => z.intensity === undefined)).toBe(true);           // absent: standard
     // the same cell and capacity, as the substation that R8c already read it as
@@ -98,6 +103,7 @@ describe("R8e save version 6 (and R9's 7)", () => {
     }
     expect(s.history.months.length).toBe(months + 3);
     for (const row of Object.values(s.history.freightUnmet ?? {})) expect(row).toHaveLength(months + 3);
+    expect(s.history.electricity).toHaveLength(months + 3);
     const text = saveToJson(saveGame(s, rng, slice.content));
     const back = loadGame(saveFromJson(text));
     expect(back.header.version).toBe(SAVE_VERSION);
@@ -105,15 +111,19 @@ describe("R8e save version 6 (and R9's 7)", () => {
   });
 });
 
-describe('R9 save version 7', () => {
-  it('migrates a version-6 save: no crew arrivals; the state then plays as built', () => {
-    const v7 = saveGame(initial(), new Rng(1), slice.content);
-    const body = { ...(v7.body.state as unknown as Record<string, unknown>) };
+describe('R9 save version 7 and R9.2 version 8', () => {
+  it('migrates a version-6 save: no crew arrivals and no electricity series; the state then plays as built', () => {
+    const v8 = saveGame(initial(), new Rng(1), slice.content);
+    const body = { ...(v8.body.state as unknown as Record<string, unknown>) };
     delete body.crew;
-    const v6 = { ...v7, header: { ...v7.header, version: 6 }, body: { ...v7.body, state: body } } as typeof v7;
+    const history = { ...(body.history as Record<string, unknown>) };
+    delete history.electricity;
+    body.history = history;
+    const v6 = { ...v8, header: { ...v8.header, version: 6 }, body: { ...v8.body, state: body } } as typeof v8;
     const { state, header } = loadGame(v6);
-    expect(header.version).toBe(7);
+    expect(header.version).toBe(SAVE_VERSION);
     expect(state.crew).toEqual([]);
-    expect(saveToJson(saveGame(state, new Rng(1), slice.content))).toBe(saveToJson(v7));
+    expect(state.history.electricity).toEqual(state.history.months.map(() => 0));
+    expect(saveToJson(saveGame(state, new Rng(1), slice.content))).toBe(saveToJson(v8));
   });
 });

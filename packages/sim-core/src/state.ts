@@ -181,6 +181,8 @@ export interface History {
   vacancies: number[]; turnedAway: number[]; servicePosts: number[]; constructionPosts: number[];
   // R8d (§5.12): unmet freight tonnes a month by `gateway:direction`, aligned with months; absent until freight runs
   freightUnmet?: Record<string, number[]>;
+  // R9.2 (§5.5): the month's electricity consumption in kWh, aligned with months; required from save v8
+  electricity: number[];
 }
 
 export interface GameState {
@@ -282,7 +284,8 @@ export function emptyHistory(): History {
     employed: seriesBySector(), rentalBeds: [], crowding: [], rent: [], underConstructionM2: [], illegalShare: [],
     inflow: [], outflow: [], firmJobs: [], firmStaffed: [], output: [], exports: [], valueAdded: [],
     gdp: [], revenue: [], obligationsDue: [], baselineDue: [], obligationsPaid: [], projectSpend: [], reserve: [],
-    debtOutstanding: [], austerity: [], vacancies: [], turnedAway: [], servicePosts: [], constructionPosts: [] };
+    debtOutstanding: [], austerity: [], vacancies: [], turnedAway: [], servicePosts: [], constructionPosts: [],
+    electricity: [] };
 }
 
 /** content/slice/leaders.yaml (§5.7): the pair, fictional, with the Phase 1 traits. */
@@ -520,7 +523,7 @@ export function cloneState(s: GameState): GameState {
       obligationsPaid: [...h.obligationsPaid], projectSpend: [...h.projectSpend], reserve: [...h.reserve],
       debtOutstanding: [...h.debtOutstanding], austerity: [...h.austerity],
       vacancies: [...h.vacancies], turnedAway: [...h.turnedAway], servicePosts: [...h.servicePosts],
-      constructionPosts: [...h.constructionPosts],
+      constructionPosts: [...h.constructionPosts], electricity: [...h.electricity],
       ...(h.freightUnmet ? { freightUnmet: Object.fromEntries(Object.entries(h.freightUnmet).map(([k, v]) => [k, [...v]])) } : {}),
     },
   };

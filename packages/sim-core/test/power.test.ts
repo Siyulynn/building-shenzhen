@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   Rng, aggressive, parseYM, applyTurnAction, cloneState, createInitialState, createTickSteps, firstOption, importedKw, placedSupply,
-  playQuarters, poolShares, post, powerPool, runMonths, step, utilityShares,
+  playQuarters, poolShares, post, powerPool, runMonths, step, utilityShares, electricityMonthly,
   type GameState, type PlayerAction,
 } from '../src/index.js';
 import { initial, params, slice, UNGATED } from './fixtures.js';
@@ -124,5 +124,22 @@ describe('R8c power binds', () => {
       return n;
     };
     expect(posts(rich)).toBeGreaterThan(posts(cloneState(s0)));
+  });
+});
+
+describe('R9.2 the electricity series', () => {
+  it('records a month-aligned kWh series, grows it, and equals the pure function at the last month', () => {
+    const rec = playQuarters(createInitialState(slice.init), new Rng(1), STEPS, aggressive(params, UNGATED), 12);
+    const s = rec.final;
+    expect(s.history.electricity).toHaveLength(s.history.months.length);
+    expect(s.history.electricity.every((x) => x > 0)).toBe(true);
+    expect(s.history.electricity.at(-1)!).toBeGreaterThan(s.history.electricity[0]!);
+    expect(s.history.electricity.at(-1)!).toBeCloseTo(electricityMonthly(s, params), 6);
+  });
+
+  it('holds the base load (households and base jobs) with no firm open', () => {
+    const s = initial();
+    expect(s.firms).toEqual([]);
+    expect(electricityMonthly(s, params)).toBeGreaterThan(0);
   });
 });

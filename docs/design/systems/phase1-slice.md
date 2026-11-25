@@ -358,6 +358,7 @@ type DecisionPolicy = (state: GameState, pending: CardInstance[]) => PlayerActio
 
   `s.roads` keeps its name: the plan's `s.roads`→`s.roadClass` rename was not made (§5.12). The load test (`save-v6.test.ts`) builds a version-5 save: four quarters of the historical plan, written back in version 5's shape with a public zone and a placed power source. It migrates it, plays three months with the invariants, and round-trips as version 6. A save the pre-R8 code wrote is loaded the same way when present locally; it is not checked in.
 - **Version 7 (R9)** adds `crew: { team, crew, from }[]` (§5.6, required). Its migration from 6 writes `crew: []`. A version-6 run's corps advance was a pool contract, which the save keeps, so its pool is unchanged. `events.modifiers` (§5.8) and `WorksOrder.pace` (§5.6) are optional, absent = none and normal, and need no migration.
+- **Version 8 (R9.2)** adds `history.electricity: number[]` (§5.5, required). Its migration from 7 writes zeros for every month the run recorded: an older run never measured consumption.
 
 **M1's tests:**
 - save at month k, load, continue, and match an uninterrupted run byte for byte;
@@ -739,6 +740,7 @@ interface Cohort { /* buildings §2.2, M2 */ workDone?: number; workTotal?: numb
   - An area can take its local `powerCap` plus what its `power_substation`s deliver along the roads (`spatialViews(…).supply`).
   - When the areas can take more than the pool holds, the pool is shared pro rata to what each can take (`poolShares`). An area's share is `min(1, its part ÷ its open firms' need)`.
   - The retired `water_source` and `power_source` kinds still load, and are counted as delivery, but are no longer ordered.
+- **The electricity series (R9.2).** A reporting series, not a constraint: `history.electricity` records the month's kWh from `electricityMonthly(s, p)` = `hours_month × firm_load_factor ×` the open firms' staffed share of their connected kW, plus `present × kwh_person_month` (households) and the base economy's filled jobs `× kwh_job_month`. The four numbers are `power.consumption` placeholders; the checkpoint reports the series annualised (the month's value × 12). It exists so the 1979–82 all-society consumption claim can be read as a curve; it is not a band while the 1979 figure's conflict is open.
 
 **The preview** (fiscal §7.2). `previewOffer(state, card, params, content)` is a pure function. For each site option it gives:
 - jobs, the months until it opens (`build_months − 1` for a new factory, 1 in existing premises), the floor and dormitory built, and the zone's free floor or the area's free premises jobs;
@@ -1476,6 +1478,20 @@ The pass moved five named parameters: `growth.industrial.floor_m2_per_month` 6,0
 - **Realism checks kept in the log:** 430 jobs and ~5,125 m² a firm, 45 W of industrial power a m², village rental outgrowing planned housing by 66,613 to 65,850 m² (thin), and rents of ¥3–10 a m² that follow crowding. Employment stays at 95–99% of the participating labour force: a town whose migrants come for jobs.
 - **Goldens:** historical_prologue 52,360 → 55,451 residents and 33.6M → 37.4M GDP; aggressive 48,887 → 53,626 and 32.7M → 35.7M. All 20 bands stay green for both; `decline_all` moves only its hash. No band was widened.
 - **One design check changed measure.** The m6a fiscal check now asserts a thinner *margin* rather than a smaller absolute 1984 balance: after R9 made the corps a free arrival, aggressive's tax base outruns its obligations (290,220 against cautious's 200,064), while its margin is still the thinner one (7.2% against 8.0%). Recorded in the tuning log.
+
+**R9.2: the tempo and the electricity series (2026-11-25).** R9.1 matched the index; this pass matched the year-over-year rate and made electricity measurable.
+
+| Year | Residents, model / claim | GDP, model / claim | Electricity 10^8 kWh |
+|---|---:|---:|---:|
+| 1980 | +5% / +19% | +32% / +38% | 0.16 |
+| 1981 | +24% / +17% | +89% / +84% | 0.26 |
+| 1982 | +17% / +31% | +36% / +67% | 0.36 |
+| 1983 | +30% / +28% | +43% / +59% | 0.52 |
+
+- **The index ratios are now 0.88 / 0.94 / 0.84 / 0.85** for residents and **0.96 / 0.99 / 0.81 / 0.73** for GDP, against 0.86 / 0.91 / 0.85 / 0.79 and 0.90 / 0.97 / 0.78 / 0.66 after R9.1. 1980 and 1983 improved; **1982 is the remaining gap**, because the model's boom is front-loaded (1981) while the historical series accelerates through 1982.
+- **The lever was the plan's zone:** the historical plan now zones 54 industrial cells in Shangbu, not 36. A timed second wave (Sungang, 16 cells) was built and rejected: it splits servicing, opens too late to add 1982 output and breaks `village_outgrows_planned`.
+- **The electricity series** (`power.consumption`, `history.electricity`, save v8) is calibrated so 1979 reads 0.14×10^8 kWh, the slice's 43% share of the citywide 0.33. It grows +14% / +57% / +40% / +44%; the claim's 1980 jump (+65%) is as unreachable as the population one, and its ">60%/yr" is a demand claim, not energy (the arithmetic is +45%/yr from 33 to 100). The 1979 conflict (0.33 supply vs 0.4125 consumption) is left open; the series is reported, not banded.
+- **Goldens:** historical 55,451 → 60,278 residents, 37.4M → 42.0M GDP, spending ÷ revenue 1.11 → 1.00. All 20 bands green; aggressive unchanged; `decline_all` moves only its hash.
 
 ### 5.11 Jobs, labour and migration on the map (R4)
 R4 answers §5.10's labour constraint (option C) and traces jobs from the map: construction jobs while works and builds are active, industrial jobs once floor is occupied, then service jobs as wages are spent. It replaces §5.2's from-scratch matching and its lost arrivals, and it adds the occupied city's revenue. Organic floor is buildings-and-construction §13.3's (R3).

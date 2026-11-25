@@ -4,7 +4,7 @@
   "quarters": 21,
   "content": {
     "areas_sha256": "fc9003de49cb0d274f25b2b21ac1028c4dd8cb0c51f334af2e4caa9ad70212a6",
-    "params_sha256": "ee1578cf33806b4eaac8bfa1fef8077c3d4b6b491842355f957ed3ccd97d6a02",
+    "params_sha256": "5a959a4e8614120f03924e2f6ea7255a72dffad3b1b53746eddbb1c3841d2833",
     "precedents_sha256": "d54f17661a4348d98d655754b9e42dea47173e09d8f6d19566de79d2094104f4",
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
     "landcover_sha256": "a8fc4372642be8e1f96c9dee10422e3724c4aee7cdb0a9c20c13570508538253",
@@ -29,6 +29,7 @@
       "revenue": 3399588,
       "obligationsPaid": 2009546,
       "projectSpend": 0,
+      "electricityKwhYear": 14441016,
       "reserve": 1690042,
       "debt": 0,
       "arrears": 0,
@@ -47,6 +48,7 @@
       "revenue": 3407661,
       "obligationsPaid": 1849981,
       "projectSpend": 0,
+      "electricityKwhYear": 14661006,
       "reserve": 3247722,
       "debt": 3000000,
       "arrears": 0,
@@ -65,6 +67,7 @@
       "revenue": 3416882,
       "obligationsPaid": 1996851,
       "projectSpend": 0,
+      "electricityKwhYear": 14619681,
       "reserve": 4667753,
       "debt": 3000000,
       "arrears": 0,
@@ -83,6 +86,7 @@
       "revenue": 3421404,
       "obligationsPaid": 2491419,
       "projectSpend": 0,
+      "electricityKwhYear": 14999034,
       "reserve": 5597738,
       "debt": 2500000,
       "arrears": 0,
@@ -101,6 +105,7 @@
       "revenue": 2735142,
       "obligationsPaid": 2565865,
       "projectSpend": 0,
+      "electricityKwhYear": 14962302,
       "reserve": 5767015,
       "debt": 1900000,
       "arrears": 0,
@@ -155,6 +160,9 @@
         "rentalOccupants": 351,
         "crowding": 0.8540145985401459,
         "turnedAway": 0
+      },
+      "energy": {
+        "electricityKwhYear": 14441016
       },
       "works": {
         "roadCells": 0,
@@ -219,6 +227,9 @@
         "crowding": 0.8321167883211679,
         "turnedAway": 0
       },
+      "energy": {
+        "electricityKwhYear": 14439432
+      },
       "works": {
         "roadCells": 0,
         "powerSources": 0,
@@ -281,6 +292,9 @@
         "rentalOccupants": 809,
         "crowding": 0.6827004219409283,
         "turnedAway": 0
+      },
+      "energy": {
+        "electricityKwhYear": 14962302
       },
       "works": {
         "roadCells": 0,

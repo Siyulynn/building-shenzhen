@@ -6,6 +6,7 @@ import type { GameState } from '../state.js';
 import { illegalShare, underConstructionM2, villageM2 } from './common.js';
 import { industryTotals } from './industry.js';
 import { principalOutstanding } from '../fiscal.js';
+import { electricityMonthly } from '../power.js';
 import { reachClasses } from '../reach.js';
 import type { StartNetwork } from '../sites.js';
 import { accessibleAreas } from './migration.js';
@@ -68,6 +69,7 @@ export function statistics(p?: SliceParams, network?: StartNetwork, gateways?: r
     h.output.push(t.output);
     h.exports.push(t.exports);
     h.valueAdded.push(t.valueAdded);
+    h.electricity.push(p ? electricityMonthly(s, p) : 0);
 
     // M4 (§5.6): nominal GDP, and the finance step's month
     let work = 0, spend = 0;

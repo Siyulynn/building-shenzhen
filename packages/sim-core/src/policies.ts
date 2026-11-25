@@ -147,7 +147,8 @@ export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
  * dormitories beside the road and shops in the market town; a third of the crews; a school in the town.
  */
 export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
-  zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'residential', area: 7, cells: 6 }, { use: 'commercial', area: 1, cells: 4 }],
+  zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'industrial', area: 7, cells: 18 },
+    { use: 'residential', area: 7, cells: 6 }, { use: 'commercial', area: 1, cells: 4 }],
   roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]], LUOHU_STREET],
   upgrades: CORRIDOR_UPGRADES,
   crew_share: 0.34, room_ahead_m2: 30_000,

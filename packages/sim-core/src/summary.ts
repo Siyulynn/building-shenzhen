@@ -28,6 +28,7 @@ export interface YearPoint {
   at: string;                            // the last month the history recorded
   residents: number; registered: number; presentNonlocal: number; migrants: number; firmJobs: number;
   gdp: number; exports: number; revenue: number; obligationsPaid: number; projectSpend: number;   // the trailing year
+  electricityKwhYear: number;             // R9.2 (§5.5): the month's consumption, annualised
   reserve: number; debt: number; arrears: number; scrutiny: number; illegalShare: number;
 }
 export function yearPoint(s: GameState): YearPoint {
@@ -41,6 +42,7 @@ export function yearPoint(s: GameState): YearPoint {
     migrants: last(h.migrants), firmJobs: last(h.firmJobs),
     gdp: Math.round(trailing(h.gdp)), exports: Math.round(trailing(h.exports)), revenue: Math.round(trailing(h.revenue)),
     obligationsPaid: Math.round(trailing(h.obligationsPaid)), projectSpend: Math.round(trailing(h.projectSpend)),
+    electricityKwhYear: Math.round(last(h.electricity) * 12),
     reserve: Math.round(s.fiscal.balances.general), debt: Math.round(last(h.debtOutstanding)), arrears: Math.round(arrears),
     scrutiny: r4(s.climate.scrutiny), illegalShare: r4(realIllegalShare(s)),
   };
@@ -69,6 +71,7 @@ export interface Checkpoint {
   floor: { industrialBuiltM2: number; industrialOpenM2: number; commercialBuiltM2: number; commercialOccupiedM2: number;
     residentialM2: number; villageRentalM2: number };
   jobs: { firmPosted: number; filled: number; vacancies: number };
+  energy: { electricityKwhYear: number };   // R9.2 (§5.5): annualised from the month's consumption
   housing: { rentalBeds: number; rentalOccupants: number; crowding: number; turnedAway: number };
   works: { roadCells: number; powerSources: number; waterSources: number; facilities: number };
   fiscal: { reserve: number; moneyForProjects: number; debtOutstanding: number; arrears: number;
@@ -126,6 +129,7 @@ export function checkpoint(s: GameState, months: number, p: SliceParams, tick: T
       vacancies: last(h.vacancies) },
     housing: { rentalBeds, rentalOccupants, crowding: rentalOccupants / Math.max(1, rentalBeds),
       turnedAway: last(h.turnedAway) },
+    energy: { electricityKwhYear: Math.round(last(h.electricity) * 12) },
     works: { roadCells: s.roads.length,
       powerSources: s.structures.filter((x) => x.kind === 'power_source').length,
       waterSources: s.structures.filter((x) => x.kind === 'water_source').length,

@@ -372,3 +372,73 @@ The temporary population is 31,085 at end-1983 (was 27,344), against the 120,000
 
 **Invariants.** `npm run check` green: determinism, population and money conserved, no negative stock, M5b's
 properties, and the §9 bands unchanged (no band was widened; the pass moved parameters, not targets).
+
+## R9.2 (tempo and electricity, 2026-11-25)
+
+**Goal.** R9.1 matched the yearly *index* to 1983. This pass checks the **year-over-year tempo** of residents, GDP and
+electricity against the claims, and adds the missing electricity series so the 1979–82 consumption claim can be read
+as a curve.
+
+**The tempo, before and after** (`historical_prologue`; the claim's rate in brackets):
+
+| Year | Residents before ? after | Claim | GDP before ? after | Claim |
+|---|---:|---:|---:|---:|
+| 1980 | 2% ? **5%** | 19% | 24% ? **32%** | 38% |
+| 1981 | 23% ? **24%** | 17% | 97% ? **89%** | 84% |
+| 1982 | 22% ? **17%** | 31% | 35% ? **36%** | 67% |
+| 1983 | 19% ? **30%** | 28% | 34% ? **43%** | 59% |
+
+The index ratios now sit at 0.88 / 0.94 / 0.84 / 0.85 for residents (was 0.86 / 0.91 / 0.85 / 0.79) and
+0.96 / 0.99 / 0.81 / 0.73 for GDP (was 0.90 / 0.97 / 0.78 / 0.66). 1983 is the clear gain; **1982 remains the gap**:
+the model's industrial build-out is front-loaded, so 1981 carries the boom and 1982 only the ramp.
+
+**What changed.**
+
+| Lever | Before | After | Why |
+|---|---|---|---|
+| `HISTORICAL_PLAN.zones` | 36 industrial cells | +18 in Shangbu (54) | the plan's zone was full by 1982; the later cells fill in 1982–83 |
+| `power.consumption` | absent | a new series (see below) | the electricity curve was unmeasurable |
+
+**The electricity series (R9.2, §5.5).** A pure function, `electricityMonthly(s, p)`, recorded once a month as
+`history.electricity` (save v8):
+
+`hours_month × firm_load_factor × S(open firm's connected kW × staffed/jobs) + present × kwh_person_month + base jobs × kwh_job_month`
+
+with `hours_month 730`, `firm_load_factor 0.35`, `kwh_person_month 8`, `kwh_job_month 60` (placeholders). The
+coefficients were set so 1979 reads 0.14×10^8 kWh: the slice is 43% of the SEZ population, so its share of the
+citywide 0.33×10^8 is 0.14. Result (10^8 kWh, annualised): **0.14 / 0.16 / 0.26 / 0.36 / 0.52** for 1979–83.
+
+- 1980 is slow (+14%) for the same reason population is (the first firms open in 1980).
+- 1982–83 run +40% and +44% a year, near the claim's 36–45%/yr arithmetic. The claim's **">60%/yr"** is a *demand*
+  claim, not consumption; 1979?82 consumption is +45%/yr (33?100) or +34%/yr if the 41.25 alternative is read.
+- **Not a band.** The 1979 figure has an open conflict (0.33 labelled supply vs 0.4125 labelled consumption,
+  `phase1.shenzhen.electricity_consumption.1979`). It is reported in the checkpoint table, not averaged and not
+  banded. The model's `powerKw` is connected demand and `area.utilities.powerCap` is *spare industrial capacity*, so
+  neither equals consumption; the new series exists because the two could not be compared.
+
+**Rejected: a timed second wave.** A `later_zones` plan field was built and tested: Sungang, 16 cells from 1980-Q3.
+It diverts `crew_share` servicing from Shangbu, opens its firms too late to add 1982 output, and pushes planned
+dormitories past village rental (`village_outgrows_planned` fails). Enlarging the initial Shangbu zone instead adds
+the same cells without a second servicing front, and keeps all 20 bands. The field was removed rather than shipped
+unused.
+
+**Rejected: an earlier station.** Moving `station_turn` 6 ? 4 removes the 1982 power cliff but costs ¥1.5m in 1980
+and slows the main zone (1983 residents 54,098); the station at turn 6 with the existing import line is better.
+
+**Goldens (end-1983, seed 1).** Against R9.1:
+
+| Policy | Residents | GDP | Spending ÷ revenue | Electricity 10^8 kWh | Bands |
+|---|---:|---:|---:|---:|---|
+| historical_prologue | 55,451 ? 60,278 | 37.4M ? 42.0M | 1.11 ? 1.00 | 0.52 | 20 pass |
+| aggressive | 53,626 ? 53,626 | 35.7M ? 35.7M | 1.02 | 0.45 | 20 pass |
+| cautious | 37,204 ? 37,204 | 15.0M | 0.79 | 0.13 | 16 pass, 4 structural |
+| default | 30,822 | 8.1M | 0.94 | 0.13 | idle |
+| decline_all | 30,340 | 7.65M | 0.64 | 0.13 | idle |
+
+**Remaining gap.** 1982's claim (+31% residents, +67% GDP) needs firms opening through 1982 from land zoned and
+serviced by 1981. With one Shangbu front that is not reachable: the second front costs more crew than it adds. The
+next honest lever is a **second road-and-zone front with its own servicing share**, which is a plan-and-crew change,
+not a parameter.
+
+**Invariants.** `npm run check` green; save v8 migrates with zeros for the new series; determinism, conservation and
+the §9 bands unchanged.
