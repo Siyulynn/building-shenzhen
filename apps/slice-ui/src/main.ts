@@ -42,6 +42,12 @@ function gesture(from: Cell, to: Cell, done: boolean): void {
   render();
 }
 
+/** Close the briefing; a card that must be answered (the opening one on Turn 1, R7) then opens by itself (§11.2). */
+function leaveBriefing(): void {
+  ui.briefing = false;
+  if (unanswered(x).length) ui.decisions = true;
+}
+
 const map = new SliceMap($('map') as HTMLCanvasElement, slice, x.state, {
   hover: (c, client) => {
     cursor = client;
@@ -49,14 +55,14 @@ const map = new SliceMap($('map') as HTMLCanvasElement, slice, x.state, {
     placePreview();
   },
   click: (c) => {
-    if (ui.briefing) { ui.briefing = false; render(); return; }   // the first click on the map closes the briefing
+    if (ui.briefing) { leaveBriefing(); render(); return; }   // the first click on the map closes the briefing
     if (isBuildTool(ui.tool) && x.mode === 'turn') { gesture(c, c, true); return; }
     ui.selected = { x: c.x, y: c.y };
     if (c.area) ui.area = c.area;
     render();
   },
   drag: (from, to, done) => {
-    if (ui.briefing) ui.briefing = false;
+    if (ui.briefing) leaveBriefing();
     if (x.mode !== 'turn') return;
     gesture(from, to, done);
   },
@@ -128,7 +134,7 @@ document.addEventListener('click', (e) => {
     case 'decisions': ui.decisions = !ui.decisions; ui.briefing = false; break;
     case 'closeDecisions': ui.decisions = false; break;
     case 'briefing': ui.briefing = true; ui.decisions = false; break;
-    case 'toMap': ui.briefing = false; break;
+    case 'toMap': leaveBriefing(); break;
     case 'unselect': ui.selected = null; break;
     case 'choose': x = choose(x, d.card!, x.answers[d.card!] === d.opt ? undefined : d.opt); break;
     case 'dequeue': x = dequeue(x, Number(d.k)); break;
@@ -166,7 +172,7 @@ document.addEventListener('keydown', (e) => {
   if (plan) plan = null;
   else if (ui.decisions && !unanswered(x).length) ui.decisions = false;
   else if (ui.drawer) ui.drawer = null;
-  else if (ui.briefing) ui.briefing = false;
+  else if (ui.briefing) leaveBriefing();
   else if (ui.selected) ui.selected = null;
   else ui.tool = 'select';
   render();

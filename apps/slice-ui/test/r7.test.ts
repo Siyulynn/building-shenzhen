@@ -8,8 +8,8 @@ import { describe, expect, it } from 'vitest';
 import { Rng, compileEvents, createInitialState, gdpNow, step, type CardInstance, type Slice } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { choose, enqueue, newSession, submit, unanswered, type Session } from '../src/controller.js';
-import { esc, initialUi, renderChips, renderDecisions, renderDrawer, type View } from '../src/render.js';
-import { BADGE, CHIP_STAT } from '../src/strings.js';
+import { esc, initialUi, renderChips, renderDecisions, renderDrawer, renderFlyout, type View } from '../src/render.js';
+import { BADGE, CHIP_STAT, T, TOOL } from '../src/strings.js';
 import { briefing, chipsView, commitments, effectBadges, yuan } from '../src/views.js';
 import { applyPlan, planGesture, queuedBudget } from '../src/tools.js';
 import { LANGS } from '../src/lang.js';
@@ -167,5 +167,31 @@ describe('R7 chips and money you can see', () => {
     expect(drawer).toContain(yuan(m.committed));
     expect(drawer).toContain(yuan(m.projected));
     expect(drawer).toContain(yuan(m.queued));
+  });
+});
+
+describe('R7 terms and the parked public zone', () => {
+  const flyout = (tool: 'zone' | 'service', lang: 'en' | 'zh', planOnly = false) =>
+    renderFlyout({ ...view(newSession(slice), lang), ui: { ...initialUi(slice), tool, opts: { ...initialUi(slice).opts, planOnly } } });
+
+  it('the zones flyout offers no public zone, and says why, in both languages', () => {
+    for (const lang of LANGS) {
+      const html = flyout('zone', lang);
+      expect(html).not.toContain('data-use="public"');
+      expect(html).toContain('data-use="industrial"');
+      expect(html).toContain(esc(T.noPublicZone[lang]));
+      expect(html).toContain(esc(T.formationHint[lang]));         // zone painting orders site formation
+      expect(flyout('zone', lang, true)).not.toContain(esc(T.formationHint[lang]));   // Plan only orders none
+    }
+  });
+
+  it('the Form site flyout names the tool and says the plot-edge connections are included', () => {
+    for (const lang of LANGS) {
+      const html = flyout('service', lang);
+      expect(html).toContain(esc(TOOL.service![lang]));
+      expect(html).toContain(esc(T.formationHint[lang]));
+    }
+    expect(TOOL.service!.en).toBe('Form site');
+    expect(T.formationHint.en).toMatch(/water and power connection at the plot edge\. Already included/);
   });
 });

@@ -30,7 +30,7 @@ describe('R7: the opening beat fires at init', () => {
     expect(opening(r.state)).toEqual([]);
     expect(r.state.events.fired.filter((f) => f.id === 'event.first_project')).toHaveLength(1);
     const road = r.state.fiscal.projects.find((x) => x.template === 'project.road_link')!;
-    expect(road.committed).toBe(START);                          // a quarter earlier than the old 1979-04 answer
+    expect(road.committed).toBe(START);                          // before R7: after month 1's pause, in 1979-02
   });
 
   it("a policy's turn-0 actions still land in the start month, beside its answer", () => {
