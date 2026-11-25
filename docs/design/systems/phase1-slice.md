@@ -1485,13 +1485,14 @@ The pass moved five named parameters: `growth.industrial.floor_m2_per_month` 6,0
 |---|---:|---:|---:|
 | 1980 | +5% / +19% | +32% / +38% | 0.16 |
 | 1981 | +24% / +17% | +89% / +84% | 0.26 |
-| 1982 | +17% / +31% | +36% / +67% | 0.36 |
-| 1983 | +30% / +28% | +43% / +59% | 0.52 |
+| 1982 | +16% / +31% | +40% / +67% | 0.36 |
+| 1983 | +32% / +28% | +39% / +59% | 0.52 |
 
-- **The index ratios are now 0.88 / 0.94 / 0.84 / 0.85** for residents and **0.96 / 0.99 / 0.81 / 0.73** for GDP, against 0.86 / 0.91 / 0.85 / 0.79 and 0.90 / 0.97 / 0.78 / 0.66 after R9.1. 1980 and 1983 improved; **1982 is the remaining gap**, because the model's boom is front-loaded (1981) while the historical series accelerates through 1982.
+- **The index ratios are now 0.88 / 0.94 / 0.84 / 0.85** for residents and **0.96 / 0.99 / 0.82 / 0.74** for GDP, against 0.86 / 0.91 / 0.85 / 0.79 and 0.90 / 0.97 / 0.78 / 0.66 after R9.1. 1980 and 1983 improved; **1982 is the remaining gap**, because the model's boom is front-loaded (1981) while the historical series accelerates through 1982.
 - **The lever was the plan's zone:** the historical plan now zones 54 industrial cells in Shangbu, not 36. A timed second wave (Sungang, 16 cells) was built and rejected: it splits servicing, opens too late to add 1982 output and breaks `village_outgrows_planned`.
+- **The 1982 investment programme is content, not a parameter:** `event.investment_programme` (1982-Q1, interrupting) adds a 400-crew permanent corps, an `investor_rate` ×1.2 modifier and a ¥150,000 cost on acceptance. It moves 1982 GDP +36% → +40% and 1983 residents +30% → +32%; it cannot close 1982 because a firm accepted in 1982-Q1 ramps into 1983.
 - **The electricity series** (`power.consumption`, `history.electricity`, save v8) is calibrated so 1979 reads 0.14×10^8 kWh, the slice's 43% share of the citywide 0.33. It grows +14% / +57% / +40% / +44%; the claim's 1980 jump (+65%) is as unreachable as the population one, and its ">60%/yr" is a demand claim, not energy (the arithmetic is +45%/yr from 33 to 100). The 1979 conflict (0.33 supply vs 0.4125 consumption) is left open; the series is reported, not banded.
-- **Goldens:** historical 55,451 → 60,278 residents, 37.4M → 42.0M GDP, spending ÷ revenue 1.11 → 1.00. All 20 bands green; aggressive unchanged; `decline_all` moves only its hash.
+- **Goldens:** historical 55,451 → 60,375 residents, 37.4M → 42.0M GDP, spending ÷ revenue 1.11 → 1.02. All 20 bands green; aggressive 53,661; `default` and `cautious` also accept the programme's first option, and `decline_all` gains a band (it accepts it too), which is recorded rather than special-cased.
 
 ### 5.11 Jobs, labour and migration on the map (R4)
 R4 answers §5.10's labour constraint (option C) and traces jobs from the map: construction jobs while works and builds are active, industrial jobs once floor is occupied, then service jobs as wages are spent. It replaces §5.2's from-scratch matching and its lost arrivals, and it adds the occupied city's revenue. Organic floor is buildings-and-construction §13.3's (R3).

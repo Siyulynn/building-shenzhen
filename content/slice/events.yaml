@@ -819,3 +819,24 @@
       - { id: noted, name: { zh: 知道了, en: Noted } }
   claims:
     - { id: phase1.event.deng_first_visit, use: anchor_date }
+
+# ---- R9.2 (revision plan, tempo): the 1982 investment programme ----
+
+- id: event.investment_programme
+  name: { zh: 1982年基建投资, en: The 1982 investment programme }
+  description:
+    zh: "省里和市里把1982年定为大建设年:一支基建队伍开进特区,几笔投资同时落地。接住它,工地就能同时铺开;钱和人都要现在定下来。"
+    en: "The province and the city make 1982 a big construction year: an investment corps moves in and several projects are funded at once. Taking it on lets more sites open together, but the money and the crews are committed now."
+  family: scripted                       # the year is remembered; the month within it is a design choice
+  trigger: { date: 1982-01 }
+  card:
+    interrupting: true
+    options:
+      - { id: accept, name: { zh: 接住这一轮, en: Take the programme } }
+      - { id: decline, name: { zh: 按自己的节奏, en: Keep to our own pace } }
+  on_answer:
+    - { kind: crew_arrival, team: team.investment_corps, option: accept }   # R9.2: permanent capacity
+    - { kind: modifier, target: investor_rate, option: accept }             # R9.2: the year's investment push
+    - { kind: cost, option: accept }
+  claims:
+    - { id: phase1.event.construction_corps_arrival, use: design_note }

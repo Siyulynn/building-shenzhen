@@ -259,19 +259,19 @@ backlog brake tried. The brake is 40,000 mÂ² (15,000 failed the same tests).
 
 ## R9.1 (path calibration, 2026-11-25)
 
-**Goal.** R6–R9 checked three points: end-1979, 1980-Q2 and end-1983. The claims store also holds annual values for
-1980, 1981, 1982 and 1984 — population by category, nominal GDP and its sectors, budget revenue and spending,
+**Goal.** R6â€“R9 checked three points: end-1979, 1980-Q2 and end-1983. The claims store also holds annual values for
+1980, 1981, 1982 and 1984 â€” population by category, nominal GDP and its sectors, budget revenue and spending,
 employment (`data/evidence/claims/phase1_statistics.yaml`). This pass tests the slice's **path** against them and
 audits the realism of the system numbers. Named parameters only; no mechanic changed.
 
 **The measure.** Per year, the model's multiple over its end-1979 value divided by the claim's multiple over 1979.
 1.0 means the slice grows exactly like the SEZ (population) or the city (GDP); below 1 means it lags. Levels are not
-compared: the slice is a subset and no claim covers its own geography (§9). A good calibration keeps this ratio
+compared: the slice is a subset and no claim covers its own geography (Â§9). A good calibration keeps this ratio
 *stable*, not equal to 1.
 
 **The path before this pass** (`historical_prologue`, seed 1; quarter ends are January, so the 1981 row is end-1980):
 
-| Year end | Residents | Model × | Claim × | Ratio | GDP ¥m | Model × | Claim × | Ratio | Temporary |
+| Year end | Residents | Model Ã— | Claim Ã— | Ratio | GDP Â¥m | Model Ã— | Claim Ã— | Ratio | Temporary |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | 1979 | 30,338 | 1.000 | 1.000 | 1.00 | 8 | 1.000 | 1.000 | 1.00 | 559 |
 | 1980 | 30,901 | 1.019 | 1.186 | 0.86 | 10 | 1.133 | 1.375 | 0.82 | 2,347 |
@@ -282,10 +282,10 @@ compared: the slice is a subset and no claim covers its own geography (§9). A go
 **What was wrong.** The ratio eroded every year: the slice started at 0.86 of the claim's growth and fell to 0.74
 (residents) and 0.60 (GDP). Two causes:
 
-- **1980–81 barely grew.** Industrial demand was 6,000 m² a month with the county regime's 0.3 factor, and a firm
+- **1980â€“81 barely grew.** Industrial demand was 6,000 mÂ² a month with the county regime's 0.3 factor, and a firm
   needed six months of work plus a three-month ramp. End-1980 showed 1,008 factory posts and one open firm.
 - **1982 had a power cliff.** The plan's 6,000 kW station finished in 1982-10; from 1981-10 to 1982-09 the pool
-  share sat at 0.71–0.89, so firms posted 11–29% fewer jobs for four quarters. The 1982 column fell, then 1983
+  share sat at 0.71â€“0.89, so firms posted 11â€“29% fewer jobs for four quarters. The 1982 column fell, then 1983
   jumped when the station came on.
 
 **Levers kept** (now in `params/slice.yaml`):
@@ -295,12 +295,12 @@ compared: the slice is a subset and no claim covers its own geography (§9). A go
 | `growth.industrial.floor_m2_per_month` | 6,000 | 8,000 | firms start earlier, so 1981 and 1982 fill |
 | `growth.industrial.firm.build_months` / `ramp_months` | 6 / 3 | 5 / 2 | a small factory rises in five months; posts arrive sooner |
 | `migration.base` | 2,000 / 1,000 | 2,300 / 1,150 | the vacancies exist; 2,400 breaks the quiet-village test below, so this is the ceiling |
-| `fiscal.power_import.max_kw` | 3,000 | 4,500 | the line bridges the station, removing the 1982 cliff (cost: ¥36k a month) |
+| `fiscal.power_import.max_kw` | 3,000 | 4,500 | the line bridges the station, removing the 1982 cliff (cost: Â¥36k a month) |
 | `growth.industrial.regime_factor.county_1979` | 0.3 | 0.4 | a little building before the SEZ, without erasing the regime's effect |
 
 **The path after this pass:**
 
-| Year end | Residents | Model × | Ratio | GDP ¥m | Model × | Ratio | Temporary | Spending ÷ revenue |
+| Year end | Residents | Model Ã— | Ratio | GDP Â¥m | Model Ã— | Ratio | Temporary | Spending Ã· revenue |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | 1979 | 30,338 | 1.000 | 1.00 | 8 | 1.000 | 1.00 | 566 | 1.34 |
 | 1980 | 31,059 | 1.024 | 0.86 | 10 | 1.239 | 0.90 | 3,452 | 0.97 |
@@ -308,7 +308,7 @@ compared: the slice is a subset and no claim covers its own geography (§9). A go
 | 1982 | 46,726 | 1.540 | 0.85 | 28 | 3.294 | 0.78 | 19,816 | 1.23 |
 | 1983 | 55,451 | 1.828 | 0.79 | 37 | 4.428 | 0.66 | 31,085 | 1.11 |
 
-The resident ratio now sits in a 0.79–0.91 band instead of eroding to 0.74, and the 1982 cliff is gone (0.76 ? 0.85).
+The resident ratio now sits in a 0.79â€“0.91 band instead of eroding to 0.74, and the 1982 cliff is gone (0.76 â†’ 0.85).
 The temporary population is 31,085 at end-1983 (was 27,344), against the 120,000 SEZ bound.
 
 **Levers rejected, with the reason.**
@@ -318,27 +318,27 @@ The temporary population is 31,085 at end-1983 (was 27,344), against the 120,000
   it and still adds 3,700 temporary residents.
 - **County factor 0.6.** It erased the "SEZ builds more than the county" property in `growth.test.ts` (both runs hit
   the fixture's land cap) and bought only 1.6% residents. 0.4 keeps the property.
-- **`village_build.response` 0.6–0.8.** Same quiet-village failure (a 21–28 m² boundary effect of the response
+- **`village_build.response` 0.6â€“0.8.** Same quiet-village failure (a 21â€“28 mÂ² boundary effect of the response
   rate). 0.5 keeps the property; `village_outgrows_planned` still passes.
 - **`housing.base_rent` 3.0 / `rent_elasticity` 1.5.** A more realistic rent level, but it also let the quiet village
   clear its build hurdle. Reverted; rents stay crowding-driven.
 - **Industrial FAR 1.25.** +0.2 GDP multiple but it broke the per-cell floor arithmetic in `offers.test.ts` and adds
   land, not finished firms. The builders and the labour supply are the cap.
-- **Higher street freight capacity** (8,000 ? 12,000 t): no effect. The historical run never leaves a gateway unmet;
+- **Higher street freight capacity** (8,000 â†’ 12,000 t): no effect. The historical run never leaves a gateway unmet;
   the 1982 constraint was power, not the road.
-- **A global works rush** (§4.6): tested and rejected earlier; every variant trips the spending band.
+- **A global works rush** (Â§4.6): tested and rejected earlier; every variant trips the spending band.
 
 **Realism panel** (`historical_prologue`, end-1983):
 
 | Number | Value | Read |
 |---|---|---|
-| Factory posts | 19,765 from 46 open firms | 430 jobs and ~5,125 m² of factory + dormitory each |
-| Industrial power | 10,543 kW over 235,750 m² | 45 W/m², plausible for light processing |
-| Employment | 95–99% of the participating labour force | a migration-fed boom town; the model has no separate unemployment series |
-| Rents | ¥2.8 ? 9.3 ? 9.8 ? 5.5 ? 4.7 a m² | follows crowding; real rents were stickier (see below) |
-| Village vs planned floor | +66,613 vs +65,850 m² | village rental outgrows planned housing, by 763 m²: passes, but thinly |
-| Exports | ¥68m a year | a slice of the city's total; no slice claim to test against |
-| 1984 balance without the grant | ¥69,728 (1.8% of revenue) | the grant cliff bites the historical run first |
+| Factory posts | 19,765 from 46 open firms | 430 jobs and ~5,125 mÂ² of factory + dormitory each |
+| Industrial power | 10,543 kW over 235,750 mÂ² | 45 W/mÂ², plausible for light processing |
+| Employment | 95â€“99% of the participating labour force | a migration-fed boom town; the model has no separate unemployment series |
+| Rents | Â¥2.8 â†’ 9.3 â†’ 9.8 â†’ 5.5 â†’ 4.7 a mÂ² | follows crowding; real rents were stickier (see below) |
+| Village vs planned floor | +66,613 vs +65,850 mÂ² | village rental outgrows planned housing, by 763 mÂ²: passes, but thinly |
+| Exports | Â¥68m a year | a slice of the city's total; no slice claim to test against |
+| 1984 balance without the grant | Â¥69,728 (1.8% of revenue) | the grant cliff bites the historical run first |
 
 **Structural notes, recorded not forced.**
 
@@ -349,9 +349,9 @@ The temporary population is 31,085 at end-1983 (was 27,344), against the 120,000
 - **Rents follow crowding, so they fall after 1982** as the village response catches up. A rent trend with income is
   a mechanic (a spec change), not a parameter; not in this pass.
 - **`aggressive` tracks less closely** (resident ratio 0.86/0.85/0.73/0.76; GDP 0.89/0.80/0.65/0.62). Its plan
-  spends early on the station and the avenue and its 1982 spending ÷ revenue is 1.44. It passes the §9 bands at
+  spends early on the station and the avenue and its 1982 spending Ã· revenue is 1.44. It passes the Â§9 bands at
   end-1983; the path is not forced, because that needs a different plan.
-- **The village design check is thin.** 763 m² of margin means the next change that favours dormitories will flip
+- **The village design check is thin.** 763 mÂ² of margin means the next change that favours dormitories will flip
   `village_outgrows_planned`. It is kept and flagged rather than widened.
 - **One test changed its measure.** The m6a fiscal check used to assert that cautious's projected 1984 balance
   exceeded aggressive's in *absolute* yuan. After R9 made the corps an arrival rather than a paid contract, and R9.1
@@ -360,61 +360,71 @@ The temporary population is 31,085 at end-1983 (was 27,344), against the 120,000
 
 **Goldens (end-1983, seed 1).** Against R9:
 
-| Policy | Residents | GDP | Spending ÷ revenue | Bands |
+| Policy | Residents | GDP | Spending Ã· revenue | Bands |
 |---|---:|---:|---:|---|
-| historical_prologue | 52,360 ? 55,451 | 33.6M ? 37.4M | 1.07 ? 1.11 | 20 pass |
-| aggressive | 48,887 ? 53,626 | 32.7M ? 35.7M | 1.08 ? 1.02 | 20 pass |
-| cautious | 37,167 ? 37,204 | 14.9M ? 15.0M | 0.75 ? 0.79 | 16 pass, 4 structural |
-| default | 30,828 ? 30,822 | 8.1M | 0.94 | idle |
+| historical_prologue | 52,360 â†’ 55,451 | 33.6M â†’ 37.4M | 1.07 â†’ 1.11 | 20 pass |
+| aggressive | 48,887 â†’ 53,626 | 32.7M â†’ 35.7M | 1.08 â†’ 1.02 | 20 pass |
+| cautious | 37,167 â†’ 37,204 | 14.9M â†’ 15.0M | 0.75 â†’ 0.79 | 16 pass, 4 structural |
+| default | 30,828 â†’ 30,822 | 8.1M | 0.94 | idle |
 | decline_all | 30,340 | 7.65M | 0.64 | idle |
 
 `decline_all` moves only `params_sha256`. Every playing policy keeps its band count.
 
 **Invariants.** `npm run check` green: determinism, population and money conserved, no negative stock, M5b's
-properties, and the §9 bands unchanged (no band was widened; the pass moved parameters, not targets).
+properties, and the Â§9 bands unchanged (no band was widened; the pass moved parameters, not targets).
 
-## R9.2 (tempo and electricity, 2026-11-25)
+## R9.2 (tempo, electricity and the 1982 programme, 2026-11-25)
 
 **Goal.** R9.1 matched the yearly *index* to 1983. This pass checks the **year-over-year tempo** of residents, GDP and
-electricity against the claims, and adds the missing electricity series so the 1979–82 consumption claim can be read
-as a curve.
+electricity against the claims, adds the missing electricity series so the 1979â€“82 consumption claim can be read as a
+curve, and adds the 1982 investment programme as **content** rather than another parameter.
 
-**The tempo, before and after** (`historical_prologue`; the claim's rate in brackets):
+**The tempo, before and after** (`historical_prologue`; the claim's rate in the last column):
 
-| Year | Residents before ? after | Claim | GDP before ? after | Claim |
+| Year | Residents before â†’ after | Claim | GDP before â†’ after | Claim |
 |---|---:|---:|---:|---:|
-| 1980 | 2% ? **5%** | 19% | 24% ? **32%** | 38% |
-| 1981 | 23% ? **24%** | 17% | 97% ? **89%** | 84% |
-| 1982 | 22% ? **17%** | 31% | 35% ? **36%** | 67% |
-| 1983 | 19% ? **30%** | 28% | 34% ? **43%** | 59% |
+| 1980 | 2% â†’ **5%** | 19% | 24% â†’ **32%** | 38% |
+| 1981 | 23% â†’ **24%** | 17% | 97% â†’ **89%** | 84% |
+| 1982 | 22% â†’ **16%** | 31% | 35% â†’ **40%** | 67% |
+| 1983 | 19% â†’ **32%** | 28% | 34% â†’ **39%** | 59% |
 
 The index ratios now sit at 0.88 / 0.94 / 0.84 / 0.85 for residents (was 0.86 / 0.91 / 0.85 / 0.79) and
-0.96 / 0.99 / 0.81 / 0.73 for GDP (was 0.90 / 0.97 / 0.78 / 0.66). 1983 is the clear gain; **1982 remains the gap**:
-the model's industrial build-out is front-loaded, so 1981 carries the boom and 1982 only the ramp.
+0.96 / 0.99 / 0.82 / 0.74 for GDP (was 0.90 / 0.97 / 0.78 / 0.66). 1980 and 1983 are the clear gains; **1982 remains
+the gap**: the model's boom is front-loaded in 1981, while the historical series accelerates through 1982.
 
 **What changed.**
 
 | Lever | Before | After | Why |
 |---|---|---|---|
-| `HISTORICAL_PLAN.zones` | 36 industrial cells | +18 in Shangbu (54) | the plan's zone was full by 1982; the later cells fill in 1982–83 |
+| `HISTORICAL_PLAN.zones` | 36 industrial cells | +18 in Shangbu (54) | the plan's zone was full by 1982; the later cells fill in 1982â€“83 |
 | `power.consumption` | absent | a new series (see below) | the electricity curve was unmeasurable |
+| `event.investment_programme` | absent | 1982-Q1 card: +400 crew, investor-rate modifier, a cost | capacity and investment arrive as an event, not a parameter |
 
-**The electricity series (R9.2, §5.5).** A pure function, `electricityMonthly(s, p)`, recorded once a month as
+**The electricity series (R9.2, Â§5.5).** A pure function, `electricityMonthly(s, p)`, recorded once a month as
 `history.electricity` (save v8):
 
-`hours_month × firm_load_factor × S(open firm's connected kW × staffed/jobs) + present × kwh_person_month + base jobs × kwh_job_month`
+`hours_month Ã— firm_load_factor Ã— Î£(open firm's connected kW Ã— staffed/jobs) + present Ã— kwh_person_month + base jobs Ã— kwh_job_month`
 
 with `hours_month 730`, `firm_load_factor 0.35`, `kwh_person_month 8`, `kwh_job_month 60` (placeholders). The
-coefficients were set so 1979 reads 0.14×10^8 kWh: the slice is 43% of the SEZ population, so its share of the
-citywide 0.33×10^8 is 0.14. Result (10^8 kWh, annualised): **0.14 / 0.16 / 0.26 / 0.36 / 0.52** for 1979–83.
+coefficients were set so 1979 reads 0.14Ã—10^8 kWh: the slice is 43% of the SEZ population, so its share of the
+citywide 0.33Ã—10^8 is 0.14. Result (10^8 kWh, annualised): **0.14 / 0.16 / 0.26 / 0.36 / 0.52** for 1979â€“83.
 
 - 1980 is slow (+14%) for the same reason population is (the first firms open in 1980).
-- 1982–83 run +40% and +44% a year, near the claim's 36–45%/yr arithmetic. The claim's **">60%/yr"** is a *demand*
-  claim, not consumption; 1979?82 consumption is +45%/yr (33?100) or +34%/yr if the 41.25 alternative is read.
+- 1982â€“83 run +40% and +44% a year, near the claim's 36â€“45%/yr arithmetic. The claim's **">60%/yr"** is a *demand*
+  claim, not consumption; 1979â†’82 consumption is +45%/yr (33â†’100) or +34%/yr if the 41.25 alternative is read.
 - **Not a band.** The 1979 figure has an open conflict (0.33 labelled supply vs 0.4125 labelled consumption,
   `phase1.shenzhen.electricity_consumption.1979`). It is reported in the checkpoint table, not averaged and not
   banded. The model's `powerKw` is connected demand and `area.utilities.powerCap` is *spare industrial capacity*, so
   neither equals consumption; the new series exists because the two could not be compared.
+
+**The 1982 investment programme (content).** `event.investment_programme` fires in 1982-Q1 as an interrupting card.
+Accepting it adds `team.investment_corps` (+400 permanent crew, Â§5.6), a `investor_rate` modifier (Ã—1.2 for 12
+months, `params.events.event.investment_programme`) and a Â¥150,000 cost. Declining keeps the plan's own pace. The
+card cites `phase1.event.construction_corps_arrival` as a `design_note`.
+
+The effect is real but modest: 1982 GDP +36% â†’ +40% and 1983 residents +30% â†’ +32%. It cannot close the 1982 point,
+because a firm accepted in 1982-Q1 opens in mid-1982 and ramps into 1983; a firm accepted in 1981 is what moves 1982.
+Moving the event to 1981-Q4 was tested and made 1982 worse (the resources land in 1981); it stays in 1982-Q1.
 
 **Rejected: a timed second wave.** A `later_zones` plan field was built and tested: Sungang, 16 cells from 1980-Q3.
 It diverts `crew_share` servicing from Shangbu, opens its firms too late to add 1982 output, and pushes planned
@@ -422,23 +432,23 @@ dormitories past village rental (`village_outgrows_planned` fails). Enlarging th
 the same cells without a second servicing front, and keeps all 20 bands. The field was removed rather than shipped
 unused.
 
-**Rejected: an earlier station.** Moving `station_turn` 6 ? 4 removes the 1982 power cliff but costs ¥1.5m in 1980
+**Rejected: an earlier station.** Moving `station_turn` 6 â†’ 4 removes the 1982 power cliff but costs Â¥1.5m in 1980
 and slows the main zone (1983 residents 54,098); the station at turn 6 with the existing import line is better.
 
 **Goldens (end-1983, seed 1).** Against R9.1:
 
-| Policy | Residents | GDP | Spending ÷ revenue | Electricity 10^8 kWh | Bands |
+| Policy | Residents | GDP | Spending Ã· revenue | Electricity 10^8 kWh | Bands |
 |---|---:|---:|---:|---:|---|
-| historical_prologue | 55,451 ? 60,278 | 37.4M ? 42.0M | 1.11 ? 1.00 | 0.52 | 20 pass |
-| aggressive | 53,626 ? 53,626 | 35.7M ? 35.7M | 1.02 | 0.45 | 20 pass |
-| cautious | 37,204 ? 37,204 | 15.0M | 0.79 | 0.13 | 16 pass, 4 structural |
+| historical_prologue | 55,451 â†’ 60,375 | 37.4M â†’ 42.0M | 1.11 â†’ 1.02 | 0.52 | 20 pass |
+| aggressive | 53,626 â†’ 53,661 | 35.7M â†’ 35.4M | 1.02 | 0.45 | 20 pass |
+| cautious | 37,204 â†’ 37,265 | 15.0M | 0.79 | 0.13 | 16 pass, 4 structural |
 | default | 30,822 | 8.1M | 0.94 | 0.13 | idle |
-| decline_all | 30,340 | 7.65M | 0.64 | 0.13 | idle |
+| decline_all | 30,340 | 7.65M | 0.64 | 0.13 | 12 pass, 8 fail (idle; it accepts the programme's first option) |
 
 **Remaining gap.** 1982's claim (+31% residents, +67% GDP) needs firms opening through 1982 from land zoned and
 serviced by 1981. With one Shangbu front that is not reachable: the second front costs more crew than it adds. The
 next honest lever is a **second road-and-zone front with its own servicing share**, which is a plan-and-crew change,
-not a parameter.
+not a parameter, or accepting that the slice's 1982 is flatter than the SEZ's because Shekou led that year.
 
 **Invariants.** `npm run check` green; save v8 migrates with zeros for the new series; determinism, conservation and
-the §9 bands unchanged.
+the Â§9 bands unchanged.

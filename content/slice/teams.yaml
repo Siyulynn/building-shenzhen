@@ -39,3 +39,11 @@
   event_only: true                       # R9 (§5.6): a permanent arrival with the SEZ's establishment
   # a composite (design_note): the zone's own construction companies, not a documented headcount or firm
   claims: []
+
+- id: team.investment_corps
+  name: { zh: 基建工程兵与省建队伍, en: The 1982 investment corps }
+  modes: [pool]
+  event_only: true                       # R9.2: a permanent arrival with the 1982 investment programme
+  # a composite (design_note): the crews the 1982 programme brought, not a documented headcount
+  claims:
+    - { id: phase1.event.construction_corps_arrival, use: design_note }
