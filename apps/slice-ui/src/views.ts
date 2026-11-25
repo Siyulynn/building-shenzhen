@@ -5,7 +5,7 @@
  */
 import {
   FAILURE_CARD, LOAN_CARD, buildableCells, DEFICIT_CARD, REVIEW_CARD, SHORTCUT_CARD, contractLive, fiscalViews, formatYM, indicatorValue,
-  liveProject, moneyForProjects, previewOffer, runsOfCells, scoreReview, tripChance, verdict,
+  gdpNow, liveProject, moneyForProjects, previewOffer, runsOfCells, scoreReview, tripChance, verdict,
   zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
   VILLAGE_ARCHETYPES,
@@ -193,13 +193,20 @@ export const cardStack = (s: GameState, slice: Slice) =>
 
 // ---- the briefing ----
 
+/**
+ * The quarter's GDP (§11.2): the last three recorded months; before the first month is recorded (Turn 1), the quarter
+ * at the current month's rate, 3 × gdpNow, so the first screen shows the starting economy rather than ¥0 (R7).
+ */
+export const quarterGdp = (s: GameState, slice: Slice) =>
+  s.history.gdp.length ? sum(s.history.gdp.slice(-3)) : 3 * gdpNow(s, slice.params);
+
 export interface Indicator { label: L; value: number; delta?: number; money?: boolean }
 const presentNonlocal = (s: GameState) => sum(s.pops.map((g) => (g.registration === 'nonlocal' ? g.present : 0)));
 const indicators = (s: GameState, slice: Slice): Indicator[] => [
   { label: S.T.residents, value: sum(s.pops.map((g) => g.stayedSixMonths)) },   // the resident measure (§5.9), from the state
   { label: S.T.presentNonlocal, value: presentNonlocal(s) },
   { label: S.T.firmJobs, value: sum(s.firms.map((f) => f.posted)) },
-  { label: S.T.gdpQuarter, value: Math.round(sum(s.history.gdp.slice(-3))), money: true },
+  { label: S.T.gdpQuarter, value: Math.round(quarterGdp(s, slice)), money: true },
   { label: S.T.moneyForProjects, value: Math.round(moneyForProjects(s, slice.params)), money: true },
   { label: S.T.scrutiny, value: Math.round(s.climate.scrutiny) },
 ];
@@ -849,7 +856,7 @@ export function chipsView(s: GameState, slice: Slice): Chip[] {
       hints: [S.T.moneyForProjects, S.T.netQuarter] },
     { id: 'population', label: S.CHIP.population!, values: [num(sum(s.pops.map((g) => g.stayedSixMonths))), num(sum(s.housing.map((h) => h.turnedAway)))],
       hints: [S.T.residents, S.T.turnedAway] },
-    { id: 'economy', label: S.CHIP.economy!, values: [yuan(sum(s.history.gdp.slice(-3))), num(last(s.history.vacancies))],
+    { id: 'economy', label: S.CHIP.economy!, values: [yuan(quarterGdp(s, slice)), num(last(s.history.vacancies))],
       hints: [S.T.gdpQuarter, S.T.vacancies] },
     { id: 'politics', label: S.CHIP.politics!, values: [num(s.climate.scrutiny), `${t.met} / ${t.of}`],
       hints: [S.T.scrutiny, S.T.targetsMet] },

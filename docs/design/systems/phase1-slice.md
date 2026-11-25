@@ -848,6 +848,7 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
   - **construction, as the work is done:** the value of the month's work × `gdp.construction_va_ratio`. The value is a city project's payment, a firm cohort's m² × `construction.cost_per_m2[archetype]` ÷ `workTotal` for each month of work it gains, and a village cohort's m² × `village_build.build_cost_per_m2` ÷ its duration.
 - **Not in GDP:** the grant, loans, land fees, retention and transfers (fiscal §8.2).
 - GDP needs only `params`, so it is computed with or without the fiscal content.
+- **`gdpNow(state, params, work = 0)`** (R7, `systems/statistics.ts`) is this sum for the state's current month; step 13 records `gdpNow` with the month's work, and the UI reads it with no work before the first month is recorded. Before any labour step there are no job rows, so the base jobs count as filled (the first month fills them all at the start). The series is unchanged.
 - **Timing:** firm value added is from step 6's output; the base rows' fill rates are read in step 13, after any staff the housing and migration steps took out (M3b's trims, §5.5). In a month with an outflow the two parts are measured a few steps apart. This is accepted for Phase 1; M6 checks whether it moves the calibration.
 
 **Views** (fiscal §7). `fiscalViews(state, params)` is pure. Obligations by kind are this month's (the date in the state), the baselines included; recurring money is last month's series. It returns:
@@ -1826,7 +1827,7 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
 | Economy 经济 | GDP this quarter · vacancies | jobs and filled posts by sector, firms, exports |
 | Politics 政治 | scrutiny · review targets met | leaders, mandate, review targets against actuals, enforcement and permit regime |
 
-"Net per quarter" and "review targets met" are derived in `views.ts` from existing state. They add no sim fields.
+"Net per quarter" and "review targets met" are derived in `views.ts` from existing state. They add no sim fields. **GDP this quarter** is the last three recorded months of `history.gdp`; before the first month is recorded (Turn 1) it is the quarter at the current month's rate, 3 × `gdpNow(state, params)` (R7), so the first screen shows the starting economy, not ¥0. The briefing's GDP row reads the same figure.
 
 **Drawers:**
 - **Placement:** a drawer floats over the map, so the map never resizes or jumps.

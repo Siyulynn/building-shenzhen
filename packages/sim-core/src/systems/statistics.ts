@@ -2,12 +2,37 @@
 import { SECTORS, isMigrant } from '../enums.js';
 import type { SliceParams } from '../params.js';
 import type { TickContext } from '../step.js';
+import type { GameState } from '../state.js';
 import { illegalShare, underConstructionM2, villageM2 } from './common.js';
 import { industryTotals } from './industry.js';
 import { principalOutstanding } from '../fiscal.js';
 import { reachClasses } from '../reach.js';
 import type { StartNetwork } from '../sites.js';
 import { accessibleAreas } from './migration.js';
+
+/**
+ * Nominal GDP at the state's current month (M4, §5.6): the firms' value added, base jobs and service posts at their
+ * rows' fill, and `work` yuan of construction at `gdp.construction_va_ratio`. The series records it each month; R7's
+ * briefing and chips read it with no work before the first month is recorded, so Turn 1 shows the starting economy.
+ * Before any labour step (no job rows yet), the base jobs count as filled.
+ */
+export function gdpNow(s: GameState, p: SliceParams, work = 0): number {
+  const t = industryTotals(s, p);
+  let base = 0;
+  // before the first labour step there are no job rows: the start's base jobs are held, as the first month fills them
+  const unrun = s.labour.jobs.length === 0;
+  for (const j of s.labour.baseJobs) {
+    const row = s.labour.jobs.find((r) => r.area === j.area && r.sector === j.sector);
+    if (row && row.jobs > 0) base += j.jobs * (row.filled / row.jobs) * p.gdp.base_va_per_job_month[j.sector];
+    else if (!row && unrun) base += j.jobs * p.gdp.base_va_per_job_month[j.sector];
+  }
+  // R4 (§5.11): service posts add value as base jobs do, at the services row's fill
+  for (const sp of s.labour.servicePosts) {
+    const row = s.labour.jobs.find((r) => r.area === sp.area && r.sector === 'services');
+    if (row && row.jobs > 0) base += (sp.formal + sp.informal) * (row.filled / row.jobs) * p.gdp.base_va_per_job_month.services;
+  }
+  return t.valueAdded + base + work * p.gdp.construction_va_ratio;
+}
 
 /** Without params (the M1 pipeline) there are no firms, and the industry series are zero. */
 export function statistics(p?: SliceParams, network?: StartNetwork) {
@@ -51,17 +76,7 @@ export function statistics(p?: SliceParams, network?: StartNetwork) {
       else if (e.kind === 'project_paid') spend += e.detail!.amount as number;
       else if (e.step === 'finance' && e.kind === 'month') fin = e.detail as Record<string, number>;
     }
-    let base = 0;
-    if (p) for (const j of s.labour.baseJobs) {
-      const row = s.labour.jobs.find((r) => r.area === j.area && r.sector === j.sector);
-      if (row && row.jobs > 0) base += j.jobs * (row.filled / row.jobs) * p.gdp.base_va_per_job_month[j.sector];
-    }
-    // R4 (§5.11): service posts add value as base jobs do, at the services row's fill
-    if (p) for (const sp of s.labour.servicePosts) {
-      const row = s.labour.jobs.find((r) => r.area === sp.area && r.sector === 'services');
-      if (row && row.jobs > 0) base += (sp.formal + sp.informal) * (row.filled / row.jobs) * p.gdp.base_va_per_job_month.services;
-    }
-    h.gdp.push(p ? t.valueAdded + base + work * p.gdp.construction_va_ratio : 0);
+    h.gdp.push(p ? gdpNow(s, p, work) : 0);
     h.revenue.push(fin?.revenue ?? 0);
     h.obligationsDue.push(fin?.due ?? 0);
     h.baselineDue.push(fin?.baseline ?? 0);

@@ -5,12 +5,12 @@
  */
 import { parse } from 'yaml';
 import { describe, expect, it } from 'vitest';
-import { compileEvents, type CardInstance, type Slice } from '@sz/sim-core';
+import { Rng, compileEvents, createInitialState, gdpNow, step, type CardInstance, type Slice } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { newSession, type Session } from '../src/controller.js';
 import { esc, initialUi, renderDecisions, type View } from '../src/render.js';
 import { BADGE } from '../src/strings.js';
-import { effectBadges, yuan } from '../src/views.js';
+import { briefing, chipsView, effectBadges, yuan } from '../src/views.js';
 import { LANGS } from '../src/lang.js';
 
 const slice: Slice = loadSlice();
@@ -79,5 +79,23 @@ describe('R7 cards that can be judged', () => {
       expect(html).toContain(`<li>${esc(badges.repair![0]![lang])}</li>`);
       expect(html.indexOf(esc(d.description![lang]))).toBeLessThan(html.indexOf('class="badges"'));
     }
+  });
+});
+
+describe('R7 Turn 1 tells the truth: GDP', () => {
+  it('gdpNow reads the starting economy before any month runs, and equals the first idle month', () => {
+    const s0 = createInitialState(slice.init);
+    const g0 = gdpNow(s0, slice.params);
+    expect(g0).toBeGreaterThan(0);
+    const r = step(s0, [], new Rng(1), newSession(slice).steps);
+    expect(r.state.history.gdp[0]).toBe(g0);                 // an idle first month: no work, every base job held
+    expect(gdpNow(r.state, slice.params)).toBe(r.state.history.gdp[0]);
+  });
+
+  it('Turn 1 shows the quarter at the current rate on the chip and in the briefing, not ¥0', () => {
+    const x = newSession(slice);
+    const q = 3 * gdpNow(x.state, slice.params);
+    expect(chipsView(x.state, slice).find((c) => c.id === 'economy')!.values[0]).toBe(yuan(q));
+    expect(briefing(x.state, slice).rows.find((r) => r.label.en.includes('GDP'))!.value).toBe(Math.round(q));
   });
 });
