@@ -92,7 +92,7 @@ function render(): void {
   show('overlay', renderOverlaySelect(v));
   show('inspector', renderInspector(v));
   show('rail', renderRail(v));
-  show('flyout', ui.tool === 'select' ? '' : renderFlyout(v));
+  show('flyout', ui.tool === 'select' || ui.drawer ? '' : renderFlyout(v));
   show('chips', renderChips(v));
   show('stack', renderStack(v));
   show('drawer', renderDrawer(v));
@@ -116,7 +116,7 @@ document.addEventListener('click', (e) => {
   const d = t.dataset;
   switch (d.act) {
     case 'lang': if (isLang(d.lang) && d.lang !== lang) setLang(d.lang); return;
-    case 'tool': ui.tool = d.tool as Tool; plan = null; break;
+    case 'tool': ui.tool = d.tool as Tool; plan = null; ui.drawer = null; break;   // the flyout and a drawer share the left column
     case 'use': ui.opts.use = d.use as LandUse; break;
     case 'zoneGuide': {
       const p = slice.tick.precedents?.find((q) => q.id === d.id);

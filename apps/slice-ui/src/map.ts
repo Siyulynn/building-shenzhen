@@ -90,6 +90,8 @@ export const CORE_ZOOM_PX = 14;
 export class SliceMap {
   private ctx: CanvasRenderingContext2D;
   private view = { scale: 1, ox: 0, oy: 0 };
+  /** Until the player pans or zooms, a resize refits the slice to the window (a page that opens at zero size too). */
+  private moved = false;
   private ground: HTMLCanvasElement | null = null;
   private lines: HTMLCanvasElement;
   private overlay: HTMLCanvasElement | null = null;
@@ -104,7 +106,7 @@ export class SliceMap {
     this.lines = outlines(s);
     void terrain(s.grid.width, s.grid.height).then((t) => { this.ground = t; this.request(); });
     this.resize(); this.fit(s);
-    addEventListener('resize', () => { this.resize(); this.request(); });
+    addEventListener('resize', () => { this.resize(); if (!this.moved || !(this.view.scale > 0)) this.fit(s); this.request(); });
     this.bind();
   }
 
@@ -124,7 +126,7 @@ export class SliceMap {
   private fit(s: GameState) {
     const [x0, y0, x1, y1] = sliceBox(s);
     const w = this.canvas.width, hgt = this.canvas.height;
-    this.view.scale = Math.min(w / (x1 - x0 + 1), hgt / (y1 - y0 + 1)) * 0.9;
+    this.view.scale = Math.max(1e-3, Math.min(w / (x1 - x0 + 1), hgt / (y1 - y0 + 1)) * 0.9);
     this.view.ox = (w - (x1 - x0 + 1) * this.view.scale) / 2 - x0 * this.view.scale;
     this.view.oy = (hgt - (y1 - y0 + 1) * this.view.scale) / 2 - y0 * this.view.scale;
   }
@@ -298,7 +300,7 @@ export class SliceMap {
       const ns = Math.min(90 * devicePixelRatio, Math.max(0.5, this.view.scale * k));
       this.view.ox = mx - ((mx - this.view.ox) * ns) / this.view.scale;
       this.view.oy = my - ((my - this.view.oy) * ns) / this.view.scale;
-      this.view.scale = ns; this.request();
+      this.view.scale = ns; this.moved = true; this.request();
     }, { passive: false });
     c.addEventListener('contextmenu', (e) => e.preventDefault());
     let down: { x: number; y: number } | null = null, from: Cell | null = null, pan: { x: number; y: number } | null = null, last: Cell | null = null;
@@ -315,7 +317,7 @@ export class SliceMap {
       if (from && cell && (cell.x !== last?.x || cell.y !== last?.y)) { last = cell; this.h.drag(from, cell, false); return; }
       if (pan) {
         this.view.ox += (e.clientX - pan.x) * devicePixelRatio; this.view.oy += (e.clientY - pan.y) * devicePixelRatio;
-        pan = { x: e.clientX, y: e.clientY }; this.request();
+        pan = { x: e.clientX, y: e.clientY }; this.moved = true; this.request();
       }
     });
     c.addEventListener('pointerup', (e) => {

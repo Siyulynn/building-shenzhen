@@ -14,7 +14,7 @@ import {
   DRAWER_BODY, initialUi, renderBriefing, renderChips, renderCue, renderDrawer, renderInspector, renderStack, type View,
 } from '../src/render.js';
 import { sceneOf } from '../src/scene.js';
-import { applyPlan, attachFor, planGesture, roadWaypoints, type Gesture, type Plan, type ToolOptions } from '../src/tools.js';
+import { applyPlan, attachFor, guidePlan, planGesture, roadWaypoints, type Gesture, type Plan, type ToolOptions } from '../src/tools.js';
 import { RUNG, T } from '../src/strings.js';
 import {
   DRAWERS, RUNGS, RUNG_COLOR, chipsView, cellConstraint, constraintContext, depthColor, finishedWork, floorSpread, icrCue,
@@ -42,12 +42,12 @@ const gesture = (x: Session, g: Gesture, o: ToolOptions = OPTS): Plan => planGes
 const ok = (p: Plan) => { expect(p.kind, JSON.stringify(p).slice(0, 300)).toBe('actions'); return p as Extract<Plan, { kind: 'actions' }>; };
 
 /** A 3 × 3 block just east of the temporary Guangshen road in Area 1, all buildable and unzoned. */
-function guangshenBlock(s: GameState): [number, number] {
+function guangshenBlock(s: GameState, also: (x: number, y: number) => boolean = () => true): [number, number] {
   const g = slice.startNetwork.routes.find((r) => r.id === 'site.guangshen_road')!;
   const roads = new Set(slice.startNetwork.routes.flatMap((r) => r.cells));
   for (const c of g.cells) {
     const [x0, y0] = [c % W + 1, Math.floor(c / W)];
-    let fits = playableAreaOf(s, idx(x0, y0)) === 1;
+    let fits = playableAreaOf(s, idx(x0, y0)) === 1 && also(x0, y0);
     for (let dy = 0; dy < 3 && fits; dy++) for (let dx = 0; dx < 3 && fits; dx++) {
       const i = idx(x0 + dx, y0 + dy);
       fits = isBuildable(slice, i) && !roads.has(i) && playableAreaOf(s, i) > 0;
@@ -116,9 +116,15 @@ describe('R5: a quarter played with the map tools alone', () => {
     expect(roadWaypoints([2, 2], [2, 2])).toEqual([[2, 2]]);
     const x = answered(newSession(slice));
     const [bx, by] = guangshenBlock(x.state);
-    const far = gesture(x, { tool: 'road', from: [bx + 8, by + 8], to: [bx + 10, by + 8] });
+    // three playable cells in Area 1 with no road within two cells: a road there touches nothing
+    const roads = new Set(constraintContext(x.state, slice).spatial.roads.component.keys());
+    const nearRoad = (c: number) => [-2, -1, 0, 1, 2].some((dy) => [-2, -1, 0, 1, 2].some((dx) => roads.has(c + dy * W + dx)));
+    const lone = x.state.areas.find((a) => a.id === 1)!.cells.find((c) => [0, 1, 2].every((d) =>
+      isBuildable(slice, c + d) && playableAreaOf(x.state, c + d) === 1 && !nearRoad(c + d)))!;
+    expect(lone).toBeDefined();
+    const far = gesture(x, { tool: 'road', from: [lone % W, Math.floor(lone / W)], to: [lone % W + 2, Math.floor(lone / W)] });
     expect(far.kind).toBe('refused');
-    if (far.kind === 'refused') expect(far.detail.length).toBeGreaterThan(0);
+    if (far.kind === 'refused') expect(far.detail).toMatch(/next to a road/);
     expect(applyPlan(x, far).queue).toEqual(x.queue);
   });
 });
@@ -200,8 +206,10 @@ describe('R5: the limiting constraint at a cell, and the change at the next turn
     y = applyPlan(y, ok(gesture(y, { tool: 'zone', from: [sx, sy], to: [sx + depth + 2, sy] })));
     y = endQuarter(y);
     expect(held(y, idx(sx + depth + 1, sy))).toBe('no_frontage');
+    // 9 cells × 40 units is more than one quarter's 40-crew order finishes: some fronted cells are still being serviced
     const working = y.state.cellWorks.find((w) => w.stage !== 'serviced' && constraintContext(y.state, slice).spatial.frontage.has(w.cell));
-    if (working) expect(held(y, working.cell)).toBe('servicing');
+    expect(working).toBeDefined();
+    expect(held(y, working!.cell)).toBe('servicing');
   });
 
   it('a developed zone reads utility shortfall, building or active, never a blanket shortfall without cause', () => {
@@ -241,10 +249,52 @@ describe('R5: the limiting constraint at a cell, and the change at the next turn
     expect(renderBriefing({ ...v, lang: 'zh' })).toContain(T.heldBackArea.zh);
   });
 
+  it('a serviced public block is active; a serviced residential block reads its area crowding', () => {
+    let x = answered(newSession(slice));
+    expect(icrCue(x.state, slice).c.low).toBe(true);                 // before any quarter, formal induced jobs are nil
+    const [bx, by] = guangshenBlock(x.state);
+    x = applyPlan(x, ok(gesture(x, { tool: 'zone', from: [bx, by], to: [bx + 2, by + 2] }, { ...OPTS, use: 'public' })));
+    const [rx, ry] = guangshenBlock(x.state, (cx, cy) => cy < by - 3 || cy > by + 3);   // a second block beside the road, clear of the first
+    x = applyPlan(x, ok(gesture(x, { tool: 'zone', from: [rx, ry], to: [rx + 2, ry] }, { ...OPTS, use: 'residential' })));
+    const y = endQuarter(x);
+    const k = constraintContext(y.state, slice);
+    const served = (use: string) => [...k.served].filter((c) => k.zoneAt.get(c)?.use === use);
+    expect(served('public').length).toBeGreaterThan(0);
+    for (const c of served('public')) expect(held(y, c)).toBe('active');
+    const G = slice.params.growth!;
+    let z = y;                                        // the residential order runs after the public one
+    while (![...constraintContext(z.state, slice).served].some((c) => constraintContext(z.state, slice).zoneAt.get(c)?.use === 'residential') && z.state.turn < 4) z = endQuarter(z);
+    const kz = constraintContext(z.state, slice);
+    const crowding = kz.crowding.get(1) ?? 0;
+    // early on, Area 1's beds are not crowded enough for work units to build dormitories (§5.2): rung 8 names it
+    expect(crowding).toBeLessThan(G.residential.min_crowding);
+    const homes = [...kz.served].filter((c) => kz.zoneAt.get(c)?.use === 'residential');
+    expect(homes.length).toBeGreaterThan(0);
+    for (const c of homes) expect(cellConstraint(z.state, slice, c).rung).toBe('low_demand');
+  });
+
   it('nothing is held back at the start: the briefing says so', () => {
     const x = newSession(slice);
     expect(mostHeldBack(x.state, slice)).toBeUndefined();
     expect(renderBriefing({ slice, x, lang: 'en', ui: initialUi(slice) })).toContain(T.nothingHeld.en);
+  });
+});
+
+describe('R5: the historical guide', () => {
+  it('showing the guide queues and spends nothing; zoning a guide zone queues it and End quarter accepts it', () => {
+    const x = answered(newSession(slice));
+    const before = JSON.stringify(x.state);
+    const sc = sceneOf(x, slice, { layer: 'areas', guide: true, selected: null, plan: null });
+    expect(sc.guide!.length).toBeGreaterThan(0);
+    expect(x.queue).toEqual([]);
+    expect(JSON.stringify(x.state)).toBe(before);
+    const p = slice.tick.precedents![0]!;
+    const plan = ok(guidePlan(x, OPTS, p));
+    expect(plan.actions.map((a) => a.type)).toEqual(['create_zone', 'commit_works']);
+    const y = endQuarter(applyPlan(x, plan));
+    expect(y.state.zones.length).toBe(x.state.zones.length + 1);
+    expect(y.state.worksOrders.at(-1)!.zone).toBe(y.state.zones.at(-1)!.id);
+    expect(guidePlan({ ...x, mode: 'paused' }, OPTS, p).kind).toBe('refused');
   });
 });
 
@@ -270,7 +320,8 @@ describe('R5: core zoom, overlays and the HUD', () => {
         if (!spread.has(c)) for (const d of cells) expect(k.spatial.frontage.get(d)!.depth).toBeLessThanOrEqual(k.spatial.frontage.get(c)!.depth);
       }
     }
-    sceneOf(newSession(slice), slice, { layer: 'network', guide: true, selected: null, plan: null });
+    const at = { ...newSession(slice), state: s };
+    for (const layer of ['network', 'utilities', 'held', 'demand'] as const) sceneOf(at, slice, { layer, guide: true, selected: null, plan: null });
     expect(JSON.stringify(s)).toBe(before);
   });
 
