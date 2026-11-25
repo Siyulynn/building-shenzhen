@@ -26,9 +26,13 @@ const W = createInitialState(slice.init).grid.width;
 const idx = (x: number, y: number) => y * W + x;
 const OPTS: ToolOptions = { use: 'industrial', planOnly: false, facility: 'school' };
 
-/** A session at the turn's start with every card answered by its first option (the decisions modal's job). */
+/**
+ * A session at the turn's start with every card answered by its first option (the decisions modal's job). The
+ * opening card (pending at init since R7) is answered `later`: its first option commits an M4 project from month 1,
+ * whose crews would compete with the map works these tests measure.
+ */
 function answered(x: Session): Session {
-  for (const c of x.state.pendingCards) x = choose(x, c.id, c.options[0]);
+  for (const c of x.state.pendingCards) x = choose(x, c.id, c.card === 'event.first_project' ? 'later' : c.options[0]);
   return x;
 }
 /** End quarter, then Continue through any card that interrupts it. */

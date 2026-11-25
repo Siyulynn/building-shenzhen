@@ -16,6 +16,7 @@ import { offerProjectLoan } from './systems/finance.js';
 import { isOpen } from './systems/industry.js';
 import { verdict } from './verdict.js';
 import { parseYM, type YM } from './ym.js';
+import { isOpeningBeat } from './opening.js';
 
 export type EventEffect = { option?: string } & (
   | { kind: 'offer'; archetype: string; terms?: boolean }
@@ -179,6 +180,10 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
     }
     const effects = effectsOf(r.effects, r.id, 'effects');
     const onAnswer = effectsOf(r.on_answer, r.id, 'on_answer');
+    // R7 (§5.8): a turn-0 beat fires in createInitialState, which has no RNG or tick: it may only unlock
+    if (isOpeningBeat({ trigger, recurring }) && effects.some((e) => e.kind !== 'unlock')) {
+      throw new Error(`${r.id}: a turn-0 beat fires at init and its effects may only unlock`);
+    }
     if (onAnswer.length && !card) throw new Error(`${r.id}: on_answer needs a card`);
     const optionIds = card?.options.map((o) => o.id) ?? [];
     const num = p.events[r.id] as Record<string, number | undefined> | undefined;

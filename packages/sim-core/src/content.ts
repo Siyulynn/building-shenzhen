@@ -36,6 +36,7 @@ export type SliceFile = keyof typeof SLICE_FILES;
 
 export interface InitialContent {
   scenario: ScenarioContent; areas: AreasContent; start: StartContent; params: SliceParams; leaders: readonly LeaderContent[];
+  events: EventContent;                  // R7 (§5.8): the turn-0 beats fire in createInitialState
 }
 export interface Slice {
   startNetwork: StartNetwork;
@@ -68,7 +69,7 @@ export function compileSlice(read: (path: string) => string, parse: (text: strin
   return {
     startSites: compileStartSites(sites, JSON.parse(text.siteCells), areas, hash(text.sites)),
     startNetwork: network,
-    init: { scenario: parse(text.scenario) as ScenarioContent, areas, start: parse(text.start) as StartContent, params, leaders },
+    init: { scenario: parse(text.scenario) as ScenarioContent, areas, start: parse(text.start) as StartContent, params, leaders, events },
     tick: { precedents, investors, buildable, fiscal, events, targets, network },
     params,
     content: {

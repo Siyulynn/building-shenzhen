@@ -8,6 +8,8 @@ import { cloneFiscal, initialFiscal, type FiscalState, type Priority, type TeamM
 import type { SliceParams } from './params.js';
 import { bedsByPool } from './systems/common.js';
 import { parseYM, type YM } from './ym.js';
+import { openingBeats } from './opening.js';
+import type { EventContent } from './events.js';
 import { cloneOrder, type CellWork, type PlacedStructure, type StructureKind, type WorksOrder } from './works.js';
 
 export interface LocalizedString { zh: string; en: string }
@@ -300,6 +302,7 @@ export function compileLeaders(raw: unknown): LeaderContent[] {
 export function createInitialState(content: {
   scenario: ScenarioContent; areas: AreasContent; start: StartContent; params: SliceParams;
   leaders?: readonly LeaderContent[];                        // M5a (§5.7): without them, no shortcut is offered
+  events?: EventContent;                                     // R7 (§5.8): the turn-0 beats fire here; without, in month 1
 }): GameState {
   const { scenario, areas, start, params } = content;
   if (scenario.months_per_turn !== 3) throw new Error('the slice has three monthly sub-steps per turn (§2)');
@@ -377,7 +380,7 @@ export function createInitialState(content: {
 
   const lagLen = params.migration.network_lag_months;
   const stockOf = (k: MigrantKind) => pops.filter((p) => p.kind === k).reduce((a, p) => a + p.size, 0);
-  return {
+  const s: GameState = {
     date: startYM,
     turn: 0,
     subStep: 0,
@@ -425,6 +428,8 @@ export function createInitialState(content: {
     actionLog: [],
     history: emptyHistory(),
   };
+  if (content.events) openingBeats(s, content.events);
+  return s;
 }
 
 const toLeader = (l: LeaderContent): Leader => ({ id: l.id, name: { ...l.name }, role: l.role, traits: [...l.traits],

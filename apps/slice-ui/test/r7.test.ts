@@ -7,7 +7,7 @@ import { parse } from 'yaml';
 import { describe, expect, it } from 'vitest';
 import { Rng, compileEvents, createInitialState, gdpNow, step, type CardInstance, type Slice } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
-import { newSession, type Session } from '../src/controller.js';
+import { choose, enqueue, newSession, submit, unanswered, type Session } from '../src/controller.js';
 import { esc, initialUi, renderDecisions, type View } from '../src/render.js';
 import { BADGE } from '../src/strings.js';
 import { briefing, chipsView, effectBadges, yuan } from '../src/views.js';
@@ -87,7 +87,8 @@ describe('R7 Turn 1 tells the truth: GDP', () => {
     const s0 = createInitialState(slice.init);
     const g0 = gdpNow(s0, slice.params);
     expect(g0).toBeGreaterThan(0);
-    const r = step(s0, [], new Rng(1), newSession(slice).steps);
+    const opening = s0.pendingCards.find((c) => c.card === 'event.first_project')!;
+    const r = step(s0, [{ type: 'answer_card', instance: opening.id, option: 'later' }], new Rng(1), newSession(slice).steps);
     expect(r.state.history.gdp[0]).toBe(g0);                 // an idle first month: no work, every base job held
     expect(gdpNow(r.state, slice.params)).toBe(r.state.history.gdp[0]);
   });
@@ -97,5 +98,22 @@ describe('R7 Turn 1 tells the truth: GDP', () => {
     const q = 3 * gdpNow(x.state, slice.params);
     expect(chipsView(x.state, slice).find((c) => c.id === 'economy')!.values[0]).toBe(yuan(q));
     expect(briefing(x.state, slice).rows.find((r) => r.label.en.includes('GDP'))!.value).toBe(Math.round(q));
+  });
+});
+
+describe('R7 Turn 1 tells the truth: the opening decision', () => {
+  it('Turn 1 opens on the card, with the map tools on; the answer and the turn orders both land in 1979-01', () => {
+    const x0 = newSession(slice);
+    expect(x0.mode).toBe('turn');
+    const card = unanswered(x0);
+    expect(card.map((c) => c.card)).toEqual(['event.first_project']);
+    expect(submit(x0).error).toBeDefined();                     // it must be answered first
+    let x = choose(x0, card[0]!.id, 'later');
+    x = enqueue(x, { type: 'set_enforcement', level: 'high' });
+    const y = submit(x);
+    expect(y.error).toBeUndefined();
+    const start = x0.state.date;
+    expect(y.state.actionLog.filter((e) => e.date === start).map((e) => e.action.type)).toEqual(['answer_card', 'set_enforcement']);
+    expect(y.state.pendingCards.some((c) => c.card === 'event.first_project')).toBe(false);
   });
 });

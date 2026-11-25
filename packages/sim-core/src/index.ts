@@ -12,6 +12,7 @@ export * from './investors.js';
 export * from './fiscal.js';
 export * from './events.js';
 export { gdpNow } from './systems/statistics.js';
+export { isOpeningBeat, openingBeats } from './opening.js';
 export * from './readiness.js';
 export * from './verdict.js';
 export * from './policies.js';
