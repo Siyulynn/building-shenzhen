@@ -24,6 +24,8 @@ export * from './calibration.js';
 export * from './play.js';
 export * from './summary.js';
 export * from './systems/reviews.js';
-export { createFirm, firmTerms, inTaxHoliday, orderFactor, sizeOffer, type FirmOffer, type FirmSite } from './systems/industry.js';
+export {
+  createFirm, firmTerms, inTaxHoliday, orderFactor, prospectiveShare, sizeOffer, utilityShare, type FirmOffer, type FirmSite,
+} from './systems/industry.js';
 export { offerProjectLoan } from './systems/finance.js';
 export * from './reach.js';
