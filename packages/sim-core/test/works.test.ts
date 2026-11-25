@@ -9,7 +9,9 @@ import { content, initial, params, slice } from './fixtures.js';
 const W = slice.init.areas.grid.width;
 const at = (x: number, y: number) => y * W + x;
 const NET = slice.startNetwork;
-// The temporary Guangshen road runs along row 377 from x 384 to 387, then north up x 384 (start_network.yaml).
+// The temporary Guangshen road runs along row 377 from x 384 to 387, then north up x 384 (start_network.yaml). From
+// R4.5 the temporary Jianshe road runs south down x 386 from row 378, through the zone: its cells there are road cells,
+// which no frontage reaches, and the zone's other cells are at most three cells from a road.
 const ZONE_RUNS: [number, number, number][] = [[378, 383, 387], [379, 383, 387], [380, 383, 387], [381, 383, 387]];
 // A built spur east of the road's end (R2 will lay these); LINK joins it to the trunk.
 const LINK = at(388, 377), SPUR = [at(389, 377), at(390, 377)];
@@ -33,7 +35,8 @@ describe('R1 cell works', () => {
     const byCell = new Map(s.cellWorks.map((w) => [w.cell, w]));
     expect(byCell.get(at(384, 378))).toMatchObject({ stage: 'serviced', workDone: 3 });
     expect(byCell.get(at(385, 378))).toMatchObject({ stage: 'serviced', workDone: 3 });
-    expect(byCell.get(at(386, 378))).toMatchObject({ stage: 'servicing', workDone: 1 });
+    expect(byCell.get(at(387, 378))).toMatchObject({ stage: 'servicing', workDone: 1 });
+    expect(byCell.get(at(386, 378))).toMatchObject({ stage: 'planned', workDone: 0 });   // a road cell: never fronted
     expect(byCell.get(at(383, 378))).toMatchObject({ stage: 'planned', workDone: 0 });   // depth 2: off the road's end
     expect(cellsOfRuns(s.servicedLand, s.grid)).toEqual([at(384, 378), at(385, 378)]);
     expect(s.cellWorks.map((w) => w.cell)).toEqual([...s.cellWorks.map((w) => w.cell)].sort((a, b) => a - b));
@@ -44,14 +47,14 @@ describe('R1 cell works', () => {
     const shallow: StartNetwork = { ...NET, maxFrontageDepth: 2 };
     const reach = spatialViews(s, shallow).frontage;
     expect(reach.get(at(385, 378))?.depth).toBe(1);
-    expect(reach.get(at(385, 379))?.depth).toBe(2);
-    expect(reach.has(at(385, 380))).toBe(false);
-    expect(spatialViews(s, NET).frontage.get(at(383, 381))?.depth).toBe(5);
+    expect(reach.get(at(384, 379))?.depth).toBe(2);
+    expect(reach.has(at(383, 379))).toBe(false);
+    expect(spatialViews(s, NET).frontage.get(at(383, 381))?.depth).toBe(3);
     const left = advanceCellWorks(s, 1000, reach);
     const deep = s.cellWorks.filter((w) => !reach.has(w.cell));
-    expect(deep.length).toBe(11);                           // rows 380–381, and (383,379) at depth 3
+    expect(deep.length).toBe(7);                            // (383,379)–(383,381) at depth 3, and the four road cells
     expect(deep.every((w) => w.stage === 'planned' && w.workDone === 0)).toBe(true);
-    expect(left).toBe(1000 - (9 * 3 - 7));                   // nine reached cells, 7 units already sunk
+    expect(left).toBe(1000 - (13 * 3 - 7));                  // thirteen reached cells, 7 units already sunk
     const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
     for (const w of s.cellWorks) {
       expect(w.workDone).toBeGreaterThanOrEqual(0);

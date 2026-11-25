@@ -12,96 +12,96 @@
     "events_sha256": "b9a66192213730ee6feb9a2623157a91e60abdac0352686de14bce2981ec3249",
     "leaders_sha256": "5bf3fe0aa081c85e6f538add149d93852b4fc6f34142656fd5dd599e8c520467",
     "targets_sha256": "0765576245b271083f2ef6ed448e1fe5afb2e03abdc03a5f8cd7a379356e3fd3",
-    "network_sha256": "c77ed840b7f74822097ca134d1624da1ef6de526adba8f2bf9cb54ea47971898"
+    "network_sha256": "a3601777bfa004572dad4b6fd6ebe296cfc0983d341e3eaaded92313ad5c0cb9"
   },
   "years": [
     {
       "at": "1979-12",
-      "residents": 30363,
+      "residents": 30350,
       "registered": 30000,
-      "presentNonlocal": 420,
-      "migrants": 420,
+      "presentNonlocal": 410,
+      "migrants": 410,
       "firmJobs": 120,
-      "gdp": 8501872,
-      "exports": 149120,
-      "revenue": 2942386,
-      "obligationsPaid": 3344712,
+      "gdp": 8503753,
+      "exports": 148480,
+      "revenue": 2942376,
+      "obligationsPaid": 3344545,
       "projectSpend": 2200000,
       "reserve": 0,
-      "debt": 3162519,
+      "debt": 3162372,
       "arrears": 0,
       "scrutiny": 0,
       "illegalShare": 0
     },
     {
       "at": "1980-12",
-      "residents": 30556,
+      "residents": 30545,
       "registered": 30000,
       "presentNonlocal": 895,
       "migrants": 895,
       "firmJobs": 850,
-      "gdp": 8233190,
-      "exports": 1448640,
-      "revenue": 2956689,
-      "obligationsPaid": 3699039,
+      "gdp": 8239251,
+      "exports": 1475440,
+      "revenue": 2957316,
+      "obligationsPaid": 3697926,
       "projectSpend": 100000,
       "reserve": 0,
-      "debt": 3478067,
+      "debt": 3476938,
       "arrears": 0,
       "scrutiny": 0,
       "illegalShare": 0
     },
     {
       "at": "1981-12",
-      "residents": 31221,
+      "residents": 31228,
       "registered": 30000,
-      "presentNonlocal": 1377,
-      "migrants": 1377,
+      "presentNonlocal": 1374,
+      "migrants": 1374,
       "firmJobs": 1041,
-      "gdp": 8893096,
-      "exports": 3959040,
-      "revenue": 2983754,
-      "obligationsPaid": 4178888,
+      "gdp": 8902093,
+      "exports": 3975680,
+      "revenue": 2983925,
+      "obligationsPaid": 4179196,
       "projectSpend": 0,
       "reserve": 0,
-      "debt": 3148233,
-      "arrears": 231009,
+      "debt": 3148294,
+      "arrears": 229798,
       "scrutiny": 0,
       "illegalShare": 0
     },
     {
       "at": "1982-12",
-      "residents": 31503,
+      "residents": 31502,
       "registered": 30000,
-      "presentNonlocal": 1515,
-      "migrants": 1515,
+      "presentNonlocal": 1513,
+      "migrants": 1513,
       "firmJobs": 1161,
-      "gdp": 8763970,
-      "exports": 4926720,
-      "revenue": 3000606,
-      "obligationsPaid": 4155056,
+      "gdp": 8759945,
+      "exports": 4930240,
+      "revenue": 3000650,
+      "obligationsPaid": 4155159,
       "projectSpend": 0,
       "reserve": 0,
-      "debt": 2553933,
-      "arrears": 554560,
+      "debt": 2553951,
+      "arrears": 553412,
       "scrutiny": 0,
       "illegalShare": 0
     },
     {
       "at": "1983-12",
-      "residents": 31526,
+      "residents": 31523,
       "registered": 30000,
-      "presentNonlocal": 1517,
-      "migrants": 1517,
+      "presentNonlocal": 1514,
+      "migrants": 1514,
       "firmJobs": 1161,
-      "gdp": 8725080,
-      "exports": 5032000,
-      "revenue": 2314412,
-      "obligationsPaid": 3250541,
+      "gdp": 8726131,
+      "exports": 5033280,
+      "revenue": 2314428,
+      "obligationsPaid": 3250563,
       "projectSpend": 0,
       "reserve": 0,
-      "debt": 1812789,
-      "arrears": 1820381,
+      "debt": 1812794,
+      "arrears": 1819152,
       "scrutiny": 0,
       "illegalShare": 0
     }
@@ -110,13 +110,13 @@
     {
       "index": 0,
       "at": "1979-12",
-      "score": 0.8324,
+      "score": 0.8316,
       "pass": true
     },
     {
       "index": 1,
       "at": "1980-12",
-      "score": 0.9886,
+      "score": 0.9945,
       "pass": true
     },
     {
@@ -145,13 +145,13 @@
   },
   "verdict": {
     "growth": {
-      "residents": 1.0383,
-      "gdp": 1.0263
+      "residents": 1.0386,
+      "gdp": 1.0262
     },
     "ledger": {
       "reserve": 0,
-      "debtOutstanding": 1812789,
-      "arrears": 1820381
+      "debtOutstanding": 1812794,
+      "arrears": 1819152
     },
     "lastReview": {
       "index": 4,
@@ -163,12 +163,12 @@
       "items": [
         {
           "indicator": "exports_usd",
-          "value": 3354667,
+          "value": 3355520,
           "score": 1
         },
         {
           "indicator": "forex_earned_usd",
-          "value": 335468,
+          "value": 335553,
           "score": 1
         },
         {
@@ -193,8 +193,8 @@
     "fiscalTest": {
       "grantFactor": 0,
       "revenuePerYear": 1624440,
-      "dueNext12": 5898841,
-      "balance": -4274401
+      "dueNext12": 5897508,
+      "balance": -4273068
     }
   },
   "fired": [

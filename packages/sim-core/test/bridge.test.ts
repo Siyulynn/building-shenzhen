@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, applyTurnAction, conditionHolds, createTickSteps, firstOption, indicatorValue, post, readiness, runMonths, validateParams,
+  Rng, applyTurnAction, conditionHolds, createTickSteps, firstOption, indicatorValue, post, reachClasses, readiness, runMonths, validateParams,
   type GameState, type PlayerAction,
 } from '../src/index.js';
 import { initial, params, slice } from './fixtures.js';
@@ -107,5 +107,16 @@ describe('R4.5 a placed school feeds its area as an M4 school does', () => {
   it('refuses a facility type with no area stock to feed', () => {
     const bad = { ...params, works: { ...params.works!, facilities: { ...params.works!.facilities, clinic: params.works!.facilities.school! } } };
     expect(() => validateParams(bad)).toThrow(/no area stock/);
+  });
+});
+
+describe('R4.5 the start network joins Area 2 to Area 1', () => {
+  it('puts the town and the station in one reach class; areas 4 and 6 stay alone', () => {
+    const c = reachClasses(initial(), slice.startNetwork);
+    expect(c.get(2)).toBe(c.get(1));
+    for (const a of [4, 6]) expect([...c].filter(([, k]) => k === c.get(a)).map(([x]) => x)).toEqual([a]);
+    const jianshe = slice.startNetwork.routes.find((r) => r.id === 'site.jianshe_road')!;
+    expect(jianshe).toMatchObject({ kind: 'road', placement: 'temporary' });
+    expect(jianshe.cells.length).toBe(13);
   });
 });

@@ -109,11 +109,11 @@ describe('R4: matching keeps incumbents and reaches only by road', () => {
 
   it('a vacancy in an area no road joins to another is not filled from that area; without the network it is', () => {
     const s = run(initial(), 2);
-    shock(s, 2, 500);                                                  // area 2 has no road at the start
+    shock(s, 4, 500);                                                  // area 4 has no road at the start (R4.5: area 2 has)
     const onMap = run(s, 1);
-    expect(holders(onMap, (h) => h.area === 2 && h.home !== 2)).toBe(0);
+    expect(holders(onMap, (h) => h.area === 4 && h.home !== 4)).toBe(0);
     const offMap = run(s, 1, createTickSteps(params));                 // M2's fixtures: every area reaches every other
-    expect(holders(offMap, (h) => h.area === 2 && h.home !== 2)).toBeGreaterThan(0);
+    expect(holders(offMap, (h) => h.area === 4 && h.home !== 4)).toBeGreaterThan(0);
   });
 
   it("a job shock in one sector leaves the other sectors' holders in place and pulls migrants into the vacancy", () => {
@@ -146,7 +146,7 @@ describe('R4: matching keeps incumbents and reaches only by road', () => {
   });
 
   it('turnover lets idle locals into jobs migrants held, ahead of them in the fill order; with none, migrants keep them', () => {
-    // area 2 (no road): service jobs beyond its locals draw migrants; then idle urban residents arrive
+    // area 2: service jobs beyond its locals draw migrants; then idle urban residents arrive
     const s = run(initial(), 2);
     s.labour.baseJobs.find((j) => j.area === 2 && j.sector === 'services')!.jobs += 300;
     const t = run(s, 12);

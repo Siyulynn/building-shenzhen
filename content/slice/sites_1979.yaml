@@ -71,6 +71,17 @@
     - { id: site.guangshen_road.exists_1979, use: encyclopedia }
   research: [Route and condition in 1979]
 
+- id: site.jianshe_road
+  name: { zh: 建设路, en: Jianshe Road }
+  kind: road
+  area: 2
+  geometry: { kind: unplaced }
+  in_start_state: road
+  claims:
+    - { id: site.jianshe_road.exists_1979, use: encyclopedia }
+    - { id: site.jianshe_road.town_to_station, use: encyclopedia }
+  research: [Georeference the 1977 street sheet against the 1980 KH-9 mosaic and trace the road (docs/research/phase1-transport.md)]
+
 - id: site.wenjindu_crossing
   name: { zh: 文锦渡, en: Wenjindu crossing }
   kind: crossing

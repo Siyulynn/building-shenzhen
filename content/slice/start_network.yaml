@@ -8,3 +8,6 @@ routes:
   - site: site.guangshen_road
     placement: temporary
     waypoints: [[387, 377], [384, 377], [384, 363], [380, 363], [380, 352], [365, 352], [365, 346], [347, 346]]
+  - site: site.jianshe_road           # R4.5: the town's road to the station joins Areas 1 and 2 (phase1-slice §1.1)
+    placement: temporary             # beside the market-town cell on the Guangshen route, east of the railway
+    waypoints: [[386, 378], [386, 390]]
