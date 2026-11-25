@@ -41,7 +41,7 @@ describe('M6c: the browser loader', () => {
 
 /** Drive the controller as playQuarters drives runQuarter: the policy's actions at each turn's start, its answers when paused. */
 function drive(policyName: string, seed = 1): { x: Session; rec: PlayRecord; viewed: number } {
-  const policy = policyNamed(policyName, slice.params, seed);
+  const policy = policyNamed(policyName, slice.params, seed, slice.tick);
   let x = newSession(slice, seed);
   const seen = new Map<string, CardInstance>();
   const see = (s: GameState) => { for (const c of s.pendingCards) if (!seen.has(c.id)) seen.set(c.id, c); };
@@ -77,7 +77,7 @@ describe('M6c: the controller plays the golden runs', () => {
       expect(x.mode).toBe('over');
       expect(viewed).toBeGreaterThan(0);
       const o = { policy, seed: 1, quarters: slice.init.scenario.turns };
-      const text = goldenText(runSummary(rec, o, slice.params, slice.tick.fiscal!, slice.content));
+      const text = goldenText(runSummary(rec, o, slice.params, slice.tick.fiscal!, slice.content, slice.tick));
       expect(text).toBe(readFileSync(join(ROOT, goldenPath(policy)), 'utf8').replace(/\r\n/g, '\n'));
       expect(verdictView(x.state, slice)).toBeDefined();
     });
@@ -89,7 +89,7 @@ describe('M6c: every card and option is named in both languages', () => {
   const steps = newSession(slice).steps;
   for (const policy of [...GOLDEN_POLICIES, 'aggressive', 'random']) for (const seed of [1, 2, 3, 4, 5]) {
     it(`${policy}, seed ${seed}`, () => {
-      const rec = playQuarters(createInitialState(slice.init), new Rng(seed), steps, policyNamed(policy, slice.params, seed));
+      const rec = playQuarters(createInitialState(slice.init), new Rng(seed), steps, policyNamed(policy, slice.params, seed, slice.tick));
       expect(rec.cards.length).toBeGreaterThan(0);
       for (const c of rec.cards) {
         expect(filled(cardTitle(slice, c.card)), c.card).toBe(true);

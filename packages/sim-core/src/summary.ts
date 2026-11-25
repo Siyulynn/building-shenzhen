@@ -7,13 +7,16 @@ import {
   type TradeoffYear,
 } from './calibration.js';
 import type { EventContent } from './events.js';
-import { isLive, obligationDue, type FiscalContent } from './fiscal.js';
+import { isLive, moneyForProjects, obligationDue, type FiscalContent } from './fiscal.js';
+import { commercialTargetM2, developableCells, inducedServiceJobs, shopOccupancy } from './growth.js';
 import type { SliceParams } from './params.js';
 import { stateAfter, type PlayRecord } from './play.js';
 import type { SaveContent } from './save.js';
 import type { GameState } from './state.js';
 import { realIllegalShare } from './systems/reviews.js';
+import type { TickContent } from './ticks.js';
 import { verdict, type Verdict } from './verdict.js';
+import { cellsOfRuns } from './zones.js';
 import { formatYM } from './ym.js';
 
 const r4 = (x: number) => Math.round(x * 1e4) / 1e4;
@@ -47,11 +50,90 @@ export interface RunSummary {
   policy: string; seed: number; quarters: number;
   content: SaveContent;
   years: YearPoint[];                    // each year end the run reached, then the run's final state
+  checkpoints: Checkpoint[];             // R6 (§5.9): the §9 checkpoints, read off the reached state
   reviews: { index: number; at: string; score: number; pass: boolean; vetoed?: string }[];
   sez: { opened?: string; readiness?: number; waveCards?: number };   // the opening's readiness and first wave
   verdict: Verdict | null;               // at the visit, when the run reached it
   fired: string[];                       // "<event id>@YYYY-MM"
   ended: string | null;
+}
+
+/** R6 (§5.9): the months of the three §9 checkpoints: the first year end, the following Q2, and the last quarter's end. */
+export const CHECKPOINT_MONTHS = [12, 18, 60] as const;
+type LandUseKey = 'industrial' | 'commercial' | 'residential';
+export interface Checkpoint {
+  id: string; at: string; months: number;
+  population: { registered: number; resident: number; present: number; presentNonlocal: number; migrants: number };
+  land: { plannedCells: Record<LandUseKey, number>; servicedCells: Record<LandUseKey, number>;
+    developableCells: Record<LandUseKey, number> };
+  floor: { industrialBuiltM2: number; industrialOpenM2: number; commercialBuiltM2: number; commercialOccupiedM2: number;
+    residentialM2: number; villageRentalM2: number };
+  jobs: { firmPosted: number; filled: number; vacancies: number };
+  housing: { rentalBeds: number; rentalOccupants: number; crowding: number; turnedAway: number };
+  works: { roadCells: number; powerSources: number; waterSources: number; facilities: number };
+  fiscal: { reserve: number; moneyForProjects: number; debtOutstanding: number; arrears: number;
+    revenueYear: number; spendingYear: number; spendingOverRevenue: number };
+}
+
+/** One §9 checkpoint, read from a reached state (§5.9). */
+export function checkpoint(s: GameState, months: number, p: SliceParams, tick: TickContent): Checkpoint {
+  const h = s.history;
+  const byUse = (): Record<LandUseKey, number> => ({ industrial: 0, commercial: 0, residential: 0 });
+  const planned = byUse(), serviced = byUse(), developable = byUse();
+  const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
+  const dev = tick.network
+    ? developableCells(s, { network: tick.network, ...(tick.buildable ? { buildable: tick.buildable } : {}) })
+    : new Map<number, number[]>();
+  for (const z of s.zones) {
+    if (z.use !== 'industrial' && z.use !== 'commercial' && z.use !== 'residential') continue;
+    const cells = cellsOfRuns(z.runs, s.grid);
+    planned[z.use] += cells.length;
+    serviced[z.use] += cells.filter((c) => served.has(c)).length;
+    developable[z.use] += (dev.get(z.id) ?? []).length;
+  }
+  let industrialBuiltM2 = 0, industrialOpenM2 = 0, dormitoryM2 = 0, villageRentalM2 = 0, privateShopM2 = 0;
+  for (const f of s.firms) {
+    industrialBuiltM2 += f.floorM2;
+    if (f.opens !== undefined) industrialOpenM2 += f.floorM2;
+  }
+  for (const b of s.blocks) for (const c of b.cohorts) {
+    if (c.stage !== 'completed') continue;
+    if (c.archetype === 'dormitory') dormitoryM2 += c.m2;
+    if (c.archetype === 'village_rental') villageRentalM2 += c.m2;
+    if (c.archetype === 'shop_market' && c.builder === 'private') privateShopM2 += c.m2;
+  }
+  const induced = p.growth ? inducedServiceJobs(s, p) : new Map<number, number>();
+  const occupiedShops = p.growth
+    ? [...shopOccupancy(s, commercialTargetM2(induced, p.growth)).values()].reduce((a, x) => a + x, 0) : 0;
+  const rentalBeds = s.housing.reduce((a, x) => a + x.beds.rental, 0);
+  const rentalOccupants = s.housing.reduce((a, x) => a + x.occupants.rental, 0);
+  const arrears = s.fiscal.obligations.filter((o) => o.kind === 'arrears' && isLive(o, s.date))
+    .reduce((a, o) => a + obligationDue(o, s), 0);
+  const revenueYear = trailing(h.revenue), spendingYear = trailing(h.obligationsPaid) + trailing(h.projectSpend);
+  return {
+    id: `checkpoint.${formatYM(s.date)}`, at: formatYM(s.date), months,
+    population: {
+      registered: s.pops.reduce((a, g) => a + (g.registration === 'local' ? g.size : 0), 0),
+      resident: s.pops.reduce((a, g) => a + g.stayedSixMonths, 0),
+      present: s.pops.reduce((a, g) => a + g.present, 0),
+      presentNonlocal: s.pops.reduce((a, g) => a + (g.registration === 'nonlocal' ? g.present : 0), 0),
+      migrants: s.pops.reduce((a, g) => a + (g.registration === 'nonlocal' ? g.size : 0), 0),
+    },
+    land: { plannedCells: planned, servicedCells: serviced, developableCells: developable },
+    floor: { industrialBuiltM2, industrialOpenM2, commercialBuiltM2: privateShopM2, commercialOccupiedM2: occupiedShops,
+      residentialM2: dormitoryM2, villageRentalM2 },
+    jobs: { firmPosted: s.firms.reduce((a, f) => a + f.posted, 0), filled: s.labour.jobs.reduce((a, j) => a + j.filled, 0),
+      vacancies: last(h.vacancies) },
+    housing: { rentalBeds, rentalOccupants, crowding: rentalOccupants / Math.max(1, rentalBeds),
+      turnedAway: last(h.turnedAway) },
+    works: { roadCells: s.roads.length,
+      powerSources: s.structures.filter((x) => x.kind === 'power_source').length,
+      waterSources: s.structures.filter((x) => x.kind === 'water_source').length,
+      facilities: s.structures.filter((x) => x.kind === 'facility').length },
+    fiscal: { reserve: s.fiscal.balances.general, moneyForProjects: moneyForProjects(s, p),
+      debtOutstanding: last(h.debtOutstanding), arrears, revenueYear, spendingYear,
+      spendingOverRevenue: revenueYear > 0 ? spendingYear / revenueYear : 0 },
+  };
 }
 
 /** Round every number: whole numbers stay, money and people to integers, shares and multiples (under 100) to 4 decimals. */
@@ -66,13 +148,17 @@ function rounded<T>(x: T): T {
 }
 
 export function runSummary(rec: PlayRecord, meta: { policy: string; seed: number; quarters: number }, p: SliceParams,
-  fc: FiscalContent, content: SaveContent): RunSummary {
+  fc: FiscalContent, content: SaveContent, tick: TickContent): RunSummary {
   const f = rec.final;
   const years = rec.quarterEnds.filter((s) => s.date % 12 === 0).map(yearPoint);
   const end = yearPoint(f);
   if (years[years.length - 1]?.at !== end.at) years.push(end);
+  const checkpoints = CHECKPOINT_MONTHS.flatMap((m) => {
+    const s = stateAfter(rec, m);
+    return s ? [checkpoint(s, m, p, tick)] : [];
+  });
   return {
-    ...meta, content: { ...content }, years,
+    ...meta, content: { ...content }, years, checkpoints,
     reviews: f.reviews.held.map((r) => ({ index: r.index, at: formatYM(r.date), score: r4(r.score), pass: r.pass,
       ...(r.vetoed ? { vetoed: r.vetoed } : {}) })),
     sez: { ...(f.sez.opened !== undefined ? { opened: formatYM(f.sez.opened) } : {}),

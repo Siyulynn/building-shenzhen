@@ -90,6 +90,8 @@ export interface SliceParams {
     austerity_max_cut: number;
     loan: { principal: number; rate_month: number; grace_months: number; term_months: number; offer_months: number };
     cancel_penalty: number;
+    /** R6 test: bought power, a monthly service obligation per kW. The network is assumed. */
+    power_import: { yuan_per_kw_month: number };
   };
   capacity: { local_crew: number; crew_per_m2: number };
   construction: { cost_per_m2: { standard_factory: number; dormitory: number; state_flats: number; shop_market: number } };
@@ -380,6 +382,7 @@ function validateFiscalParams(p: SliceParams): void {
     if (!(F[k] >= 0 && F[k] <= 1)) throw new Error(`params: fiscal.${k} must be in [0, 1]`);
   }
   if (!(F.forex.yuan_per_usd > 0) || !(F.forex.retention_share >= 0)) throw new Error('params: fiscal.forex needs yuan_per_usd > 0 and retention_share >= 0');
+  if (!(F.power_import && F.power_import.yuan_per_kw_month >= 0)) throw new Error('params: fiscal.power_import.yuan_per_kw_month must be >= 0');
   if (!posInt(F.short_loan.term_months) || !(F.short_loan.rate_month >= 0) || !(F.short_loan.revenue_multiple >= 0)) {
     throw new Error('params: fiscal.short_loan needs term_months >= 1, rate_month >= 0 and revenue_multiple >= 0');
   }

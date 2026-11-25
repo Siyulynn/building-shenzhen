@@ -298,7 +298,7 @@ export function addServicedLand(s: GameState, runs: CellRuns): void {
 
 // ---- actions (owned by the finance step, §5.6) ----
 
-const FISCAL_ACTIONS: readonly string[] = ['commit_project', 'set_project_priority', 'cancel_project', 'contract_team'];
+const FISCAL_ACTIONS: readonly string[] = ['commit_project', 'set_project_priority', 'cancel_project', 'contract_team', 'buy_power'];
 export const isFiscalAction = (a: PlayerAction) => FISCAL_ACTIONS.includes(a.type);
 
 const projectParams = (p: SliceParams, id: string): ProjectParams => {
@@ -385,6 +385,16 @@ export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalConten
       if (tp.cost_per_month > 0) addObligation(s, { kind: 'service', perMonth: tp.cost_per_month, index: 'none', from: s.date,
         until: ends, createdBy: `contract.${id}` });
     }
+  } else if (a.type === 'buy_power') {
+    const ar = s.areas.find((x) => x.id === a.area);
+    if (!ar || ar.access !== 'playable') throw new Error('buy_power needs a playable area');
+    if (!Number.isInteger(a.kw) || a.kw <= 0) throw new Error('buy_power needs a whole kw > 0');
+    const rate = p.fiscal.power_import.yuan_per_kw_month;
+    if (!(rate >= 0)) throw new Error('params: fiscal.power_import.yuan_per_kw_month must be >= 0');
+    ar.utilities.powerCap += a.kw;
+    const perMonth = Math.round(a.kw * rate);
+    if (perMonth > 0) addObligation(s, { kind: 'service', perMonth, index: 'none', from: s.date,
+      createdBy: `power_import.${a.area}` });
   } else {
     throw new Error(`not a fiscal action: ${a.type}`);
   }

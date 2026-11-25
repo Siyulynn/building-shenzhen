@@ -155,7 +155,7 @@ const fingerprint = (x: Session) => JSON.stringify([x.state, x.rng.save(), x.ans
  * en, …) and, when `check` is set, checking each language shows nothing of the other.
  */
 function drive(policyName: string, check: boolean): { x: Session; rec: PlayRecord; rendered: number } {
-  const policy = policyNamed(policyName, slice.params, 1);
+  const policy = policyNamed(policyName, slice.params, 1, slice.tick);
   let x = newSession(slice, 1);
   const seen = new Map<string, CardInstance>();
   const see = (s: GameState) => { for (const c of s.pendingCards) if (!seen.has(c.id)) seen.set(c.id, c); };
@@ -296,7 +296,7 @@ describe('switching language changes no sim state and no golden result', () => {
       const { x, rec } = drive(policy, false);
       expect(x.mode).toBe('over');
       const o = { policy, seed: 1, quarters: slice.init.scenario.turns };
-      const text = goldenText(runSummary(rec, o, slice.params, slice.tick.fiscal!, slice.content));
+      const text = goldenText(runSummary(rec, o, slice.params, slice.tick.fiscal!, slice.content, slice.tick));
       expect(text).toBe(readFileSync(join(ROOT, goldenPath(policy)), 'utf8').replace(/\r\n/g, '\n'));
     }, 120_000);
   }

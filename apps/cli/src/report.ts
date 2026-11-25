@@ -2,7 +2,7 @@
  * The plausibility report (phase1-slice.md §5.9): one self-contained HTML page with inline SVG charts, the bands with
  * their [UNVERIFIED] tags, and the exit-criteria table. A failing band is shown as a finding, never hidden.
  */
-import { formatYM, type BandResult } from '@sz/sim-core';
+import { formatYM, type BandResult, type Checkpoint } from '@sz/sim-core';
 import type { Analysis } from './slice.js';
 
 const ESC: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
@@ -43,6 +43,39 @@ function bandRows(bands: readonly BandResult[]): string {
     <td class="n">${num(b.value)}${b.base !== undefined ? ` <small>(base ${num(b.base)})</small>` : ''}</td><td class="n">${range(b)}</td>
     <td>${mark(b.result)}</td><td>${b.claims.map((c) => `<code>${esc(c.id)}</code> ${esc(c.status)}${c.unverified ? ' <b class="unv">[UNVERIFIED]</b>' : ''}`).join('<br>')}
     ${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}</td></tr>`).join('\n');
+}
+
+function checkpointRows(cs: readonly Checkpoint[]): string {
+  return cs.map((c) => `<tr><td><code>${esc(c.id)}</code></td>
+    <td class="n">${c.population.registered.toLocaleString('en-US')}</td>
+    <td class="n">${c.population.resident.toLocaleString('en-US')}</td>
+    <td class="n">${c.population.present.toLocaleString('en-US')}</td>
+    <td class="n">${c.population.presentNonlocal.toLocaleString('en-US')}</td>
+    <td class="n">${c.population.migrants.toLocaleString('en-US')}</td>
+    <td class="n">${c.land.plannedCells.industrial}/${c.land.plannedCells.commercial}/${c.land.plannedCells.residential}</td>
+    <td class="n">${c.land.servicedCells.industrial}/${c.land.servicedCells.commercial}/${c.land.servicedCells.residential}</td>
+    <td class="n">${c.land.developableCells.industrial}/${c.land.developableCells.commercial}/${c.land.developableCells.residential}</td>
+    <td class="n">${num(c.floor.industrialBuiltM2)}/${num(c.floor.industrialOpenM2)}</td>
+    <td class="n">${num(c.floor.commercialBuiltM2)}/${num(c.floor.commercialOccupiedM2)}</td>
+    <td class="n">${num(c.floor.residentialM2)}</td>
+    <td class="n">${num(c.floor.villageRentalM2)}</td>
+    <td class="n">${c.jobs.firmPosted.toLocaleString('en-US')}</td>
+    <td class="n">${c.jobs.filled.toLocaleString('en-US')}</td>
+    <td class="n">${c.jobs.vacancies.toLocaleString('en-US')}</td>
+    <td class="n">${c.housing.rentalBeds.toLocaleString('en-US')}</td>
+    <td class="n">${c.housing.rentalOccupants.toLocaleString('en-US')}</td>
+    <td class="n">${c.housing.crowding.toFixed(2)}</td>
+    <td class="n">${c.housing.turnedAway.toLocaleString('en-US')}</td>
+    <td class="n">${c.works.roadCells}</td>
+    <td class="n">${c.works.powerSources}/${c.works.waterSources}</td>
+    <td class="n">${c.works.facilities}</td>
+    <td class="n">${num(c.fiscal.reserve)}</td>
+    <td class="n">${num(c.fiscal.moneyForProjects)}</td>
+    <td class="n">${num(c.fiscal.debtOutstanding)}</td>
+    <td class="n">${num(c.fiscal.arrears)}</td>
+    <td class="n">${num(c.fiscal.revenueYear)}</td>
+    <td class="n">${num(c.fiscal.spendingYear)}</td>
+    <td class="n">${c.fiscal.spendingOverRevenue.toFixed(2)}</td></tr>`).join('\n');
 }
 
 export function reportHtml(a: Analysis, wallMs: number): string {
@@ -110,6 +143,17 @@ ${chart('Real illegal-floor share', m, [{ name: 'illegal share', values: s.illeg
 <table><tr><th>Band</th><th>Kind</th><th>Measure</th><th>Value</th><th>Range</th><th>Result</th><th>Claims</th></tr>
 ${bandRows(c.c3.bands)}
 </table>
+
+<h2>§9 checkpoints · 检查点</h2>
+<div style="overflow-x:auto"><table>
+<tr><th>Checkpoint</th><th>Registered</th><th>Resident (常住)</th><th>Present</th><th>Present non-local</th><th>Migrants</th>
+<th>Planned I/C/R cells</th><th>Serviced I/C/R cells</th><th>Developable I/C/R cells</th>
+<th>Industrial floor built/open m²</th><th>Commercial floor built/occupied m²</th><th>Dormitory m²</th><th>Village rental m²</th>
+<th>Firm jobs posted</th><th>Filled</th><th>Vacancies</th><th>Rental beds</th><th>Occupants</th><th>Crowding</th><th>Turned away</th>
+<th>Road cells</th><th>Power/water sources</th><th>Facilities</th><th>Reserve</th><th>Money for projects</th><th>Debt</th>
+<th>Arrears</th><th>Revenue year</th><th>Spending year</th><th>Spending ÷ revenue</th></tr>
+${checkpointRows(summary.checkpoints)}
+</table></div>
 
 <h2>Trade-offs by year · 年度取舍 (criterion 2)</h2>
 <table><tr><th>Review</th><th>Score</th><th>Close</th><th>Deficit cards</th><th>Austerity months</th><th>Arrears created</th><th>Lowest money for projects</th><th>Trade-off</th></tr>

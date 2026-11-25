@@ -64,7 +64,7 @@ describe('M3b firms: the loop', () => {
 
     // output at 400 a job-month, all exported, a fifth of it value added; none without the firm
     expect(h.firmStaffed[23]).toBe(200);                         // the start's idle locals staff a small firm
-    expect(h.output[23]).toBe(h.firmStaffed[23]! * 400);
+    expect(h.output[23]).toBe(h.firmStaffed[23]! * params.industry.by_ownership.hk_processing.output_per_job_month);
     expect(h.exports[23]).toBe(h.output[23]);
     expect(h.valueAdded[23]).toBeCloseTo(h.output[23]! * 0.2, 6);
     expect(bare.output.every((x) => x === 0)).toBe(true);
@@ -120,7 +120,8 @@ describe('M3b firms: the loop', () => {
     const end = run(s0, 12);
     const f = end.firms[0]!;
     expect(end.history.firmJobs.slice(0, 4)).toEqual([0, 33, 66, 100]);
-    expect(f.output).toBeCloseTo(f.staffed * 400 * params.industry.premises_output_factor, 6);
+    expect(f.output).toBeCloseTo(f.staffed * params.industry.by_ownership.hk_processing.output_per_job_month
+      * params.industry.premises_output_factor, 6);
     expect(end.history.underConstructionM2[0]).toBe(series(initial(), 1).underConstructionM2[0]);
   });
 

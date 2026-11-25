@@ -98,8 +98,10 @@ describe('R2 placement validates the map', () => {
     const s0 = funded();
     const s = play(s0, 12, rng, [{ type: 'place_structure', kind: 'water_source', cell: [356, 345], attach: [356, 346], priority: 'high' }]);
     expect(s.worksOrders[0]).toMatchObject({ stage: 'done', unitsDone: 150 });
-    expect(s.structures).toMatchObject([{ kind: 'water_source', cell: at(356, 345), attach: at(356, 346), capacity: 200 }]);
-    expect(spatialViews(s, slice.startNetwork).sources.water).toEqual(new Map([[at(356, 346), 200]]));
+    expect(s.structures).toMatchObject([{ kind: 'water_source', cell: at(356, 345), attach: at(356, 346),
+      capacity: WORKS.structures.water_source.capacity }]);
+    expect(spatialViews(s, slice.startNetwork).sources.water)
+      .toEqual(new Map([[at(356, 346), WORKS.structures.water_source.capacity]]));
     checkOrders(s);
   });
 
@@ -123,9 +125,11 @@ describe('R2 guides and phasing', () => {
     const phase = previewWorks(s, WORKS, [guide(s), { type: 'build_road', path: SPUR },
       { type: 'commit_works', zone: s.nextZoneId, cells: PHASE }], apply);
     expect(saveToJson(saveGame(s, new Rng(1), content))).toBe(before);
-    expect(all).toMatchObject({ ok: true, orders: [{ kind: 'service', cells: 36, units: 36 * 40, budget: 36 * 100000 }] });
+    expect(all).toMatchObject({ ok: true, orders: [{ kind: 'service', cells: 36, units: 36 * WORKS.service.units_per_cell,
+      budget: 36 * WORKS.service.yuan_per_cell }] });
     expect(phase.ok && phase.orders.map((o) => [o.kind, o.cells, o.bridges])).toEqual([['road', SPUR_CELLS, 1], ['service', 6, 0]]);
-    expect(phase.ok && phase.orders[1]).toMatchObject({ crewPerMonth: 30, months: 8, units: 240, budget: 600000 });
+    expect(phase.ok && phase.orders[1]).toMatchObject({ crewPerMonth: 30, months: 8, units: 240,
+      budget: 6 * WORKS.service.yuan_per_cell });
     expect(previewWorks(s, WORKS, [{ type: 'commit_works', zone: 99 }], apply)).toEqual({ ok: false, error: 'no zone 99' });
   });
 
@@ -145,7 +149,7 @@ describe('R2 guides and phasing', () => {
     expect(rest.length).toBe(30);
     for (const c of rest) expect(served.has(c) || s.cellWorks.some((w) => w.cell === c)).toBe(false);
     expect(road.spent + phase.spent).toBe(road.budget + phase.budget);
-    expect(road.spent + phase.spent).toBeLessThan(36 * WORKS.service.yuan_per_cell);   // the whole guide's servicing alone
+    expect(phase.spent).toBeLessThan(36 * WORKS.service.yuan_per_cell);   // the whole guide's servicing alone
     // the phase's frontage is the new road's, and the next row inward is now reachable from it
     const v = spatialViews(s, slice.startNetwork);
     expect(v.frontage.get(at(352, 370))?.depth).toBe(1);

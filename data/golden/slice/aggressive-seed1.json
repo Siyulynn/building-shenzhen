@@ -4,7 +4,7 @@
   "quarters": 21,
   "content": {
     "areas_sha256": "fc9003de49cb0d274f25b2b21ac1028c4dd8cb0c51f334af2e4caa9ad70212a6",
-    "params_sha256": "2c98d34ad1ed7e3e0a298b55afcca17d3708750394fb17c1ca0382371863dcbd",
+    "params_sha256": "adee4c4b8749af01219399469030fd29a5888e92c18e8d256e67df22fb21952b",
     "precedents_sha256": "d54f17661a4348d98d655754b9e42dea47173e09d8f6d19566de79d2094104f4",
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
     "buildable_sha256": "93a4651ce4e9e6dc32928e79da812babc22842aa8407c389dc633bdac21fc4d1",
@@ -17,220 +17,415 @@
   "years": [
     {
       "at": "1979-12",
-      "residents": 30350,
+      "residents": 30340,
       "registered": 30000,
-      "presentNonlocal": 452,
-      "migrants": 452,
+      "presentNonlocal": 611,
+      "migrants": 611,
       "firmJobs": 120,
-      "gdp": 8724206,
-      "exports": 148480,
-      "revenue": 2942375,
-      "obligationsPaid": 2996942,
-      "projectSpend": 2925000,
-      "reserve": 172933,
+      "gdp": 8551969,
+      "exports": 198016,
+      "revenue": 3399565,
+      "obligationsPaid": 2188564,
+      "projectSpend": 2380000,
+      "reserve": 961001,
       "debt": 3000000,
       "arrears": 0,
-      "scrutiny": 23.1038,
+      "scrutiny": 24.0925,
       "illegalShare": 0
     },
     {
       "at": "1980-12",
-      "residents": 30491,
+      "residents": 31099,
       "registered": 30000,
-      "presentNonlocal": 722,
-      "migrants": 722,
-      "firmJobs": 329,
-      "gdp": 8133820,
-      "exports": 864560,
-      "revenue": 2952093,
-      "obligationsPaid": 3147524,
-      "projectSpend": 147500,
-      "reserve": 0,
-      "debt": 3022498,
+      "presentNonlocal": 2864,
+      "migrants": 2864,
+      "firmJobs": 936,
+      "gdp": 9670311,
+      "exports": 1441752,
+      "revenue": 3411960,
+      "obligationsPaid": 2646040,
+      "projectSpend": 1490000,
+      "reserve": 1406921,
+      "debt": 3000000,
       "arrears": 0,
-      "scrutiny": 28.9226,
+      "scrutiny": 21.6949,
       "illegalShare": 0
     },
     {
       "at": "1981-12",
-      "residents": 30764,
+      "residents": 35985,
       "registered": 30000,
-      "presentNonlocal": 767,
-      "migrants": 767,
-      "firmJobs": 323,
-      "gdp": 8314378,
-      "exports": 1475710,
-      "revenue": 2954695,
-      "obligationsPaid": 3850168,
-      "projectSpend": 0,
-      "reserve": 0,
-      "debt": 3136381,
+      "presentNonlocal": 10860,
+      "migrants": 10860,
+      "firmJobs": 6313,
+      "gdp": 16593203,
+      "exports": 18775280,
+      "revenue": 3659241,
+      "obligationsPaid": 3017809,
+      "projectSpend": 1390000,
+      "reserve": 658353,
+      "debt": 2600000,
       "arrears": 0,
-      "scrutiny": 22.8306,
-      "illegalShare": 0
+      "scrutiny": 21.4829,
+      "illegalShare": 0.0309
     },
     {
       "at": "1982-12",
-      "residents": 30720,
+      "residents": 45344,
       "registered": 30000,
-      "presentNonlocal": 700,
-      "migrants": 700,
-      "firmJobs": 316,
-      "gdp": 8258810,
-      "exports": 1232625,
-      "revenue": 2953528,
-      "obligationsPaid": 4053846,
-      "projectSpend": 227500,
-      "reserve": 0,
-      "debt": 2544542,
-      "arrears": 393286,
-      "scrutiny": 36.126,
-      "illegalShare": 0
+      "presentNonlocal": 19864,
+      "migrants": 19864,
+      "firmJobs": 11885,
+      "gdp": 25300837,
+      "exports": 53174040,
+      "revenue": 4179350,
+      "obligationsPaid": 3261459,
+      "projectSpend": 1060000,
+      "reserve": 1422911,
+      "debt": 2000000,
+      "arrears": 0,
+      "scrutiny": 25.0227,
+      "illegalShare": 0.129
     },
     {
       "at": "1983-12",
-      "residents": 30680,
+      "residents": 54332,
       "registered": 30000,
-      "presentNonlocal": 660,
-      "migrants": 660,
-      "firmJobs": 316,
-      "gdp": 7971578,
-      "exports": 1214215,
-      "revenue": 2265784,
-      "obligationsPaid": 3177034,
-      "projectSpend": 0,
-      "reserve": 0,
-      "debt": 1802360,
-      "arrears": 1741525,
-      "scrutiny": 36.5237,
-      "illegalShare": 0
+      "presentNonlocal": 27797,
+      "migrants": 27797,
+      "firmJobs": 15720,
+      "gdp": 32931888,
+      "exports": 86557560,
+      "revenue": 3999404,
+      "obligationsPaid": 3499981,
+      "projectSpend": 1190000,
+      "reserve": 1922334,
+      "debt": 1400000,
+      "arrears": 0,
+      "scrutiny": 52.0527,
+      "illegalShare": 0.2364
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "checkpoint.1980-01",
+      "at": "1980-01",
+      "months": 12,
+      "population": {
+        "registered": 30000,
+        "resident": 30340,
+        "present": 30631,
+        "presentNonlocal": 611,
+        "migrants": 611
+      },
+      "land": {
+        "plannedCells": {
+          "industrial": 52,
+          "commercial": 4,
+          "residential": 8
+        },
+        "servicedCells": {
+          "industrial": 0,
+          "commercial": 0,
+          "residential": 6
+        },
+        "developableCells": {
+          "industrial": 0,
+          "commercial": 0,
+          "residential": 6
+        }
+      },
+      "floor": {
+        "industrialBuiltM2": 0,
+        "industrialOpenM2": 0,
+        "commercialBuiltM2": 0,
+        "commercialOccupiedM2": 0,
+        "residentialM2": 0,
+        "villageRentalM2": 2900
+      },
+      "jobs": {
+        "firmPosted": 120,
+        "filled": 15988,
+        "vacancies": 0
+      },
+      "housing": {
+        "rentalBeds": 411,
+        "rentalOccupants": 611,
+        "crowding": 1.4866180048661801,
+        "turnedAway": 0
+      },
+      "works": {
+        "roadCells": 20,
+        "powerSources": 1,
+        "waterSources": 0,
+        "facilities": 1
+      },
+      "fiscal": {
+        "reserve": 961001,
+        "moneyForProjects": 1561250,
+        "debtOutstanding": 3000000,
+        "arrears": 0,
+        "revenueYear": 3399565,
+        "spendingYear": 4568564,
+        "spendingOverRevenue": 1.3438672300720826
+      }
+    },
+    {
+      "id": "checkpoint.1980-07",
+      "at": "1980-07",
+      "months": 18,
+      "population": {
+        "registered": 30000,
+        "resident": 30571,
+        "present": 31126,
+        "presentNonlocal": 1106,
+        "migrants": 1106
+      },
+      "land": {
+        "plannedCells": {
+          "industrial": 52,
+          "commercial": 4,
+          "residential": 8
+        },
+        "servicedCells": {
+          "industrial": 3,
+          "commercial": 0,
+          "residential": 8
+        },
+        "developableCells": {
+          "industrial": 3,
+          "commercial": 0,
+          "residential": 8
+        }
+      },
+      "floor": {
+        "industrialBuiltM2": 10000,
+        "industrialOpenM2": 0,
+        "commercialBuiltM2": 0,
+        "commercialOccupiedM2": 0,
+        "residentialM2": 158,
+        "villageRentalM2": 3876
+      },
+      "jobs": {
+        "firmPosted": 220,
+        "filled": 16311,
+        "vacancies": 71
+      },
+      "housing": {
+        "rentalBeds": 583,
+        "rentalOccupants": 1106,
+        "crowding": 1.8970840480274442,
+        "turnedAway": 0
+      },
+      "works": {
+        "roadCells": 40,
+        "powerSources": 1,
+        "waterSources": 0,
+        "facilities": 1
+      },
+      "fiscal": {
+        "reserve": 1298520,
+        "moneyForProjects": 936475,
+        "debtOutstanding": 3000000,
+        "arrears": 0,
+        "revenueYear": 3404959,
+        "spendingYear": 4879072,
+        "spendingOverRevenue": 1.4329312041642792
+      }
+    },
+    {
+      "id": "checkpoint.1984-01",
+      "at": "1984-01",
+      "months": 60,
+      "population": {
+        "registered": 30000,
+        "resident": 54332,
+        "present": 57817,
+        "presentNonlocal": 27797,
+        "migrants": 27797
+      },
+      "land": {
+        "plannedCells": {
+          "industrial": 52,
+          "commercial": 4,
+          "residential": 8
+        },
+        "servicedCells": {
+          "industrial": 37,
+          "commercial": 4,
+          "residential": 8
+        },
+        "developableCells": {
+          "industrial": 37,
+          "commercial": 4,
+          "residential": 8
+        }
+      },
+      "floor": {
+        "industrialBuiltM2": 266135,
+        "industrialOpenM2": 156135,
+        "commercialBuiltM2": 27852,
+        "commercialOccupiedM2": 27852,
+        "residentialM2": 25431,
+        "villageRentalM2": 88354
+      },
+      "jobs": {
+        "firmPosted": 15720,
+        "filled": 40670,
+        "vacancies": 253
+      },
+      "housing": {
+        "rentalBeds": 17705,
+        "rentalOccupants": 27797,
+        "crowding": 1.5700084721829992,
+        "turnedAway": 0
+      },
+      "works": {
+        "roadCells": 47,
+        "powerSources": 11,
+        "waterSources": 5,
+        "facilities": 1
+      },
+      "fiscal": {
+        "reserve": 1922334,
+        "moneyForProjects": 7626230,
+        "debtOutstanding": 1400000,
+        "arrears": 0,
+        "revenueYear": 3999404,
+        "spendingYear": 4689981,
+        "spendingOverRevenue": 1.1726699778266962
+      }
     }
   ],
   "reviews": [
     {
       "index": 0,
       "at": "1979-12",
-      "score": 0.8316,
+      "score": 0.8867,
       "pass": true
     },
     {
       "index": 1,
       "at": "1980-12",
-      "score": 0.7082,
+      "score": 0.9871,
       "pass": true
     },
     {
       "index": 2,
       "at": "1981-12",
-      "score": 0.756,
+      "score": 1,
       "pass": true
     },
     {
       "index": 3,
       "at": "1982-12",
-      "score": 0.4704,
-      "pass": false
+      "score": 1,
+      "pass": true
     },
     {
       "index": 4,
       "at": "1983-12",
-      "score": 0.3009,
-      "pass": false
+      "score": 0.9935,
+      "pass": false,
+      "vetoed": "sweep_caught"
     }
   ],
   "sez": {
     "opened": "1980-09",
-    "readiness": 0.5513,
+    "readiness": 0.7844,
     "waveCards": 3
   },
   "verdict": {
     "growth": {
-      "residents": 1.0109,
-      "gdp": 0.9137
+      "residents": 1.7908,
+      "gdp": 3.8508
     },
     "ledger": {
-      "reserve": 0,
-      "debtOutstanding": 1802360,
-      "arrears": 1741525
+      "reserve": 1922334,
+      "debtOutstanding": 1400000,
+      "arrears": 0
     },
     "lastReview": {
       "index": 4,
       "date": 23807,
       "lightweight": false,
-      "score": 0.3009,
+      "score": 0.9935,
       "pass": false,
-      "caught": false,
+      "caught": true,
+      "vetoed": "sweep_caught",
       "items": [
         {
           "indicator": "exports_usd",
-          "value": 809477,
-          "score": 0.2698
+          "value": 57705040,
+          "score": 1
         },
         {
           "indicator": "forex_earned_usd",
-          "value": 80948,
-          "score": 0.2698
+          "value": 5770505,
+          "score": 1
         },
         {
           "indicator": "foreign_firm_jobs",
-          "value": 297,
-          "score": 0.1485
+          "value": 15393,
+          "score": 1
         },
         {
           "indicator": "projects_completed",
-          "value": 0,
-          "score": 0
+          "value": 3,
+          "score": 1
         },
         {
           "indicator": "order_check",
-          "value": 0,
-          "score": 1
+          "value": 0.1182,
+          "score": 0.9545
         }
       ]
     },
-    "scrutiny": 36.5237,
-    "illegalShare": 0,
+    "scrutiny": 52.0527,
+    "illegalShare": 0.2364,
     "fiscalTest": {
       "grantFactor": 0,
-      "revenuePerYear": 1577340,
-      "dueNext12": 6028768,
-      "balance": -4451428
+      "revenuePerYear": 3434804,
+      "dueNext12": 3356032,
+      "balance": 78772
     }
   },
   "fired": [
     "event.first_project@1979-01",
     "event.budget@1979-01",
-    "event.petition@1979-02",
     "event.shenzhen_city@1979-03",
-    "event.petition@1979-03",
     "event.first_processing_contract@1979-04",
     "event.shekou_command@1979-04",
+    "event.escapes@1979-04",
     "event.shekou_works@1979-07",
     "event.permit_choice@1979-07",
-    "event.typhoon@1979-09",
+    "event.typhoon@1979-07",
+    "event.petition@1979-07",
     "event.corps_advance@1979-10",
     "event.sweep@1979-10",
     "event.cofinancing@1980-01",
     "event.budget@1980-01",
-    "event.orders_slump@1980-02",
-    "event.petition@1980-03",
     "event.readiness_check@1980-04",
-    "event.escapes@1980-04",
-    "event.first_zone@1980-05",
+    "event.orders_surge@1980-06",
+    "event.petition@1980-07",
     "event.sez_established@1980-08",
-    "event.petition@1980-08",
-    "event.mandate_met@1980-09",
     "event.sweep@1980-10",
+    "event.first_zone@1980-11",
+    "event.mandate_met@1980-11",
     "event.budget@1981-01",
     "event.bamboo_garden@1981-01",
-    "event.petition@1981-01",
+    "event.orders_surge@1981-04",
+    "event.typhoon@1981-07",
     "event.sweep@1981-10",
     "event.budget@1982-01",
     "event.land_rules@1982-01",
     "event.second_line@1982-06",
+    "event.typhoon@1982-09",
     "event.corps_deployment@1982-09",
     "event.sweep@1982-10",
     "event.budget@1983-01",
+    "event.petition@1983-04",
+    "event.typhoon@1983-07",
     "event.temporary_residence@1983-07",
     "event.sweep@1983-10",
     "event.budget@1984-01",

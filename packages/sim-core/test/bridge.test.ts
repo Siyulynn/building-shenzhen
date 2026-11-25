@@ -10,6 +10,7 @@ import {
 import { initial, params, slice } from './fixtures.js';
 
 const STEPS = createTickSteps(params, slice.tick);
+const NO_GROWTH = createTickSteps({ ...params, growth: undefined }, slice.tick);
 const W = slice.init.areas.grid.width;
 const at = (x: number, y: number) => y * W + x;
 const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
@@ -28,10 +29,11 @@ function funded(): GameState {
   return s;
 }
 /** Month by month, answering every card with its first option; `first` are turn actions in the first month. */
-function months(s: GameState, n: number, rng: Rng, first: PlayerAction[], each: (s: GameState) => void = () => {}): GameState {
+function months(s: GameState, n: number, rng: Rng, first: PlayerAction[], each: (s: GameState) => void = () => {},
+  steps = STEPS): GameState {
   let todo = first;
   for (let i = 0; i < n; i++) {
-    s = runMonths(s, 1, rng, (st, cards) => { const a = [...firstOption(st, cards), ...todo]; todo = []; return a; }, STEPS);
+    s = runMonths(s, 1, rng, (st, cards) => { const a = [...firstOption(st, cards), ...todo]; todo = []; return a; }, steps);
     each(s);
   }
   return s;
@@ -51,9 +53,9 @@ describe('R4.5 build_road accepts either end', () => {
 describe('R4.5 a map-only run earns the M-series credit', () => {
   it('moves all three parts of readiness', () => {
     // the same seed left idle: its cards' first options commit the same M4 projects (a road link in area 2)
-    const idle = months(funded(), 12, new Rng(5), []);
+    const idle = months(funded(), 12, new Rng(5), [], () => {}, NO_GROWTH);
     const before = readiness(idle, params, slice.tick.buildable);
-    const s = months(funded(), 12, new Rng(5), MAP_WORKS);
+    const s = months(funded(), 12, new Rng(5), MAP_WORKS, () => {}, NO_GROWTH);
     expect(s.fiscal.projects.map((x) => [x.template, x.area, x.stage])).toEqual(idle.fiscal.projects.map((x) => [x.template, x.area, x.stage]));
     expect(s.areas.map((a) => [a.roadKm, a.utilities])).toEqual(idle.areas.map((a) => [a.roadKm, a.utilities]));
     expect(s.worksOrders.every((o) => o.stage === 'done')).toBe(true);

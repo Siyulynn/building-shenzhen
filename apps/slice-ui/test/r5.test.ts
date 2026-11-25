@@ -213,7 +213,7 @@ describe('R5: the limiting constraint at a cell, and the change at the next turn
   });
 
   it('a developed zone reads utility shortfall, building or active, never a blanket shortfall without cause', () => {
-    const rec = playQuarters(createInitialState(slice.init), new Rng(1), newSession(slice).steps, policyNamed('historical_prologue', slice.params, 1));
+    const rec = playQuarters(createInitialState(slice.init), new Rng(1), newSession(slice).steps, policyNamed('cautious', slice.params, 1, slice.tick));
     const rungs = new Set<Rung>();
     for (const s of [...rec.quarterEnds, rec.final]) for (const z of s.zones) for (const c of cellsOfRuns(z.runs, s.grid)) {
       const k = cellConstraint(s, slice, c);
@@ -299,7 +299,7 @@ describe('R5: the historical guide', () => {
 });
 
 describe('R5: core zoom, overlays and the HUD', () => {
-  const rec = playQuarters(createInitialState(slice.init), new Rng(1), newSession(slice).steps, policyNamed('historical_prologue', slice.params, 1));
+  const rec = playQuarters(createInitialState(slice.init), new Rng(1), newSession(slice).steps, policyNamed('historical_prologue', slice.params, 1, slice.tick));
   const s = rec.final;
 
   it('spreads each zone\'s floor over its developable cells, frontage first, filled to far, and changes nothing', () => {

@@ -121,8 +121,9 @@ describe('M4: the ledger', () => {
 });
 
 describe('M4: the deficit rule', () => {
-  // no grant and an empty reserve: a shortfall from the first month
-  const P = withFiscal({ provincial_base_grant_per_year: 0, start_balances: { general: 0, land: 1_000_000, debt: 0, forex_usd: 0 } });
+  // no grant, a heavy baseline and an empty reserve: a shortfall from the first month
+  const P = withFiscal({ provincial_base_grant_per_year: 0, county_base_obligations_per_month: 500_000,
+    start_balances: { general: 0, land: 5_000_000, debt: 0, forex_usd: 0 } });
   const S = stepsFor(P);
   const run = (option: string, months = 3) => go(start(P), months, { steps: S, answers: { [DEFICIT_CARD]: option } });
 
@@ -133,9 +134,9 @@ describe('M4: the deficit rule', () => {
     expect(r.events[0]!.some((e) => e.kind === 'arrears')).toBe(true);
     const card = r.events[0]!.find((e) => e.kind === 'card_raised')!;
     expect(String(card.detail!.instance)).toMatch(/^fiscal\.deficit@/);
-    // the answer applies next month: borrowing up to capacity, a quarter of the last year's recurring revenue
+    // the answer applies next month: borrowing up to capacity, the revenue multiple of the last year's recurring revenue
     const short = r.state.fiscal.loans.filter((l) => l.kind === 'short');
-    expect(short[0]!.principal).toBe(Math.floor(0.25 * P.fiscal.county_base_revenue_per_month));
+    expect(short[0]!.principal).toBe(Math.floor(P.fiscal.short_loan.revenue_multiple * P.fiscal.county_base_revenue_per_month));
     expect(short[0]!.taken).toBe(start(P).date + 1);
     // firstOption gives fiscal §7.1's default
     const d = go(start(P), 2, { steps: S });
@@ -162,13 +163,17 @@ describe('M4: the deficit rule', () => {
   });
 
   it('comes from overbuilding: schools and roads bring the first card years earlier than building nothing', () => {
-    const steps = stepsFor(params);
-    const nothing = go(start(), 63, { steps });
-    const built = go(start(), 63, { steps, script: { 0: [commit('project.school', { area: 1 }), commit('project.school', { area: 2 }),
+    // a baseline the full grant just covers, and a school whose payroll and service make overbuilding bite
+    const school = { ...params.projects['project.school']!, staff: 200, service_per_place_month: 100 };
+    const P = withFiscal({ county_base_obligations_per_month: 220_000 },
+      { projects: { ...params.projects, 'project.school': school } });
+    const steps = stepsFor(P);
+    const nothing = go(start(P), 63, { steps });
+    const built = go(start(P), 63, { steps, script: { 0: [commit('project.school', { area: 1 }), commit('project.school', { area: 2 }),
       commit('project.school', { area: 3 }), commit('project.road_link', { area: 7 }), commit('project.road_link', { area: 5 })] } });
     const first = (r: Run) => raised(r, DEFICIT_CARD)[0] ?? 99;
     expect(first(built)).toBeLessThan(first(nothing));
-    expect(first(nothing)).toBeGreaterThanOrEqual(parseYM('1983-01') - start().date);   // the grant cliff, not before
+    expect(first(nothing)).toBeGreaterThanOrEqual(parseYM('1983-01') - start(P).date);   // the grant cliff, not before
   });
 });
 
@@ -208,7 +213,7 @@ describe('M4: the project loan', () => {
     const general = 2_000_000, B = params.fiscal.start_balances;
     const Q = withFiscal({ start_balances: { ...B, general } }, { capacity: { ...params.capacity, local_crew: 0 } });
     const loan = go(start(Q), months, { steps: stepsFor(Q), script, answers: { [LOAN_CARD]: 'take' } });
-    const P = withFiscal({ start_balances: { ...B, general, land: L.principal } },
+    const P = withFiscal({ start_balances: { ...B, general, land: 6_000_000 } },
       { capacity: { ...params.capacity, local_crew: 0 } });
     const none = go(start(P), months, { steps: stepsFor(P), script });
     expect(raised(none, LOAN_CARD)).toEqual([]);
@@ -226,7 +231,8 @@ describe('M4: the project loan', () => {
   });
 
   it('lets a stalled project resume when the money comes', () => {
-    const P = withFiscal({ start_balances: { general: 0, land: 0, debt: 0, forex_usd: 0 } });
+    const P = withFiscal({ provincial_base_grant_per_year: 0, county_base_revenue_per_month: 0,
+      start_balances: { general: 0, land: 0, debt: 0, forex_usd: 0 } });
     const r = go(start(P), 3, { steps: stepsFor(P), script: { 0: [commit('project.road_link', { area: 7 })] },
       answers: { [LOAN_CARD]: 'decline' } });
     expect(r.state.fiscal.projects[0]).toMatchObject({ stage: 'stalled', waiting: 'finance', workDone: 0, spent: 0 });
@@ -323,6 +329,24 @@ describe('M4: projects', () => {
     expect(x.stage).toBe('cancelled');
     expect(r.state.fiscal.obligations).toEqual([expect.objectContaining({ kind: 'transfer',
       perMonth: Math.round(RICH.fiscal.cancel_penalty * (x.budget - x.spent)) })]);
+  });
+});
+
+describe('M4: bought power (R6 test)', () => {
+  it('adds capacity at once and owes a monthly service line, with no works order', () => {
+    const before = start();
+    const area = before.areas.find((a) => a.id === 7)!;
+    const cap = area.utilities.powerCap;
+    const s = step(before, [{ type: 'buy_power', area: 7, kw: 1000 }], new Rng(1), STEPS).state;
+    expect(s.areas.find((a) => a.id === 7)!.utilities.powerCap).toBe(cap + 1000);
+    expect(s.worksOrders).toEqual([]);
+    expect(s.fiscal.obligations).toEqual([expect.objectContaining({ kind: 'service', index: 'none',
+      perMonth: Math.round(1000 * params.fiscal.power_import.yuan_per_kw_month), createdBy: 'power_import.7' })]);
+  });
+  it('refuses a card-only area and a bad amount', () => {
+    expect(() => step(start(), [{ type: 'buy_power', area: 8, kw: 1000 }], new Rng(1), STEPS)).toThrow(/playable/);
+    expect(() => step(start(), [{ type: 'buy_power', area: 7, kw: 0 }], new Rng(1), STEPS)).toThrow(/kw/);
+    expect(() => step(start(), [{ type: 'buy_power', area: 7, kw: 1.5 }], new Rng(1), STEPS)).toThrow(/kw/);
   });
 });
 
@@ -429,7 +453,7 @@ describe('M4 determinism', () => {
     2: [{ type: 'contract_team', team: 'team.engineering_corps', mode: 'pool' }, ...[1, 2, 3, 4, 5].map((a) => commit('project.school', { area: a }))],
     5: [{ type: 'set_project_priority', project: 3, priority: 'low' }],
   };
-  const P = withFiscal({ provincial_base_grant_per_year: 600_000 });     // deficits early, so the card is in the run
+  const P = withFiscal({ provincial_base_grant_per_year: 600_000, county_base_obligations_per_month: 250_000 });     // deficits early, so the card is in the run
   const steps = stepsFor(P, { investors: true });
   const policy = (): DecisionPolicy => {
     const t0 = start().date;
@@ -473,7 +497,8 @@ describe('M4: review cases', () => {
   const arrearsOf = (r: Run, m: number) => (r.events[m]!.find((e) => e.kind === 'arrears')?.detail?.amount as number) ?? 0;
 
   it('splits an austerity cut over many small lines without losing any of it', () => {
-    const P = withFiscal({ provincial_base_grant_per_year: 0, start_balances: { general: 0, land: 0, debt: 0, forex_usd: 0 } });
+    const P = withFiscal({ provincial_base_grant_per_year: 0, county_base_obligations_per_month: 500_000,
+      start_balances: { general: 0, land: 0, debt: 0, forex_usd: 0 } });
     const s = start(P);
     const ones = Array.from({ length: 20 }, () => 1);      // twenty one-yuan lines: their rounding remainders add up
     for (const [i, n] of ones.entries()) {
@@ -550,8 +575,8 @@ describe('M4: review cases', () => {
   });
 
   it('holds an answer given at the quarter boundary for the next quarter', () => {
-    // no grant: the reserve lasts two months, so the first shortfall is in the quarter's last month
-    const P = withFiscal({ provincial_base_grant_per_year: 0 });
+    // no grant and a heavy baseline: the reserve lasts two months, so the first shortfall is in the quarter's last month
+    const P = withFiscal({ provincial_base_grant_per_year: 0, county_base_obligations_per_month: 250_000 });
     const S = stepsFor(P);
     const q1 = runQuarter(start(P), [], new Rng(1), S);
     expect(q1.status).toBe('turn_end');
@@ -597,12 +622,14 @@ describe('M4: review cases', () => {
   });
 
   it('pays dedicated and pooled projects in priority order when money is short', () => {
-    const P = withFiscal({ start_balances: { general: 0, land: 100_000, debt: 0, forex_usd: 0 } });
+    const road = params.projects['project.road_link']!;
+    const share = Math.round(road.budget! / road.work_months);   // one month of the pooled road's pro-rata spend
+    const P = withFiscal({ start_balances: { general: 0, land: share, debt: 0, forex_usd: 0 } });
     const r = go(start(P), 2, { steps: stepsFor(P), script: { 0: [commit('project.road_link', { area: 7 }, 'low'),
       { type: 'contract_team', team: 'team.county_crew', mode: 'dedicated', project: 1 }, commit('project.road_link', { area: 5 }, 'high')] },
       answers: { [LOAN_CARD]: 'decline' } });
     const [low, high] = r.state.fiscal.projects;
-    expect(high!.spent).toBe(100_000);
+    expect(high!.spent).toBe(share);
     expect(low!.spent).toBe(0);
   });
 

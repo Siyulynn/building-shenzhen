@@ -147,6 +147,7 @@ export type PlayerAction =
   | { type: 'set_project_priority'; project: number; priority: Priority }
   | { type: 'cancel_project'; project: number }
   | { type: 'contract_team'; team: string; mode: TeamMode; project?: number }
+  | { type: 'buy_power'; area: number; kw: number }
   // R2 (buildings-and-construction §13.2): owned by the construction step, with works params, fiscal and network
   | { type: 'commit_works'; zone: number; cells?: CellRuns; priority?: Priority }
   | { type: 'build_road'; path: [number, number][]; priority?: Priority }

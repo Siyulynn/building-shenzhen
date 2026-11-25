@@ -38,7 +38,7 @@ export interface RunOptions { policy: string; seed: number; quarters: number }
 export function play(slice: Slice, o: RunOptions, wrap: (p: DecisionPolicy) => DecisionPolicy = (p) => p): PlayRecord {
   const steps = createTickSteps(slice.params, slice.tick);
   const s0 = createInitialState(slice.init);
-  return playQuarters(s0, new Rng(o.seed), steps, wrap(policyNamed(o.policy, slice.params, o.seed)), o.quarters);
+  return playQuarters(s0, new Rng(o.seed), steps, wrap(policyNamed(o.policy, slice.params, o.seed, slice.tick)), o.quarters);
 }
 
 /** The same policy, but the project loan's card is always declined (criterion 2's counterfactual). */
@@ -69,7 +69,7 @@ export function analyse(slice: Slice, o: RunOptions, claims = loadClaims(), band
     rec,
     a: {
       options: o,
-      summary: runSummary(rec, o, slice.params, slice.tick.fiscal!, slice.content),
+      summary: runSummary(rec, o, slice.params, slice.tick.fiscal!, slice.content, slice.tick),
       checks,
       series: {
         months: h.months.map(formatYM),
@@ -105,5 +105,5 @@ export const goldenPath = (policy: string, seed = 1) => join(GOLDEN_DIR, `${poli
 export const goldenText = (s: RunSummary) => JSON.stringify(s, null, 2) + '\n';
 export function goldenSummary(slice: Slice, policy: string, seed = 1): RunSummary {
   const o = { policy, seed, quarters: slice.init.scenario.turns };
-  return runSummary(play(slice, o), o, slice.params, slice.tick.fiscal!, slice.content);
+  return runSummary(play(slice, o), o, slice.params, slice.tick.fiscal!, slice.content, slice.tick);
 }

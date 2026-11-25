@@ -8,6 +8,8 @@ import { Rng } from './rng.js';
 import { runsOfCells } from './zones.js';
 import { isFinished, type CardInstance, type GameState, type PlayerAction } from './state.js';
 import { firstOption, type DecisionPolicy } from './step.js';
+import type { TickContent } from './ticks.js';
+import { planWorks, planZones, type MapPlan } from './mapPlan.js';
 
 /** The co-financing card of the prologue's briefing, and the prologue's first-project card (content/slice/events.yaml). */
 export const COFINANCING_CARD = 'event.cofinancing';
@@ -46,6 +48,15 @@ export const historicalPrologue: DecisionPolicy = (s: GameState, pending) => {
       { type: 'commit_project', template: 'project.site_preparation', zone },
     );
   }
+  // The Q1 budget briefing: after the loan, prepare a second block so the prologue spends as a city that is building.
+  if (s.turn === 4 && s.subStep === 0 && s.zones.length === 1) {
+    const area = s.areas.find((a) => a.id === 7)!;
+    const zone = s.nextZoneId;
+    out.push(
+      { type: 'create_zone', use: 'industrial', runs: runsOfCells([...area.cells.slice(12, 24)], s.grid.width) },
+      { type: 'commit_project', template: 'project.site_preparation', zone },
+    );
+  }
   return out;
 };
 
@@ -61,34 +72,18 @@ export const CAUTIOUS_CHOICES: Readonly<Record<string, string>> = Object.freeze(
   [LOAN_CARD]: 'decline', [COFINANCING_CARD]: 'decline', [DEFICIT_CARD]: 'austerity',
 });
 
-/**
- * Never borrows and never takes a grey option: declines the loan, the shortcut and the co-financing; investors go into
- * existing premises, else into a fully serviced zone, else are declined; strict permits and high enforcement, no
- * sweep, austerity on a deficit card; otherwise the first option. In its first month it draws the same 12-cell
- * industrial zone in Shangbu as historicalPrologue and commits its site preparation.
- */
-export const cautious: DecisionPolicy = (s: GameState, pending) => {
-  const out = pending.map((c) => {
-    if (isInvestor(c)) {
-      const zoneOk = (o: string) => {
-        const z = s.zones.find((x) => `accept:zone:${x.id}` === o);
-        return !!z && (z.servicedShare ?? 1) >= 1;
-      };
-      return answer(c, c.options.find((o) => o.startsWith('accept:premises:')) ?? c.options.find(zoneOk) ?? 'decline');
-    }
-    if (c.card === SHORTCUT_CARD) return answer(c, 'decline');
-    return answer(c, pick(c, CAUTIOUS_CHOICES[c.card]));
-  });
-  if (s.turn === 0 && s.subStep === 0 && s.zones.length === 0) {
-    const area = s.areas.find((a) => a.id === 7)!;
-    out.push(
-      { type: 'set_enforcement', level: 'high' },
-      { type: 'create_zone', use: 'industrial', runs: runsOfCells([...area.cells.slice(0, 12)], s.grid.width) },
-      { type: 'commit_project', template: 'project.site_preparation', zone: s.nextZoneId },
-    );
+/** The cautious player's card answers (§5.9): investors go into existing premises, else a fully serviced zone. */
+export const cautiousAnswers: DecisionPolicy = (s: GameState, pending) => pending.map((c) => {
+  if (isInvestor(c)) {
+    const zoneOk = (o: string) => {
+      const z = s.zones.find((x) => `accept:zone:${x.id}` === o);
+      return !!z && (z.servicedShare ?? 1) >= 1;
+    };
+    return answer(c, c.options.find((o) => o.startsWith('accept:premises:')) ?? c.options.find(zoneOk) ?? 'decline');
   }
-  return out;
-};
+  if (c.card === SHORTCUT_CARD) return answer(c, 'decline');
+  return answer(c, pick(c, CAUTIOUS_CHOICES[c.card]));
+});
 
 /** Cards the aggressive player answers against the first option: every grey option, every loan. */
 export const AGGRESSIVE_CHOICES: Readonly<Record<string, string>> = Object.freeze({
@@ -97,70 +92,72 @@ export const AGGRESSIVE_CHOICES: Readonly<Record<string, string>> = Object.freez
   'event.readiness_check': 'rush', 'event.sweep': 'sweep', 'event.corps_deployment': 'accept',
   [COFINANCING_CARD]: 'accept', [LOAN_CARD]: 'take', [DEFICIT_CARD]: 'borrow_short',
 });
+/** The aggressive player's card answers: every investor and shortcut at its first site, every grey option. */
+export const aggressiveAnswers: DecisionPolicy = (_s, pending) => pending.map((c) => {
+  if (isInvestor(c) || c.card === SHORTCUT_CARD) return answer(c, firstAccept(c) ?? pick(c));
+  return answer(c, pick(c, AGGRESSIVE_CHOICES[c.card]));
+});
+/** The historical player's card answers: historicalPrologue's (premises or decline, the loan, the co-financing). */
+export const historicalAnswers: DecisionPolicy = (s, pending) => historicalPrologue(s, pending)
+  .filter((a) => a.type === 'answer_card');
+
+// ---- R6 (§5.9): the map-first plans ----
+
+/** The cautious plan: one small industrial zone and a dormitory block in Shangbu, a quarter of the crews, little power. */
+export const CAUTIOUS_PLAN: MapPlan = Object.freeze<MapPlan>({
+  zones: [{ use: 'industrial', area: 7, cells: 12 }, { use: 'residential', area: 7, cells: 4 }],
+  roads: [[[385, 370], [395, 370]]], crew_share: 0.25, room_ahead_m2: 10_000,
+  utilities: { headroom_jobs: 100, max_sources: 2 }, facilities: [], teams: [], reserve: 300_000,
+});
 /**
- * The aggressive player's build list, committed one a turn while money for projects covers it (§5.9): power and water
- * for its two industrial zones first, then roads, then more power. An entry repeated n times is built n times.
+ * The aggressive plan: industrial zones in Shangbu (area 7) and Sungang (area 5), dormitories in Shangbu, shops in
+ * the market town; a road south through Shangbu and one east into Dongmen–Wenjindu (area 4); half the crews on
+ * servicing; power and water a year ahead; a school; both pool teams.
  */
-export const AGGRESSIVE_BUILDS: readonly { template: string; area: number }[] = Object.freeze([
-  ...[7, 5].flatMap((area) => ['project.power_line', 'project.water_main'].map((template) => ({ template, area }))),
-  ...[7, 5, 2].map((area) => ({ template: 'project.road_link', area })),
-  ...[7, 5, 7, 5].map((area) => ({ template: 'project.power_line', area })),
-]);
-/** The pool teams the aggressive player keeps under contract while money for projects covers a year of their cost. */
-export const AGGRESSIVE_TEAMS: readonly string[] = Object.freeze(['team.engineering_corps', 'team.outside_soe']);
+export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
+  zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'residential', area: 7, cells: 8 }, { use: 'commercial', area: 1, cells: 4 },
+    { use: 'industrial', area: 5, cells: 16 }],
+  roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]]],
+  crew_share: 0.5, room_ahead_m2: 40_000,
+  utilities: { headroom_jobs: 300, max_sources: 8 }, facilities: [['school', 1]],
+  teams: ['team.engineering_corps', 'team.outside_soe'], reserve: 0,
+});
+/**
+ * The historical plan: the Shangbu template zone (§5.3), reached by a road south from the Guangshen road, with
+ * dormitories beside the road and shops in the market town; a third of the crews; a school in the town.
+ */
+export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
+  zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'residential', area: 7, cells: 6 }, { use: 'commercial', area: 1, cells: 4 }],
+  roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]]],
+  crew_share: 0.34, room_ahead_m2: 30_000,
+  utilities: { headroom_jobs: 200, max_sources: 8 }, facilities: [['school', 1]],
+  teams: ['team.engineering_corps'], reserve: 0,
+});
 
 /**
- * Takes every grey option: the loan and the co-financing; every investor and shortcut at its first site; loose
- * permits and low enforcement; a sweep every October; borrow_short on a deficit card. In its first month it draws
- * 24-cell industrial zones in Shangbu (area 7) and Sungang (area 5) and commits site preparation in both; at each
- * turn's start it commits the next project of AGGRESSIVE_BUILDS while money for projects and the forex quota cover it.
+ * A map-first policy (§5.9): `answers` answers the cards; in its first month it gives `first` and draws the plan's
+ * zones, and at each later turn's start it gives the plan's works (mapPlan.ts). Nothing goes through M4's projects.
  */
-export function aggressive(p: SliceParams): DecisionPolicy {
-  return (s: GameState, pending) => {
-    const out = pending.map((c) => {
-      if (isInvestor(c) || c.card === SHORTCUT_CARD) return answer(c, firstAccept(c) ?? pick(c));
-      return answer(c, pick(c, AGGRESSIVE_CHOICES[c.card]));
-    });
+export function mapPolicy(answers: DecisionPolicy, plan: MapPlan, p: SliceParams, tick: TickContent,
+  first: readonly PlayerAction[] = []): DecisionPolicy {
+  return (s, pending) => {
+    const out = answers(s, pending);
     // past the last turn only answers are accepted (§5.1): a closing card can still be pending
     if (s.subStep !== 0 || isFinished(s)) return out;
-    if (s.turn === 0 && s.zones.length === 0) {
-      const zone = s.nextZoneId;
-      const runs = (id: number) => runsOfCells([...s.areas.find((a) => a.id === id)!.cells.slice(0, 24)], s.grid.width);
-      out.push(
-        { type: 'set_enforcement', level: 'low' },
-        { type: 'create_zone', use: 'industrial', runs: runs(7) },
-        { type: 'create_zone', use: 'industrial', runs: runs(5) },
-        { type: 'commit_project', template: 'project.site_preparation', zone },
-        { type: 'commit_project', template: 'project.site_preparation', zone: zone + 1 },
-      );
-      return out;
-    }
-    // the next entry not yet built as often as the list asks
-    const asked = new Map<string, number>();
-    const next = AGGRESSIVE_BUILDS.find((b) => {
-      const k = `${b.template}@${b.area}`;
-      asked.set(k, (asked.get(k) ?? 0) + 1);
-      return s.fiscal.projects.filter((x) => x.template === b.template && x.area === b.area && x.stage !== 'cancelled').length < asked.get(k)!;
-    });
-    let money = moneyForProjects(s, p);
-    if (next) {
-      const pp = p.projects[next.template]!;
-      if (money >= (pp.budget ?? 0) && (pp.forex_usd ?? 0) <= s.fiscal.balances.forex) {
-        out.push({ type: 'commit_project', template: next.template, area: next.area });
-        money -= pp.budget ?? 0;
-      }
-    }
-    for (const team of AGGRESSIVE_TEAMS) {
-      const tp = p.teams[team];
-      if (!tp || s.fiscal.contracts.some((c) => c.team === team && contractLive(s, c))) continue;
-      if (money >= 12 * tp.cost_per_month) {
-        out.push({ type: 'contract_team', team, mode: 'pool' });
-        money -= 12 * tp.cost_per_month;
-      }
-    }
-    return out;
+    if (s.turn === 0 && s.zones.length === 0) return [...out, ...first, ...planZones(s, tick, plan)];
+    return [...out, ...planWorks(s, tick, p, plan)];
   };
 }
+
+/** Never borrows and never takes a grey option; strict permits and high enforcement; the cautious plan. */
+export const cautious = (p: SliceParams, tick: TickContent): DecisionPolicy =>
+  mapPolicy(cautiousAnswers, CAUTIOUS_PLAN, p, tick, [{ type: 'set_enforcement', level: 'high' }]);
+/** Takes every grey option, the loan and the co-financing; loose permits and low enforcement; the aggressive plan. */
+export const aggressive = (p: SliceParams, tick: TickContent): DecisionPolicy =>
+  mapPolicy(aggressiveAnswers, AGGRESSIVE_PLAN, p, tick, [{ type: 'set_enforcement', level: 'low' }]);
+/** historicalPrologue's answers with the historical plan: the CLI's historical_prologue (§5.9). */
+export const historical = (p: SliceParams, tick: TickContent): DecisionPolicy =>
+  mapPolicy(historicalAnswers, HISTORICAL_PLAN, p, tick);
 
 /** A uniformly random option for each pending card, from its own generator (never the sim's streams). */
 export function randomPolicy(seed: number): DecisionPolicy {
@@ -170,14 +167,21 @@ export function randomPolicy(seed: number): DecisionPolicy {
 
 export const POLICY_NAMES = ['default', 'decline_all', 'historical_prologue', 'cautious', 'aggressive', 'random'] as const;
 export type PolicyName = (typeof POLICY_NAMES)[number];
-/** §10's policies by name. A random policy draws from `seed`. */
-export function policyNamed(name: string, p: SliceParams, seed = 1): DecisionPolicy {
+/**
+ * §10's policies by name. A random policy draws from `seed`. The map-first ones (cautious, aggressive,
+ * historical_prologue) read the slice's tick content: the start network, the buildable layer and the precedents.
+ */
+export function policyNamed(name: string, p: SliceParams, seed = 1, tick?: TickContent): DecisionPolicy {
+  const map = () => {
+    if (!tick?.network) throw new Error(`policy ${name} plays from the map: it needs the slice's tick content`);
+    return tick;
+  };
   switch (name as PolicyName) {
     case 'default': return firstOption;
     case 'decline_all': return declineAll;
-    case 'historical_prologue': return historicalPrologue;
-    case 'cautious': return cautious;
-    case 'aggressive': return aggressive(p);
+    case 'historical_prologue': return historical(p, map());
+    case 'cautious': return cautious(p, map());
+    case 'aggressive': return aggressive(p, map());
     case 'random': return randomPolicy(seed);
     default: throw new Error(`unknown policy ${name}; one of ${POLICY_NAMES.join(', ')}`);
   }

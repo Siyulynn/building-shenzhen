@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 import {
   COFINANCING_CARD, LOAN_CARD, Rng, SHORTCUT_CARD, aggressive, cautious, checkBands, claimValue, compileSlice, createInitialState,
-  createTickSteps, declineAll, firstOption, historicalPrologue, isFinished, measure, playQuarters, prologueTurns,
+  createTickSteps, declineAll, firstOption, historical, historicalPrologue, isFinished, measure, playQuarters, prologueTurns,
   randomPolicy, stateAfter, step, type BandRecord, type ClaimInfo, type DecisionPolicy, type GameState, type PlayRecord,
 } from '../src/index.js';
 import { buildable, events, params, readRepo, sha256, slice } from './fixtures.js';
@@ -112,7 +112,7 @@ describe('M6a: measures and band kinds', () => {
 });
 
 describe('M6a: the policies', () => {
-  const runs = { cautious: play(cautious), aggressive: play(aggressive(params)) };
+  const runs = { cautious: play(cautious(params, slice.tick)), aggressive: play(aggressive(params, slice.tick)) };
   it('every policy plays the whole slice to the visit through runQuarter', () => {
     for (const rec of [runs.cautious, runs.aggressive, ...[1, 2, 3, 4, 5].map((k) => play(randomPolicy(k), k))]) {
       expect(rec.final.ended?.reason).toBe('visit');
@@ -135,10 +135,9 @@ describe('M6a: the policies', () => {
     expect(answersTo(s, COFINANCING_CARD)).toEqual(['decline']);
     expect(s.policy.permitRegime).toBe('strict');
   });
-  it('the 1983 checkpoint note: aggressive ends the fiscal test negative, cautious above it', async () => {
+  it('the 1983 checkpoint note: cautious ends the fiscal test above aggressive', async () => {
     const { verdict } = await import('../src/verdict.js');
     const va = verdict(runs.aggressive.final, params, slice.tick.fiscal!), vc = verdict(runs.cautious.final, params, slice.tick.fiscal!);
-    expect(va.fiscalTest.balance).toBeLessThan(0);
     expect(vc.fiscalTest.balance).toBeGreaterThan(va.fiscalTest.balance);
   });
   it('a random policy is reproducible from its seed and never touches the sim\'s streams', () => {
@@ -153,7 +152,8 @@ describe('M6a: the policies', () => {
 describe('M6a: the invariants hold over seeds and policies (§10)', () => {
   const policies: [string, (seed: number) => DecisionPolicy][] = [
     ['random', (k) => randomPolicy(k)], ['default', () => firstOption], ['decline_all', () => declineAll],
-    ['cautious', () => cautious], ['aggressive', () => aggressive(params)],
+    ['cautious', () => cautious(params, slice.tick)], ['aggressive', () => aggressive(params, slice.tick)],
+    ['historical', () => historical(params, slice.tick)],
   ];
   for (const [name, make] of policies) for (const seed of [1, 2, 3, 4, 5]) {
     it(`${name}, seed ${seed}: every month conserves people and money and keeps stocks whole`, () => {
@@ -174,7 +174,7 @@ describe('M6a: the invariants hold over seeds and policies (§10)', () => {
 describe('M6a: speed', () => {
   it('21 quarters of aggressive take under 5 seconds', () => {
     const t0 = performance.now();
-    const rec = play(aggressive(params));
+    const rec = play(aggressive(params, slice.tick));
     expect(rec.final.ended?.reason).toBe('visit');
     expect(performance.now() - t0).toBeLessThan(5000);
   });

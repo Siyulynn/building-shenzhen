@@ -27,19 +27,19 @@ labour:
 
 migration:
   inland_wage: 45                        # the reference wage migrants compare with
-  base: { migrant_factory: 600, migrant_construction: 300 }   # people per month at gap 1, full pull, network 1
+  base: { migrant_factory: 2000, migrant_construction: 1000 }   # people per month at gap 1, full pull, network 1
   sector: { migrant_factory: factory, migrant_construction: construction }
   pull_sectors:                          # R4 (§5.11): the sectors whose vacancies pull each kind (fill_order lets them in)
     migrant_factory: [factory, services]
     migrant_construction: [construction]
-  K_vac: 500                             # vacancies at which the pull is one half
+  K_vac: 200                             # vacancies at which the pull is one half
   network_alpha: 0.5
   K_net: 1000
   network_lag_months: 6
   permit_factor: { loose: 1.3, standard: 1.0, strict: 0.6 }
   base_exit: 0                           # per month. 0 so the start is a fixed point: exits come from unemployment and crowding
   unemployment_push: 0.2                 # per month, times the group's unemployment rate
-  housing_push: 0.1                      # per month, times (crowding - 1) when above 1
+  housing_push: 0.02                     # per month, times (crowding - 1) when above 1
   spring:
     away_months: [0, 1]                  # January and February
     away_share: 0.6
@@ -52,7 +52,7 @@ housing:
   rent_elasticity: 2
   crowding_floor: 0.5                    # below this, crowding no longer lowers the target rent
   rent_speed: 0.15                       # share of the gap to the target closed each month
-  crowding_max: 1.6                      # above this, the excess migrants leave
+  crowding_max: 2.5                      # above this, the excess migrants leave
 
 village_build:
   build_cost_per_m2: 150
@@ -78,7 +78,7 @@ industry:                                # M3b (§5.5): firms, production and va
   premises_output_factor: 0.8            # existing premises produce a little less than a new factory
   order_index: 1                         # flat until M5's Hong Kong demand series
   by_ownership:
-    hk_processing: { output_per_job_month: 400, value_added_ratio: 0.2, export_share: 1,
+    hk_processing: { output_per_job_month: 520, value_added_ratio: 0.2, export_share: 1,
                      floor_m2_per_job: 10, power_kw_per_job: 0.5, water_m3_day_per_job: 0.1 }
     inland_soe:    { output_per_job_month: 200, value_added_ratio: 0.35, export_share: 0.2,
                      floor_m2_per_job: 15, power_kw_per_job: 0.8, water_m3_day_per_job: 0.2 }
@@ -113,33 +113,36 @@ fiscal:
   start_regime: regime.county_1979       # content/slice/fiscal_regimes.yaml; M5 switches it at the SEZ event
   start_balances: { general: 300000, land: 0, debt: 0, forex_usd: 50000 }   # general is the reserve
   # Tuned, not sourced (fiscal §4.2): at the start, county_base_revenue plus the grant covers the baselines with a
-  # surplus of about ¥10,000 a month, so the grant cliff of 1983–84 (the regime content's schedule) opens a gap.
+  # surplus, so the grant cliff of 1983–84 (the regime content's schedule) opens the first recurring gap.
   provincial_base_grant_per_year: 1380000
-  county_base_revenue_per_month: 130000  # the town's and county's existing taxes and fees
-  county_base_obligations_per_month: 150000   # county administration beyond the per-head baselines
-  admin_per_resident_month: 2            # per resident (stayed six months)
-  police_per_present_month: 0.5          # per person present
-  sanitation_per_m2_month: 0.02          # per m² of completed floor
-  collection_efficiency: 0.8
+  county_base_revenue_per_month: 168000  # the town's and county's existing taxes and fees
+  county_base_obligations_per_month: 100000   # county administration beyond the per-head baselines
+  admin_per_resident_month: 1            # per resident (stayed six months)
+  police_per_present_month: 0.3          # per person present
+  sanitation_per_m2_month: 0.01          # per m² of completed floor
+  collection_efficiency: 0.9
   reserve_months: 1                      # projects never draw general below this many months of obligations due
   forex: { retention_share: 0.1, yuan_per_usd: 1.5 }   # share of exports retained as quota; conversion for it
-  short_loan: { revenue_multiple: 0.25, rate_month: 0.008, term_months: 12 }   # the deficit card's borrowing
-  austerity_max_cut: 0.2                 # share of baselines, payroll and service a month may leave unpaid
+  short_loan: { revenue_multiple: 0.5, rate_month: 0.006, term_months: 24 }   # the deficit card's borrowing
+  austerity_max_cut: 0.3                 # share of baselines, payroll and service a month may leave unpaid
   loan: { principal: 3000000, rate_month: 0.004, grace_months: 24, term_months: 60, offer_months: 6 }   # the state-bank project loan; the offer outlives a quarter
   cancel_penalty: 0.1                    # share of a cancelled project's unspent budget, owed in the month it is cancelled
+  # R6 test: bought power instead of a local source. The network is assumed; each kW is a monthly service obligation.
+  # Placeholder tariff, to be replaced when the source (Hong Kong or Guangdong) and its terms have claims.
+  power_import: { yuan_per_kw_month: 8 }
 
 capacity:                                # the construction-capacity pool (§5.6), in crew units (organised worker-months)
-  local_crew: 120                        # the county's own builders. Not either observed local count (§5.6 research)
+  local_crew: 600                        # the county's own builders. Not either observed local count (§5.6 research)
   crew_per_m2: 0.02                      # a firm cohort's crew at full pace, per m²
 
 construction:
   cost_per_m2: { standard_factory: 120, dormitory: 100, state_flats: 110, shop_market: 110 }   # value of the work, for GDP
 
 projects:                                # by template id (content/slice/projects.yaml)
-  project.road_link:        { budget: 600000, crew: 40, work_months: 6, maint_rate_year: 0.02, road_km: 2 }
+  project.road_link:        { budget: 1100000, crew: 40, work_months: 6, maint_rate_year: 0.02, road_km: 2 }
   project.water_main:       { budget: 400000, crew: 30, work_months: 5, maint_rate_year: 0.02, water_m3_day: 200 }
   project.power_line:       { budget: 500000, crew: 25, work_months: 6, maint_rate_year: 0.02, power_kw: 500, forex_usd: 20000 }
-  project.site_preparation: { budget_per_cell: 100000, crew_per_cell: 10, work_months: 4, maint_rate_year: 0.01 }
+  project.site_preparation: { budget_per_cell: 130000, crew_per_cell: 10, work_months: 4, maint_rate_year: 0.01 }
   project.school:           { budget: 300000, crew: 20, work_months: 8, maint_rate_year: 0.03,
                               school_places: 400, staff: 12, service_per_place_month: 0.5 }
 
@@ -153,12 +156,12 @@ works:                                   # R2 municipal works orders (buildings-
                                          # from the M4 templates' rates above, not sourced. Units are crew units (worker-months)
   crew_per_order: 40                     # the most units one order takes in a month
   maint_rate_year: 0.02                  # R4 (phase1-slice §5.11): a done order's maintenance a year, on its spending (project.road_link's rate)
-  service: { units_per_cell: 40, yuan_per_cell: 100000 }   # project.site_preparation: 10 crew × 4 months; budget_per_cell
+  service: { units_per_cell: 40, yuan_per_cell: 30000 }   # project.site_preparation: 10 crew × 4 months; budget_per_cell
   road:    { units_per_cell: 12, yuan_per_cell: 30000 }    # project.road_link over its 2 km (20 cells): 40 × 6 ÷ 20; 600,000 ÷ 20
   bridge:  { units_per_cell: 48, yuan_per_cell: 120000 }   # a guess: four road cells, at a road's yuan per unit
   structures:
-    water_source: { units: 150, yuan: 400000, capacity: 200 }                     # project.water_main: 30 × 5; m³/day
-    power_source: { units: 150, yuan: 500000, capacity: 500, forex_usd: 20000 }   # project.power_line: 25 × 6; kW
+    water_source: { units: 150, yuan: 150000, capacity: 500 }                     # project.water_main: 30 × 5; m³/day
+    power_source: { units: 150, yuan: 200000, capacity: 1000, forex_usd: 10000 }   # project.power_line: 25 × 6; kW
   facilities:
     school: { units: 160, yuan: 300000, capacity: 400, staff: 12, service_per_place_month: 0.5 }   # project.school: 20 × 8; places, staff and service
 
@@ -173,12 +176,12 @@ growth:                                  # R3 organic growth (buildings-and-cons
     archetype: organic.small_processing  # the firms' archetype id; not an investor card
     firm: { dorm_beds_per_job: 0.3, build_months: 6, ramp_months: 3 }   # as an investors.archetypes entry
     ownership: hk_processing
-    firm_jobs: 100                       # one organic firm: 1,000 m² of factory and 150 m² of dormitory
-    floor_m2_per_month: 1500             # m² of demand a month at order index 1 and regime factor 1
-    min_utility_share: 0.5               # no firm builds where its area's supply would fall below this share
+    firm_jobs: 500                       # one organic firm: 5,000 m² of factory and 750 m² of dormitory
+    floor_m2_per_month: 6000             # m² of demand a month at order index 1 and regime factor 1
+    min_utility_share: 0.3               # no firm builds where its area's supply would fall below this share
     regime_factor: { default: 1, regime.county_1979: 0.3 }   # by fiscal regime id: the SEZ's regime favours firms
   services:
-    spend_per_job_month: 100             # local spending that supports one service job (yuan a month)
+    spend_per_job_month: 60              # local spending that supports one service job (yuan a month)
     formal_share: 0.5                    # share of new service jobs that want shop floor; the rest is informal
     m2_per_job: 15                       # shop floor per formal service job
     tax_rate: 0.05                       # R4 placeholder, not sourced: tax on a staffed formal post's value added

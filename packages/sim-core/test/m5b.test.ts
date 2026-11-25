@@ -338,7 +338,7 @@ describe('M5b: the fall from grace', () => {
     const next = r.states[m0 + 1]!;
     const x = next.fiscal.projects.at(-1)!;
     expect(x.waiting).toBe('frozen');
-    expect(x.spent).toBe(0);
+    expect(x.spent).toBe(s.fiscal.projects.at(-1)!.spent);   // no work or spending after the freeze
     expect(next.climate.scrutiny).toBeGreaterThanOrEqual(p.fall.scrutiny * (1 - p.climate.scrutiny_decay) - 1e-9);
     const review = r.state.reviews.held.at(-1)!;
     expect(review.index).toBe(1);

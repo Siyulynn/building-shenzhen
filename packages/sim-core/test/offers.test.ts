@@ -237,7 +237,7 @@ describe('M3b preview', () => {
     const zone = v.sites[0]!;
     expect(zone).toMatchObject({ option: 'accept:zone:1', area: 7, premises: 'new_factory', opensInMonths: build - 1,
       floorM2: 2000, dormM2: 300, dormBeds: 60, bedsNeeded: 140, zoneFreeM2: 10_000, powerFreeKw: 120, waterFreeM3Day: 60 });
-    expect(zone.perYear.output).toBe(200 * 400 * 12);
+    expect(zone.perYear.output).toBe(200 * params.industry.by_ownership.hk_processing.output_per_job_month * 12);
     expect(zone.perYear.exports).toBe(zone.perYear.output);
     expect(zone.perYear.valueAdded).toBeCloseTo(zone.perYear.output * 0.2, 6);
     expect(v.sites).toHaveLength(1);                            // too big for existing premises; decline has no site
@@ -250,7 +250,8 @@ describe('M3b preview', () => {
     expect(prem).toMatchObject({ area: 1, premises: 'existing', opensInMonths: 1, floorM2: 0, dormBeds: 0, bedsNeeded: 100,
       premisesJobsFree: 150, powerFreeKw: 300, waterFreeM3Day: 150 });
     expect(prem.zoneFreeM2).toBeUndefined();
-    expect(prem.perYear.output).toBeCloseTo(100 * 400 * 12 * P100.industry.premises_output_factor, 6);
+    expect(prem.perYear.output).toBeCloseTo(100 * P100.industry.by_ownership.hk_processing.output_per_job_month * 12
+      * P100.industry.premises_output_factor, 6);
   });
 });
 
