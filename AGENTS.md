@@ -2,7 +2,7 @@
 
 A historical city-builder: Shenzhen, 1979–2009. Master plan: `PLAN.md`. Pillars: `docs/design/pillars.md`. System specs: `docs/design/systems/*.md`. Research rules: `docs/research/evidence-protocol.md`.
 
-**Current phase: 1 (the playable slice).** Spec: `docs/design/systems/phase1-slice.md`; map-first loop in §1.1 and build order in §12 (R1 spatial foundations, R2 municipal works, R3 organic growth, R4 jobs and migration, the R4.5 bridge and R5 map UI done, R6 calibration next; M-series demo and §5.10 balance findings are the baseline). Phase 1 builds **no 3D, no archival tooling and no building serializer**. If a task drifts toward infrastructure that the playable slice doesn't need yet, stop and say so.
+**Current phase: 1 (the playable slice).** Spec: `docs/design/systems/phase1-slice.md`; map-first loop in §1.1 and build order in §12 (R1–R6 done: spatial foundations, municipal works, organic growth, jobs and migration, the R4.5 bridge, the R5 map UI and R6 calibration; M6b is recorded in §5.10 and `docs/design/m6-tuning-log.md`). Phase 1 builds **no 3D, no archival tooling and no building serializer**. If a task drifts toward infrastructure that the playable slice doesn't need yet, stop and say so.
 
 ## Commands
 - `npm run check`: typecheck, tests and evidence validation. Run it before you finish any change.
