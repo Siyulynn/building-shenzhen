@@ -453,6 +453,56 @@ a time; every §9 band is met or explained as structural; the goldens are explai
 **Commits:** `prologue: beats and tool gates` · `prologue: retire M4 projects` · `calibration: R9 rebalance` ·
 `docs: §5.10, §12, AGENTS`.
 
+### 4.4 The unlock schedule and timed modifiers (decided 2026-11-25)
+
+**Gates live in the sim, not only on the rail.** A gated action (by tool, zone use, road class or intensity) is
+refused by `step` with a named reason while its key is unset, so headless policies, replays and the UI obey the same
+schedule. The rail shows a locked tool greyed with the beat or event that opens it; nothing is hidden. Gates are
+content (`content/slice/tools.yaml`: `{ gate, requires }`); keys are set only by event `unlock` effects. Scripted beats
+cite `design_note`; an anchor or news unlock cites that record's claims. No code checks a date.
+
+| Opens at | Source | Unlocks |
+|---|---|---|
+| start (1979-Q1) | — | industrial and reserve zones; low and standard intensity; `track` and `street` roads; Form site on one zone at a time; cards |
+| 1979-Q2 | `event.first_processing_contract` | Form site in bulk (several zones, one order) |
+| 1979-Q3 | `event.permit_choice` | works priorities; `set_enforcement` (with the scrutiny gauge, which it already unlocks) |
+| 1979-Q4 | `event.corps_advance` | facilities; residential zones; `contract_team` |
+| 1979-Q4 | `news.1979q4.provincial_city` | `buy_power` (the province now plans and supplies the city directly) |
+| 1980-Q1 | `event.cofinancing` | power substations (the co-financed works order is a substation or formation package, §4.1 framing) |
+| 1980-Q3 | `event.sez_established` | commercial zones; `avenue` roads; `power_station` orders; the investor market (`investors.sez`, as now) |
+| 1982-Q4 | `news.1982q4.storm_passes` | `high` intensity (`intensity.high`): more autonomy after the summary is approved |
+
+- Mechanisms not in the table are open from the start. `public` and water are gone (R8).
+- A save or headless plan that issues a gated action before its key is refused like any invalid action. The five
+  policies are re-timed to the schedule; that is part of the R9 golden delta.
+- The opening first project and the co-financing beat change as §4.1's framing says; no other beat moves.
+
+**Timed modifiers: yes, a few, all placeholder magnitudes.** The news `weather` value is not a hidden four-quarter
+sum. Instead a news record or a card option may carry one explicit **timed modifier**, shown in the briefing with
+its size and the quarters left, so the weather is legible:
+
+- Effect shape: `{ kind: modifier, target, factor, months }`, stored in `state.events.modifiers` as
+  `{ source, target, factor, until }`. Same-target modifiers multiply; expired ones drop at the month's end.
+- Targets are a whitelist of existing knobs, nothing new: `investor_rate` (multiplies every archetype's
+  `rate_per_quarter`) and `scrutiny_gain` (multiplies the scrutiny step's gains). Adding a target is a spec change.
+- Factors and durations live in `params/slice.yaml` under `events.<id>`, all `placeholder`, cited `design_note`; the
+  text states the political fact (claims), never the number.
+
+| Record | Target · factor · months (placeholders) |
+|---|---|
+| `news.1981q4.chenyun` | `investor_rate` × 0.9 · 6 |
+| `news.1982q1.concession_material` | `investor_rate` × 0.75 and `scrutiny_gain` × 1.5 · 9 |
+| `event.1982q1.concession_storm` options | the chosen posture shortens or lengthens the storm modifiers (honest summary −3 months; public answer ±0 with a scrutiny cost; numbers only +3 months) |
+| `news.1982q4.storm_passes` | `investor_rate` × 1.2 · 12, and unlocks `high` |
+| `news.1983q3.strike_hard` | `scrutiny_gain` × 1.25 · 12 |
+| `event.1983q4.rectification` options | `scrutiny_gain` modifier by option; detailed effects wait for the politics pass |
+
+Every other news record is presentation only. Tests: a modifier changes its target only while live and only by its
+factor; two modifiers on one target multiply; save/load keeps them; the briefing shows each live one; a news record
+with any effect other than `unlock` or `modifier` fails the compiler. Calibration: `historical_prologue` and
+`aggressive` stay inside their §9 bands with the storm included; if they don't, shorten or soften the modifiers
+before touching a band.
+
 ---
 
 ## 5. Golden impact, at a glance
