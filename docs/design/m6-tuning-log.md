@@ -194,3 +194,52 @@ The numbers are those of commit 2b1d766 (seed 1, end-1983).
 **Deviation from plan §3.2:** low's formation cost is ×0.7, not ×0.5. At 0.5, low was the cheapest per m² of floor in money, work and power at once. At 0.7, high is the cheapest in money, low in power, and the two tie in work. A test holds this.
 
 **Effect on the goldens:** none, beyond `params_sha256`. No map plan or policy sets a tier, and no content unlocks `high`. Residents, GDP and every band are unchanged in all five runs. The tiers become a lever only when a player or a later plan chooses one.
+
+## R9 (Pass 3, 2026-11-25)
+
+R9 adds the guided prologue (`phase1-revision-plan.md` §4): the news layer, the tool gates, the reframed prologue
+cards, timed modifiers, crew in waves (§4.5) and works pace (§4.6). Each commit is checked against the R8 results for
+`historical_prologue` and `aggressive` (seed 1), which passed all 20 bands before R9. Bands are never widened.
+
+**End-1983 goldens and the 1979 spending ratio, by commit** (residents, GDP in ¥m, 1983 and 1979 spending ÷ revenue;
+the 1979-Q4 band is [1.295, 2.158], the 1983 band [0.722, 1.204]):
+
+| Commit | historical | aggressive | cautious |
+|---|---|---|---|
+| before R9 | 50,103 · 28.97 · 1.173 · **1.364** | 50,023 · 29.69 · 1.202 · **1.385** | 37,441 · 15.08 · 0.783 · 0.933 |
+| 74b9c37 news | unchanged | unchanged | unchanged |
+| f8df6d1 gates | 49,014 · 28.77 · 1.161 · 1.140 | 49,744 · 30.88 · 1.260 · 1.167 | unchanged |
+| b9ec2a1 prologue cards | 49,059 · 28.76 · 1.050 · 0.768 | 49,139 · 30.70 · 1.161 · 0.632 | 37,148 · 14.92 · 0.814 · 0.807 |
+| 36ebbcd modifiers | unchanged | 49,022 · 30.65 · 1.159 · 0.632 | unchanged |
+| 69a80ce crew waves | 48,897 · 30.60 · 1.066 · 0.768 | 48,694 · 31.25 · 1.095 · 0.632 | 37,167 · 14.92 · 0.745 · 0.807 |
+| b7ec4fd, e1e948b pace | hash only | hash only | hash only |
+| 7d33d64 borrowing | 51,317 · 33.21 · 1.125 · 0.874 | 48,507 · 31.29 · 1.128 · 0.946 | unchanged |
+
+**Why the 1979 ratio fell.**
+- **The gates (f8df6d1).** They hold back the tools the plans used in 1979, which took the ratio to about 1.14–1.17.
+- **Retiring M4's road link from the prologue (b9ec2a1, plan §4.1).** This took most of it. The old opening card
+  committed project.road_link (¥1.1m, tuned in M6b step 4 to hold this band). The commit ran ahead of the money, so it
+  raised the ¥3m state-bank loan, and the run spent ¥2.18m on projects in 1979.
+- **No way back for the map plans.** They commit only what they have, and each works order draws at most
+  `crew_per_order` (40) crew a month. A road order spends about ¥100,000 a month and a service order about ¥30,000.
+
+**What was tried (7d33d64 and after):**
+
+| Lever | historical 1979 | aggressive 1979 | Other bands | Kept |
+|---|---|---|---|---|
+| `borrow_until_turn: 3`: the plan counts the loan's principal while it is unoffered | 0.768 → 0.874 | 0.632 → 0.946; 1980-Q2 passes | no new failure | yes |
+| plus 5 parallel service orders on one zone, each a turn of one order's crew | 0.874 | 0.909 | aggressive 1983 spending fails, 1.232 | no |
+| modifiers softened | none touch 1979 | | | not tried; no effect possible |
+
+**Result:** historical_prologue and aggressive each pass 19 bands and fail 1, `band.1979q4.spending_to_revenue`.
+- **The gap.** About ¥1.3m more city works in 1979 in each run, which the plans have no road or frontage to spend on.
+- **Decision needed (not taken here).** Three options:
+  - a purposeful 1979 project the plans can build: an M4-style project, or a Luohu road with a cited purpose;
+  - re-scoping the band, which needs a person: bands are evidence records;
+  - allowing works pace in the plans' 1979 turns. Pace opens only in 1979-Q4 (`tools.priorities`), so it alone cannot close the gap.
+
+**Modifiers (36ebbcd):** placeholders as in `params/slice.yaml` `events.*`. Neither required run's 1983 band moved out
+of range with the 1982 storm included, so no modifier was softened.
+
+**Crew waves (69a80ce):** the core stays at 600. 200 failed the aggressive power and freight run-shape tests at every
+backlog brake tried. The brake is 40,000 m² (15,000 failed the same tests).
