@@ -227,7 +227,7 @@ export class SliceMap {
 
   private drawStructures(sc: Scene) {
     const { ctx } = this, W = sc.state.grid.width, px = devicePixelRatio / this.view.scale;
-    const color: Record<string, string> = { power_source: '#ffd83c', water_source: '#50aaff', facility: '#c878ff' };
+    const color: Record<string, string> = { power_source: '#ffd83c', power_substation: '#ffd83c', power_station: '#ff963c', water_source: '#50aaff', facility: '#c878ff' };
     ctx.save();
     for (const s of sc.structures) {
       const x = s.cell % W, y = Math.floor(s.cell / W), size = Math.max(.7, 5 * px);

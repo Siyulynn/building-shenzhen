@@ -107,7 +107,7 @@ export const historicalAnswers: DecisionPolicy = (s, pending) => historicalProlo
 export const CAUTIOUS_PLAN: MapPlan = Object.freeze<MapPlan>({
   zones: [{ use: 'industrial', area: 7, cells: 12 }, { use: 'residential', area: 7, cells: 4 }],
   roads: [[[385, 370], [395, 370]]], crew_share: 0.25, room_ahead_m2: 10_000,
-  utilities: { headroom_jobs: 100, max_sources: 2 }, facilities: [], teams: [], reserve: 300_000,
+  utilities: { headroom_jobs: 100, max_sources: 2, import_kw: 500, import_from_turn: 4 }, facilities: [], teams: [], reserve: 300_000,
 });
 /**
  * The aggressive plan: industrial zones in Shangbu (area 7) and Sungang (area 5), dormitories in Shangbu, shops in
@@ -119,7 +119,7 @@ export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
     { use: 'industrial', area: 5, cells: 16 }],
   roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]]],
   crew_share: 0.5, room_ahead_m2: 40_000,
-  utilities: { headroom_jobs: 300, max_sources: 8 }, facilities: [['school', 1]],
+  utilities: { headroom_jobs: 300, max_sources: 8, import_kw: 1000, import_from_turn: 8, station_turn: 9 }, facilities: [['school', 1]],
   teams: ['team.engineering_corps', 'team.outside_soe'], reserve: 0,
 });
 /**
@@ -130,7 +130,7 @@ export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
   zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'residential', area: 7, cells: 6 }, { use: 'commercial', area: 1, cells: 4 }],
   roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]]],
   crew_share: 0.34, room_ahead_m2: 30_000,
-  utilities: { headroom_jobs: 200, max_sources: 8 }, facilities: [['school', 1]],
+  utilities: { headroom_jobs: 200, max_sources: 8, import_kw: 1000, import_from_turn: 2, station_turn: 6 }, facilities: [['school', 1]],
   teams: ['team.engineering_corps'], reserve: 0,
 });
 

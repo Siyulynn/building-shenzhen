@@ -13,7 +13,7 @@ import * as S from './strings.js';
 import { bi, type L } from './strings.js';
 import { BUILD_TOOLS, TOOLS, queuedBudget, type Plan, type Tool, type ToolOptions } from './tools.js';
 import {
-  DRAWERS, LAND_COVER_COLOR, OVERLAY_LAYERS, USE_COLOR, actionLabel, areaName, areaView, briefing, cardStack, chipsView, constraintContext,
+  DRAWERS, LAND_COVER_COLOR, powerView, OVERLAY_LAYERS, USE_COLOR, actionLabel, areaName, areaView, briefing, cardStack, chipsView, constraintContext,
   commitments, constraintLabel, finishedWork, icrCue, inspectorView, ledgerView, leadersView, mostHeldBack, num, pct, projectsView,
   reviewView, teamsView, verdictView, worksView, yuan, zoneName,
   type DrawerId, type OverlayLayer,
@@ -128,7 +128,7 @@ export function renderStack(v: View): string {
 
 // ---- the tool rail and its flyout ----
 
-const GLYPH: Readonly<Record<Tool, string>> = { select: '◎', road: '═', zone: '▦', service: '⚒', erase: '⌫', water: '≈', power: 'ϟ', facility: '⌂' };
+const GLYPH: Readonly<Record<Tool, string>> = { select: '◎', road: '═', zone: '▦', service: '⚒', erase: '⌫', power: 'ϟ', station: '⌁', facility: '⌂' };
 
 export function renderRail(v: View): string {
   const t = tx(v.lang);
@@ -186,7 +186,7 @@ export function renderInspector(v: View): string {
   if (!ui.selected) return '';
   const c = inspectorView(x.state, slice, ui.selected.x, ui.selected.y);
   const site = v.selectedSite;
-  const share = c.share ? `${pct(c.share.power)} · ${pct(c.share.water)}` : pick(S.T.noDemand, v.lang);
+  const share = c.share ? pct(c.share.power) : pick(S.T.noDemand, v.lang);
   return `${closeBtn(v.lang, 'unselect')}<h3>${t(S.T.cell)} ${c.x},${c.y}</h3>
     ${c.area ? `<div>${t(c.area)}</div>` : ''}${c.site ? `<div>≈ ${t(c.site)} · ${t(S.T.proxyLocation)}</div>` : ''}
     ${c.route ? `<div>${t(c.route)} · ${t(S.T.temporaryAlignment)}</div>` : ''}
@@ -297,9 +297,15 @@ function drawerEconomy(v: View): string {
   for (const j of s.labour.jobs) { const r = bySector.get(j.sector) ?? { jobs: 0, filled: 0 }; bySector.set(j.sector, { jobs: r.jobs + j.jobs, filled: r.filled + j.filled }); }
   const exportsQ = s.history.exports.slice(-3).reduce((a, n) => a + n, 0);
   const areas = s.areas.filter((a) => a.access === 'playable').map((a) => areaView(s, a.id)!);
+  const pw = powerView(s, v.slice);
   return `<h2>${t(S.T.jobs)}</h2><table>${[...bySector].map(([k, r]) => tr(S.SECTOR[k] ?? { zh: k, en: k }, `${num(r.filled)} / ${num(r.jobs)}`)).join('')}
       ${tr(S.T.firms, String(s.firms.length))}${tr(S.T.exports, `$${num(exportsQ)}`)}</table>
-    <h2>${t(S.T.utilities)}</h2><table>${areas.map((a) => tr(a.name, `${num(a.utilities.powerCap)} kW · ${num(a.utilities.waterCap)} m³`)).join('')}</table>`;
+    <h2>${t(S.T.powerPool)}</h2><table>${tr(S.T.powerLocal, num(pw.local))}${tr(S.T.powerBought, num(pw.imported))}
+      ${tr(S.T.powerOnOrder, num(pw.onOrder))}${tr(S.T.powerStations, num(pw.stations))}${tr(S.T.powerSited, num(pw.sited))}${tr(S.T.powerSpare, num(pw.spare))}
+      ${tr(S.T.powerUnmet, pw.unmet.length ? pw.unmet.map((a) => t(areaName(s, a))).join(' · ') : t(S.T.none))}</table>
+    <div class="muted">${t(S.T.buyPowerHint)}</div>
+    <button data-act="buyPower" data-kw="${pw.step}" ${pw.step > 0 ? off(v) : 'disabled'}>${t(S.T.buyPower)} ${num(pw.step)} kW</button>
+    <h2>${t(S.T.utilities)}</h2><table>${areas.map((a) => tr(a.name, `${num(a.utilities.powerCap)} kW`)).join('')}</table>`;
 }
 
 function drawerPolitics(v: View): string {

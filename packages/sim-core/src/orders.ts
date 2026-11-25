@@ -11,7 +11,7 @@ import type { StartNetwork } from './sites.js';
 import { cloneState, type GameState, type PlayerAction } from './state.js';
 import type { SimEvent, TickStep } from './step.js';
 import {
-  advanceCellWorks, checkPlacement, liveOrder, placeStructure, spatialViews, STRUCTURE_KINDS, type CellWork, type PathCell,
+  OFFERED_STRUCTURES, advanceCellWorks, checkPlacement, liveOrder, placeStructure, spatialViews, STRUCTURE_KINDS, type CellWork, type PathCell,
   type PlacedStructure, type StructureKind, type StructurePlacement, type WorksOrder,
 } from './works.js';
 import { cellsOfRuns } from './zones.js';
@@ -279,6 +279,8 @@ function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'bu
 function orderStructure(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'place_structure' }): WorksOrder {
   const priority = checkPriority(a.priority);
   if (!(STRUCTURE_KINDS as readonly string[]).includes(a.kind)) throw new Error(`unknown structure kind ${a.kind}`);
+  // R8c (§5.5): water is not an active constraint and the one-quarter power source is retired; both load, neither is ordered
+  if (!OFFERED_STRUCTURES.includes(a.kind)) throw new Error(`a ${a.kind} is no longer built: power comes from substations and stations`);
   const cell = toCell(s, a.cell), attach = toCell(s, a.attach);
   const sp = structureParams(wc.works, a.kind, a.facility);
   const placement: StructurePlacement = { kind: a.kind, cell, attach, capacity: sp.capacity,
@@ -379,7 +381,10 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
         return started || neighbours(next, s.grid.width, s.grid.height).some((n) => roads.has(n)) ? left : 0;
       }
       const pl = o.placement!;
-      return roads.has(pl.attach) || views.frontage.has(pl.cell) ? left : 0;
+      if (!roads.has(pl.attach) && !views.frontage.has(pl.cell)) return 0;
+      // R8c (§5.5): a power station is built at its own pace, over build_months, whatever the pool could give it
+      const st = pl.kind === 'power_station' ? W.structures.power_station : undefined;
+      return st ? Math.min(left, Math.ceil(st.units / st.build_months)) : left;
     },
     affordable(o, units) {
       const rate = rateOf(o, W);

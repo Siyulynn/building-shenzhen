@@ -10,6 +10,7 @@ import { bedsByPool } from './systems/common.js';
 import { parseYM, type YM } from './ym.js';
 import { openingBeats } from './opening.js';
 import type { EventContent } from './events.js';
+import type { PowerState } from './power.js';
 import { cloneOrder, type CellWork, type PlacedStructure, type StructureKind, type WorksOrder } from './works.js';
 
 export interface LocalizedString { zh: string; en: string }
@@ -149,7 +150,7 @@ export type PlayerAction =
   | { type: 'set_project_priority'; project: number; priority: Priority }
   | { type: 'cancel_project'; project: number }
   | { type: 'contract_team'; team: string; mode: TeamMode; project?: number }
-  | { type: 'buy_power'; area: number; kw: number }
+  | { type: 'buy_power'; kw: number; area?: number }   // R8c: city-level; an old action's area is ignored
   // R2 (buildings-and-construction §13.2): owned by the construction step, with works params, fiscal and network
   | { type: 'commit_works'; zone: number; cells?: CellRuns; priority?: Priority }
   | { type: 'build_road'; path: [number, number][]; priority?: Priority }
@@ -201,6 +202,7 @@ export interface GameState {
   worksOrders: WorksOrder[];  // R2: municipal works orders, id order
   nextOrderId: number;
   requisitioned?: number[];   // R8a (§5.5): cells whose land compensation is owed or paid, sorted; required from R8e's save bump
+  power?: PowerState;         // R8c (§5.5): the city's purchased power; required from R8e's save bump
   growth: { carry: number };  // R3 (b&c §13.3): m² of industrial demand banked toward the next organic firm
   events: EventsState;        // M5a (§5.7)
   sez: SezState;
@@ -411,6 +413,7 @@ export function createInitialState(content: {
     worksOrders: [],
     nextOrderId: 1,
     requisitioned: [],
+    power: { purchases: [] },
     growth: { carry: 0 },
     events: { fired: [], unlocked: [] },
     sez: {},
@@ -474,6 +477,7 @@ export function cloneState(s: GameState): GameState {
     roads: [...s.roads],
     worksOrders: s.worksOrders.map(cloneOrder),
     ...(s.requisitioned ? { requisitioned: [...s.requisitioned] } : {}),
+    ...(s.power ? { power: { purchases: s.power.purchases.map((x) => ({ ...x })) } } : {}),
     growth: { ...s.growth },
     events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked] },   // fired entries are never changed
     sez: { ...s.sez },

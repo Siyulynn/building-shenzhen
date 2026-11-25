@@ -4,6 +4,7 @@
  */
 import { BUILDER_OF, USE_OF, type Ownership } from '../enums.js';
 import type { SliceParams } from '../params.js';
+import { poolShares } from '../power.js';
 import { largestRemainder } from '../round.js';
 import type { Firm, FirmTerms, GameState, JobRow } from '../state.js';
 import type { TickContext } from '../step.js';
@@ -93,24 +94,29 @@ export const isOpen = (f: Firm, date: number) => f.opens !== undefined && date >
  * The area's utility share for its open firms: min(1, (capacity + placed supply) ÷ needs), the lower of power and
  * water. The placed supply is what placed sources deliver to the area's zones (§5.11); it never adds to capacity.
  */
-export function utilityShare(s: GameState, area: number, supply = { power: 0, water: 0 }): number {
-  const a = s.areas.find((x) => x.id === area);
-  let power = 0, water = 0;
-  for (const f of s.firms) if (f.area === area && isOpen(f, s.date)) { power += f.powerKw; water += f.waterM3Day; }
-  const share = (cap: number, need: number) => (need > 0 ? Math.min(1, Math.max(0, cap) / need) : 1);
-  return Math.min(share((a?.utilities.powerCap ?? 0) + supply.power, power), share((a?.utilities.waterCap ?? 0) + supply.water, water));
+export function utilityShare(s: GameState, area: number, supply?: ReadonlyMap<number, { power: number }>): number {
+  return utilityShares(s, supply).get(area) ?? 1;
+}
+/**
+ * Every area's utility share for its open firms (R8c, §5.5): power only, from the city pool (`poolShares`). Firms in
+ * existing premises have no substation: they draw on their area's local plant, which every area's delivery includes.
+ */
+export function utilityShares(s: GameState, supply?: ReadonlyMap<number, { power: number }>): Map<number, number> {
+  const need = new Map<number, number>();
+  for (const f of s.firms) if (isOpen(f, s.date)) need.set(f.area, (need.get(f.area) ?? 0) + f.powerKw);
+  return poolShares(s, need, supply);
 }
 
 /**
  * The utility share an area's firms would have if every firm sited there were open and one more of `kw` and `m3`
  * opened too: the test an organic firm makes before it builds (b&c §13.3).
  */
-export function prospectiveShare(s: GameState, area: number, kw: number, m3: number, supply = { power: 0, water: 0 }): number {
-  const a = s.areas.find((x) => x.id === area);
-  let power = kw, water = m3;
-  for (const f of s.firms) if (f.area === area) { power += f.powerKw; water += f.waterM3Day; }
-  const share = (cap: number, need: number) => (need > 0 ? Math.min(1, Math.max(0, cap) / need) : 1);
-  return Math.min(share((a?.utilities.powerCap ?? 0) + supply.power, power), share((a?.utilities.waterCap ?? 0) + supply.water, water));
+export function prospectiveShare(s: GameState, area: number, kw: number, _m3: number,
+  supply?: ReadonlyMap<number, { power: number }>): number {
+  // R8c: water is not an active constraint (§5.5); `_m3` stays in the signature for its callers
+  const need = new Map<number, number>([[area, kw]]);
+  for (const f of s.firms) need.set(f.area, (need.get(f.area) ?? 0) + f.powerKw);
+  return poolShares(s, need, supply).get(area) ?? 1;
 }
 
 /** Hong Kong orders this month (§5.8): an event's surge or slump while it lasts, else 1. */
@@ -118,16 +124,16 @@ export const orderFactor = (s: GameState) =>
   s.orders.until !== undefined && s.date <= s.orders.until ? s.orders.factor : 1;
 
 /** Tick step 5, before matching: each open firm posts min(ramp, floor, utilities, orders) jobs (§5.5). */
-export function postFirmJobs(s: GameState, p: SliceParams, supply?: ReadonlyMap<number, { power: number; water: number }>): void {
+export function postFirmJobs(s: GameState, p: SliceParams, supply?: ReadonlyMap<number, { power: number }>): void {
   const shares = new Map<number, number>();
   for (const f of s.firms) {
     f.staffed = 0;
     if (!isOpen(f, s.date)) { f.posted = 0; continue; }
-    if (!shares.has(f.area)) shares.set(f.area, utilityShare(s, f.area, supply?.get(f.area)));
+    if (!shares.size) for (const [a, v] of utilityShares(s, supply)) shares.set(a, v);
     const monthsOpen = s.date - f.opens! + 1;
     const ramp = Math.floor(f.jobs * Math.min(1, monthsOpen / archetypeParams(p, f.archetype).ramp_months));
     const floor = f.jobs;                                    // an open firm's floor is complete (or existing)
-    const utilities = Math.floor(f.jobs * shares.get(f.area)!);
+    const utilities = Math.floor(f.jobs * (shares.get(f.area) ?? 1));
     const orders = Math.floor(f.jobs * p.industry.order_index * orderFactor(s));
     f.posted = Math.max(0, Math.min(ramp, floor, utilities, orders));
   }

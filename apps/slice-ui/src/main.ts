@@ -149,6 +149,7 @@ document.addEventListener('click', (e) => {
     case 'permit': return act({ type: 'set_permit_regime', regime: d.v as never });
     case 'cancel': return act({ type: 'cancel_project', project: Number(d.id) });
     case 'team': return act({ type: 'contract_team', team: d.id!, mode: 'pool' });
+    case 'buyPower': return act({ type: 'buy_power', kw: Number(d.kw) });
     case 'pauseOrder': return act({ type: 'set_works_paused', order: Number(d.id), paused: d.paused === '1' });
     case 'cancelOrder': return act({ type: 'cancel_works', order: Number(d.id) });
     case 'restart': x = newSession(slice, x.seed); ui.briefing = true; ui.selected = null; break;

@@ -43,7 +43,7 @@ describe('R6: the map-first policies', () => {
       const s = rec.final;
       expect(s.roads.length).toBeGreaterThan(0);
       expect(s.cellWorks.some((w) => w.stage === 'serviced')).toBe(true);
-      expect(s.structures.some((x) => x.kind === 'power_source' || x.kind === 'water_source')).toBe(true);
+      expect(s.structures.some((x) => x.kind === 'power_substation')).toBe(true);
       expect(s.worksOrders.every((o) => o.kind === 'road' || o.kind === 'service' || o.kind === 'structure')).toBe(true);
     }
   });

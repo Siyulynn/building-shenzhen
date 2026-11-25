@@ -73,7 +73,7 @@ function roadOut(x: Session): Gesture {
 }
 
 describe('R5: a quarter played with the map tools alone', () => {
-  it('zones and services a block, draws a road and places a power source; End quarter runs them', () => {
+  it('zones and services a block, draws a road and places a substation; End quarter runs them', () => {
     let x = answered(newSession(slice));
     const [bx, by] = guangshenBlock(x.state);
     const zone = ok(gesture(x, { tool: 'zone', from: [bx, by], to: [bx + 2, by + 2] }));
@@ -90,7 +90,7 @@ describe('R5: a quarter played with the map tools alone', () => {
     x = applyPlan(x, zone);
     const road = ok(gesture(x, roadOut(x)));
     x = applyPlan(x, road);
-    // a power source beside the new road's first cell: its attach is that queued road cell
+    // a substation beside the new road's first cell: its attach is that queued road cell
     const r0 = (road.actions[0] as { path: [number, number][] }).path[0]!;
     const at: [number, number] = [r0[0], r0[1] - 1];
     expect(attachFor(x, at).road).toBe(true);

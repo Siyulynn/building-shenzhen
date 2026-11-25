@@ -182,14 +182,21 @@ describe('M5a: readiness', () => {
     served.servicedLand = areaRuns(4, 10);                     // area 4 is outside the readiness areas
     expect(readiness(served, params, buildable).servicedLand).toBe(0);
 
-    // water and power: the lower ratio binds
+    // R8c: power only (water constrains nothing), and no more than the city pool has spare
     const W = params.readiness.standard_wave, own = params.industry.by_ownership[W.ownership];
+    const need = W.jobs * own.power_kw_per_job;
     const wp = initial();
     for (const a of wp.areas) a.utilities = { powerCap: 0, waterCap: 0 };
-    wp.areas.find((a) => a.id === 7)!.utilities = { powerCap: 1e9, waterCap: 0.4 * W.jobs * own.water_m3_day_per_job };
+    wp.areas.find((a) => a.id === 7)!.utilities = { powerCap: 0.4 * need, waterCap: 0 };
     expect(readiness(wp, params, buildable).waterPower).toBeCloseTo(0.4, 12);
-    wp.areas.find((a) => a.id === 7)!.utilities.waterCap = 1e9;
+    wp.areas.find((a) => a.id === 7)!.utilities.powerCap = 1e9;
     expect(readiness(wp, params, buildable).waterPower).toBe(1);
+    // a substation's delivery without supply behind it readies nothing
+    wp.areas.find((a) => a.id === 7)!.utilities.powerCap = 0;
+    wp.structures.push({ kind: 'power_substation', cell: wp.areas.find((a) => a.id === 7)!.cells[0]!, attach: 0, capacity: 1e9 } as never);
+    expect(readiness(wp, params, buildable).waterPower).toBe(0);
+    wp.power = { purchases: [{ kw: 0.4 * need, from: wp.date }] };
+    expect(readiness(wp, params, buildable).waterPower).toBeCloseTo(0.4, 12);
 
     // the bar is the weighted mean; the weakest part is named
     const all = initial();

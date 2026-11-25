@@ -91,7 +91,7 @@ export interface SliceParams {
     loan: { principal: number; rate_month: number; grace_months: number; term_months: number; offer_months: number };
     cancel_penalty: number;
     /** R6 test: bought power, a monthly service obligation per kW. The network is assumed. */
-    power_import: { yuan_per_kw_month: number };
+    power_import: { yuan_per_kw_month: number; lead_months: number; max_kw: number };   // R8c (§5.5): the city's purchased power
   };
   capacity: { local_crew: number; crew_per_m2: number };
   construction: { cost_per_m2: { standard_factory: number; dormitory: number; state_flats: number; shop_market: number } };
@@ -176,7 +176,11 @@ export interface WorksParams {
   crew_per_order: number;
   maint_rate_year: number;           // R4 (phase1-slice §5.11): a done order's yearly maintenance, on its spending
   service: CellWorksParams; road: CellWorksParams; bridge: CellWorksParams;
-  structures: { water_source: StructureWorksParams; power_source: StructureWorksParams };
+  structures: {
+    water_source: StructureWorksParams; power_source: StructureWorksParams;   // not offered from R8c; kept for old saves
+    power_substation: StructureWorksParams;     // R8c (§5.5): distribution, kW through the road network
+    power_station: StructureWorksParams & { build_months: number };   // R8c: generation for the city pool, built over years
+  };
   facilities: Record<string, StructureWorksParams>;
 }
 
@@ -194,12 +198,14 @@ function validateWorksParams(w: WorksParams): void {
     throw new Error('params: works.road and works.bridge must cost the same per unit');
   }
   const kinds: [string, StructureWorksParams | undefined][] = [['structures.water_source', w.structures?.water_source],
-    ['structures.power_source', w.structures?.power_source], ...Object.entries(w.facilities ?? {}).map(([k, v]) => [`facilities.${k}`, v] as [string, StructureWorksParams])];
+    ['structures.power_source', w.structures?.power_source], ['structures.power_substation', w.structures?.power_substation],
+    ['structures.power_station', w.structures?.power_station], ...Object.entries(w.facilities ?? {}).map(([k, v]) => [`facilities.${k}`, v] as [string, StructureWorksParams])];
   for (const [k, v] of kinds) {
     if (!v || !whole(v.units, 1) || !whole(v.yuan, 0) || !whole(v.capacity, 0) || (v.forex_usd !== undefined && !whole(v.forex_usd, 0))) {
       throw new Error(`params: works.${k} needs whole units >= 1, yuan, capacity and any forex_usd >= 0`);
     }
   }
+  if (!whole(w.structures.power_station.build_months, 1)) throw new Error('params: works.structures.power_station.build_months must be a whole number >= 1');
   for (const [k, v] of Object.entries(w.facilities ?? {})) {
     if (!Object.hasOwn(FACILITY_STOCK, k)) throw new Error(`params: works.facilities.${k} has no area stock to feed (known: ${Object.keys(FACILITY_STOCK).join(', ')})`);
     if ((v.staff !== undefined && !whole(v.staff, 0)) || (v.service_per_place_month !== undefined && !(v.service_per_place_month >= 0))) {
@@ -396,6 +402,8 @@ function validateFiscalParams(p: SliceParams): void {
   }
   if (!(F.forex.yuan_per_usd > 0) || !(F.forex.retention_share >= 0)) throw new Error('params: fiscal.forex needs yuan_per_usd > 0 and retention_share >= 0');
   if (!(F.power_import && F.power_import.yuan_per_kw_month >= 0)) throw new Error('params: fiscal.power_import.yuan_per_kw_month must be >= 0');
+  if (!(Number.isSafeInteger(F.power_import.lead_months) && F.power_import.lead_months >= 0 && Number.isSafeInteger(F.power_import.max_kw)
+    && F.power_import.max_kw >= 0)) throw new Error('params: fiscal.power_import needs whole lead_months and max_kw >= 0');
   if (!posInt(F.short_loan.term_months) || !(F.short_loan.rate_month >= 0) || !(F.short_loan.revenue_multiple >= 0)) {
     throw new Error('params: fiscal.short_loan needs term_months >= 1, rate_month >= 0 and revenue_multiple >= 0');
   }

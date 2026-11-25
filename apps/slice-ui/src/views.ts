@@ -8,7 +8,7 @@ import {
   gdpNow, liveProject, moneyForProjects, obligationDue, unspentCommitments, previewOffer, runsOfCells, scoreReview, tripChance, verdict,
   zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
-  VILLAGE_ARCHETYPES,
+  VILLAGE_ARCHETYPES, SOURCE_KINDS, areaTakes, poolFactor, powerPool, importedKw, utilityShares,
   type CardInstance, type CellRuns, type EventDef, type EventEffect, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
   type WorksOrder, type Zone, type LandCoverClass, landCoverAt,
 } from '@sz/sim-core';
@@ -446,7 +446,8 @@ export function overlayRgba(s: GameState, slice: Slice, layer: OverlayLayer): Ui
     } else if (layer === 'utilities') {
       for (const c of k.developable.values()) paint(c, NO_DEMAND);
       for (const [c, sh] of k.shares) px.set(shareColor(Math.min(sh.power, sh.water)), c * 4);
-      for (const x of s.structures) px.set(x.kind === 'power_source' ? POWER_COLOR : x.kind === 'water_source' ? WATER_COLOR : FACILITY_COLOR, x.cell * 4);
+      for (const x of s.structures) px.set(x.kind === 'power_source' || x.kind === 'power_substation' ? POWER_COLOR
+        : x.kind === 'power_station' ? STATION_COLOR : x.kind === 'water_source' ? WATER_COLOR : FACILITY_COLOR, x.cell * 4);
     } else if (layer === 'held') {
       for (const c of zoned) px.set(RUNG_COLOR[cellConstraint(s, slice, c).rung], c * 4);
     } else {
@@ -472,6 +473,7 @@ export function stageColor(w: Pick<CellWork, 'stage' | 'workDone' | 'workTotal'>
 }
 const ROAD_COLOR: RGBA = [245, 245, 235, 235], NO_REACH: RGBA = [220, 70, 60, 190], NO_DEMAND: RGBA = [170, 170, 170, 110];
 const POWER_COLOR: RGBA = [255, 220, 60, 255], WATER_COLOR: RGBA = [80, 170, 255, 255], FACILITY_COLOR: RGBA = [200, 120, 255, 255];
+const STATION_COLOR: RGBA = [255, 150, 60, 255];
 /** Frontage depth 1 (green) to the deepest reach (yellow). */
 export function depthColor(depth: number, max: number): RGBA {
   const t = max > 1 ? (depth - 1) / (max - 1) : 0;
@@ -574,7 +576,7 @@ export function icrCue(s: GameState, slice: Slice): Cue {
   let best = 0;
   if (ind.length) {
     for (const z of ind) best = Math.max(best, prospectiveShare(s, z.area, offer.powerKw, offer.waterM3Day,
-      placedSupply(s, g, () => true, { zone: z.id, kw: offer.powerKw, m3: offer.waterM3Day }).get(z.area)));
+      placedSupply(s, g, () => true, { zone: z.id, kw: offer.powerKw, m3: offer.waterM3Day })));
   } else {
     for (const a of s.areas) if (a.access === 'playable') best = Math.max(best, prospectiveShare(s, a.id, offer.powerKw, offer.waterM3Day));
   }
@@ -602,7 +604,7 @@ export const RUNGS = ['unbuildable', 'unzoned', 'not_queued', 'waiting', 'no_fro
   'building', 'active'] as const;
 export type Rung = (typeof RUNGS)[number];
 export interface CellConstraint { rung: Rung; why?: L }
-/** Power and water supplied share at a demanding cell, each 0..1 (§11.2 "A cell's supplied share"). */
+/** Power and water supplied share at a demanding cell, each 0..1 (§11.2 "A cell's supplied share"). R8c: water reads 1. */
 export interface CellShare { power: number; water: number }
 
 /** What the ladder reads, built once per state (§11.2): the views, the shares, the cue, the zones with building. */
@@ -621,7 +623,10 @@ export interface ConstraintContext {
 }
 const CTX = new WeakMap<GameState, ConstraintContext>();
 
-/** Each demanding cell's supplied share: the area's capacity pro rata, plus the cell's placed supply (§11.2). */
+/**
+ * Each demanding cell's supplied share: the area's capacity pro rata, plus the cell's substation supply, scaled by the
+ * city pool's factor when the areas' takes exceed it (§5.5, §11.2). Water is not an active constraint (R8c): it reads 1.
+ */
 function cellShares(s: GameState, slice: Slice, developable: Map<number, number[]>): Map<number, CellShare> {
   const out = new Map<number, CellShare>();
   const demand = { power: new Map<number, number>(), water: new Map<number, number>() };
@@ -636,27 +641,41 @@ function cellShares(s: GameState, slice: Slice, developable: Map<number, number[
     if (!cs.length) continue;
     let kw = 0, m3 = 0;
     for (const f of s.firms) if (f.zone === z.id && isOpenFirm(f, s.date)) { kw += f.powerKw; m3 += f.waterM3Day; }
-    for (const [u, need] of [['power', kw], ['water', m3]] as const) {
-      const split = largestRemainder(Math.ceil(need), cs.map(() => 1));
-      cs.forEach((c, i) => { if (split[i]! > 0) { demand[u].set(c, split[i]!); areaOf.set(c, z.area); } });
-    }
+    void m3;
+    const split = largestRemainder(Math.ceil(kw), cs.map(() => 1));
+    cs.forEach((c, i) => { if (split[i]! > 0) { demand.power.set(c, split[i]!); areaOf.set(c, z.area); } });
   }
-  const cells = [...new Set([...demand.power.keys(), ...demand.water.keys()])].sort((a, b) => a - b);
+  const cells = [...demand.power.keys()].sort((a, b) => a - b);
   if (!cells.length) return out;
-  const placed = s.structures.some((x) => x.kind === 'power_source' || x.kind === 'water_source')
+  const placed = s.structures.some((x) => SOURCE_KINDS.power!.includes(x.kind))
     ? spatialViews(s, slice.startNetwork, { demand }).supply : undefined;
+  // the pool's factor over what each area can take: its local plant plus what its cells receive from substations
+  const delivered = new Map<number, { power: number }>();
+  for (const c of cells) {
+    const a = areaOf.get(c)!, got = Math.min(demand.power.get(c) ?? 0, placed?.power.get(c) ?? 0);
+    delivered.set(a, { power: (delivered.get(a)?.power ?? 0) + got });
+  }
+  const f = poolFactor(areaTakes(s, new Map([...areaNeed].map(([a, n]) => [a, n.power])), delivered), powerPool(s).total);
   for (const c of cells) {
     const area = s.areas.find((a) => a.id === areaOf.get(c));
-    const need = areaNeed.get(area?.id ?? -1) ?? { power: 0, water: 0 };
-    const share = (u: 'power' | 'water', cap: number) => {
-      const d = demand[u].get(c) ?? 0;
-      if (d <= 0) return 1;
-      const fromArea = need[u] > 0 ? Math.max(0, cap) / need[u] : 1;
-      return Math.min(1, fromArea + (placed?.[u].get(c) ?? 0) / d);
-    };
-    out.set(c, { power: share('power', area?.utilities.powerCap ?? 0), water: share('water', area?.utilities.waterCap ?? 0) });
+    const need = areaNeed.get(area?.id ?? -1)?.power ?? 0;
+    const d = demand.power.get(c) ?? 0;
+    const fromArea = need > 0 ? Math.max(0, area?.utilities.powerCap ?? 0) / need : 1;
+    out.set(c, { power: d > 0 ? Math.min(1, fromArea + (placed?.power.get(c) ?? 0) / d) * f : 1, water: 1 });
   }
   return out;
+}
+
+/** The city power pool for the Economy drawer (§5.5, §11.2): supply, firms' need, spare, and the areas short of it. */
+export function powerView(s: GameState, slice: Slice) {
+  const pool = powerPool(s), bought = importedKw(s);
+  const sited = s.firms.reduce((n, f) => n + f.powerKw, 0);
+  const g = growthContent(slice);
+  const shares = utilityShares(s, placedSupply(s, g, (f) => isOpenFirm(f, s.date)));
+  const unmet = [...shares].filter(([, v]) => v < 1).map(([a]) => a).sort((a, b) => a - b);
+  const I = slice.params.fiscal.power_import;
+  return { ...pool, onOrder: bought.pending, sited, spare: Math.max(0, pool.total - sited), unmet,
+    room: Math.max(0, I.max_kw - bought.arrived - bought.pending), step: Math.min(500, Math.max(0, I.max_kw - bought.arrived - bought.pending)) };
 }
 
 export function constraintContext(s: GameState, slice: Slice): ConstraintContext {

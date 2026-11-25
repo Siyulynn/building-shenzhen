@@ -13,11 +13,13 @@ import { liveOrder, spatialViews } from './works.js';
 import { cellsOfRuns, runsOfCells, templateZoneAction, zoneCellsAllowed } from './zones.js';
 import { developableCells, zoneRoomM2 } from './growth.js';
 import { coverFactors, needsBridge } from './landcover.js';
+import { importedKw, powerPool } from './power.js';
 
 /** A zone the plan draws in its first month: a precedent's template cells, or an area's buildable cells nearest a road. */
 export type ZonePlan = { template: string } | { use: LandUse; area: number; cells: number };
 /** Water and power: a source is placed when its areas' sited firms plus `headroom_jobs` would need more than they have. */
-export interface UtilityPlan { headroom_jobs: number; max_sources: number }
+/** R8c (§5.5): substations ahead of need, purchases from a turn in chunks, and one station from a turn (none if absent). */
+export interface UtilityPlan { headroom_jobs: number; max_sources: number; import_kw: number; import_from_turn: number; station_turn?: number }
 export interface MapPlan {
   zones: readonly ZonePlan[];
   /** Outbound roads, as orthogonal [x, y] waypoints, committed in order once the one before is queued. */
@@ -222,35 +224,52 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
     }
   }
 
-  // 3. water and power for each industrial zone, ahead of its area's sited firms' need: the scarcer one first
+  // 3. power (R8c, §5.5): substations ahead of each industrial zone's area need, purchases ahead of the city's need,
+  // and one station from the plan's turn. Water is not an active constraint and is never built
   const org = p.growth?.industrial;
   const per = org ? p.industry.by_ownership[org.ownership] : undefined;
   const placements = [...s.structures.map((x) => ({ kind: x.kind, attach: x.attach, facility: x.facility })),
     ...live.flatMap((o) => (o.placement ? [{ kind: o.placement.kind, attach: o.placement.attach, facility: o.placement.facility }] : []))];
+  const U = plan.utilities;
+  const sub = W.structures.power_substation;
+  const sited = s.firms.reduce((n, f) => n + f.powerKw, 0);
   for (const z of s.zones.filter((x) => x.use === 'industrial')) {
     if (!per) break;
     const a = s.areas.find((x) => x.id === z.area)!;
     const zoneCells = new Set(cellsOfRuns(z.runs, s.grid));
-    // a zone's sources are those attached to a road cell beside it (the cells structureSite picks)
+    // a zone's substations are those attached to a road cell beside it (the cells structureSite picks)
     const serves = (attach: number) => neighbours(attach, w).some((c) => zoneCells.has(c));
-    let kw = 0, m3 = 0;
-    for (const f of s.firms) if (f.area === a.id) { kw += f.powerKw; m3 += f.waterM3Day; }
-    const want = (['power_source', 'water_source'] as const).map((kind) => {
-      const sp = W.structures[kind];
-      const n = placements.filter((x) => x.kind === kind && serves(x.attach)).length;
-      const need = kind === 'power_source' ? kw + plan.utilities.headroom_jobs * per.power_kw_per_job
-        : m3 + plan.utilities.headroom_jobs * per.water_m3_day_per_job;
-      const have = (kind === 'power_source' ? a.utilities.powerCap : a.utilities.waterCap) + n * sp.capacity;
-      return { kind, sp, n, short: need > 0 ? have / need : Infinity };
-    }).sort((x, y) => x.short - y.short);
-    for (const { kind, sp, n, short } of want) {
-      if (n >= plan.utilities.max_sources || short >= 1) continue;
-      if (sp.yuan > money || (sp.forex_usd ?? 0) > s.fiscal.balances.forex) break;   // the scarcer one waits for money
-      const site = structureSite(s, tick, zoneCells, used);
-      if (!site) continue;
+    let kw = 0;
+    for (const f of s.firms) if (f.area === a.id) kw += f.powerKw;
+    const n = placements.filter((x) => (x.kind === 'power_substation' || x.kind === 'power_source') && serves(x.attach)).length;
+    const need = kw + U.headroom_jobs * per.power_kw_per_job;
+    if (n >= U.max_sources || a.utilities.powerCap + n * sub.capacity >= need) continue;
+    if (sub.yuan > money) break;
+    const site = structureSite(s, tick, zoneCells, used);
+    if (!site) continue;
+    used.add(site[0]);
+    out.push({ type: 'place_structure', kind: 'power_substation', cell: xy(site[0], w), attach: xy(site[1], w) });
+    money -= sub.yuan;
+  }
+  // purchases: the pool with what is on order, against every sited firm and the headroom; up to the line's limit
+  if (per && U.import_kw > 0 && s.turn >= U.import_from_turn) {
+    const I = p.fiscal.power_import;
+    const bought = importedKw(s), pool = powerPool(s);
+    // a station still building is years away: it does not count
+    const short = sited + U.headroom_jobs * per.power_kw_per_job - (pool.total + bought.pending);
+    const room = I.max_kw - bought.arrived - bought.pending;
+    if (short > 0 && room > 0) out.push({ type: 'buy_power', kw: Math.min(room, U.import_kw) });
+  }
+  // a station, once, from the plan's turn: beside the first industrial zone, while money covers its first year
+  const st = W.structures.power_station;
+  if (per && U.station_turn !== undefined && s.turn >= U.station_turn && !placements.some((x) => x.kind === 'power_station')
+    && money >= (st.yuan * 12) / st.build_months) {
+    const z = s.zones.find((x) => x.use === 'industrial');
+    const site = z ? structureSite(s, tick, new Set(cellsOfRuns(z.runs, s.grid)), used) : undefined;
+    if (site) {
       used.add(site[0]);
-      out.push({ type: 'place_structure', kind, cell: xy(site[0], w), attach: xy(site[1], w) });
-      money -= sp.yuan;
+      out.push({ type: 'place_structure', kind: 'power_station', cell: xy(site[0], w), attach: xy(site[1], w) });
+      money -= (st.yuan * 12) / st.build_months;
     }
   }
 

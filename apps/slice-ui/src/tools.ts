@@ -12,10 +12,10 @@ import * as S from './strings.js';
 import type { L } from './strings.js';
 import { actionLabel, clipZone, previewZone, queuedZoneIds } from './views.js';
 
-export const TOOLS = ['select', 'road', 'zone', 'service', 'erase', 'water', 'power', 'facility'] as const;
+export const TOOLS = ['select', 'road', 'zone', 'service', 'erase', 'power', 'station', 'facility'] as const;
 export type Tool = (typeof TOOLS)[number];
 /** The tools that build: off while a card interrupts the quarter, and after the end. */
-export const BUILD_TOOLS: readonly Tool[] = ['road', 'zone', 'service', 'erase', 'water', 'power', 'facility'];
+export const BUILD_TOOLS: readonly Tool[] = ['road', 'zone', 'service', 'erase', 'power', 'station', 'facility'];
 export interface ToolOptions { use: LandUse; planOnly: boolean; facility: string }
 export type XY = readonly [number, number];
 /** A press at `from` and a release at `to`; a click has the two equal. */
@@ -208,11 +208,11 @@ export function planGesture(x: Session, o: ToolOptions, g: Gesture): Plan {
       const path = roadWaypoints(g.from, g.to);
       return tryActions(x, [{ type: 'build_road', path }], playableAreaOf(s, idx(s, g.from)));
     }
-    case 'water': case 'power': case 'facility': {
+    case 'power': case 'station': case 'facility': {
       const { attach, road } = attachFor(x, g.to);
       const a: PlayerAction = g.tool === 'facility'
         ? { type: 'place_structure', kind: 'facility', facility: o.facility, cell: [g.to[0], g.to[1]], attach }
-        : { type: 'place_structure', kind: g.tool === 'water' ? 'water_source' : 'power_source', cell: [g.to[0], g.to[1]], attach };
+        : { type: 'place_structure', kind: g.tool === 'station' ? 'power_station' : 'power_substation', cell: [g.to[0], g.to[1]], attach };
       return tryActions(x, [a], playableAreaOf(s, idx(s, g.to)), 1, road ? undefined : S.T.noAttachRoad);
     }
     case 'service': {

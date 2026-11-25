@@ -22,8 +22,13 @@ export interface CellWork {
   order?: number;             // R2: the live works order that owns it; absent = detached, or committed outside the queue
 }
 
-export const STRUCTURE_KINDS = ['water_source', 'power_source', 'facility'] as const;
+export const STRUCTURE_KINDS = ['water_source', 'power_source', 'facility', 'power_substation', 'power_station'] as const;
 export type StructureKind = (typeof STRUCTURE_KINDS)[number];
+/**
+ * The kinds a player or plan may order (R8c, phase1-slice §5.5): substations distribute the city pool, stations add to
+ * it. Water and the one-quarter power source stay in STRUCTURE_KINDS so old saves load, but are not offered.
+ */
+export const OFFERED_STRUCTURES: readonly StructureKind[] = ['power_substation', 'power_station', 'facility'];
 export interface PlacedStructure {
   id: number;
   kind: StructureKind;
@@ -58,7 +63,10 @@ export const cloneOrder = (o: WorksOrder): WorksOrder => ({ ...o,
 
 export const UTILITIES = ['water', 'power'] as const;
 export type Utility = (typeof UTILITIES)[number];
-const SOURCE_KIND: Record<Utility, StructureKind> = { water: 'water_source', power: 'power_source' };
+/** The utilities that constrain firms in Phase 1 (R8c): power only. Water stays in the schema for a later phase. */
+export const ACTIVE_UTILITIES: readonly Utility[] = ['power'];
+/** The structures that distribute a utility along the roads; a placed R2 power_source counts as a substation. */
+export const SOURCE_KINDS: Record<Utility, readonly StructureKind[]> = { water: ['water_source'], power: ['power_source', 'power_substation'] };
 
 export const stageOf = (w: Pick<CellWork, 'workDone' | 'workTotal'>): WorkStage =>
   w.workDone === 0 ? 'planned' : w.workDone < w.workTotal ? 'servicing' : 'serviced';
@@ -172,7 +180,7 @@ export function spatialViews(s: GameState, network: StartNetwork, inputs: Spatia
   const sources = {} as SpatialViews['sources'], supply = {} as SpatialViews['supply'];
   for (const u of UTILITIES) {
     const cap = new Map<number, number>();
-    for (const x of s.structures) if (x.kind === SOURCE_KIND[u]) cap.set(x.attach, (cap.get(x.attach) ?? 0) + x.capacity);
+    for (const x of s.structures) if (SOURCE_KINDS[u].includes(x.kind)) cap.set(x.attach, (cap.get(x.attach) ?? 0) + x.capacity);
     sources[u] = sortedMap(cap);
     const demand = inputs.demand?.[u] ?? new Map<number, number>();
     for (const [c, n] of demand) if (!onGrid(s, c) || !isCount(n, 0)) throw new Error(`invalid ${u} demand at ${c}`);

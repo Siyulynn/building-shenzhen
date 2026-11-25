@@ -12,7 +12,7 @@ import type { BlockStock, Cohort, GameState, OrganicBuilder, ServicePosts, Zone 
 import type { TickContext } from './step.js';
 import { bedsByPool, villageM2 } from './systems/common.js';
 import { createFirm, orderFactor, prospectiveShare, sizeOffer } from './systems/industry.js';
-import { spatialViews } from './works.js';
+import { ACTIVE_UTILITIES, SOURCE_KINDS, spatialViews } from './works.js';
 import { cellsOfRuns } from './zones.js';
 
 export interface GrowthContent { network: StartNetwork; buildable?: { cells: Uint32Array } }
@@ -63,7 +63,8 @@ export type AreaSupply = Map<number, { power: number; water: number }>;
 export function placedSupply(s: GameState, g: GrowthContent, counts: (f: GameState['firms'][number]) => boolean,
   extra?: { zone: number; kw: number; m3: number }): AreaSupply {
   const out: AreaSupply = new Map();
-  if (!s.structures.some((x) => x.kind === 'power_source' || x.kind === 'water_source')) return out;
+  // R8c (§5.5): power is the one active utility; its distributing structures are substations (and R2 power sources)
+  if (!s.structures.some((x) => SOURCE_KINDS.power.includes(x.kind))) return out;
   const cells = developableCells(s, g);
   const demand = { power: new Map<number, number>(), water: new Map<number, number>() };
   for (const z of s.zones) {
@@ -72,7 +73,7 @@ export function placedSupply(s: GameState, g: GrowthContent, counts: (f: GameSta
     let kw = 0, m3 = 0;
     for (const f of s.firms) if (f.zone === z.id && counts(f)) { kw += f.powerKw; m3 += f.waterM3Day; }
     if (extra?.zone === z.id) { kw += extra.kw; m3 += extra.m3; }
-    for (const [u, need] of [['power', kw], ['water', m3]] as const) {
+    for (const [u, need] of ([['power', kw], ['water', m3]] as const).filter(([u]) => ACTIVE_UTILITIES.includes(u))) {
       const split = largestRemainder(Math.ceil(need), cs.map(() => 1));
       cs.forEach((c, i) => { if (split[i]! > 0) demand[u].set(c, split[i]!); });
     }
@@ -211,7 +212,7 @@ export function growthPass(ctx: TickContext, p: SliceParams, g: GrowthContent): 
       const r = room(z);
       // a builder puts up no factory its area could not supply: every firm there open, this one too
       if (r >= need && r > bestRoom && prospectiveShare(s, z.area, offer.powerKw, offer.waterM3Day,
-        placedSupply(s, g, () => true, { zone: z.id, kw: offer.powerKw, m3: offer.waterM3Day }).get(z.area)) >= I.min_utility_share) {
+        placedSupply(s, g, () => true, { zone: z.id, kw: offer.powerKw, m3: offer.waterM3Day })) >= I.min_utility_share) {
         best = z; bestRoom = r;
       }
     }

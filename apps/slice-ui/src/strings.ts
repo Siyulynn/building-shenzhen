@@ -80,7 +80,7 @@ export const RUNG: Readonly<Record<string, L>> = {
   not_queued: l('未安排三通一平', 'No site formation ordered'), waiting: l('工程在等待', 'Works waiting'),
   no_frontage: l('不临路：三通一平无法开工', 'No road frontage: site formation cannot start'),
   servicing: l('三通一平进行中', 'Site formation under way'),
-  utility: l('企业用电用水不足', 'Not enough power or water for its firms'), low_demand: l('需求不足', 'Low demand'),
+  utility: l('企业用电不足', 'Not enough power for its firms'), low_demand: l('需求不足', 'Low demand'),
   building: l('正在建设', 'Building under way'), active: l('无：已在运转', 'Nothing: active'),
 };
 export const ORDER_KIND: Readonly<Record<string, L>> = {
@@ -91,6 +91,7 @@ export const ORDER_STAGE: Readonly<Record<string, L>> = {
 };
 export const STRUCTURE: Readonly<Record<string, L>> = {
   water_source: l('水源', 'Water source'), power_source: l('电源', 'Power source'), facility: l('公共设施', 'Facility'),
+  power_substation: l('变电站', 'Substation'), power_station: l('电厂', 'Power station'),
 };
 export const FACILITY: Readonly<Record<string, L>> = { school: l('学校', 'School') };
 /** A cell's works stage, and the stage of a zoned cell with no works. */
@@ -100,7 +101,7 @@ export const WORK_STAGE: Readonly<Record<string, L>> = {
 };
 export const TOOL: Readonly<Record<string, L>> = {
   select: l('查看', 'Inspect'), road: l('道路', 'Roads'), zone: l('规划', 'Zones'), service: l('平整土地', 'Form site'),
-  erase: l('撤销', 'Erase / cancel'), water: l('水源', 'Water'), power: l('电源', 'Power'), facility: l('公共设施', 'Facilities'),
+  erase: l('撤销', 'Erase / cancel'), power: l('变电站', 'Substation'), station: l('电厂', 'Power station'), facility: l('公共设施', 'Facilities'),
 };
 /** What each tool does, shown in its flyout. */
 export const TOOL_HINT: Readonly<Record<string, L>> = {
@@ -109,8 +110,8 @@ export const TOOL_HINT: Readonly<Record<string, L>> = {
   zone: l('拖出一个矩形：划区并安排三通一平', 'Drag a rectangle: zone it and order its site formation'),
   service: l('点击区块安排三通一平；拖动只平整拖过的格', 'Click a zone to order its site formation; drag to form only the cells you drag over'),
   erase: l('点击撤销未开工的工程或本回合的指令', "Click to cancel unstarted work or this turn's orders"),
-  water: l('点击临路的地块放置水源', 'Click a cell beside a road to place a water source'),
-  power: l('点击临路的地块放置电源', 'Click a cell beside a road to place a power source'),
+  power: l('点击临路的地块放置变电站：把全市电力沿道路送到附近的区块', 'Click a cell beside a road to place a substation: it carries the city pool along the roads to nearby zones'),
+  station: l('点击临路的地块建电厂：建成后为全市增加电力', 'Click a cell beside a road to build a power station: once finished it adds to the city pool'),
   facility: l('点击临路的地块放置公共设施', 'Click a cell beside a road to place a facility'),
 };
 /** R7 (§11.2): the visible caption above each chip stat. */
@@ -185,6 +186,11 @@ export const T = {
   crowding: l('拥挤度', 'Crowding'), rent: l('租金', 'Rent'),
   jobs: l('岗位（已填/总数）', 'Jobs (filled / posted)'), utilities: l('富余容量', 'Spare capacity'),
   power: l('电力（千瓦）', 'Power (kW)'), water: l('供水（吨/日）', 'Water (m³/day)'),
+  powerPool: l('全市电力（千瓦）', 'City power pool (kW)'), powerLocal: l('本地电源', 'Local plant'),
+  powerBought: l('外购（已到）', 'Bought (arrived)'), powerOnOrder: l('外购（在途）', 'Bought (on order)'),
+  powerStations: l('电厂', 'Power stations'), powerSited: l('企业用电', 'Firms\' need'), powerSpare: l('富余', 'Spare'),
+  powerUnmet: l('供电不足的片区', 'Areas short of power'), buyPower: l('外购电力', 'Buy power'),
+  buyPowerHint: l('全市购电：到货前有等待期，到货后每月付费；线路有上限', 'A city purchase: it arrives after a wait, then is paid monthly; the line has a ceiling'),
   facilities: l('公共设施', 'Facilities'), schoolPlaces: l('学位', 'School places'), clinicVisits: l('门诊量', 'Clinic visits'),
   policePosts: l('派出所', 'Police posts'), illegalShare: l('违建比例', 'Illegal floor share'), roadKm: l('道路（公里）', 'Roads (km)'),
   firms: l('企业', 'Firms'), pickArea: l('点击地图上的片区', 'Click an area on the map'),

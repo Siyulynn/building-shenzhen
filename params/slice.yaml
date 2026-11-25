@@ -127,9 +127,10 @@ fiscal:
   austerity_max_cut: 0.3                 # share of baselines, payroll and service a month may leave unpaid
   loan: { principal: 3000000, rate_month: 0.004, grace_months: 24, term_months: 60, offer_months: 6 }   # the state-bank project loan; the offer outlives a quarter
   cancel_penalty: 0.1                    # share of a cancelled project's unspent budget, owed in the month it is cancelled
-  # R6 test: bought power instead of a local source. The network is assumed; each kW is a monthly service obligation.
-  # Placeholder tariff, to be replaced when the source (Hong Kong or Guangdong) and its terms have claims.
-  power_import: { yuan_per_kw_month: 8 }
+  # R8c (phase1-slice §5.5): purchased power joins the city pool after lead_months, each kW a permanent monthly
+  # service obligation from then; max_kw is the line's limit. Placeholders (design_note), to be replaced when the source
+  # (Hong Kong or Guangdong) and its terms have claims: data/evidence/claims/phase1_power_supply.yaml holds only leads.
+  power_import: { yuan_per_kw_month: 8, lead_months: 3, max_kw: 3000 }
 
 capacity:                                # the construction-capacity pool (§5.6), in crew units (organised worker-months)
   local_crew: 600                        # the county's own builders. Not either observed local count (§5.6 research)
@@ -162,6 +163,9 @@ works:                                   # R2 municipal works orders (buildings-
   structures:
     water_source: { units: 150, yuan: 150000, capacity: 500 }                     # project.water_main: 30 × 5; m³/day
     power_source: { units: 150, yuan: 200000, capacity: 1000, forex_usd: 10000 }   # project.power_line: 25 × 6; kW
+    # R8c (phase1-slice §5.5): water and the one-quarter power source are no longer offered. Placeholders, not sourced
+    power_substation: { units: 60, yuan: 100000, capacity: 2000, forex_usd: 10000 }   # distribution only: kW it can deliver along the roads
+    power_station: { units: 720, yuan: 1500000, capacity: 6000, build_months: 24 }   # generation for the pool; 30 crew a month
   facilities:
     school: { units: 160, yuan: 300000, capacity: 400, staff: 12, service_per_place_month: 0.5 }   # project.school: 20 × 8; places, staff and service
 

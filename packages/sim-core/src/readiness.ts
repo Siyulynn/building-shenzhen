@@ -6,6 +6,7 @@
 import type { SliceParams } from './params.js';
 import type { GameState } from './state.js';
 import { cellsOfRuns } from './zones.js';
+import { powerPool } from './power.js';
 
 export const READINESS_PARTS = ['roads', 'servicedLand', 'waterPower'] as const;
 export type ReadinessPart = (typeof READINESS_PARTS)[number];
@@ -17,6 +18,8 @@ export interface Readiness {
 }
 
 const CELLS_PER_KM = 10;                                     // a 100 m grid (§3)
+/** The city pool's kW left after every sited firm's need (R8c): delivery without supply readies nothing. */
+const poolSpare = (s: GameState) => Math.max(0, powerPool(s).total - s.firms.reduce((n, f) => n + f.powerKw, 0));
 
 /** How many of a sorted cell list are in a sorted buildable layer (all of them without one). */
 function countBuildable(cells: Uint32Array, buildable?: { cells: Uint32Array }): number {
@@ -51,9 +54,10 @@ export function readiness(s: GameState, p: SliceParams, buildable?: { cells: Uin
     let pw = 0, w = 0, srcP = 0, srcW = 0;
     for (const f of s.firms) if (f.area === a.id) { pw += f.powerKw; w += f.waterM3Day; }
     for (const x of s.structures) {
-      if (x.kind !== 'power_source' && x.kind !== 'water_source') continue;
+      // R8c (§5.5): substations (and R2 power sources) on the area's land deliver power; a station feeds the city pool
+      if (x.kind !== 'power_source' && x.kind !== 'power_substation' && x.kind !== 'water_source') continue;
       if (!inSorted(a.cells, x.cell)) continue;
-      if (x.kind === 'power_source') srcP += x.capacity; else srcW += x.capacity;
+      if (x.kind === 'water_source') srcW += x.capacity; else srcP += x.capacity;
     }
     freePower += Math.max(0, a.utilities.powerCap + srcP - pw);
     freeWater += Math.max(0, a.utilities.waterCap + srcW - w);
@@ -70,7 +74,8 @@ export function readiness(s: GameState, p: SliceParams, buildable?: { cells: Uin
   const part = {
     roads: Math.min(1, share(reached) / R.full_at.roads),
     servicedLand: Math.min(1, share(served) / R.full_at.serviced_land),
-    waterPower: Math.min(1, ratio(freePower, needP), ratio(freeWater, needW)),
+    // R8c (§5.5): power only, as water no longer constrains a firm; and no more than the city pool has spare
+    waterPower: Math.min(1, ratio(Math.min(freePower, poolSpare(s)), needP)),
   };
   const W = R.weights;
   const bar = (W.roads * part.roads + W.serviced_land * part.servicedLand + W.water_power * part.waterPower)

@@ -8,6 +8,8 @@ import type { CellRuns, GameState, LocalizedString, PlayerAction } from './state
 import { parseYM, type YM } from './ym.js';
 import { cellsOfRuns, runsOfCells } from './zones.js';
 
+import { buyPower } from './power.js';
+
 export const ACCOUNTS = ['general', 'land', 'debt', 'forex'] as const;
 export type AccountId = (typeof ACCOUNTS)[number];          // forex is a quota to buy, in USD; never added to yuan
 export type TxType = 'tax' | 'grant' | 'land_fee' | 'obligation' | 'project' | 'loan' | 'retention' | 'import';
@@ -387,15 +389,7 @@ export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalConten
         until: ends, createdBy: `contract.${id}` });
     }
   } else if (a.type === 'buy_power') {
-    const ar = s.areas.find((x) => x.id === a.area);
-    if (!ar || ar.access !== 'playable') throw new Error('buy_power needs a playable area');
-    if (!Number.isInteger(a.kw) || a.kw <= 0) throw new Error('buy_power needs a whole kw > 0');
-    const rate = p.fiscal.power_import.yuan_per_kw_month;
-    if (!(rate >= 0)) throw new Error('params: fiscal.power_import.yuan_per_kw_month must be >= 0');
-    ar.utilities.powerCap += a.kw;
-    const perMonth = Math.round(a.kw * rate);
-    if (perMonth > 0) addObligation(s, { kind: 'service', perMonth, index: 'none', from: s.date,
-      createdBy: `power_import.${a.area}` });
+    buyPower(s, p, a);                       // R8c (§5.5): the city pool's purchased power
   } else {
     throw new Error(`not a fiscal action: ${a.type}`);
   }

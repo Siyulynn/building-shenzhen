@@ -19,8 +19,7 @@ const apply = (s: GameState, a: PlayerAction) => applyTurnAction(s, a, STEPS);
 const ZONE: PlayerAction = { type: 'create_zone', use: 'industrial', runs: [[353, 366, 368]] };
 const ROAD_TOWARD: [number, number][] = [[369, 357], [369, 353]];   // drawn toward the network: its end touches row 352
 const SOURCES: PlayerAction[] = [
-  { type: 'place_structure', kind: 'power_source', cell: [372, 351], attach: [372, 352], priority: 'high' },
-  { type: 'place_structure', kind: 'water_source', cell: [371, 351], attach: [371, 352], priority: 'high' },
+  { type: 'place_structure', kind: 'power_substation', cell: [372, 351], attach: [372, 352], priority: 'high' },
 ];
 
 function funded(): GameState {
@@ -55,7 +54,8 @@ describe('R4.5 a map-only run earns the M-series credit', () => {
     // the same seed left idle: its cards' first options commit the same M4 projects (a road link in area 2)
     const idle = months(funded(), 12, new Rng(5), [], () => {}, NO_GROWTH);
     const before = readiness(idle, params, slice.tick.buildable);
-    const s = months(funded(), 12, new Rng(5), MAP_WORKS, () => {}, NO_GROWTH);
+    // R8c: a substation delivers only what the city pool holds, so the run also buys power for it to carry
+    const s = months(funded(), 12, new Rng(5), [...MAP_WORKS, { type: 'buy_power', kw: 1000 }], () => {}, NO_GROWTH);
     expect(s.fiscal.projects.map((x) => [x.template, x.area, x.stage])).toEqual(idle.fiscal.projects.map((x) => [x.template, x.area, x.stage]));
     expect(s.areas.map((a) => [a.roadKm, a.utilities])).toEqual(idle.areas.map((a) => [a.roadKm, a.utilities]));
     expect(s.worksOrders.every((o) => o.stage === 'done')).toBe(true);

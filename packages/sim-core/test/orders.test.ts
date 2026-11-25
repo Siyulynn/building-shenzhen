@@ -89,24 +89,24 @@ describe('R2 placement validates the map', () => {
   it('places a structure only on playable, unoccupied land attached beside it, and draws its forex at commit', () => {
     const s = funded();
     const forex = s.fiscal.balances.forex;
-    expect(() => apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 345], attach: [358, 345] })).toThrow(/does not touch/);
-    expect(() => apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 346], attach: [356, 346] })).toThrow(/a road/);
+    expect(() => apply(s, { type: 'place_structure', kind: 'power_substation', cell: [356, 345], attach: [358, 345] })).toThrow(/does not touch/);
+    expect(() => apply(s, { type: 'place_structure', kind: 'power_substation', cell: [356, 346], attach: [356, 346] })).toThrow(/a road/);
     expect(() => apply(s, { type: 'place_structure', kind: 'facility', facility: 'clinic', cell: [356, 345], attach: [356, 346] }))
       .toThrow(/no facility type/);
-    apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 345], attach: [356, 346] });
-    expect(s.fiscal.balances.forex).toBe(forex - WORKS.structures.power_source.forex_usd!);
-    expect(() => apply(s, { type: 'place_structure', kind: 'water_source', cell: [356, 345], attach: [356, 346] })).toThrow(/already holds/);
+    apply(s, { type: 'place_structure', kind: 'power_substation', cell: [356, 345], attach: [356, 346] });
+    expect(s.fiscal.balances.forex).toBe(forex - WORKS.structures.power_substation.forex_usd!);
+    expect(() => apply(s, { type: 'place_structure', kind: 'power_substation', cell: [356, 345], attach: [356, 346] })).toThrow(/already holds/);
   });
 
   it('builds a placed source once its attach cell is a road, and its capacity then supplies along the network', () => {
     const rng = new Rng(2);
     const s0 = funded();
-    const s = play(s0, 12, rng, [{ type: 'place_structure', kind: 'water_source', cell: [356, 345], attach: [356, 346], priority: 'high' }]);
-    expect(s.worksOrders[0]).toMatchObject({ stage: 'done', unitsDone: 150 });
-    expect(s.structures).toMatchObject([{ kind: 'water_source', cell: at(356, 345), attach: at(356, 346),
-      capacity: WORKS.structures.water_source.capacity }]);
-    expect(spatialViews(s, slice.startNetwork).sources.water)
-      .toEqual(new Map([[at(356, 346), WORKS.structures.water_source.capacity]]));
+    const s = play(s0, 12, rng, [{ type: 'place_structure', kind: 'power_substation', cell: [356, 345], attach: [356, 346], priority: 'high' }]);
+    expect(s.worksOrders[0]).toMatchObject({ stage: 'done', unitsDone: WORKS.structures.power_substation.units });
+    expect(s.structures).toMatchObject([{ kind: 'power_substation', cell: at(356, 345), attach: at(356, 346),
+      capacity: WORKS.structures.power_substation.capacity }]);
+    expect(spatialViews(s, slice.startNetwork).sources.power)
+      .toEqual(new Map([[at(356, 346), WORKS.structures.power_substation.capacity]]));
     checkOrders(s);
   });
 
@@ -244,7 +244,7 @@ describe('R2 queue rules and accounts', () => {
     let s = funded();
     let first: PlayerAction[] = [guide(s), { type: 'build_road', path: SPUR, priority: 'high' },
       { type: 'commit_works', zone: 1, cells: PHASE, priority: 'high' },
-      { type: 'place_structure', kind: 'water_source', cell: [356, 345], attach: [356, 346] }];
+      { type: 'place_structure', kind: 'power_substation', cell: [356, 345], attach: [356, 346] }];
     for (let m = 0; m < 24; m++) {
       const r = step(s, [...firstOption(s, s.pendingCards), ...first], rng, STEPS);
       first = [];
@@ -264,7 +264,7 @@ describe('R2 queue rules and accounts', () => {
     const go = (s: GameState, acts: PlayerAction[]) =>
       runMonths(s, 1, rng, (st, cards) => { const a = [...firstOption(st, cards), ...acts]; acts = []; return a; }, steps);
     let s = go(funded(), [{ type: 'build_road', path: SPUR, priority: 'high' },
-      { type: 'place_structure', kind: 'water_source', cell: [356, 345], attach: [356, 346], priority: 'high' }]);
+      { type: 'place_structure', kind: 'power_substation', cell: [356, 345], attach: [356, 346], priority: 'high' }]);
     expect(s.worksOrders.map((o) => [o.unitsDone, o.waiting ?? null])).toEqual([[30, null], [0, 'capacity']]);
     s = go(s, [{ type: 'set_works_priority', order: 1, priority: 'low' }]);
     expect(s.worksOrders.map((o) => [o.unitsDone, o.waiting ?? null])).toEqual([[30, 'capacity'], [30, null]]);
@@ -285,7 +285,7 @@ describe('R2 queue rules and accounts', () => {
   it('cancelling an unstarted structure returns its forex quota', () => {
     const s = funded();
     const forex = s.fiscal.balances.forex;
-    apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 345], attach: [356, 346] });
+    apply(s, { type: 'place_structure', kind: 'power_substation', cell: [356, 345], attach: [356, 346] });
     apply(s, { type: 'cancel_works', order: 1 });
     expect(s.fiscal.balances.forex).toBe(forex);
     expect(s.worksOrders[0]).toMatchObject({ stage: 'cancelled', spent: 0 });
@@ -368,7 +368,7 @@ describe('R7 road drags strip the cells that are already road (b&c §13.2)', () 
 
   it('still refuses a structure on the path, and a new cell that touches no road', () => {
     const s = funded();
-    apply(s, { type: 'place_structure', kind: 'power_source', cell: [356, 345], attach: [356, 346] });
+    apply(s, { type: 'place_structure', kind: 'power_substation', cell: [356, 345], attach: [356, 346] });
     const before = s.worksOrders.length;
     expect(() => apply(s, { type: 'build_road', path: [[356, 346], [356, 344]] })).toThrow(/holds a structure/);
     expect(() => apply(s, { type: 'build_road', path: [[362, 360]] })).toThrow(/start or end next to a road/);

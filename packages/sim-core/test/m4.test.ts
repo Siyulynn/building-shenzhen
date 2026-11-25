@@ -332,23 +332,7 @@ describe('M4: projects', () => {
   });
 });
 
-describe('M4: bought power (R6 test)', () => {
-  it('adds capacity at once and owes a monthly service line, with no works order', () => {
-    const before = start();
-    const area = before.areas.find((a) => a.id === 7)!;
-    const cap = area.utilities.powerCap;
-    const s = step(before, [{ type: 'buy_power', area: 7, kw: 1000 }], new Rng(1), STEPS).state;
-    expect(s.areas.find((a) => a.id === 7)!.utilities.powerCap).toBe(cap + 1000);
-    expect(s.worksOrders).toEqual([]);
-    expect(s.fiscal.obligations).toEqual([expect.objectContaining({ kind: 'service', index: 'none',
-      perMonth: Math.round(1000 * params.fiscal.power_import.yuan_per_kw_month), createdBy: 'power_import.7' })]);
-  });
-  it('refuses a card-only area and a bad amount', () => {
-    expect(() => step(start(), [{ type: 'buy_power', area: 8, kw: 1000 }], new Rng(1), STEPS)).toThrow(/playable/);
-    expect(() => step(start(), [{ type: 'buy_power', area: 7, kw: 0 }], new Rng(1), STEPS)).toThrow(/kw/);
-    expect(() => step(start(), [{ type: 'buy_power', area: 7, kw: 1.5 }], new Rng(1), STEPS)).toThrow(/kw/);
-  });
-});
+// R8c: bought power is the city pool's now; its tests are in power.test.ts
 
 describe('M4: the construction-capacity pool', () => {
   // a small local pool, money to spare, and a road queued ahead of a factory (the research note's three-way run)
