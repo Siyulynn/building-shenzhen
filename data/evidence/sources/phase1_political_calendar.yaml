@@ -1,0 +1,302 @@
+# Sources for the Phase 1 political calendar and the prologue's framing.
+# One list; each record is read independently by packages/evidence.
+# Every page below was opened in the 2026-11-25 research session. No local copy
+# was taken, so the compiler will keep warning about pending intake.
+
+- id: phase1_state_council_1979_63
+  title: "国务院关于广东省设置深圳、珠海市的批复（国发〔1979〕63号）"
+  issuer: "中华人民共和国国务院"
+  doc_date: "1979-03-05"
+  url: "http://www.reformdata.org/1979/0305/3694.shtml"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "public_domain"
+  access: "open"
+
+- id: phase1_szdag_administrative_history
+  title: "深圳的建制沿革：从边陲小镇到国际化大都市"
+  issuer: "深圳市档案馆"
+  doc_date: "2021-01-05"
+  url: "https://web.archive.org/web/20250120151434/http:/www.szdag.gov.cn/dawh/spdb/content/post_98517.html"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_cpc_history_1979_04
+  title: "4月5日——党史百年·天天读"
+  issuer: "中共中央党史和文献研究院"
+  url: "https://www.dswxyjy.org.cn/GB/434461/434465/434731/index.html"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_people_daily_1979_50
+  title: "习仲勋如何带领广东改革开放“先走一步”？"
+  issuer: "人民网-中国共产党新闻网（转《南方日报》）"
+  doc_date: "2015-10-12"
+  url: "http://dangshi.people.com.cn/n/2015/1011/c85037-27684510.html"
+  retrieved: "2026-11-25"
+  tier: "D"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_state_council_1980_05_16
+  title: "国务院关于《广东、福建两省会议纪要》的批示"
+  issuer: "中共中央、国务院"
+  doc_date: "1980-05-16"
+  url: "http://www.reformdata.org/1980/0516/9053.shtml"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_central_1981_27
+  title: "中共中央、国务院批转《广东、福建两省和经济特区工作会议纪要》的通知（中发〔1981〕27号）"
+  issuer: "中共中央、国务院"
+  doc_date: "1981-07-19"
+  url: "http://www.reformdata.org/1981/0719/9052.shtml"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_cass_chenyun_sez
+  title: "朱佳木：陈云与经济特区"
+  issuer: "马克思主义研究网（中国社会科学院）"
+  doc_date: "2020-09-15"
+  url: "http://marxism.cass.cn/nzmzjxz/zjm/zjmzzylw/202401/t20240111_5727770.shtml"
+  retrieved: "2026-11-25"
+  tier: "C"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_szdag_hu_qiaomu
+  title: "胡乔木眼里的深圳特区"
+  issuer: "深圳市档案馆"
+  doc_date: "2012-11-06"
+  url: "http://www.szdag.gov.cn/dawh/szzg/content/post_99161.html"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_ren_zhongyi_interview
+  title: "先走一步真先走（下）——任仲夷访谈录"
+  issuer: "广东党史网（转《广东改革开放口述史》）"
+  doc_date: "2023-07-02"
+  url: "https://www.gddsw.com.cn/gdggkfkss/4167"
+  retrieved: "2026-11-25"
+  tier: "D"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_cpc_1982_01_11
+  title: "中共中央关于解决干部走私贩私问题的紧急通知"
+  issuer: "中共中央"
+  doc_date: "1982-01-11"
+  url: "https://zh.wikisource.org/wiki/%E4%B8%AD%E5%85%B1%E4%B8%AD%E5%A4%AE%E5%85%B3%E4%BA%8E%E8%A7%A3%E5%86%B3%E5%B9%B2%E9%83%A8%E8%B5%B0%E7%A7%81%E8%B4%A9%E7%A7%81%E9%97%AE%E9%A2%98%E7%9A%84%E7%B4%A7%E6%80%A5%E9%80%9A%E7%9F%A5"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "public_domain"
+  access: "open"
+
+- id: phase1_cpc_1982_04_13
+  title: "中共中央、国务院关于打击经济领域中严重犯罪活动的决定（中发〔1982〕22号）"
+  issuer: "中共中央、国务院"
+  doc_date: "1982-04-13"
+  published:
+    where: "《人民日报》1982-04-14 第1版"
+    date: "1982-04-14"
+  url: "https://zh.wikisource.org/wiki/%E4%B8%AD%E5%85%B1%E4%B8%AD%E5%A4%AE%E3%80%81%E5%9B%BD%E5%8A%A1%E9%99%A2%E5%85%B3%E4%BA%8E%E6%89%93%E5%87%BB%E7%BB%8F%E6%B5%8E%E9%A2%86%E5%9F%9F%E4%B8%AD%E4%B8%A5%E9%87%8D%E7%8A%AF%E7%BD%AA%E6%B4%BB%E5%8A%A8%E7%9A%84%E5%86%B3%E5%AE%9A"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "public_domain"
+  access: "open"
+
+- id: phase1_cpc_12th_congress_1982
+  title: "中国共产党第十二次全国代表大会开幕词"
+  issuer: "邓小平"
+  doc_date: "1982-09-01"
+  url: "http://cpc.people.com.cn/GB/64162/64165/70293/70294/"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_state_council_1982_50
+  title: "中共中央、国务院批转《当前试办经济特区工作中若干问题的纪要》的通知（中发〔1982〕50号）"
+  issuer: "中共中央、国务院"
+  doc_date: "1982-12-03"
+  url: "http://www.reformdata.org/1982/1203/9048.shtml"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_people_daily_hu_yaobang_1983
+  title: "胡耀邦与广东改革开放纪事"
+  issuer: "人民网-中国共产党新闻网（转《党史文苑》）"
+  doc_date: "2014-08-27"
+  url: "http://dangshi.people.com.cn/n/2014/0827/c85037-25548995-4.html"
+  retrieved: "2026-11-25"
+  tier: "D"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_cpc_1983_08_25
+  title: "中共中央关于严厉打击刑事犯罪活动的决定"
+  issuer: "中共中央"
+  doc_date: "1983-08-25"
+  url: "https://zh.wikisource.org/zh-hans/%E4%B8%AD%E5%85%B1%E4%B8%AD%E5%A4%AE%E5%85%B3%E4%BA%8E%E4%B8%A5%E5%8E%89%E6%89%93%E5%87%BB%E5%88%91%E4%BA%8B%E7%8A%AF%E7%BD%AA%E6%B4%BB%E5%8A%A8%E7%9A%84%E5%86%B3%E5%AE%9A"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "public_domain"
+  access: "open"
+
+- id: phase1_cpc_1983_10_11
+  title: "中国共产党第十二届中央委员会第二次全体会议公报"
+  issuer: "中共中央"
+  doc_date: "1983-10-12"
+  url: "https://cpc.people.com.cn/GB/64162/64168/64565/65377/4429532.html"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_cpc_history_1983_10_11
+  title: "10月11日——党史上的今天"
+  issuer: "人民网-中国共产党新闻网"
+  url: "https://cpc.people.com.cn/GB/64162/64165/70486/70497/index.html"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_szbaike_administrative_reform
+  title: "旧体制悄然破冰：特区行政体制改革起步"
+  issuer: "中共深圳市委党史研究室（深圳改革开放四十年，szbaike 转载）"
+  doc_date: "2025-04-21"
+  url: "http://www.szbaike.com/course/politics/PartyBuilding/2025-04-21/10571.html"
+  retrieved: "2026-11-25"
+  tier: "D"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_szdag_donghu_liyuan
+  title: "深圳故事｜内地商品房的“原点”：东湖丽苑"
+  issuer: "深圳市档案馆"
+  doc_date: "2023-01-10"
+  url: "http://www.szdag.gov.cn/dawh/tqssn/content/post_931267.html"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_szns_shekou_slogan
+  title: "“时间就是金钱 效率就是生命”标语牌"
+  issuer: "深圳市南山区人民政府"
+  doc_date: "2026-01-12"
+  url: "https://www.szns.gov.cn/mlns/whns/wwbhdw/content/post_12573859.html"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_sztqb_founding
+  title: "深圳第一份报纸诞生记"
+  issuer: "《深圳特区报》"
+  doc_date: "2020-08-21"
+  url: "https://sztqb.sznews.com/PC/content/202008/21/content_907252.html"
+  retrieved: "2026-11-25"
+  tier: "D"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_szu_chronology
+  title: "深圳大学大事记汇编（1983～1996）"
+  issuer: "深圳大学档案馆"
+  doc_date: "2018-05"
+  url: "https://archives.szu.edu.cn/shenzhendaxuedashijihuibian1983-1996.pdf"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_gd_gazette_1982_census
+  title: "广东省人民政府转发《国务院关于发布〈第三次全国人口普查办法〉的通知》的通知（粤府〔1982〕57号）"
+  issuer: "广东省人民政府"
+  doc_date: "1982-03-18"
+  url: "https://www.gd.gov.cn/zwgk/gongbao/1982/1/content/post_3353852.html"
+  retrieved: "2026-11-25"
+  tier: "A"
+  language: "zh-Hans"
+  reuse: "public_domain"
+  access: "open"
+
+- id: phase1_szbaike_census_1982
+  title: "第三次人口普查"
+  issuer: "《深圳百科全书》编委会（szbaike 转载）"
+  doc_date: "2022-06-17"
+  url: "http://www.szbaike.com/social/medical/traffic1/2022-06-17/2376.html"
+  retrieved: "2026-11-25"
+  tier: "D"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_zhangjun_shenzhen_miracle
+  title: "那些曾经对深圳的批评（《深圳奇迹》书摘）"
+  issuer: "观察者网"
+  doc_date: "2020-10-15"
+  url: "https://www.guancha.cn/ZhangJun/2020_10_15_568099.shtml"
+  retrieved: "2026-11-25"
+  tier: "D"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_chengkai_memoir
+  title: "程凯：我的1980年代（七）"
+  issuer: "自由亚洲电台"
+  doc_date: "2025-05-26"
+  url: "https://www.rfa.org/mandarin/zhengzhi/2025/05/26/chengkai-memoir-my1980s-june4th/"
+  retrieved: "2026-11-25"
+  tier: "D"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"
+
+- id: phase1_chinanews_luo_jinxing
+  title: "口述实录：冒险盖起中国首个商品房"
+  issuer: "中国新闻网（转《京华时报》）"
+  doc_date: "2008-10-20"
+  url: "https://www.chinanews.com.cn/estate/zcfg/news/2008/10-20/1417449.shtml"
+  retrieved: "2026-11-25"
+  tier: "D"
+  language: "zh-Hans"
+  reuse: "reference_only"
+  access: "open"

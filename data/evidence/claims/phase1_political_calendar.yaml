@@ -1,0 +1,444 @@
+# Claims for the Phase 1 political calendar and the prologue's framing.
+# All are AI extractions from pages opened on 2026-11-25. None is verified.
+# Dates are the event's own date unless a decision/effective split is recorded.
+
+- id: phase1.politics.city_reply_1979
+  source: phase1_state_council_1979_63
+  locator: "批复正文第一条"
+  quote: "将宝安县改设为深圳市，以宝安县的行政区域为深圳市的行政区域，市革命委员会驻深圳"
+  summary: "The State Council approved Bao'an County as Shenzhen City, with the municipal revolutionary committee seated at Shenzhen."
+  date: { value: "1979-03-05", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The reply keeps the revolutionary-committee form; the municipal people's government is not established until late 1981."
+
+- id: phase1.politics.province_decision_1979
+  source: phase1_szdag_administrative_history
+  locator: "1979 年条"
+  quote: "1979年1月23号，中共广东省委发布《关于设立深圳市和珠海市的决定》（粤字[1979]3号），撤销宝安县，设立深圳市，为省辖市"
+  summary: "The Guangdong Provincial Party Committee decided in January 1979 to replace Bao'an County with Shenzhen City, initially under provincial and Huiyang prefecture dual leadership."
+  date: { value: "1979-01-23", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The provincial decision was announced internally first; the State Council reply followed on 5 March."
+
+- id: phase1.politics.central_work_conference_1979
+  source: phase1_cpc_history_1979_04
+  locator: "1979年4月5日—28日条"
+  quote: "还是叫特区好，陕甘宁开始就叫特区嘛！中央没有钱，可以给些政策，你们自己去搞，杀出一条血路来。"
+  summary: "At the April 1979 central work conference Deng Xiaoping endorsed Guangdong's proposal for special zones and supplied the name 'special zone'."
+  date: { value: "1979-04", precision: "month" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Conference ran 5–28 April 1979. The quotation is the standard party-history text."
+
+- id: phase1.politics.special_policies_1979
+  source: phase1_people_daily_1979_50
+  locator: "Section on the July 1979 50号文件"
+  quote: "中央确定，对两省对外经济活动实行特殊政策和灵活措施"
+  summary: "Central Document 50 of 1979 gave Guangdong and Fujian special policies and flexible measures in foreign economic activity."
+  date: { value: "1979-07-15", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The document is dated 15 July and was circulated on 19 July 1979. This source is a memoir by a provincial official (tier D); a second official text should be found before verification."
+
+- id: phase1.politics.provincial_city_1979
+  source: phase1_szdag_administrative_history
+  locator: "1979 年 11 月 26 日条"
+  quote: "深圳市升格为地区一级的省辖市，由广东省委直接领导，政权机关称深圳市革命委员会。"
+  summary: "On 26 November 1979 Shenzhen was upgraded to a prefecture-level provincial municipality under direct provincial leadership."
+  date: { value: "1979-11-26", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The same notice put the city's plans on the provincial list from 1 January 1980."
+
+- id: phase1.politics.shenzhen_first_1980
+  source: phase1_state_council_1980_05_16
+  locator: "纪要第七节，经济特区建设"
+  quote: "广东应首先集中力量把深圳特区建设好，其次是珠海。"
+  summary: "The May 1980 central approval of the two-province meeting minutes told Guangdong to concentrate first on building the Shenzhen zone."
+  date: { value: "1980-05-16", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The same approval changed 'export zone' to 'special economic zone'."
+
+- id: phase1.politics.sez_market_1980
+  source: phase1_state_council_1980_05_16
+  locator: "纪要第七节，经济特区建设"
+  quote: "特区主要是实行市场调节。"
+  summary: "The May 1980 minutes stated that the special zone would mainly rely on market regulation."
+  date: { value: "1980-05-16", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "This strong formulation is the background against which the 1982 'planned economy first' language reads as a retreat."
+
+- id: phase1.politics.sez_not_concession_1981
+  source: phase1_central_1981_27
+  locator: "纪要第二部分（二）"
+  quote: "我国特区是经济特区，不是政治特区。"
+  summary: "The 1981 minutes answered the charge that the zones were concessions: they were economic, not political, special zones, under full Chinese sovereignty."
+  date: { value: "1981-07-19", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Central Document 27 of 1981, approved 19 July; the meeting ran 27 May–14 June."
+
+- id: phase1.politics.sez_government_1981
+  source: phase1_central_1981_27
+  locator: "纪要第四部分（十）"
+  quote: "深圳特区应成立特区人民政府，归省直接领导；恢复宝安县建制"
+  summary: "The 1981 minutes required a Shenzhen zone people's government under direct provincial leadership and the restoration of Bao'an County."
+  date: { value: "1981-07-19", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Implemented by the provincial appointment notice of 20 October 1981; the name was changed to 深圳市人民政府 on 21 December 1981."
+
+- id: phase1.politics.chenyun_summary_1981
+  source: phase1_cass_chenyun_sez
+  locator: "1981年12月各省市区党委第一书记座谈会"
+  quote: "特区第一位的任务是认真总结经验"
+  summary: "At the December 1981 provincial first-secretaries' forum Chen Yun said the zones' first task was to sum up experience, and that no new zones should be added."
+  date: { value: "1981-12", precision: "month" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The exact day (22 December) appears in memoir literature, not in this source. This is the turn in the political weather."
+
+- id: phase1.politics.smuggling_notice_1982
+  source: phase1_cpc_1982_01_11
+  locator: "通知正文第一段"
+  quote: "对于这个严重毁坏党的威信，关系到我党生死存亡的重大问题，全党一定要抓住不放"
+  summary: "The 11 January 1982 emergency notice launched the campaign against smuggling and corruption by cadres, with Guangdong named as the main channel."
+  date: { value: "1982-01-11", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The immediate trigger was a Central Discipline Inspection Commission briefing on Guangdong smuggling."
+
+- id: phase1.politics.concession_material_1982
+  source: phase1_szdag_hu_qiaomu
+  locator: "1982年2月13日胡乔木插话"
+  quote: "书记处研究室编的《旧中国租界的由来》这个材料，值得一看，也可以发下去"
+  summary: "At the February 1982 two-province forum Hu Qiaomu recommended circulating a Secretariat research-office compilation on the origin of the old foreign concessions."
+  date: { value: "1982-02-13", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Title variants in the memoir literature: 《旧中国租界的由来》, 《上海租界的由来》, 《租界的由来》. See the conflict record."
+
+- id: phase1.politics.chenyun_concession_warning_1982
+  source: phase1_szdag_hu_qiaomu
+  locator: "陈云在《旧中国租界的由来》材料上的批示"
+  quote: "此件发全国各省市。对于办经济特区，要警惕这类问题。"
+  summary: "Chen Yun instructed that the concession material be circulated to every province and that special-zone work be warned against this kind of problem."
+  date: { value: "1982-02", precision: "month" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The material was printed for the 11–13 February 1982 forum; the instruction is dated only to February in this source."
+
+- id: phase1.politics.two_provinces_meeting_1982
+  source: phase1_ren_zhongyi_interview
+  locator: "五、严厉打击严重经济犯罪活动"
+  quote: "2月11日至13日，中央书记处召开广东、福建两省座谈会"
+  summary: "The Central Secretariat held the Guangdong-Fujian two-province forum from 11 to 13 February 1982."
+  date: { value: "1982-02-11", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The meeting ran 11–13 February."
+
+- id: phase1.politics.shanghai_daotai_1982
+  source: phase1_ren_zhongyi_interview
+  locator: "五、严厉打击严重经济犯罪活动"
+  quote: "深圳特区有人与梁湘开玩笑，问他像不像当年清朝那个腐朽透顶、昏庸无知、把地‘租’给帝国主义、丧权辱国的‘上海道台’？"
+  summary: "After the concession material circulated, people in Shenzhen joked that Liang Xiang resembled the Qing Shanghai daotai who leased land to the foreigners."
+  date: { value: "1982-02", precision: "month" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Ren Zhongyi's recollection; the quotation is his paraphrase of the joke, not a documented public statement."
+
+- id: phase1.politics.march_1982_circular
+  source: phase1_szdag_hu_qiaomu
+  locator: "1982年3月1日条"
+  quote: "政治上必须坚持四项基本原则；经济上必须保证社会主义经济占绝对优势，坚持以计划经济为主、市场调节为辅"
+  summary: "The 1 March 1982 circulation of the two-province forum minutes set the political and economic conditions: four cardinal principles and 'planned economy first, market regulation supplementary'."
+  date: { value: "1982-03-01", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Central Document 17 of 1982. The same package carried the concession material to the whole party."
+
+- id: phase1.politics.economic_crime_1982
+  source: phase1_cpc_1982_04_13
+  locator: "决定第（五）节"
+  quote: "实行对外开放和对内搞活经济的政策，必须坚持以计划经济为主、市场调节为辅的根本原则"
+  summary: "The April 1982 decision against serious economic crime restated that opening up must proceed under a planned-economy-first framework."
+  date: { value: "1982-04-13", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Central Document 22 of 1982, published in People's Daily on 14 April."
+
+- id: phase1.politics.open_door_unchanged_1982
+  source: phase1_cpc_1982_04_13
+  locator: "决定第（五）节"
+  quote: "这一政策决不会由于打击严重破坏经济的罪犯而发生改变和动摇"
+  summary: "The same decision insisted that the open-door policy would not change because of the anti-crime campaign."
+  date: { value: "1982-04-13", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "This is the reassurance half of the 1982 package; the campaign half is the emergency notice and the 13 April decision."
+
+- id: phase1.politics.12th_congress_1982
+  source: phase1_cpc_12th_congress_1982
+  locator: "开幕词"
+  quote: "走自己的道路，建设有中国特色的社会主义"
+  summary: "At the Twelfth Party Congress Deng Xiaoping's opening speech coined 'socialism with Chinese characteristics'."
+  date: { value: "1982-09-01", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Congress ran 1–11 September 1982."
+
+- id: phase1.politics.output_target_1982
+  source: phase1_cpc_12th_congress_1982
+  locator: "大会报告摘要"
+  quote: "力争使全国工农业的年总产值翻两番"
+  summary: "The Twelfth Congress set a target of quadrupling gross industrial and agricultural output by the end of the century."
+  date: { value: "1982-09-01", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The target is from Hu Yaobang's report, not Deng's opening speech; the page carries both."
+
+- id: phase1.politics.chenyun_summary_1982
+  source: phase1_szdag_hu_qiaomu
+  locator: "1982年10月30日条"
+  quote: "特区要办，必须不断总结经验，力求使特区办好。"
+  summary: "On 30 October 1982 Chen Yun approved Guangdong's trial-zone summary and said the zone must be run, with experience constantly summed up."
+  date: { value: "1982-10-30", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "This is the signal that the 1982 storm would not end the zone."
+
+- id: phase1.politics.new_50_1982
+  source: phase1_state_council_1982_50
+  locator: "通知正文"
+  quote: "特区要有更多的自主权"
+  summary: "The December 1982 special-zone minutes (the 'new Document 50') called for more autonomy for the zones."
+  date: { value: "1982-12-03", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Central Document 50 of 1982, the only central document devoted wholly to the zones in the 1980s."
+
+- id: phase1.politics.sez_comprehensive_1982
+  source: phase1_state_council_1982_50
+  locator: "纪要开头，规划目标段"
+  quote: "深圳、珠海特区要逐步办成兼营工、商、农、牧、住宅、旅游业的综合性特区"
+  summary: "The December 1982 minutes defined Shenzhen and Zhuhai as comprehensive zones combining industry, commerce, agriculture, housing and tourism."
+  date: { value: "1982-12-03", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "This undercuts a simple three-way 'industry / trade / commerce' priority choice; the historical zone was explicitly comprehensive."
+
+- id: phase1.politics.hu_yaobang_1983
+  source: phase1_people_daily_hu_yaobang_1983
+  locator: "1983年2月8日考察"
+  quote: "中央要求你们要创新，新事新办、特事特办、立场不变、方法全新。"
+  summary: "During his February 1983 Shenzhen visit Hu Yaobang told the city to innovate: new things handled in new ways, the stand unchanged, the methods wholly new."
+  date: { value: "1983-02-08", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Visit 7–9 February 1983; the inscription is dated to the visit. The trip was not publicly reported at the time."
+
+- id: phase1.politics.deng_via_gumu_1983
+  source: phase1_ren_zhongyi_interview
+  locator: "1983年2月视察之后"
+  quote: "现在办得不错，中外承认，不存在抹掉不干的问题"
+  summary: "On 25 June 1983 Gu Mu relayed Deng Xiaoping's view that the zones were doing well, were recognised at home and abroad, and would not be abolished."
+  date: { value: "1983-06-25", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Ren Zhongyi's recollection of Gu Mu's relay; the original instruction is not quoted in full."
+
+- id: phase1.politics.strike_hard_1983
+  source: phase1_cpc_1983_08_25
+  locator: "决定开头"
+  quote: "依法‘从重从快，一网打尽’"
+  summary: "The 25 August 1983 decision launched a three-year campaign against serious crime."
+  date: { value: "1983-08-25", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The public-security campaign is distinct from the 1982 economic-crime campaign."
+
+- id: phase1.politics.rectification_1983
+  source: phase1_cpc_1983_10_11
+  locator: "公报第一段"
+  quote: "一致通过了《中共中央关于整党的决定》"
+  summary: "The October 1983 second plenum of the Twelfth Central Committee adopted the decision to rectify the party over three years."
+  date: { value: "1983-10-12", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Plenum ran 11–12 October 1983."
+
+- id: phase1.politics.spiritual_pollution_1983
+  source: phase1_cpc_history_1983_10_11
+  locator: "1983年10月11日条"
+  quote: "思想战线主要是理论战线和文艺战线不能搞精神污染"
+  summary: "At the same plenum Deng Xiaoping said the ideological front, mainly theory and literature, must not produce 'spiritual pollution'."
+  date: { value: "1983-10-12", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The campaign that followed was wound down in early 1984; do not model it as a single dated event."
+
+- id: phase1.local.city_organs_1979
+  source: phase1_szbaike_administrative_reform
+  locator: "1979年8月段"
+  quote: "市级机构共61个，其中部委办级机构17个，局级机构44个，比原来的宝安县机关增加12个机构"
+  summary: "In August 1979 the city set up 61 municipal organs, 12 more than the former Bao'an county apparatus."
+  date: { value: "1979-08", precision: "month" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Use as colour for the new city's machinery, not as a mechanic."
+
+- id: phase1.local.donghu_liyuan_contract_1979
+  source: phase1_szdag_donghu_liyuan
+  locator: "1979年12月31日条"
+  quote: "深圳市政府出让土地使用权、港商提供盖楼所需资金并负责销售，所得利润由深圳、港商各占85%、15%的比例进行分配"
+  summary: "On 31 December 1979 Shenzhen signed a land-for-capital housing contract with a Hong Kong developer, splitting profits 85:15."
+  date: { value: "1979-12-31", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The contract was signed as a 'compensation trade' because land leasing was not yet lawful. Some oral histories date the signing to 1 January 1980; see the conflict record."
+
+- id: phase1.local.donghu_liyuan_sales_1980
+  source: phase1_szdag_donghu_liyuan
+  locator: "第一期销售段"
+  quote: "第一期108套房源在香港妙丽房产购房中心销售，售价为2730元/平方米，比香港楼市价格便宜一半，仅3天就销售一空"
+  summary: "The first 108 East Lake Garden flats sold in Hong Kong within three days at about half the Hong Kong price."
+  date: { value: "1980-02", precision: "month" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The sale is placed at the 1980 Spring Festival in the oral histories; the archive gives no day. Do not put the price in a card: it is a params-scale detail."
+
+- id: phase1.local.shekou_slogan_1981
+  source: phase1_szns_shekou_slogan
+  locator: "1981年条"
+  quote: "1981年3月，蛇口工业区建设指挥部总指挥袁庚提出“时间就是金钱，效率就是生命”口号"
+  summary: "In March 1981 Yuan Geng proposed the Shekou slogan 'Time is money, efficiency is life'."
+  date: { value: "1981-03", precision: "month" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The slogan was controversial and its sign was removed and re-erected more than once."
+
+- id: phase1.local.shekou_slogan_sign_1981
+  source: phase1_szns_shekou_slogan
+  locator: "1981年11月条"
+  quote: "1981年11月，口号木牌竖在工业一路和工业大道交界处"
+  summary: "In November 1981 a wooden slogan board went up at the junction of Gongye First Road and Gongye Avenue in Shekou."
+  date: { value: "1981-11", precision: "month" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Shekou is off the playable map; use the sign as political weather, not as a city project."
+
+- id: phase1.local.sztqb_trial_1981
+  source: phase1_sztqb_founding
+  locator: "试刊段"
+  quote: "1981年6月6日第一期试刊"
+  summary: "The Shenzhen Special Zone Daily published its first trial issue on 6 June 1981."
+  date: { value: "1981-06-06", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Printed in Hong Kong because the city had no press; the masthead was red and the front page carried advertising."
+
+- id: phase1.local.sztqb_founded_1982
+  source: phase1_sztqb_founding
+  locator: "创刊段"
+  quote: "《深圳特区报》于1982年5月24日正式创刊"
+  summary: "The Shenzhen Special Zone Daily was formally launched on 24 May 1982 after five trial issues."
+  date: { value: "1982-05-24", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: ""
+
+- id: phase1.local.sez_government_1981_10
+  source: phase1_szdag_administrative_history
+  locator: "1981年10月20日条"
+  quote: "深圳市经济特区人民政府正式成立，深圳市革命委员会取消"
+  summary: "On 20 October 1981 the Shenzhen Special Economic Zone People's Government was established and the municipal revolutionary committee abolished."
+  date: { value: "1981-10-20", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "This is the institutional break the opening letter points to: the city is not a 'people's government' in March 1979."
+
+- id: phase1.local.sz_gov_rename_1981_12
+  source: phase1_szbaike_administrative_reform
+  locator: "1981年12月21日段"
+  quote: "经国务院批准同意定名为深圳市人民政府"
+  summary: "On 21 December 1981 the provincial government replied that, with State Council approval, the name would be 深圳市人民政府."
+  date: { value: "1981-12-21", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The zone government existed for two months under the longer name before this change."
+
+- id: phase1.local.census_1982
+  source: phase1_gd_gazette_1982_census
+  locator: "普查办法第七条"
+  quote: "一九八二年七月一日零时（即六月三十日二十四时），为全国人口普查登记的标准时间"
+  summary: "The third national census took 1 July 1982, 00:00, as its standard time."
+  date: { value: "1982-07-01", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: ""
+
+- id: phase1.local.census_total_1982
+  source: phase1_szbaike_census_1982
+  locator: "普查结果段"
+  quote: "深圳市总户数82706户；总人口351883人"
+  summary: "The 1982 census counted 82,706 households and 351,883 people in Shenzhen City."
+  date: { value: "1982-07-01", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Citywide 深圳市, not the special zone. Context only; never a sim target."
+
+- id: phase1.local.szu_opens_1983
+  source: phase1_szu_chronology
+  locator: "1983年9月27日条"
+  quote: "在深圳戏院隆重举行深圳大学成立暨首届开学典礼"
+  summary: "Shenzhen University held its founding and first opening ceremony on 27 September 1983."
+  date: { value: "1983-09-27", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "216 students in four departments; the campus was still under construction."
+
+# The three variants of the 1982 'concession origins' material, kept apart.
+- id: phase1.politics.concession_material_yuguangyuan_1982
+  source: phase1_zhangjun_shenzhen_miracle
+  locator: "于光远回忆，1982年1月段"
+  quote: "北京有一个单位制定了白头文件，题目是‘上海租界的由来’"
+  summary: "Yu Guangyuan recalled a January 1982 white-paper document from a Beijing unit titled 'The Origin of the Shanghai Concession'."
+  date: { value: "1982-01", precision: "month" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "A memoir quoted in a book excerpt (tier D). It supports the January date and the '上海租界' title variant, not the newspaper publication."
+
+- id: phase1.politics.concession_material_chengkai_1982
+  source: phase1_chengkai_memoir
+  locator: "1982年段"
+  quote: "《租界的由来》发表于《解放军报》，由上海《文汇报》转载"
+  summary: "Cheng Kai recalled the piece as 'The Origin of the Concession', published in the PLA Daily and reprinted by Shanghai's Wenhui Daily."
+  date: { value: "1982", precision: "year" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "A journalist's memoir (tier D); it supports the short title and a newspaper route, but gives no month."
+
+- id: phase1.local.donghu_liyuan_contract_1980
+  source: phase1_chinanews_luo_jinxing
+  locator: "与港商合作建商品房段"
+  quote: "1980年1月1日我和他签了约"
+  summary: "Luo Jinxing recalls signing the East Lake Garden contract with Liu Tianjiu on 1 January 1980."
+  date: { value: "1980-01-01", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "Oral history (tier D). The municipal archive dates the document to 31 December 1979; see the conflict record."
+
+- id: phase1.local.sztqb_decision_1980
+  source: phase1_sztqb_founding
+  locator: "1980年11月15日段"
+  quote: "1980年11月15日，中共深圳市委常委会议作出决定：由市委宣传部负责筹办一份报纸"
+  summary: "On 15 November 1980 the Shenzhen Municipal Party Committee Standing Committee decided to found a city newspaper, with the propaganda department responsible."
+  date: { value: "1980-11-15", precision: "day" }
+  status: sourced
+  extracted_by: "ai:deepseek-v4.1-flash"
+  notes: "The first trial issue followed on 1981-06-06; the formal launch on 1982-05-24."

@@ -83,6 +83,15 @@ The prologue teaches the sim through history, with no text tutorial. Powers star
 - **Advance crews in 1979-Q4.** Eyewitness accounts document late-1979 movements. The tutorial card represents an advance deployment on the prologue turn. The first arrival across all units and the total number present that quarter remain open. The 1982 card represents the much larger mobilization. [Construction corps research](../../research/phase1-1979-1984.md#the-construction-corps)
 - **The 1980-Q2 snapshot** (§9.1) is saved at the end of the prologue. It is the goal the prologue is calibrated against, and an alternative start at 1980-Q3.
 
+**R9 framing (2026-11-25).** The beats above are the tutorial's mechanics. Four need reframing before R9.
+The city is governed by a **市革命委员会** until the zone people's government of 1981-10-20 (renamed
+深圳市人民政府 on 1981-12-21), so the opening uses the committee, not a mayoralty. The Q1 1979 "first
+project" is the city's own survey; the documented Luohu formation package and loan are 1980. The 1980-Q1
+co-financing should carry that formation package, not an undocumented Hong Kong power line. The Q3 1979
+permit card is about applying the province's border and residence rules, not inventing a permit regime. A
+non-blocking `news` layer adds the 1981–1983 political weather; see
+`docs/design/systems/prologue-flavor-and-news.md` and `docs/research/phase1-political-calendar.md`.
+
 ---
 
 ## 3. The map
@@ -1087,6 +1096,7 @@ M5b fills the slice's calendar on M5a's events step: the prologue beats, the rem
   - `veto { reason }`: that year's review fails (the fire's order check);
   - `end_run`: the scenario ends (`ended`), and the card carries the verdict. **The month stops at the events step:** steps 3–14 do not run and the date does not advance, so the final state is the previous month's, and no later step raises a card (no deficit card from the zero grant). Its cards can still be answered, as for the last turn (§5.1).
 - **Cards.** A non-interrupting event card lapses at the start of the next turn, as M5a's. With `card.lapse: <option>`, a lapse takes that option's effects, so a crisis cannot be ignored for free (the typhoon lapses to `defer`; the fire, escapes and petition to `noted`). The prologue's decisions (the first project, the permit choice, the corps' advance, the co-financing, the readiness check) interrupt, so under quarterly turns each is answered in the quarter that raises it. A card that only reports offers `noted`.
+- **News (R9).** A record with `family: news`, `news: { desk, tone, weather? }` and `text: { zh, en }`, and **no card and no effects**. It fires once, is recorded in `events.fired`, and the briefing renders one lead item and at most two one-liners under the quarter's lead. `desk` is `beijing | province | city | hong_kong`; `tone` is `opening | warning | relief | texture`; `weather` is an optional -2..+2 read by the investor and scrutiny steps through a four-quarter window. A news record requires at least one claim, and its text follows the flavour rule (`sourced` for every factual detail). The compiler rejects a news record with a card or an effect. The calendar is in `docs/design/systems/prologue-flavor-and-news.md`.
 
 **The prologue beats** (§2.1). Each prologue quarter raises at least one card whose options lead to different states:
 
@@ -1639,6 +1649,13 @@ Every historical statement cites claim IDs (AGENTS.md). Claims that don't exist 
 | 14 | Young villagers escape to Hong Kong (strongest before the SEZ; the 1979-Q3 beat) | emergent | — | `phase1.event.escapes_1979` (lead) |
 | 15 | A village petitions over land compensation | emergent | — | design_note |
 | 16 | Unannounced inspection team; the pre-inspection sweep card (§6.8) | emergent (Q4) | — | design_note |
+
+**The political news layer (R9, 2026-11-25).** Twenty-four non-card `news` records carry the 1979–1984 political
+weather: one lead item a quarter, eight with a small `weather` value, two with a decision card (the 1982-Q1
+concession storm and the 1983-Q4 plenum). They are not "about 15 events" above; they are a separate, additive
+layer. The selected list, the dropped list and the text are in
+`docs/design/systems/prologue-flavor-and-news.md`; the evidence is in
+`docs/research/phase1-political-calendar.md` and `data/evidence/claims/phase1_political_calendar.yaml`.
 
 ### 7.1 The SEZ's establishment: the major early event
 The six prologue quarters (1979-Q1 to 1980-Q2, §2.1) are a **prologue with a deadline**. The player knows a zone is coming, but not its terms.

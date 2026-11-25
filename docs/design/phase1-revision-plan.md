@@ -439,6 +439,52 @@ tool the next beat needs. Then the SEZ hands over the rest.
   run on bought power (§3.3); the first power station can be ordered from the SEZ beat, so it finishes inside the
   slice.
 
+**Framing (2026-11-25).** Four of these beats need reframing before they are built: the office is a
+市革命委员会 until late 1981, the Q1 1979 first project is the city's own survey rather than the documented
+Luohu works, the 1980-Q1 co-financing should carry the Luohu formation package rather than an undocumented
+Hong Kong power line, and the Q3 1979 permit card is about applying the province's rules, not inventing a
+permit regime. The mechanics above stand. See §4.3.
+
+### 4.3 The political weather and the news layer (research done, 2026-11-25)
+
+**Decision: a separate `news` family, not a card for every political event.** The zone's 1981–1983 history is a
+fight over whether it is a concession, a smuggling channel or a model, and R9 currently jumps from the SEZ
+(1980-Q3) to the visit (1984-Q1) with almost none of it. But twenty political cards would bury the prologue's
+one-beat-per-quarter discipline. The news layer carries the weather; cards stay for decisions.
+
+- **Shape.** A `news` event fires once, is recorded in `events.fired`, has `news: { desk, tone, weather? }` and
+  `text: { zh, en }`, no card and no effects. The briefing renders one lead item and at most two one-liners.
+  The `weather` value (-2..+2) is read by the investor and scrutiny steps through a four-quarter window; it is
+  optional and can wait.
+- **Coverage.** Twenty-four entries cover 1979-Q1 to 1984-Q1, one lead per quarter. Eight carry a weather value;
+  two are decisions: the 1982-Q1 concession storm (`1982 《旧中国租界的由来》`) and the 1983-Q4 plenum
+  (rectification and "spiritual pollution"). The rest are colour.
+- **Selection rule.** An item earns a place only if it changes a decision, explains a mechanic, is directly
+  about the city, or is a visible weather vane. Plena and congresses that do not change the zone's room to
+  manoeuvre are dropped; the dropped list is in the note.
+- **The opening voice.** Two letters, both fiction: a provincial organization-department assignment and a
+  handover note from the outgoing county office. The first gives the mission; the second gives three tasks
+  (hang the map, choose one piece of land, watch the grant) and the period's tone. "The city seal is not cut
+  yet" replaces a tutorial pop-up.
+- **The 1982 card.** Options are postures, not outcomes: write the summary honestly, answer the concession
+  charge in public, or send numbers only. The detailed effects wait for the politics pass.
+- **The 1981 institutional beat.** The 1981-07 Document 27 requires a zone people's government; the
+  government is established 1981-10-20 and renamed 深圳市人民政府 on 1981-12-21. This is the end of the
+  opening's transitional form and belongs in the news layer.
+
+**Not in this pass:** factions, elite politics, a response tree, a public-opinion model. The user's "later" is
+the right call.
+
+**Where it is written:** `docs/design/systems/prologue-flavor-and-news.md` (design, text, calendar) and
+`docs/research/phase1-political-calendar.md` (dates, sources, uncertainties, selection). New evidence:
+`data/evidence/claims/phase1_political_calendar.yaml`, `data/evidence/sources/phase1_political_calendar.yaml`,
+`data/evidence/conflicts/phase1_political_calendar.yaml`. Two conflicts are open: the title/medium of the 1982
+concession material, and the East Lake Garden signing date.
+
+**Spec edits for the implementation:** §2.1's prologue table (reframed beats), §5.8 (the `news` family and
+briefing section), §7 (the twenty-four records). No code yet.
+
+
 ### 4.2 Recalibration
 - Re-run the §9 checkpoints for all five policies. Explain every golden that moves.
 - Targets: `historical_prologue` and `aggressive` inside their bands as now; `cautious` may improve once the prologue

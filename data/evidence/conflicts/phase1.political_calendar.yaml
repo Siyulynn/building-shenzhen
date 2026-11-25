@@ -1,0 +1,37 @@
+- id: conflict.phase1.concession_material.1982
+  subject: "Title, medium and date of the 1982 'concession origins' material"
+  claims:
+    - phase1.politics.concession_material_1982
+    - phase1.politics.concession_material_yuguangyuan_1982
+    - phase1.politics.concession_material_chengkai_1982
+  diagnosis: |
+    The municipal archive and Hu Qiaomu's 1982 remarks call it 《旧中国租界的由来》, a
+    Secretariat research-office compilation (书记处研究室编) recommended at the 11–13
+    February 1982 two-province forum and printed with Chen Yun's instruction. Yu Guangyuan
+    recalls a January 1982 white-paper document from a Beijing unit titled 《上海租界的由来》.
+    Cheng Kai recalls a shorter 《租界的由来》 published in the PLA Daily and reprinted by
+    Shanghai's Wenhui Daily. The three may describe the same compilation at different
+    stages (internal white paper, forum handout, newspaper publication), or two different
+    items. No claimant has produced the printed item itself.
+  resolution:
+    event_title: "Use 《旧中国租界的由来》 and call it a Secretariat research-office compilation."
+    event_date: "February 1982 (the two-province forum), not January and not a named newspaper day."
+    card_text: "Do not name a newspaper or a publication day. Say 'a compilation on the old concessions was circulated'."
+    research: "Find the printed item, its cover title and any newspaper printing before the card states a title as fact."
+  status: open
+
+- id: conflict.phase1.donghu_liyuan.signing_date
+  subject: "Signing date of the East Lake Garden (东湖丽苑) land-for-capital contract"
+  claims:
+    - phase1.local.donghu_liyuan_contract_1979
+    - phase1.local.donghu_liyuan_contract_1980
+  diagnosis: |
+    The municipal archive dates the agreement to 31 December 1979 and names it
+    《建设与出售深圳华侨新村楼宇协议书》. Luo Jinxing, the city official who signed,
+    recalls 1 January 1980. The difference is one day and probably separates the
+    document date from the public signing or the company's founding (8 January 1980).
+  resolution:
+    event_date: "1980-01, for a Q1 1980 news item. The contract is the turn-of-the-year fact, not a precise day."
+    encyclopedia: "Give the archive's 31 December 1979 as the document date and note the oral 1 January 1980."
+    research: "Check the original agreement and the company registration before using either day as an anchor."
+  status: open
