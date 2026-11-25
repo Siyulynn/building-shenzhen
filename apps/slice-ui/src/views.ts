@@ -9,7 +9,7 @@ import {
   zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
   VILLAGE_ARCHETYPES, SOURCE_KINDS, areaTakes, poolFactor, powerPool, importedKw, utilityShares,
-  firmFreight, freightContent, freightNetwork, crewPool, modifierLive, lockedGate,
+  firmFreight, freightContent, freightNetwork, crewPool, modifierLive,
   type CardInstance, type CellRuns, type EventDef, type EventEffect, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
   type WorksOrder, type Zone, type LandCoverClass, landCoverAt,
 } from '@sz/sim-core';
@@ -234,11 +234,6 @@ export function gateLock(s: GameState, slice: Slice, gate: string): L | undefine
   const g = (slice.tick.gates ?? []).find((x) => x.gate === gate);
   if (!g || s.events.unlocked.includes(g.requires)) return undefined;
   return { zh: `${S.T.opensWith.zh}${g.opener.name.zh}`, en: `${S.T.opensWith.en}${g.opener.name.en}` };
-}
-/** The same for an action: the first locked gate it needs, read through sim-core's own predicate. */
-export function actionLock(s: GameState, slice: Slice, a: PlayerAction): L | undefined {
-  const g = slice.tick.gates?.length ? lockedGate(s, slice.tick.gates, a) : undefined;
-  return g ? { zh: `${S.T.opensWith.zh}${g.opener.name.zh}`, en: `${S.T.opensWith.en}${g.opener.name.en}` } : undefined;
 }
 
 export interface NewsItem { id: string; desk: string; name: L; text?: L; letter: boolean }

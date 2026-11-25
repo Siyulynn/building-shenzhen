@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { formatYM, type Slice } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { newSession, type Session } from '../src/controller.js';
-import { initialUi, renderBriefing, renderFlyout, renderPreview, renderRail, type View } from '../src/render.js';
+import { DRAWER_BODY, initialUi, renderBriefing, renderFlyout, renderPreview, renderRail, type View } from '../src/render.js';
 import * as S from '../src/strings.js';
 import { planGesture, type ToolOptions } from '../src/tools.js';
 import { actionLabel, gateLock, modifiersView, newsView } from '../src/views.js';
@@ -40,6 +40,19 @@ describe('R9 locked tools (§11.2)', () => {
     expect(road).not.toContain('data-cls="avenue"');
     expect(road).toContain(esc(S.T.opensWith.en + opener('road.avenue').opener.name.en));
     expect(road).toContain('data-cls="street"');
+  });
+});
+
+describe('R9 locked Govern controls (§11.2)', () => {
+  it('greys the team contract and the power purchase until their keys are set', () => {
+    const x = newSession(slice);
+    const building = DRAWER_BODY.building(view(x)), economy = DRAWER_BODY.economy(view(x));
+    expect(building).toContain(esc(S.T.opensWith.en + opener('team.contract').opener.name.en));
+    expect(economy).toContain(esc(S.T.opensWith.en + opener('power.buy').opener.name.en));
+    expect(economy).not.toContain('data-act="buyPower"');
+    const open = opened(x, opener('team.contract').requires, opener('power.buy').requires);
+    expect(DRAWER_BODY.economy(view(open))).toContain('data-act="buyPower"');
+    expect(DRAWER_BODY.building(view(open))).not.toContain(esc(S.T.opensWith.en + opener('team.contract').opener.name.en));
   });
 });
 

@@ -166,3 +166,16 @@ describe('R9 works pace (§5.6)', () => {
     expect(saveToJson(saveGame(end, loaded.rng, content))).toBe(text);
   });
 });
+
+describe('R9 pace is refused where it cannot buy time (§5.6)', () => {
+  it('on a power station, before its forex is drawn, and on a co-financed order', () => {
+    const s = funded();
+    const before = JSON.stringify(s);
+    expect(() => apply(s, { type: 'place_structure', kind: 'power_station', cell: [361, 347], attach: [361, 346], pace: 'push' }))
+      .toThrow(/its own pace/);
+    expect(JSON.stringify(s)).toBe(before);
+    apply(s, { type: 'build_road', path: SPUR });
+    s.worksOrders[0]!.cofinanced = true;
+    expect(() => apply(s, { type: 'set_works_pace', order: s.worksOrders[0]!.id, pace: 'all_out' })).toThrow(/co-financed/);
+  });
+});

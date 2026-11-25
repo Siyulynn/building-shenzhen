@@ -161,7 +161,7 @@ export function renderFlyout(v: View): string {
   // R7 (§13 vocabulary): the Form site hint, wherever site formation is ordered
   const formation = `<div class="hint"><b>${t(S.T.siteFormation)}:</b> ${t(S.T.formationHint)}</div>`;
   if (k === 'service') body += formation + paceRow(v);
-  if (k === 'power' || k === 'station') body += paceRow(v);
+  if (k === 'power') body += paceRow(v);                // a station builds at its own pace (§5.6)
   if (k === 'zone') {
     // R8b (§11.2): public is gone; facilities are placed directly
     const uses = LAND_USES.filter((u) => u !== 'reserve').map((u) => {
@@ -290,6 +290,7 @@ export function renderDecisions(v: View): string {
 
 function drawerBuilding(v: View): string {
   const t = tx(v.lang), { x, slice } = v;
+  const teamLock = gateLock(x.state, slice, 'team.contract');
   const works = worksView(x.state, slice).map((w) => `<div class="card"><b>#${w.id}</b> ${t(w.kind)} · ${t(w.where)}
       <div class="muted">${t(w.stage)}${w.waiting ? ` · ${t(w.waiting)}` : ''} · ${yuan(w.spent)} / ${yuan(w.budget)} · ${t(S.T.remaining)} ${yuan(w.budget - w.spent)}</div>
       ${bar(w.total ? w.done / w.total : 0)}
@@ -302,7 +303,8 @@ function drawerBuilding(v: View): string {
   return `<h2>${t(S.T.worksQueue)}</h2>${works}
     ${projects ? `<h2>${t(S.T.projectsList)}</h2>${projects}` : ''}
     <h2>${t(S.T.teams)}</h2>${teamsView(x.state, slice).map((m) => `<div class="q"><span>${t(m.name)} <span class="muted">${num(m.crew)} · ${yuan(m.costPerMonth)}/${t(S.T.month)}</span></span>
-      ${m.live ? `<span class="muted">${t(S.T.live)}</span>` : `<button data-act="team" data-id="${esc(m.id)}" ${off(v)}>${t(S.T.contract)}</button>`}</div>`).join('')}`;
+      ${m.live ? `<span class="muted">${t(S.T.live)}</span>` : teamLock ? lockedButton(teamLock, v.lang, t(S.T.contract))   // R9 (§11.2)
+        : `<button data-act="team" data-id="${esc(m.id)}" ${off(v)}>${t(S.T.contract)}</button>`}</div>`).join('')}`;
 }
 
 function drawerBudget(v: View): string {
@@ -340,6 +342,7 @@ function drawerPopulation(v: View): string {
 
 function drawerEconomy(v: View): string {
   const t = tx(v.lang), tr = row(v.lang), s = v.x.state;
+  const buyLock = gateLock(s, v.slice, 'power.buy');
   const bySector = new Map<string, { jobs: number; filled: number }>();
   for (const j of s.labour.jobs) { const r = bySector.get(j.sector) ?? { jobs: 0, filled: 0 }; bySector.set(j.sector, { jobs: r.jobs + j.jobs, filled: r.filled + j.filled }); }
   const exportsQ = s.history.exports.slice(-3).reduce((a, n) => a + n, 0);
@@ -351,7 +354,8 @@ function drawerEconomy(v: View): string {
       ${tr(S.T.powerOnOrder, num(pw.onOrder))}${tr(S.T.powerStations, num(pw.stations))}${tr(S.T.powerSited, num(pw.sited))}${tr(S.T.powerSpare, num(pw.spare))}
       ${tr(S.T.powerUnmet, pw.unmet.length ? pw.unmet.map((a) => t(areaName(s, a))).join(' · ') : t(S.T.none))}</table>
     <div class="muted">${t(S.T.buyPowerHint)}</div>
-    <button data-act="buyPower" data-kw="${pw.step}" ${pw.step > 0 ? off(v) : 'disabled'}>${t(S.T.buyPower)} ${num(pw.step)} kW</button>
+    ${buyLock ? lockedButton(buyLock, v.lang, `${t(S.T.buyPower)} ${num(pw.step)} kW`)   // R9 (§11.2)
+      : `<button data-act="buyPower" data-kw="${pw.step}" ${pw.step > 0 ? off(v) : 'disabled'}>${t(S.T.buyPower)} ${num(pw.step)} kW</button>`}
     <h2>${t(S.T.utilities)}</h2><table>${areas.map((a) => tr(a.name, `${num(a.utilities.powerCap)} kW`)).join('')}</table>${drawerFreight(v)}`;
 }
 

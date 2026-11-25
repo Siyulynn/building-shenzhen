@@ -103,16 +103,28 @@ function checkPace(w: WorksParams, k: unknown): WorksPace {
   if (k !== 'normal' && !w.pace) throw new Error('a works pace needs works.pace in the params');
   return k as WorksPace;
 }
+/** R9 (§5.6): orders a pace cannot speed up: a station builds at its own pace, a co-financed order costs the city nothing. */
+function paceRefusal(o: WorksOrder): string | undefined {
+  if (o.placement?.kind === 'power_station') return 'a power station is built at its own pace, over its build months';
+  if (o.cofinanced) return 'a co-financed order is paid by its investor: its pace is theirs';
+  return undefined;
+}
 /** Set a new order's pace before its budget is priced (§5.6). */
 function withPace(o: WorksOrder, w: WorksParams, k: unknown): WorksOrder {
   const p = checkPace(w, k);
-  if (p !== 'normal') o.pace = p;
+  if (p !== 'normal') {
+    const why = paceRefusal(o);
+    if (why) throw new Error(why);
+    o.pace = p;
+  }
   return o;
 }
 /** R9 (§5.6): change a live order's pace. Sunk work and money stay; the unworked units are re-priced at the new step. */
 function setPace(s: GameState, wc: WorksContent, o: WorksOrder, k: unknown): void {
   const p = checkPace(wc.works, k);
   if ((o.pace ?? 'normal') === p) return;
+  const why = p !== 'normal' ? paceRefusal(o) : undefined;
+  if (why) throw new Error(why);
   o.paceBase = { units: o.unitsDone, spent: o.spent };
   if (p === 'normal') delete o.pace; else o.pace = p;
   o.budget = costTo(o, wc.works, o.unitsTotal);
@@ -346,7 +358,10 @@ function classUnits(W: WorksParams, k: RoadClass, bridge: boolean): number {
 
 function orderStructure(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'place_structure' }): WorksOrder {
   const priority = checkPriority(a.priority);
-  checkPace(wc.works, a.pace);
+  // R9 (§5.6): refused before anything is drawn, as withPace would refuse it
+  if (checkPace(wc.works, a.pace) !== 'normal' && a.kind === 'power_station') {
+    throw new Error('a power station is built at its own pace, over its build months');
+  }
   if (!(STRUCTURE_KINDS as readonly string[]).includes(a.kind)) throw new Error(`unknown structure kind ${a.kind}`);
   // R8c (§5.5): water is not an active constraint and the one-quarter power source is retired; both load, neither is ordered
   if (!OFFERED_STRUCTURES.includes(a.kind)) throw new Error(`a ${a.kind} is no longer built: power comes from substations and stations`);
