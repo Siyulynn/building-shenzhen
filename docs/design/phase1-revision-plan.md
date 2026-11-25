@@ -549,6 +549,129 @@ with any effect other than `unlock` or `modifier` fails the compiler. Calibratio
 `aggressive` stay inside their §9 bands with the storm included; if they don't, shorten or soften the modifiers
 before touching a band.
 
+### 4.5 Construction capacity arrives in waves (2026-11-25)
+
+**The finding behind it.** R8's diagnostics show the crew pool is fully committed from 1980: 79 cohorts under
+construction at end-1983 in `historical_prologue`, 33 firms accepted in the Shangbu zone and only 20 open, and the
+last firms accepted in 1982-10 still unopened in 1984-01. Yet `capacity.local_crew` is a flat 600 from 1979-Q1, so the
+arrival of the engineering corps is a +60 rounding error and the 1982 deployment a +200 one. The prologue has no
+capacity squeeze, and the late game has no release.
+
+**The change: capacity is a stock that arrives, not a rate granted at the start.**
+
+- `capacity.local_crew` becomes the county's own core only: **200** units. It pays for the survey, the first frontage
+  and one road in the prologue; it cannot build a zone.
+- Crew arrives through events as a **permanent** increment to the pool:
+  `state.crew: { team: string; crew: number; from: YM }[]`, sorted, required from save v7. It is a stock because the
+  corps stayed and worked for years; a 12-month contract is the right model for a *hired* company
+  (`team.outside_soe`), not for the corps that was deployed to the city.
+- A new event effect `{ kind: 'crew_arrival', team }` appends `{ team, crew: p.teams[team].crew, from: s.date }`. The
+  size stays in params under the team's id, so content carries no number.
+- `poolSupply` becomes `crewPool(s, p)` = `p.capacity.local_crew` + arrived increments + live pool contracts. Every
+  caller (projects, works, the chip, the planning preview) reads the one function.
+- `team.engineering_corps` becomes `event_only`; the player's `contract_team` (unlocked 1979-Q4, §4.4) hires
+  `team.outside_soe` or a county crew instead. "The main wave" is not something you buy from a menu.
+
+**The schedule** (sizes are placeholders, to be set by the calibration in §4.2):
+
+| When | Beat | Pool after | The point |
+|---|---|---|---|
+| 1979-Q1 | start | 200 | one frontage at a time; the plan must choose |
+| 1979-Q4 | `event.corps_advance` (already scripted) | +100 → 300 | the first real capacity; the prologue's remaining beats become possible |
+| 1980-Q3 | `event.sez_established` | +150 → 450 | the zone's own construction force; the first industrial season |
+| 1982-09 | `event.corps_deployment` (already scripted) | +900 → 1,350 | the main wave; the backlog clears before the 1984 visit |
+
+The two existing beats keep their cards and their claims. `corps_advance`'s quarters-or-tents choice now also reads as
+a housing decision: the corps needs beds, and the ~100 units it adds pull construction migrants. `corps_deployment`
+keeps its accept/decline card, so declining is a real (bad) choice rather than a hidden default.
+
+**Companion brake: no firm is accepted faster than it can be built.** Today the growth pass creates a firm whenever a
+zone has room, so a small pool simply piles up unfinished firms (the 1982-10 cohort that never opens). Add
+`growth.industrial.max_backlog_m2` (placeholder: three months of pooled cohort work, about 15,000 m²): the pass skips
+a new firm while the zone's under-construction floor is above it. Capacity then shows up as *no new starts* — visible
+on the map and in the I/C/R cue — rather than as an invisible queue. This is a mechanic, so spec first (§5.5, §13.3).
+
+**Why this helps the calibration.** It splits the run into a squeeze and a release, which is the shape the slice
+wants:
+- 1979–81 pool 200–450 against today's 600: the spending ratio falls (the 1983 ratio is the binding band at 1.17–1.20
+  of revenue), the prologue's choices bite, and R9's staggered tools stop being the only constraint.
+- 1982-09 +900: the cohort backlog clears, firms open 6–12 months earlier, and the 1983 GDP multiple moves off the
+  band floor (currently 3.42 against 3.34) without touching productivity. That headroom is what R9 needs.
+- The wave is also a migration event: 900 construction jobs pull construction migrants, which raises the temporary
+  population — the other number this pass is chasing — as long as beds exist (village rental and dormitories answer,
+  §5.11).
+- It gives the R9 ladder a second spine: tools unlock, and capacity arrives. The two need not be the same beats, but
+  the 1979-Q4 and 1982-09 arrivals line up with the schedule in §4.4.
+
+**Risks and how to read them.** More late crew competes with factory jobs for the same people (R8's labour finding:
+`posted` outran `staffed` whenever jobs arrived faster than migrants). If the 1982 wave crowds out production, the
+wave is too large or the beds too few, and the sign is a rising `turnedAway` with flat `staffed`. Calibrate the core
+first (the 1979 spending ratio), the 1979-Q4 increment second (the prologue's pace), the 1982 wave last (1983 GDP and
+temporary population).
+
+**Tests.** `crewPool` before and after each arrival; a declined deployment adds nothing; an unarrived or `event_only`
+team cannot be contracted; the 1982 pool is at least twice the 1979 one; save/load and replay keep the arrivals; a
+zone above `max_backlog_m2` accepts no new firm and the I/C/R cue reads the backlog; determinism unchanged.
+
+**Files.** `content/slice/events.yaml`, `content/slice/teams.yaml`; `params/slice.yaml`
+(`capacity.local_crew`, `teams.*.crew`, `growth.industrial.max_backlog_m2`, `events.*.crew`);
+`packages/sim-core/src/{events,projects,state,save,growth}.ts`, `systems/construction.ts`, `mapPlan.ts`
+(skip an unarrived team), `summary.ts` (the pool in the checkpoint), `apps/slice-ui/src/{views,render,strings}.ts`.
+
+### 4.6 Hasten construction: what the numbers say (tested 2026-11-25)
+
+**The question.** Should accelerating construction be a slider with diminishing returns, an on/off button, or
+something else, and what does endorsing 时间就是金钱，效率就是生命 add?
+
+**Tested with the R8 golden harness** (seed 1, end-1983; `historical_prologue` shown, `aggressive` behaves the same
+way). Each row is a named-parameter proxy for one design, run all the way through the five policies:
+
+| Design (proxy) | GDP × | Temp | Residents | Spending ÷ revenue | Bands |
+|---|---:|---:|---:|---:|---|
+| **Base** | 3.42 | 24,589 | 50,103 | 1.17 | 20/20 |
+| Global works rush, **Push** (works units ×0.75, money ×1.25) | 2.80 | 17,288 | 45,996 | 1.55 | 18/20 |
+| Global works rush, **All-out** (×0.55, ×1.6) | 2.16 | 11,379 | 38,747 | 1.65 | 17/20 |
+| More crew per works order (40 → 60 a month) | 2.72 | 17,064 | 46,232 | 1.51 | 18/20 |
+| Formation only, Push (40 → 30 units, ¥30k → ¥37.5k) | 2.81 | 16,674 | 45,281 | 1.41 | 17/20 |
+| Global +10% pace at **no extra money** (units −10%, cost same) | 2.79 | 16,265 | 45,584 | 1.43 | 18/20 |
+| **Private builders 10% faster** (cohort crew per m² 0.018) | 3.65 | 26,231 | 51,272 | 1.14 | 20/20 |
+| **Private builders 25% faster** (0.015) | 4.00 | 29,075 | 53,267 | 1.09 | 20/20 |
+
+**Reading it.** Every design that speeds up **city works** raises 1983 spending faster than revenue and trips the
+deficit rule: the plan always has a queue, so a saved month is spent on the next order, while the new zone's revenue
+arrives six months of building plus a ramp later. A global works rush is not a lever, it is a trap — it costs 0.6 to
+1.3 GDP multiples and fails two or three bands. Only speeding up the **private builders** is free to the city (they
+pay their own way) and it is the strongest single lever measured in this pass: +10% buys +0.23 GDP and +1,600
+temporary residents; +25% buys +0.58 and +4,500, with every band still green.
+
+**Consequence for the design:**
+1. **No global slider and no global toggle.** Both were tested above and both lose. The only defensible control is
+   **per works order, three steps, chosen at commit**: Normal / Push / All-out, with
+   `unitsTotal × {1, 0.75, 0.55}` and `budget × {1, 1.25, 1.6}`. The monthly crew draw stays `crew_per_order`, so a
+   rush does not starve the builders; it frees the pool sooner. Three steps rather than a continuous slider because
+   the cost is convex (the third step is the decision), the preview must be readable on a map, and headless plans
+   need a finite choice. Not on/off, because there is no interior choice and it collapses to always-on.
+2. **"More crew" stays where it already is: priority.** The test shows that taking more crew per order starves the
+   cohorts (row 4). `set_works_priority` is the crew-allocation lever, and the order preview must say what it takes
+   from. Rush is the money-for-time lever; priority is the crew-for-time lever; neither hides the other.
+3. **The slogan is the free lever, and it is private-builders only.** A card at 1981-Q3 (`news`/`event`, Shekou's
+   slogan) offers to endorse it. Endorsing sets a timed `construction_pace` modifier: cohort crew per m² × 0.9 for
+   nine months (≈ +0.03–0.04 GDP over the slice — "a little", as asked), plus standing with the reformers and, under
+   a strict permit regime, a scrutiny modifier. Declining leaves it alone. It never touches city works, which is what
+   keeps it free of the fiscal trap.
+4. **The preview is the feature.** An order row shows: months saved, extra yuan, the quarter's projected spending ÷
+   revenue, and a red warning when the rush would cross the band. Without that, the trap is invisible and the player
+   learns it by failing a review.
+
+**Why the plans must not use it.** `historical_prologue` sits at 1.17 of the 1.20 spending ceiling. Even a 10% push
+on formation alone (row 5) breaks it. So the golden plans keep Normal and the mechanic is demonstrated in one test
+run only; a player who rushes must also skip something else. That is a real trade, not a balance bug.
+
+**Tests.** Units and budget scale exactly by the step; sunk work is never re-priced (a step change re-prices only
+unworked units); the monthly draw is unchanged; the preview's projected ratio matches `fiscalViews` on a clone; the
+slogan modifier multiplies `cohortCrew` only while live and expires; a rush that crosses the band is allowed but
+warned, not blocked.
+
 ---
 
 ## 5. Golden impact, at a glance
