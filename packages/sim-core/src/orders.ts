@@ -6,13 +6,13 @@
 import {
   PRIORITIES, addObligation, liveProject, moneyForProjects, payProject, post, projectFunds, type Priority,
 } from './fiscal.js';
-import type { CellWorksParams, SliceParams, StructureWorksParams, WorksParams } from './params.js';
+import { FACILITY_STOCK, type CellWorksParams, type SliceParams, type StructureWorksParams, type WorksParams } from './params.js';
 import type { StartNetwork } from './sites.js';
 import { cloneState, type GameState, type PlayerAction } from './state.js';
 import type { SimEvent, TickStep } from './step.js';
 import {
   advanceCellWorks, checkPlacement, liveOrder, placeStructure, spatialViews, STRUCTURE_KINDS, type CellWork, type PathCell,
-  type StructureKind, type StructurePlacement, type WorksOrder,
+  type PlacedStructure, type StructureKind, type StructurePlacement, type WorksOrder,
 } from './works.js';
 import { cellsOfRuns } from './zones.js';
 
@@ -370,13 +370,29 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
         }
         if (built.length) s.roads = [...s.roads, ...built].sort((a, b) => a - b);
       } else if (o.kind === 'structure' && o.unitsDone === o.unitsTotal) {
-        placeStructure(s, o.placement!);
+        const x = placeStructure(s, o.placement!);
+        if (x.kind === 'facility') feedFacility(s, W, o, x);
       }
       settle(s, o, W);
       if (used > 0 && area !== undefined) events.push({ step: 'construction', kind: 'crew', detail: { area, units: used } });
       return used;
     },
   };
+}
+
+/**
+ * A finished facility joins its area's stock, as M4's school project does (b&c §13.2, R4.5): its capacity, then a
+ * payroll of staff × the state wage and a service cost per place, from next month. Maintenance is the order's (settle).
+ */
+function feedFacility(s: GameState, w: WorksParams, o: WorksOrder, x: PlacedStructure): void {
+  const area = s.areas.find((a) => a.access === 'playable' && inSorted(a.cells, x.cell))!;
+  const fp = structureParams(w, 'facility', x.facility);
+  area.facilities[FACILITY_STOCK[x.facility as keyof typeof FACILITY_STOCK]] += x.capacity;
+  const wage = s.labour.wage.state, ref = `works.${o.id}`;
+  if ((fp.staff ?? 0) > 0) addObligation(s, { kind: 'payroll', perMonth: fp.staff! * wage, index: 'wages', baseWage: wage,
+    from: s.date + 1, createdBy: ref });
+  if (x.capacity * (fp.service_per_place_month ?? 0) > 0) addObligation(s, { kind: 'service',
+    perMonth: x.capacity * fp.service_per_place_month!, index: 'none', from: s.date + 1, createdBy: ref });
 }
 
 /**

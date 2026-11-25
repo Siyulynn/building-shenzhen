@@ -150,7 +150,12 @@ function validateGrowthParams(g: GrowthParams, p: SliceParams): void {
 }
 
 /** A structure's or facility's works numbers (§13.2). */
-export interface StructureWorksParams { units: number; yuan: number; capacity: number; forex_usd?: number }
+export interface StructureWorksParams {
+  units: number; yuan: number; capacity: number; forex_usd?: number;
+  staff?: number; service_per_place_month?: number;   // facilities only (R4.5): as project.school's
+}
+/** The facility types a placed facility can be, and the area stock each feeds (b&c §13.2, R4.5). */
+export const FACILITY_STOCK = { school: 'schoolPlaces' } as const;
 export interface CellWorksParams { units_per_cell: number; yuan_per_cell: number }
 export interface WorksParams {
   crew_per_order: number;
@@ -178,6 +183,12 @@ function validateWorksParams(w: WorksParams): void {
   for (const [k, v] of kinds) {
     if (!v || !whole(v.units, 1) || !whole(v.yuan, 0) || !whole(v.capacity, 0) || (v.forex_usd !== undefined && !whole(v.forex_usd, 0))) {
       throw new Error(`params: works.${k} needs whole units >= 1, yuan, capacity and any forex_usd >= 0`);
+    }
+  }
+  for (const [k, v] of Object.entries(w.facilities ?? {})) {
+    if (!Object.hasOwn(FACILITY_STOCK, k)) throw new Error(`params: works.facilities.${k} has no area stock to feed (known: ${Object.keys(FACILITY_STOCK).join(', ')})`);
+    if ((v.staff !== undefined && !whole(v.staff, 0)) || (v.service_per_place_month !== undefined && !(v.service_per_place_month >= 0))) {
+      throw new Error(`params: works.facilities.${k} needs whole staff and service_per_place_month >= 0`);
     }
   }
 }

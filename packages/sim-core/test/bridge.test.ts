@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  Rng, applyTurnAction, conditionHolds, createTickSteps, firstOption, indicatorValue, post, readiness, runMonths,
+  Rng, applyTurnAction, conditionHolds, createTickSteps, firstOption, indicatorValue, post, readiness, runMonths, validateParams,
   type GameState, type PlayerAction,
 } from '../src/index.js';
 import { initial, params, slice } from './fixtures.js';
@@ -81,5 +81,31 @@ describe('R4.5 a map-only run earns the M-series credit', () => {
     apply(s, { type: 'cancel_works', order: s.worksOrders[0]!.id });
     expect(s.worksOrders[0]!.stage).toBe('cancelled');
     expect(conditionHolds(s, 'site_preparation_committed')).toBe(false);
+  });
+});
+
+describe('R4.5 a placed school feeds its area as an M4 school does', () => {
+  it('adds its places to the area and owes payroll and service from the next month', () => {
+    const F = params.works!.facilities.school!;
+    const s0 = funded();
+    const area = (st: GameState) => st.areas.find((a) => a.access === 'playable' && a.cells.includes(at(370, 351)))!;
+    const before = area(s0).facilities.schoolPlaces;
+    const s = months(s0, 8, new Rng(7), [{ type: 'place_structure', kind: 'facility', facility: 'school', cell: [370, 351],
+      attach: [370, 352], priority: 'high' }]);
+    const o = s.worksOrders[0]!;
+    expect(o.stage).toBe('done');
+    expect(s.structures).toMatchObject([{ kind: 'facility', facility: 'school', cell: at(370, 351), capacity: F.capacity }]);
+    expect(area(s).facilities.schoolPlaces).toBe(before + F.capacity);
+    expect(s.areas.filter((a) => a !== area(s)).every((a) => a.facilities.schoolPlaces === 0)).toBe(true);
+    const mine = s.fiscal.obligations.filter((x) => x.createdBy === `works.${o.id}`);
+    expect(mine.map((x) => x.kind).sort()).toEqual(['maintenance', 'payroll', 'service']);
+    const pay = mine.find((x) => x.kind === 'payroll')!;
+    expect(pay).toMatchObject({ index: 'wages', from: o.completed! + 1, perMonth: F.staff! * pay.baseWage! });
+    expect(mine.find((x) => x.kind === 'service')!.perMonth).toBe(F.capacity * F.service_per_place_month!);
+  });
+
+  it('refuses a facility type with no area stock to feed', () => {
+    const bad = { ...params, works: { ...params.works!, facilities: { ...params.works!.facilities, clinic: params.works!.facilities.school! } } };
+    expect(() => validateParams(bad)).toThrow(/no area stock/);
   });
 });
