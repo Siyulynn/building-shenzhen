@@ -1195,24 +1195,32 @@ The report says pass or fail honestly. A failing band is a finding for M6b, neve
   - `readiness_moves_wave`: checked across runs. Golden runs whose readiness differs at the SEZ's opening also differ in first-wave cards;
   - `stall_after_credit`: **not checkable** in the slice, because step 1 has no credit series. The report shows it as `not_checkable` with that reason.
 
-**Policies** (`src/policies.ts`; §10's names, used by the CLI):
-- `default` is `firstOption`, `decline_all` is `declineAll`, and `historical_prologue` is `historicalPrologue` (§5.8).
-- **`cautious`** never takes the project loan and never takes a grey option:
+**Policies** (`src/policies.ts`; §10's names, used by the CLI). Since R6 the three playing policies play the map-first loop of §1.1 through the works queue (b&c §13.2); none commits an M4 project from the area dropdown. `default` and `decline_all` stay idle: they answer cards and take no turn actions, so they are the idle comparison §12 asks for, and the UI's tests replay `default` card for card.
+- `default` is `firstOption`, and `decline_all` is `declineAll`.
+- **`cautious(params, tick)`** never takes the project loan and never takes a grey option:
   - it declines the loan, the shortcut and the co-financing. The deficit rule may still borrow short when austerity does not cover a shortfall (§5.6);
   - investors go into existing premises, else into a zone already fully serviced, else they are declined;
   - permits are strict and enforcement high, there is no sweep, and a deficit card is answered `austerity`;
   - every other card takes its first option;
-  - in its first month it draws the same 12-cell industrial zone in Shangbu as `historical_prologue` and commits its site preparation.
-- **`aggressive(params)`** takes every grey option (it reads project budgets, so it is made from the params):
+  - its plan (`CAUTIOUS_PLAN`): a 12-cell industrial zone and a 4-cell residential zone in Shangbu, a quarter of the crews, at most two sources of each kind, and ¥300,000 left unspent.
+- **`aggressive(params, tick)`** takes every grey option:
   - it takes the loan and the co-financing;
   - it accepts every investor and every shortcut at the first site;
   - permits are loose and enforcement low, it sweeps every October, and a deficit card is answered `borrow_short`;
-  - in its first month it draws an industrial zone of the area's first 24 cells in Shangbu (area 7) and in Sungang (area 5), as `historical_prologue` draws its 12, and commits site preparation in both;
-  - at each turn's start it commits the next project in a fixed list (`AGGRESSIVE_BUILDS`: a power line and a water main in areas 7 and 5, roads in areas 7, 5 and 2, then two more power lines in each zone's area), while money for projects is above that project's budget and the forex quota covers it;
-  - it keeps `team.engineering_corps` and `team.outside_soe` under pool contracts while money for projects covers a year of their cost.
+  - its plan (`AGGRESSIVE_PLAN`): industrial zones of 24 cells in Shangbu (area 7) and 16 in Sungang (area 5), 8 residential cells in Shangbu and 4 commercial cells in the market town; a road south through Shangbu toward the template zone and one east from the town into Dongmen–Wenjindu (area 4); half the crews; power and water 300 jobs ahead, up to six sources of each kind per zone; a school in the town; `team.engineering_corps` and `team.outside_soe`.
+- **`historical(params, tick)`** is the CLI's `historical_prologue`. It answers cards as `historicalPrologue` does (§5.8: premises or decline, the loan, the co-financing, the road link as the first project). Its plan (`HISTORICAL_PLAN`): the Shangbu template zone (§5.3) with the road south that reaches it, 6 residential cells beside the Shangbu road and 4 commercial cells in the town; a third of the crews; power and water 200 jobs ahead, up to four sources each; a school; the engineering corps. `historicalPrologue` itself, with its M4 projects, stays the scripted prologue of M5b's tests (§5.8) and of the 1980-Q2 save.
 - **`randomPolicy(seed)`** answers each pending card with a uniformly random option. It draws from its own sfc32 generator, seeded from `seed`, never from the sim's streams, and takes no turn actions. It exists for the property tests.
 
-A policy's turn actions are legal by construction: zones are clipped with `zoneCellsAllowed`, and a commit is made only when its checks pass.
+**The map plan** (`src/mapPlan.ts`, R6). A `MapPlan` is data: its zones, outbound roads (orthogonal waypoints), `crew_share`, `room_ahead_m2`, `utilities { headroom_jobs, max_sources }`, `facilities` ([type, area] pairs), `teams` and `reserve`. `mapPolicy(answers, plan, params, tick, first)` gives:
+- **in the first month:** `first` (the enforcement level), then each zone of the plan: a precedent's template cells, or the area's `n` buildable cells nearest a road (steps through the area's cells, ties by cell index). No zone takes a cell another zone or a plan road takes;
+- **at each later turn's start**, while money for projects less `reserve` covers each step:
+  1. **roads:** the next plan road not yet built or queued, when no road order is live;
+  2. **servicing, phased to the crews:** when no service order is live, the zone with the least developable room (and room below `room_ahead_m2`) gets its next cells with frontage, at most `floor(crew_share × 3 × capacity.local_crew ÷ works.service.units_per_cell)` of them a turn;
+  3. **water and power:** for each industrial zone, the scarcer of the two first: a source is placed when the area's sited firms plus `headroom_jobs` organic jobs would need more than the area's capacity plus the zone's sources (those attached to a road cell beside it), up to `max_sources`; if the scarcer one cannot be paid for or its forex quota is short, the other waits too. A source sits on a free cell beside a road cell that touches the zone;
+  4. **facilities**, once each, beside the first zone of their area;
+  5. **teams**, under pool contracts, while money covers a year of their cost.
+
+A policy's turn actions are legal by construction: zones are clipped with `zoneCellsAllowed`, and each works action is given only when the checks of `orders.ts` would pass (playable cells, no road, works or structure in the way, frontage for servicing, the forex quota for a power source), so a run never throws.
 
 **The CLI** (`apps/cli`, run with `npm run slice -- …`):
 - **`slice run --seed N --quarters Q --policy P [--out DIR]`** plays Q quarters (21 by default) through `runQuarter`, the path the UI shares:
@@ -1223,7 +1231,7 @@ A policy's turn actions are legal by construction: zones are clipped with `zoneC
   It writes two files to DIR (default `build/slice/<policy>-seed<N>/`):
   - `run.json`: the content hashes, the monthly series, the cards raised and answered per quarter, the reviews, the verdict, the bands and the exit-criteria checks. Its only input is seed, policy and content, so the same arguments give the same bytes;
   - `report.html`: one self-contained page with inline SVG charts (residents and present non-locals, GDP and exports, revenue against obligations due, the reserve and debt, scrutiny), the band table with `[UNVERIFIED]` tags, the exit-criteria table and the wall time of the run. The wall time is printed and shown in the report, never written to `run.json`.
-- **`slice golden [--update]`** runs the golden set and compares each run with `data/golden/slice/<policy>-seed<N>.json`. With `--update` (`npm run golden:update`) it rewrites the files. It also prints the set's cross-run checks (`crossRunChecks`): criterion 1's response to choices, and `readiness_moves_wave`.
+- **`slice golden [--update]`** runs the golden set and compares each run with `data/golden/slice/<policy>-seed<N>.json`. With `--update` (`npm run golden:update`) it rewrites the files. It also prints the set's cross-run checks (`crossRunChecks`): criterion 1's response to choices, and `readiness_moves_wave`; and the checkpoint table by policy (R6).
 - The CLI reads claims with `@sz/evidence`'s loader and tags them with its `meetsMinimum` for `calibration_target`.
 
 **Golden runs** (§10). The set is `default`, `cautious`, `aggressive`, `decline_all` and `historical_prologue`, each with seed 1, for 21 quarters through `runQuarter`.
@@ -1233,9 +1241,19 @@ A policy's turn actions are legal by construction: zones are clipped with `zoneC
   - each review's score and result;
   - the SEZ's opening: its month, the readiness bar and the first-wave cards;
   - the verdict;
-  - the events fired, with their months.
+  - the events fired, with their months;
+  - the checkpoints (R6, below).
 
   Money and people are rounded to integers, and shares to four decimals.
+- **The checkpoints** (R6, `checkpoints` in `summary.ts`): the run's state at each month the band ids name (§9: end-1979, 1980-Q2 and end-1983, months 12, 18 and 60), read off the state the run reached at that quarter's end. Each row has:
+  - **population**, under each definition: registered, resident (stayed six months, 常住), present, present non-locals and migrants;
+  - **land and floor**, by use (industrial, commercial, residential): planned cells (zoned), serviced cells, developable cells (serviced with frontage, §13.3) and floor. Industrial floor is the zones' firms' factory floor, built and occupied (open); commercial is completed private shop floor and its occupied share (§13.3's `shopOccupancy`); residential is completed work-unit dormitory floor;
+  - **jobs:** firm jobs posted, all jobs filled, and the accessible vacancies (§5.11);
+  - **housing and crowding:** rental beds and their occupants, crowding (occupants ÷ beds), last month's turned-away arrivals and completed village rental floor;
+  - **works:** built road cells and the placed power and water sources and facilities;
+  - **debt and the fiscal state:** the reserve, money for projects, debt outstanding, arrears, the trailing year's revenue and spending (obligations paid and project spending) and their ratio.
+
+  `slice golden` prints the rows by policy, and writes them as `build/slice/checkpoints.md`; each run's `report.html` shows its own.
 - **The test** (`apps/cli/test/cli.test.ts`) recomputes each summary with the CLI's code and compares it whole. A change that moves a golden number regenerates the files with `npm run golden:update`, and its commit message says what moved and why (AGENTS.md).
 
 **The exit-criteria checks** (§1). Criterion 6 is judged by playtests. Criteria 1–5 are checked by the CLI's report, over one run or the golden set, and by tests:
