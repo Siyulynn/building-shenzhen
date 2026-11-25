@@ -113,6 +113,14 @@ export const TOOL_HINT: Readonly<Record<string, L>> = {
   power: l('点击临路的地块放置电源', 'Click a cell beside a road to place a power source'),
   facility: l('点击临路的地块放置公共设施', 'Click a cell beside a road to place a facility'),
 };
+/** R7 (§11.2): the visible caption above each chip stat. */
+export const CHIP_STAT: Readonly<Record<string, L>> = {
+  crews: l('施工力量 · 已承诺', 'Crews · committed'), works: l('进行中／停滞', 'Running / stalled'),
+  forProjects: l('项目资金', 'For projects'), commitments: l('已承诺 · 之后', 'Committed · after'),
+  residents: l('常住人口', 'Residents'), turnedAway: l('找不到床位', 'Turned away'),
+  gdp: l('本季度GDP', 'GDP, quarter'), vacancies: l('空缺岗位', 'Vacancies'),
+  scrutiny: l('上级关注', 'Scrutiny'), targets: l('考核达标', 'Targets met'),
+};
 export const CHIP: Readonly<Record<string, L>> = {
   building: l('建设', 'Building'), budget: l('预算', 'Budget'), population: l('人口', 'Population'),
   economy: l('经济', 'Economy'), politics: l('政治', 'Politics'),
@@ -249,6 +257,12 @@ export const T = {
   formationHint: l('清场、平整、内部道路，以及地块边上的接水接电。这些已经包含在内，不必另外建设。',
     'Clearing, levelling, internal lanes, and the water and power connection at the plot edge. Already included — you do not build these separately.'),
   noPublicZone: l('公共建筑直接放置，没有公共用地区块。', 'Public buildings are placed directly; there is no public zone.'),
+  // R7 (§11.2): the money committed and the funds left after it
+  committed: l('已承诺未支出', 'Committed'), afterCommitments: l('承诺之后的项目资金', 'Funds after commitments'),
+  commitmentsHint: l('已承诺未支出：在建工程、项目和本回合排队的指令，加上本季度到期的一次性支出 · 扣除之后可用于项目的资金',
+    "Committed: live orders and projects, this turn's queued orders, and one-off costs due this quarter · money for projects after them"),
+  crewsCommitted: l('在用施工力量／总数 · 已承诺未支出', 'Crews in use / total · committed'),
+  queuedThisTurn: l('本回合排队的指令', "This turn's queued orders"), oneOffDue: l('本季度到期的一次性支出', 'One-off costs due this quarter'),
 } as const satisfies Record<string, L>;
 
 /** R7 (§11.2): an option's effect badges, derived from its on_answer effects in views.ts effectBadges. */
@@ -269,7 +283,7 @@ export const BADGE: Readonly<Record<string, L>> = {
 export const TABLES: Readonly<Record<string, Readonly<Record<string, L>>>> = {
   SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, ENFORCEMENT, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
   ROLE, TRAIT, RISK, STAGE, WAITING, OVERLAYS, T, RUNG, ORDER_KIND, ORDER_STAGE, STRUCTURE, FACILITY, WORK_STAGE, TOOL,
-  TOOL_HINT, CHIP, CUE, CUE_INPUT, BADGE, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
+  TOOL_HINT, CHIP, CHIP_STAT, CUE, CUE_INPUT, BADGE, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
 };
 
 /** Both names, Chinese first: how a place label reads in either language. */

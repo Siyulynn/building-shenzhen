@@ -1817,17 +1817,17 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
 
   Errors show as a toast above the stack.
 
-**The chips** (a chip never shows more than two values; drawers carry the §11.1 panel contents):
+**The chips** (a chip shows two stats, each under a visible caption; a stat may pair two figures with " / " or " · ", as R7's commitments do; drawers carry the §11.1 panel contents):
 
 | Chip | Stat 1 · stat 2 | Drawer |
 |---|---|---|
-| Building 建设 | crews in use / total · works running / stalled | works queue by cell with stage, progress and remaining cost; pause and cancel; team contracts (no project commits: the map builds) |
-| Budget 预算 | money for projects · net per quarter | the ledger: `fiscalViews`' three views, obligations by kind, loans, forex quota |
+| Building 建设 | crews in use / total · committed (R7) — works running / stalled | works queue by cell with stage, progress and remaining cost; pause and cancel; team contracts (no project commits: the map builds) |
+| Budget 预算 | money for projects — committed · funds after commitments (R7; the recurring balance stays in the drawer, per month and per year) | the ledger: `fiscalViews`' three views, obligations by kind, loans, forex quota |
 | Population 人口 | residents · turned away | pops by kind, beds and occupancy, rental crowding |
 | Economy 经济 | GDP this quarter · vacancies | jobs and filled posts by sector, firms, exports |
 | Politics 政治 | scrutiny · review targets met | leaders, mandate, review targets against actuals, enforcement and permit regime |
 
-"Net per quarter" and "review targets met" are derived in `views.ts` from existing state. They add no sim fields. **GDP this quarter** is the last three recorded months of `history.gdp`; before the first month is recorded (Turn 1) it is the quarter at the current month's rate, 3 × `gdpNow(state, params)` (R7), so the first screen shows the starting economy, not ¥0. The briefing's GDP row reads the same figure.
+"Net per quarter" and "review targets met" are derived in `views.ts` from existing state. They add no sim fields. **Committed and funds after commitments** (R7) come from existing exports, with no new sim fields: committed = sim-core's `unspentCommitments` (live orders' and projects' budget − spent) + the budgets of the orders this turn's queue would create (`previewWorks` on the queue) + the one-off obligations (those with an `until`) still due this quarter; funds after commitments = `moneyForProjects` − the queue − those one-offs (`moneyForProjects` already holds back the unspent budgets, so they are not subtracted twice). Recurring obligations stay against revenue in the drawer's net per quarter. A gesture queued this turn lowers the figure at once; the Budget drawer lists the same parts. **GDP this quarter** is the last three recorded months of `history.gdp`; before the first month is recorded (Turn 1) it is the quarter at the current month's rate, 3 × `gdpNow(state, params)` (R7), so the first screen shows the starting economy, not ¥0. The briefing's GDP row reads the same figure.
 
 **Drawers:**
 - **Placement:** a drawer floats over the map, so the map never resizes or jumps.

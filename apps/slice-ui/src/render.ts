@@ -11,10 +11,10 @@ import { unanswered, type Session, type UiError } from './controller.js';
 import { LANGS, LANG_NAME, HTML_LANG, pick, type Lang } from './lang.js';
 import * as S from './strings.js';
 import { bi, type L } from './strings.js';
-import { BUILD_TOOLS, TOOLS, type Plan, type Tool, type ToolOptions } from './tools.js';
+import { BUILD_TOOLS, TOOLS, queuedBudget, type Plan, type Tool, type ToolOptions } from './tools.js';
 import {
   DRAWERS, OVERLAY_LAYERS, USE_COLOR, actionLabel, areaName, areaView, briefing, cardStack, chipsView, constraintContext,
-  constraintLabel, finishedWork, icrCue, inspectorView, ledgerView, leadersView, mostHeldBack, num, pct, projectsView,
+  commitments, constraintLabel, finishedWork, icrCue, inspectorView, ledgerView, leadersView, mostHeldBack, num, pct, projectsView,
   reviewView, teamsView, verdictView, worksView, yuan, zoneName,
   type DrawerId, type OverlayLayer,
 } from './views.js';
@@ -101,11 +101,13 @@ export function renderOverlaySelect(v: View): string {
       `<div><i class="${r.kind}"></i>${esc(bi(r.name))}</div>`).join('')}</details>`;
 }
 
-/** The chip strip (bottom): five chips of two values each; each opens its drawer. */
+/** The chip strip (bottom): five chips of two stats each, each stat under a visible caption; each opens its drawer. */
 export function renderChips(v: View): string {
   const t = tx(v.lang);
-  return chipsView(v.x.state, v.slice).map((c) => `<button class="chip${v.ui.drawer === c.id ? ' sel' : ''}" data-act="drawer" data-drawer="${c.id}">
-    <b>${t(c.label)}</b><span><span class="tip">${t(c.hints[0])}</span>${esc(c.values[0])}</span><span><span class="tip">${t(c.hints[1])}</span>${esc(c.values[1])}</span></button>`).join('');
+  const stat = (c: ReturnType<typeof chipsView>[number], k: 0 | 1) =>
+    `<span><small>${t(c.captions[k])}</small><span class="tip">${t(c.hints[k])}</span>${esc(c.values[k])}</span>`;
+  return chipsView(v.x.state, v.slice, queuedBudget(v.x)).map((c) => `<button class="chip${v.ui.drawer === c.id ? ' sel' : ''}" data-act="drawer" data-drawer="${c.id}">
+    <b>${t(c.label)}</b>${stat(c, 0)}${stat(c, 1)}</button>`).join('');
 }
 
 /** The bottom-right stack: the queue, Briefing, Pending decisions, End quarter or Continue; errors as a toast. */
@@ -255,11 +257,14 @@ function drawerBuilding(v: View): string {
 function drawerBudget(v: View): string {
   const t = tx(v.lang), tr = row(v.lang);
   const l = ledgerView(v.x.state, v.slice);
+  const m = commitments(v.x.state, v.slice, queuedBudget(v.x));
   return `<div class="muted">${t(l.regime)}</div>
     <h2>${t(S.T.recurring)}</h2><table>${tr(S.T.revenue, yuan(l.recurring.revenue))}${tr(S.T.due, yuan(l.recurring.due))}
       ${tr(S.T.available, yuan(l.recurring.available))}${tr(S.T.perYear, yuan(l.recurring.perYear))}</table>
     <h2>${t(S.T.projectsView)}</h2><table>${tr(S.T.funds, yuan(l.projects.funds))}${tr(S.T.unspent, yuan(l.projects.unspent))}
       ${tr(S.T.available, yuan(l.projects.available))}${tr(S.T.borrowing, yuan(l.borrowing))}${tr(S.T.forex, `$${num(l.forexUsd)}`)}</table>
+    <h2>${t(S.T.committed)}</h2><table>${tr(S.T.unspent, yuan(m.live))}${tr(S.T.queuedThisTurn, yuan(m.queued))}${tr(S.T.oneOffDue, yuan(m.oneOff))}
+      ${tr(S.T.committed, yuan(m.committed))}${tr(S.T.afterCommitments, yuan(m.projected))}</table>
     <h2>${t(S.T.obligations)}</h2><table>${l.obligations.map((o) => tr(o.label, yuan(o.value))).join('')}</table>
     <h2>${t(S.T.loans)}</h2>${l.loans.map((n) => `<div>#${n.id} ${t(n.kind)} · ${t(S.T.outstanding)} ${yuan(n.outstanding)}
       <div class="muted">${n.next.map((e) => `${e.at}: ${yuan(e.principal)} + ${yuan(e.interest)}`).join(' · ')}</div></div>`).join('') || `<div class="muted">${t(S.T.noLoans)}</div>`}`;

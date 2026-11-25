@@ -8,9 +8,10 @@ import { describe, expect, it } from 'vitest';
 import { Rng, compileEvents, createInitialState, gdpNow, step, type CardInstance, type Slice } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { choose, enqueue, newSession, submit, unanswered, type Session } from '../src/controller.js';
-import { esc, initialUi, renderDecisions, type View } from '../src/render.js';
-import { BADGE } from '../src/strings.js';
-import { briefing, chipsView, effectBadges, yuan } from '../src/views.js';
+import { esc, initialUi, renderChips, renderDecisions, renderDrawer, type View } from '../src/render.js';
+import { BADGE, CHIP_STAT } from '../src/strings.js';
+import { briefing, chipsView, commitments, effectBadges, yuan } from '../src/views.js';
+import { applyPlan, planGesture, queuedBudget } from '../src/tools.js';
 import { LANGS } from '../src/lang.js';
 
 const slice: Slice = loadSlice();
@@ -115,5 +116,56 @@ describe('R7 Turn 1 tells the truth: the opening decision', () => {
     const start = x0.state.date;
     expect(y.state.actionLog.filter((e) => e.date === start).map((e) => e.action.type)).toEqual(['answer_card', 'set_enforcement']);
     expect(y.state.pendingCards.some((c) => c.card === 'event.first_project')).toBe(false);
+  });
+});
+
+describe('R7 chips and money you can see', () => {
+  /** The session at Turn 1 with the opening card answered `later`, and one zone with its site formation queued. */
+  function queued(): { x0: Session; x: Session } {
+    let x0 = newSession(slice);
+    for (const c of unanswered(x0)) x0 = choose(x0, c.id, 'later');
+    const g = slice.startNetwork.routes.find((r) => r.id === 'site.guangshen_road')!;
+    const W = x0.state.grid.width, c = g.cells[Math.floor(g.cells.length / 2)]!;
+    const [gx, gy] = [c % W + 1, Math.floor(c / W)];
+    const plan = planGesture(x0, { use: 'industrial', planOnly: false, facility: 'school' }, { tool: 'zone', from: [gx, gy], to: [gx + 2, gy + 2] });
+    expect(plan.kind).toBe('actions');
+    return { x0, x: applyPlan(x0, plan) };
+  }
+
+  it('every chip stat has a visible caption, in both languages', () => {
+    const x = newSession(slice);
+    for (const lang of LANGS) {
+      const html = renderChips(view(x, lang));
+      for (const c of chipsView(x.state, slice)) {
+        expect(c.captions).toHaveLength(2);
+        for (const cap of c.captions) expect(html).toContain(`<small>${esc(cap[lang])}</small>`);
+      }
+    }
+    expect(Object.keys(CHIP_STAT)).toHaveLength(10);
+  });
+
+  it('a queued order lowers the funds after commitments at once, by its preview budget', () => {
+    const { x0, x } = queued();
+    const q = queuedBudget(x);
+    expect(q).toBeGreaterThan(0);
+    const before = commitments(x0.state, slice, queuedBudget(x0)), after = commitments(x.state, slice, q);
+    expect(x.state).toBe(x0.state);                              // nothing is sent to the sim
+    expect(after.committed - before.committed).toBe(q);
+    expect(before.projected - after.projected).toBe(q);
+    const chip = (y: Session) => chipsView(y.state, slice, queuedBudget(y)).find((c) => c.id === 'budget')!.values[1];
+    expect(chip(x)).not.toBe(chip(x0));
+  });
+
+  it('the chips read the same numbers as the Budget drawer at the same state', () => {
+    const { x } = queued();
+    const m = commitments(x.state, slice, queuedBudget(x));
+    const chips = chipsView(x.state, slice, queuedBudget(x));
+    const budget = chips.find((c) => c.id === 'budget')!, building = chips.find((c) => c.id === 'building')!;
+    expect(budget.values[1]).toContain(yuan(m.committed));
+    expect(building.values[0]).toContain(yuan(m.committed));
+    const drawer = renderDrawer({ ...view(x, 'en'), ui: { ...initialUi(slice), drawer: 'budget' } });
+    expect(drawer).toContain(yuan(m.committed));
+    expect(drawer).toContain(yuan(m.projected));
+    expect(drawer).toContain(yuan(m.queued));
   });
 });

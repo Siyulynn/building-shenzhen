@@ -54,6 +54,19 @@ function previewOrders(x: Session, actions: readonly PlayerAction[]): { ok: true
   return p.ok ? { ok: true, orders: p.orders.slice(base.n) } : p;
 }
 
+/** The budgets of the orders this turn's queue would create (§11.2, R7): what the chips count as queued. */
+const QUEUED = new WeakMap<readonly PlayerAction[], { state: GameState; budget: number }>();
+export function queuedBudget(x: Session): number {
+  const works = x.slice.params.works;
+  if (!works || !x.queue.length) return 0;
+  const hit = QUEUED.get(x.queue);
+  if (hit && hit.state === x.state) return hit.budget;
+  const p = previewWorks(x.state, works, x.queue, (st, a) => applyTurnAction(st, a, x.steps));
+  const budget = p.ok ? p.orders.reduce((n, o) => n + o.budget, 0) : 0;
+  QUEUED.set(x.queue, { state: x.state, budget });
+  return budget;
+}
+
 function summarize(orders: readonly WorksEstimate[], area: number, cells: number, note?: L): GesturePreview {
   return {
     area, cells: cells || orders.reduce((n, o) => n + o.cells, 0), orders: orders.length,

@@ -5,7 +5,7 @@
  */
 import {
   FAILURE_CARD, LOAN_CARD, buildableCells, DEFICIT_CARD, REVIEW_CARD, SHORTCUT_CARD, contractLive, fiscalViews, formatYM, indicatorValue,
-  gdpNow, liveProject, moneyForProjects, previewOffer, runsOfCells, scoreReview, tripChance, verdict,
+  gdpNow, liveProject, moneyForProjects, obligationDue, unspentCommitments, previewOffer, runsOfCells, scoreReview, tripChance, verdict,
   zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
   VILLAGE_ARCHETYPES,
@@ -823,7 +823,8 @@ export function villageFloors(s: GameState): Map<number, number> {
 
 export const DRAWERS = ['building', 'budget', 'population', 'economy', 'politics'] as const;
 export type DrawerId = (typeof DRAWERS)[number];
-export interface Chip { id: DrawerId; label: L; values: readonly [string, string]; hints: readonly [L, L] }
+export interface Chip { id: DrawerId; label: L; values: readonly [string, string]; captions: [L, L];                  // R7: the visible caption above each stat
+  hints: readonly [L, L] }
 const signedYuan = (v: number) => `${v < 0 ? '−' : '+'}${yuan(Math.abs(v))}`;
 
 /** Works running and stalled: live orders and projects without and with a waiting reason. */
@@ -847,18 +848,43 @@ export function targetsMet(s: GameState, slice: Slice): { met: number; of: numbe
   return { met: r.items.filter((i) => i.value >= i.target).length, of: r.items.length };
 }
 
-export function chipsView(s: GameState, slice: Slice): Chip[] {
-  const crews = crewsView(s, slice), wc = worksCounts(s), t = targetsMet(s, slice);
+/**
+ * The money committed and what is left after it (§11.2, R7), from existing exports only. `committed` is the live
+ * orders' and projects' budget − spent (sim-core's unspentCommitments), the budgets of the orders this turn's queue
+ * would create (`queuedBudget`, from previewWorks), and the one-off obligations (those with an end) still due this
+ * quarter. `projected` is the money for projects less what moneyForProjects does not already hold back: the queue
+ * and the one-offs. Recurring obligations stay in the ledger's net per quarter, against revenue.
+ */
+export function commitments(s: GameState, slice: Slice, queuedBudget = 0) {
+  const quarterEnd = s.date + (2 - s.subStep);
+  let oneOff = 0;
+  for (const o of s.fiscal.obligations) {
+    if (o.until === undefined || o.until < s.date) continue;          // recurring, or already past
+    const months = Math.max(0, Math.min(o.until, quarterEnd) - Math.max(o.from, s.date) + 1);
+    oneOff += months * obligationDue(o, s);
+  }
+  const live = unspentCommitments(s);
+  return { live, queued: queuedBudget, oneOff, committed: live + queuedBudget + oneOff,
+    projected: moneyForProjects(s, slice.params) - queuedBudget - oneOff };
+}
+
+export function chipsView(s: GameState, slice: Slice, queuedBudget = 0): Chip[] {
+  const crews = crewsView(s, slice), wc = worksCounts(s), t = targetsMet(s, slice), m = commitments(s, slice, queuedBudget);
   return [
-    { id: 'building', label: S.CHIP.building!, values: [`${num(crews.used)} / ${num(crews.total)}`, `${wc.running} / ${wc.stalled}`],
-      hints: [S.T.crewsInUse, S.T.worksRunning] },
-    { id: 'budget', label: S.CHIP.budget!, values: [yuan(moneyForProjects(s, slice.params)), signedYuan(3 * fiscalViews(s, slice.params).recurring.available)],
-      hints: [S.T.moneyForProjects, S.T.netQuarter] },
-    { id: 'population', label: S.CHIP.population!, values: [num(sum(s.pops.map((g) => g.stayedSixMonths))), num(sum(s.housing.map((h) => h.turnedAway)))],
+    { id: 'building', label: S.CHIP.building!, captions: [S.CHIP_STAT.crews!, S.CHIP_STAT.works!],
+      values: [`${num(crews.used)} / ${num(crews.total)} · ${yuan(m.committed)}`, `${wc.running} / ${wc.stalled}`],
+      hints: [S.T.crewsCommitted, S.T.worksRunning] },
+    { id: 'budget', label: S.CHIP.budget!, captions: [S.CHIP_STAT.forProjects!, S.CHIP_STAT.commitments!],
+      values: [yuan(moneyForProjects(s, slice.params)), `${yuan(m.committed)} · ${signedYuan(m.projected)}`],
+      hints: [S.T.moneyForProjects, S.T.commitmentsHint] },
+    { id: 'population', label: S.CHIP.population!, captions: [S.CHIP_STAT.residents!, S.CHIP_STAT.turnedAway!],
+      values: [num(sum(s.pops.map((g) => g.stayedSixMonths))), num(sum(s.housing.map((h) => h.turnedAway)))],
       hints: [S.T.residents, S.T.turnedAway] },
-    { id: 'economy', label: S.CHIP.economy!, values: [yuan(quarterGdp(s, slice)), num(last(s.history.vacancies))],
+    { id: 'economy', label: S.CHIP.economy!, captions: [S.CHIP_STAT.gdp!, S.CHIP_STAT.vacancies!],
+      values: [yuan(quarterGdp(s, slice)), num(last(s.history.vacancies))],
       hints: [S.T.gdpQuarter, S.T.vacancies] },
-    { id: 'politics', label: S.CHIP.politics!, values: [num(s.climate.scrutiny), `${t.met} / ${t.of}`],
+    { id: 'politics', label: S.CHIP.politics!, captions: [S.CHIP_STAT.scrutiny!, S.CHIP_STAT.targets!],
+      values: [num(s.climate.scrutiny), `${t.met} / ${t.of}`],
       hints: [S.T.scrutiny, S.T.targetsMet] },
   ];
 }
