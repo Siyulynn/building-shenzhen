@@ -896,7 +896,7 @@ createInitialState({ …, leaders?: LeaderContent[] })                    // con
 - **Without `events`:** no event fires, nothing is unlocked, and Shekou takes no one. **Without `leaders`:** no shortcut is offered. So M2's, M3's and M4's runs are unchanged. The new-origin archetypes are in `investors.yaml`, but they are gated *before* their arrival draw (below), so the `investment` stream draws exactly as in M3b. This is tested.
 - **The save header gains** `events_sha256` and `leaders_sha256`.
 
-**Events** (tick step 2, `content/slice/events.yaml`). Each record has an `id`, a `name` in both languages, a `family` (`anchor | scripted`, §7), one `trigger`, its `effects`, an optional `card` and `on_answer` effects, and `claims`.
+**Events** (tick step 2, `content/slice/events.yaml`). Each record has an `id`, a `name` in both languages, a `family` (`anchor | scripted`, §7), one `trigger`, its `effects`, an optional `card` and `on_answer` effects, and `claims`. A record with a card also has a `description: { zh, en }` (R7): two sentences, what happened and why it matters, with no number that belongs to params and no historical statement beyond what the record's claims support.
 ```yaml
 - id: event.sez_established
   family: anchor
@@ -914,7 +914,7 @@ createInitialState({ …, leaders?: LeaderContent[] })                    // con
   - `sez_open`: record the SEZ's opening month, the priority answered and the readiness bar at that moment;
   - `first_wave`: raise the first wave (below).
 - **Cards.** An event's `card` is raised when the event fires, with its options in content order, the headless default first. Its answer reaches the events step the next month through `answered` (§5.5), which applies `on_answer` in order, before any event fires that month. A non-interrupting event card expires at the end of its quarter; the events step removes it.
-- **Validation** (`compileEvents`): every effect kind is known; an `offer` names an archetype and has its jobs in `params.events`; a `set_regime` names a regime of the fiscal content; `sez_open` and `first_wave` sit in an `on_answer` whose card's options are the keys of `params.sez.priorities`.
+- **Validation** (`compileEvents`): a `description`, when present, has a non-empty `zh` and `en` (the content test requires one on every card); every effect kind is known; an `offer` names an archetype and has its jobs in `params.events`; a `set_regime` names a regime of the fiscal content; `sez_open` and `first_wave` sit in an `on_answer` whose card's options are the keys of `params.sez.priorities`.
 
 **The Phase 1 events of M5a** (`content/slice/events.yaml`):
 
@@ -1841,6 +1841,8 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
   - the area most held back, and the constraint holding it.
 - **Closing:** "To the map" or the first click on the map. The Briefing button reopens it until End quarter.
 - **Where work finished:** compared with the previous turn's start, by playable area: cells newly serviced, road cells built, sources and facilities placed, works orders done, and firms opened.
+
+**Cards that can be judged (R7).** An event card shows its title, its content `description`, then each option with its name and its **effect badges**. Badges are derived, never authored: a pure `effectBadges(def, slice, state)` in `views.ts` turns the `on_answer` effects that apply to an option (those with no `option`, and those naming it) into short `{zh, en}` strings, so a badge cannot disagree with what the option does. Effects applied when the event fired are not the option's, so they get no badge. Numbers come from params, as the effects read them: `cost` → "Cost ¥…" (`params.events[id].cost`); `scrutiny` and `standing` → "Scrutiny +…", "Standing +…"; `commit_choice` → the project template's name and its `params.projects` budget, or nothing for an option that is not a template; `set_permit` → the permit regime; `sweep` → its cash cost and months; `contract_team` and `cofinance` → the team or project by name; `unlock` → what it opens (`investors.*` reads "Unlocks investment"); the rest by kind. An option with no effect reads "No effect". The switch is exhaustive over the effect kinds. Badges wrap, and none is told apart by colour alone. Cards raised by systems (investor offers, the loan, the deficit, the review) keep their §11.1 lines and get no badges.
 
 **R5's build rules** (the details the layout above leaves open):
 - **The rail, as built:** Select (inspect a cell), Roads, Zones (industrial, commercial, residential; Plan only; show the Shangbu guide; zone the guide), Form site, Erase, Water, Power and Facilities (the facility types in `works.facilities`). The guide is the historical template's footprint drawn over the map; showing it creates no action. "Zone the guide" queues `templateZoneAction`'s zone, clipped as §11.1's, with its `commit_works` unless Plan only is on. Tools are off while a card interrupts the quarter and after the end.

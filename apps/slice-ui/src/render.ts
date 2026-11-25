@@ -225,9 +225,11 @@ export function renderDecisions(v: View): string {
   const cards = cardStack(x.state, slice).map((c) => `<div class="card ${c.interrupting ? 'int' : ''}">
       <h3>${t(c.title)}</h3>
       <div class="muted">${t(c.interrupting ? S.T.mustAnswer : S.T.optional)}${c.expires ? ` · ${t(S.T.expires)} ${c.expires}` : ''}</div>
+      ${c.description ? `<p class="desc">${t(c.description)}</p>` : ''}
       ${c.lines.map((l) => `<div class="line">${t(l.label)}: ${t(l.value)}</div>`).join('')}
-      <div class="opts">${c.options.map((o) => `<button data-act="choose" data-card="${esc(c.id)}" data-opt="${esc(o.id)}"
-        class="${x.answers[c.id] === o.id ? 'sel' : ''}">${t(o.label)}</button>`).join('')}</div></div>`).join('') || `<div class="muted">${t(S.T.noCards)}</div>`;
+      <div class="opts">${c.options.map((o) => `<div class="opt"><button data-act="choose" data-card="${esc(c.id)}" data-opt="${esc(o.id)}"
+        class="${x.answers[c.id] === o.id ? 'sel' : ''}">${t(o.label)}</button>${o.badges.length ? `<ul class="badges">${o.badges.map((b) =>
+        `<li>${t(b)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div></div>`).join('') || `<div class="muted">${t(S.T.noCards)}</div>`;
   return `${closeBtn(v.lang, 'closeDecisions')}<h2>${t(S.T.pendingDecisions)}</h2>${cards}`;
 }
 

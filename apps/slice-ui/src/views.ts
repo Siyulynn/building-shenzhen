@@ -9,7 +9,7 @@ import {
   zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
   VILLAGE_ARCHETYPES,
-  type CardInstance, type CellRuns, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
+  type CardInstance, type CellRuns, type EventDef, type EventEffect, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
   type WorksOrder, type Zone,
 } from '@sz/sim-core';
 import * as S from './strings.js';
@@ -69,7 +69,8 @@ export function optionLabel(s: GameState, slice: Slice, card: string, option: st
 export interface Line { label: L; value: L }
 export interface CardView {
   id: string; card: string; title: L; interrupting: boolean; expires?: string;
-  options: { id: string; label: L }[];
+  description?: L;                                    // R7: an event card's content description
+  options: { id: string; label: L; badges: L[] }[];   // badges: R7's derived effect badges, event cards only
   lines: Line[];
 }
 
@@ -120,11 +121,69 @@ function cardLines(s: GameState, slice: Slice, c: CardInstance): Line[] {
   return out;
 }
 
+const plus = (l: L, n: number): L => lv(l, `${n >= 0 ? '+' : '−'}${num(Math.abs(n))}`);
+const then = (a: L, b: L): L => ({ zh: `${a.zh}${b.zh}`, en: `${a.en}${b.en}` });
+
+/** One effect's badges, read from params as the effect itself reads them (§11.2, R7); [] adds none. */
+function effectBadge(d: EventDef, e: EventEffect, option: string, slice: Slice): L[] {
+  const p = slice.params, n = (p.events[d.id] ?? {}) as Record<string, number | undefined>;
+  const fc = slice.tick.fiscal, B = S.BADGE;
+  switch (e.kind) {
+    case 'cost': return [lv(B.cost!, yuan(n.cost ?? 0))];
+    case 'scrutiny': return [plus(B.scrutiny!, n.scrutiny ?? 0)];
+    case 'standing': return [plus(B.standing!, n.standing ?? 0)];
+    case 'commit_choice': {
+      const t = fc?.projects.find((x) => x.id === option);
+      if (!t) return [];                                     // an option that is not a template commits nothing
+      const budget = p.projects?.[t.id]?.budget;
+      return [then(B.commits!, t.name), ...(budget !== undefined ? [lv(B.cost!, yuan(budget))] : [])];
+    }
+    case 'set_permit': return [then(B.permit!, S.PERMIT[option] ?? raw(option))];
+    case 'rush': return [B.rush!];
+    case 'sweep': return [lv(B.cost!, yuan(p.sweep.cash_cost)), lv(B.sweepHides!, num(p.sweep.campaign_months)), B.sweepMood!];
+    case 'contract_team': {
+      const t = fc?.teams.find((x) => x.id === e.team);
+      return [then(B.team!, t?.name ?? raw(e.team))];
+    }
+    case 'cofinance': {
+      const t = fc?.projects.find((x) => x.id === e.template);
+      return [then(B.cofinance!, t?.name ?? raw(e.template))];
+    }
+    case 'offer': return [e.terms ? cat(B.offer!, B.offerTerms!, ', ', '，') : B.offer!];
+    case 'offer_loan': return [B.loan!];
+    case 'sez_open': return [B.sezOpen!];
+    case 'set_regime': return [B.regime!];
+    case 'unlock': return [e.key.startsWith('investors.') ? B.unlockInvestment! : B.unlock!];
+    case 'first_wave': return [B.firstWave!];
+    case 'orders': return [lv(B.orders!, `×${n.factor ?? 1}`)];
+    case 'veto': return [B.veto!];
+    case 'end_run': return [B.endRun!];
+    case 'readiness_check': case 'budget_report': return [B.report!];
+    default: { const never: never = e; return never; }
+  }
+}
+
+/**
+ * Each option's effect badges (§11.2, R7): derived from the on_answer effects that apply to it, so a badge cannot
+ * disagree with what the option does. Effects applied when the event fired are not the option's. Pure.
+ */
+export function effectBadges(d: EventDef, slice: Slice, _s?: GameState): Record<string, L[]> {
+  const out: Record<string, L[]> = {};
+  for (const o of d.card?.options ?? []) {
+    const bs = d.onAnswer.filter((e) => e.option === undefined || e.option === o.id).flatMap((e) => effectBadge(d, e, o.id, slice));
+    out[o.id] = bs.length ? bs : [S.BADGE.noEffect!];
+  }
+  return out;
+}
+
 export function cardView(s: GameState, slice: Slice, c: CardInstance): CardView {
+  const ev = slice.tick.events.find((d) => d.id === c.card);
+  const badges = ev ? effectBadges(ev, slice, s) : {};
   return {
     id: c.id, card: c.card, title: cardTitle(slice, c.card) ?? raw(c.card), interrupting: c.interrupting,
     ...(c.expires !== undefined ? { expires: formatYM(c.expires) } : {}),
-    options: c.options.map((o) => ({ id: o, label: optionLabel(s, slice, c.card, o) ?? raw(o) })),
+    ...(ev?.description ? { description: ev.description } : {}),
+    options: c.options.map((o) => ({ id: o, label: optionLabel(s, slice, c.card, o) ?? raw(o), badges: badges[o] ?? [] })),
     lines: cardLines(s, slice, c),
   };
 }

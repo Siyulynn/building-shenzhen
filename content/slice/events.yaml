@@ -7,6 +7,7 @@
 # option: only for that option. Effect numbers are in params/slice.yaml under events.<id>.
 # Card options: the headless default first. A card that only reports offers `noted`. card.lapse: the option a
 # non-interrupting card takes when it expires unanswered (a crisis cannot be ignored for free).
+# description (R7, §5.7): every card has one, { zh, en }: what happened and why it matters, no params numbers.
 
 - id: event.first_processing_contract
   name: { zh: 第一份来料加工合同, en: Our first processing contract }
@@ -30,6 +31,9 @@
 
 - id: event.readiness_check
   name: { zh: 特区筹备情况汇报, en: The readiness check }
+  description:
+    zh: "一份汇报列出罗湖、上步一带的道路、已平整土地和水电，并指出最薄弱的一环。这是特区成立前最后一个可以安排工程的季度：准备得越充分，第一批投资者越多。"
+    en: "A report on roads, formed land, and water and power near Luohu and Shangbu names the weakest part. This is the last quarter to commit works before the zone opens: the readier the land, the larger the first wave of investors."
   family: scripted
   trigger: { prologue_turn: 5 }          # 1980-Q2, the last quarter to commit (§2.1)
   effects:
@@ -46,6 +50,9 @@
 
 - id: event.sez_established
   name: { zh: 经济特区成立, en: The Special Economic Zone is established }
+  description:
+    zh: "经济特区成立，从此可以接受外来投资。你选的优先方向决定第一批投资者的构成。"
+    en: "The Special Economic Zone opens, and outside investors can now be accepted. The priority you choose steers the mix of the first wave."
   family: anchor
   trigger: { date: 1980-08 }
   card:
@@ -67,6 +74,9 @@
 
 - id: event.first_project
   name: { zh: 第一个工程, en: The first project }
+  description:
+    zh: "你和搭档第一次商量，第一项工程放在哪里。通往罗湖、渔民村一带的道路或水管，是日后投资者和建设者最先需要的。"
+    en: "You and your partner in the leadership decide where the first work goes. A road or a water main toward Luohu and Yumin is what later investors and builders will need first."
   family: scripted
   trigger: { prologue_turn: 0 }          # 1979-Q1: meet the pair, choose the first project toward Luohu (§2.1)
   card:
@@ -82,6 +92,9 @@
 
 - id: event.shenzhen_city
   name: { zh: 宝安县改设深圳市, en: "Bao'an County becomes Shenzhen City" }
+  description:
+    zh: "宝安县改设深圳市，这座城市的账从此由你来管。账面上暂时没有变化，这张卡只是一个起点。"
+    en: "Bao'an County becomes Shenzhen City, and the city's accounts are now yours to keep. Nothing in the ledger changes yet; this card only marks the start."
   family: anchor
   trigger: { date: 1979-03 }             # a declared fact (§2.1)
   card:
@@ -93,6 +106,9 @@
 
 - id: event.shekou_command
   name: { zh: 蛇口工业区建设指挥部成立, en: "Shekou's construction headquarters is set up" }
+  description:
+    zh: "蛇口的建设指挥部成立。蛇口不在你的地图上，但在游戏里它会成为争夺投资者的对手。"
+    en: "Shekou's construction headquarters is set up next door. Shekou is not on your map, but in this game it becomes a rival for the investors you lose."
   family: anchor
   trigger: { date: 1979-04 }             # a declared fact (§2.1)
   card:
@@ -104,6 +120,9 @@
 
 - id: event.permit_choice
   name: { zh: 临时建房许可, en: Temporary building permits }
+  description:
+    zh: "建设者和新来的人都要申请临时建房许可。审批的宽严会影响外来人口来多少，也影响上级对你的关注。"
+    en: "Builders and newcomers want permits for temporary buildings. How freely you grant them changes how many migrants come and how closely the province watches you."
   family: scripted
   trigger: { prologue_turn: 2 }          # 1979-Q3: the permit regime and the scrutiny gauge switch on (§2.1)
   effects:
@@ -120,6 +139,9 @@
 
 - id: event.typhoon
   name: { zh: 台风, en: A typhoon }
+  description:
+    zh: "台风吹坏了工棚、道路和在建工程。马上抢修要花钱；放着不修，会引起上级关注。"
+    en: "A typhoon has damaged sheds, roads and works in progress. Repairing now costs money; leaving it draws the province's attention."
   family: emergent
   trigger: { hazard: 0.15, months_of_year: [6, 7, 8], from_turn: 2, guaranteed_by_turn: 2, recurring: true }
   card:
@@ -136,6 +158,9 @@
 
 - id: event.corps_advance
   name: { zh: 基建工程兵先遣队到达, en: "The engineering corps' advance units arrive" }
+  description:
+    zh: "基建工程兵先遣队到了，加入施工。他们要有地方住：盖营房马上花钱，住竹棚帐篷会引起关注。"
+    en: "The engineering corps' advance units arrive to join the works. They need somewhere to live: quarters cost money now, while tents and bamboo sheds draw attention."
   family: scripted
   trigger: { prologue_turn: 3 }          # 1979-Q4 (§2.1)
   effects:
@@ -154,6 +179,9 @@
 
 - id: event.cofinancing
   name: { zh: 1980年工作汇报：贷款与合作建设, en: "The 1980 briefing: a loan and a co-financing offer" }
+  description:
+    zh: "年度工作汇报带来了银行的项目贷款，还有一位香港投资者提出出资在墟镇建一条电力线路。接受合作建设，城市不花钱就有了线路，代价是给这位投资者优惠条件。"
+    en: "The year's briefing brings the bank's project loan and an offer from a Hong Kong investor to build a power line in the market town. Accepting the co-financing gets the line at no cost to the city, in return for a concession to the investor."
   family: scripted
   trigger: { prologue_turn: 4 }          # 1980-Q1 (§2.1)
   effects:
@@ -172,6 +200,9 @@
 
 - id: event.budget
   name: { zh: 年度预算, en: "The year's budget" }
+  description:
+    zh: "省里确定今年的补助，简报列出补助之后的经常性收支。安排今年的工程，要想到补助减少以后城市还撑不撑得住。"
+    en: "The province sets this year's grant, and the briefing shows the recurring balance it leaves. Plan the year's works against what the city can carry once the grant shrinks."
   family: recurring
   trigger: { month_of_year: 0, recurring: true }
   effects:
@@ -185,6 +216,9 @@
 
 - id: event.sweep
   name: { zh: 迎检整顿, en: A pre-inspection sweep }
+  description:
+    zh: "年度考核快到了，违建楼面会被扣分。突击整顿能暂时把它们遮住，但要花钱、伤外来人口的情绪，而且突击检查仍可能发现。"
+    en: "The annual review is coming, and illegal floors count against you. A sweep hides them for a while, but it costs money and migrants' goodwill, and an unannounced inspection can still find them."
   family: recurring
   trigger: { month_of_year: 9, recurring: true }   # October, before December's review
   card:
@@ -200,6 +234,9 @@
 
 - id: event.bamboo_garden
   name: { zh: 竹园宾馆开业, en: The Bamboo Garden Hotel opens }
+  description:
+    zh: "竹园宾馆开业。这里把它记作时代的标记，对游戏没有影响。"
+    en: "The Bamboo Garden Hotel opens. It is noted here as a marker of the times; it changes nothing in the game."
   family: anchor
   trigger: { date: 1981-01 }
   card:
@@ -211,6 +248,9 @@
 
 - id: event.land_rules
   name: { zh: 特区土地管理暂行规定施行, en: The land-use rules take effect }
+  description:
+    zh: "特区土地管理暂行规定施行。此后城市收取的土地使用费按这套规定执行。"
+    en: "The zone's land-use rules take effect. From now on the land-use fees the city collects follow these rules."
   family: anchor
   trigger: { date: 1982-01 }             # the fees are the regime's dated schedule (§5.6)
   card:
@@ -222,6 +262,9 @@
 
 - id: event.second_line
   name: { zh: 特区管理线动工, en: Work begins on the second-line fence }
+  description:
+    zh: "特区管理线开始动工。这里只作记录，试玩不模拟这条管理线。"
+    en: "Work begins on the second-line fence. It is noted here as a marker; the slice does not model the fence."
   family: anchor
   trigger: { date: 1982-06 }
   card:
@@ -233,6 +276,9 @@
 
 - id: event.corps_deployment
   name: { zh: 基建工程兵大部队调深, en: The main engineering corps deployment }
+  description:
+    zh: "一支基建工程兵大部队可以调来支援城市建设。接收后施工力量大增，但每月要付一笔费用。"
+    en: "A large engineering corps deployment is offered to the city's works. Taking them on adds a big team to the construction pool, at a monthly cost."
   family: scripted                       # not an anchor: the claim gives the year and says autumn, so the month
   trigger: { date: 1982-09 }             # is a design choice within that season; it needs a source to be an anchor
   card:
@@ -247,6 +293,9 @@
 
 - id: event.temporary_residence
   name: { zh: 特区暂住证暂行规定, en: The temporary-residence rules }
+  description:
+    zh: "新规定明确了在特区暂住要办的手续。执行的宽严会影响外来人口来多少。"
+    en: "New rules set how temporary residence in the zone is documented. How strictly you apply them changes how many migrants come."
   family: anchor
   trigger: { date: 1983-07 }
   card:
@@ -263,6 +312,9 @@
 
 - id: event.first_zone
   name: { zh: 第一个工业区投产, en: The first industrial zone opens }
+  description:
+    zh: "你规划的区块里第一家企业开工投产。领导班子的上级评价随之提高。"
+    en: "The first firm in one of your zones has opened. Your leaders' standing rises with it."
   family: milestone
   trigger: { condition: first_zone_firm_open }
   effects:
@@ -285,6 +337,9 @@
 
 - id: event.shekou_poach
   name: { zh: 投资者转投蛇口, en: An investor goes to Shekou }
+  description:
+    zh: "一位你没能安置的投资者转去了蛇口。蛇口每拿走一家，你的城市就少一家企业和它的岗位。"
+    en: "An investor you could not place has gone to Shekou instead. Each one Shekou takes is a firm, and its jobs, that your city will not have."
   family: milestone
   trigger: { condition: shekou_captured }   # M5a's capture, shown the first time it happens
   card:
@@ -305,6 +360,9 @@
 
 - id: event.orders_slump
   name: { zh: 香港订单下滑, en: Hong Kong orders slump }
+  description:
+    zh: "香港的订单一时下滑。订单恢复之前，加工企业的生产和招工都会减少。"
+    en: "Hong Kong's orders fall for a while. Until they recover, processing firms produce less and hire fewer workers."
   family: emergent
   trigger: { hazard: 0.02, from_turn: 4, recurring: true }
   effects:
@@ -317,6 +375,9 @@
 
 - id: event.fire
   name: { zh: 厂房宿舍火灾, en: A fire in a factory with dormitories }
+  description:
+    zh: "一间楼上住人的厂房起火，今年考核的秩序一项会因此不及格。抚恤整改要花钱；低调处理会引起上级关注。"
+    en: "A fire breaks out in a factory with dormitories, and this year's review will fail its order check because of it. Compensating and refitting cost money; keeping it quiet draws the province's attention."
   family: emergent
   trigger: { hazard: 0.01, condition: firm_open }
   effects:
@@ -334,6 +395,9 @@
 
 - id: event.escapes
   name: { zh: 偷渡外逃, en: Escapes to Hong Kong }
+  description:
+    zh: "有人偷渡去香港，消息在传开。加强巡逻要花钱；不予声张会引起上级关注。"
+    en: "People are crossing to Hong Kong without permission, and word of it travels. More patrols cost money; saying nothing draws the province's attention."
   family: emergent
   trigger: { hazard: 0.2, from_turn: 1 }
   until: investors.sez                   # before the SEZ; the outflow itself is not modelled (§5.8)
@@ -351,6 +415,9 @@
 
 - id: event.petition
   name: { zh: 村民上访, en: A village petition over compensation }
+  description:
+    zh: "土地正在平整的村民为补偿上访。补足补偿要花钱；按原方案办，事情会往上反映。"
+    en: "Villagers whose land is being formed petition over their compensation. Topping it up costs money; keeping to the plan lets the complaint go up the line."
   family: emergent
   trigger: { hazard: 0.05, condition: site_preparation_committed, recurring: true }
   card:
@@ -368,6 +435,9 @@
 
 - id: event.deng_visit
   name: { zh: 邓小平首次视察深圳经济特区, en: "Deng Xiaoping's first visit to the Shenzhen SEZ" }
+  description:
+    zh: "邓小平首次视察深圳经济特区。试玩到此结束，卡片把游戏的结局与这次视察的史实并列。"
+    en: "Deng Xiaoping makes his first visit to the Shenzhen SEZ. The slice ends here, and the card sets the game's verdict beside the documented fact of the visit."
   family: anchor
   trigger: { date: 1984-01 }             # in the events step, before that month's finance: the end-1983 state
   effects:

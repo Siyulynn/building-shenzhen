@@ -61,6 +61,7 @@ export interface EventCard { interrupting: boolean; options: { id: string; name:
 /** One record of content/slice/events.yaml, compiled. Content, never state. */
 export interface EventDef {
   id: string; name: LocalizedString; family: 'anchor' | 'scripted' | 'recurring' | 'emergent' | 'milestone';
+  description?: LocalizedString;                                  // R7 (§5.7): what happened and why it matters
   trigger: EventTrigger; recurring: boolean;
   requires?: string; until?: string;                              // gates: an unlock key that must be set, or not yet
   effects: EventEffect[]; card?: EventCard; onAnswer: EventEffect[];
@@ -152,6 +153,10 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
     seen.add(r.id);
     if (typeof r.name?.zh !== 'string' || typeof r.name?.en !== 'string') throw new Error(`${r.id}: name needs zh and en`);
     if (!(FAMILIES as readonly string[]).includes(r.family)) throw new Error(`${r.id}: family must be one of ${FAMILIES.join(', ')}`);
+    const desc = r.description;
+    if (desc !== undefined && (typeof desc?.zh !== 'string' || !desc.zh.trim() || typeof desc.en !== 'string' || !desc.en.trim())) {
+      throw new Error(`${r.id}: description needs a non-empty zh and en`);
+    }
     const { trigger, recurring } = triggerOf(r);
     if (r.family === 'anchor' && !('date' in trigger)) throw new Error(`${r.id}: an anchor fires on its date`);
     for (const g of ['requires', 'until']) if (r[g] !== undefined && (typeof r[g] !== 'string' || !r[g])) throw new Error(`${r.id}: ${g} names an unlock key`);
@@ -209,7 +214,8 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
       const keys = Object.keys(p.sez.priorities).sort().join(',');
       if ([...optionIds].sort().join(',') !== keys) throw new Error(`${r.id}: its options must be params.sez.priorities' keys`);
     }
-    return { id: r.id, name: { zh: r.name.zh, en: r.name.en }, family: r.family, trigger, recurring,
+    return { id: r.id, name: { zh: r.name.zh, en: r.name.en }, family: r.family,
+      ...(desc ? { description: { zh: desc.zh, en: desc.en } } : {}), trigger, recurring,
       ...(r.requires ? { requires: r.requires } : {}), ...(r.until ? { until: r.until } : {}),
       effects, ...(card ? { card } : {}), onAnswer };
   });

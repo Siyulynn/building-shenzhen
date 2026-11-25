@@ -251,11 +251,25 @@ export const T = {
   noPublicZone: l('公共建筑直接放置，没有公共用地区块。', 'Public buildings are placed directly; there is no public zone.'),
 } as const satisfies Record<string, L>;
 
+/** R7 (§11.2): an option's effect badges, derived from its on_answer effects in views.ts effectBadges. */
+export const BADGE: Readonly<Record<string, L>> = {
+  cost: l('花费', 'Cost'), scrutiny: l('上级关注', 'Scrutiny'), standing: l('上级评价', 'Standing'),
+  commits: l('立项：', 'Commits '), permit: l('暂住证政策：', 'Permits: '), rush: l('在建项目全部改为优先', 'Every live project to high priority'),
+  sweepHides: l('暂时遮住违建（月）', 'Hides illegal floors (months)'), sweepMood: l('外来人口情绪下降', "Migrants' mood falls"),
+  team: l('施工队伍：', 'Adds a team: '), cofinance: l('不花城市的钱：', 'At no city cost: '),
+  offer: l('一份投资意向', 'An investor offer'), offerTerms: l('附优惠条件', 'with a concession'),
+  loan: l('提供项目贷款', 'Offers the project loan'), sezOpen: l('特区开放', 'Opens the zone'),
+  regime: l('新的财政体制', 'A new fiscal regime'), unlockInvestment: l('开放投资', 'Unlocks investment'),
+  unlock: l('开启新的一步', 'Unlocks the next step'), firstWave: l('第一批投资者', 'The first wave of investors'),
+  orders: l('香港订单变化', 'Hong Kong orders change'), veto: l('今年考核一项不及格', "Fails one of this year's review items"),
+  endRun: l('试玩结束', 'Ends the slice'), report: l('一份汇报', 'A report'), noEffect: l('没有影响', 'No effect'),
+};
+
 /** Every table above, for the tests: each entry has an en and a zh. */
 export const TABLES: Readonly<Record<string, Readonly<Record<string, L>>>> = {
   SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, ENFORCEMENT, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
   ROLE, TRAIT, RISK, STAGE, WAITING, OVERLAYS, T, RUNG, ORDER_KIND, ORDER_STAGE, STRUCTURE, FACILITY, WORK_STAGE, TOOL,
-  TOOL_HINT, CHIP, CUE, CUE_INPUT, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
+  TOOL_HINT, CHIP, CUE, CUE_INPUT, BADGE, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
 };
 
 /** Both names, Chinese first: how a place label reads in either language. */
