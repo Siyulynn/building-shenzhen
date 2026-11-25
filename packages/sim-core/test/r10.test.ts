@@ -197,6 +197,14 @@ describe('R10c trading firms, customs and forex (§5.13)', () => {
   });
 
   it('the SEZ\'s first priority steers the trading stream; a services ownership must build on commercial zones', () => {
+    // from the same state, a trade priority builds more trading firms in a year than an industry priority
+    const s1 = full.rec.quarterEnds.find((q) => q.firms.some((f) => f.sector === 'services'))!;
+    const built = (priority: string) => {
+      const s = cloneState(s1);
+      s.sez.priority = priority as never;
+      return runMonths(s, 12, new Rng(4), firstOption, STEPS).firms.filter((f) => f.sector === 'services').length;
+    };
+    expect(built('priority.trade')).toBeGreaterThan(built('priority.industry'));
     expect(T.priority_factor!['priority.trade']!).toBeGreaterThan(T.priority_factor!.default!);
     expect(T.priority_factor!['priority.commerce']!).toBeGreaterThan(T.priority_factor!.default!);
     expect(() => validateParams({ ...params, growth: { ...G, commercial: { ...T, zone_use: 'industrial' } } })).toThrow(/commercial zones/);
@@ -267,6 +275,10 @@ describe('R10d the import quota (§5.13)', () => {
     const scrutiny = (l: 'balanced' | 'open', p = steps) => from(l, 1, p).climate.scrutiny;
     expect(scrutiny('open')).toBeGreaterThan(scrutiny('balanced'));
     expect(params.trade!.import_quota!.balanced.scrutiny_gain).toBe(0);
+    // with all exports retained the quota rises: open draws nothing more than balanced
+    const rising = createTickSteps(validateParams({ ...params, fiscal: { ...params.fiscal, forex: { ...params.fiscal.forex, retention_share: 1 } } }), slice.tick);
+    expect(from('open', 1, rising).fiscal.balances.forex).toBeGreaterThan(s0.fiscal.balances.forex);
+    expect(scrutiny('open', rising)).toBe(scrutiny('balanced', rising));
   });
 
   it('the aggressive player opens it once the beat fires; the verdict reports the forex burned', () => {

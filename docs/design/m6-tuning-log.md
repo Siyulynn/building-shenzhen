@@ -567,16 +567,18 @@ The split is read from `gdpSectorYear` (the trailing 12 months of `history.gdpSe
 - **The binding constraint was servicing, not demand.** The plan services one zone at a time, least room first, ties
   by id: the template zone (id 1) won every tie at zero room, so the new commercial zones waited until 1983. The
   historical plan now breaks the tie by cells left (`small_zones_first`), so Luohu's 6 cells are serviced in 1981
-  and the rest of Shangbu after. That delay is what shrinks industry in the same pass (firm jobs 1983 18,940 →
-  17,420; exports ¥92M → ¥68M): no industry parameter moved. Made global, it also delayed the aggressive plan's
+  and the rest of Shangbu after. That delay is what shrinks industry in the same pass (against R10b's golden,
+  end-1983 factory posts 20,917 → 13,777, −34%; exports ¥96.1M → ¥67.7M, −30%; the trading firms post 3,640): no
+  industry parameter moved. Made global, it also delayed the aggressive plan's
   Sungang zone and R8d's freight limit stopped binding by 1982 (a test), so the aggressive plan keeps its
   industry-first order: its 1983 tertiary stays 24%, a policy outcome, not a target.
 - **Forex binds trade.** At import share 0.5 the trading firms ran the quota down to $0.4M by end-1983 and their
   turnover was capped; at 0.35 it ends at $1.2M (R10b: $10.5M unspent). The plans now check the quota before
   placing a structure: trade imports had left a substation's $10,000 uncovered, and the order threw.
 - **The split (annual, historical):** 17 / 30 / 53 (1979), 13 / 43 / 43 (1980), 7 / 61 / 32 (1981),
-  5 / 59 / 36 (1982), 4 / 51 / 45 (1983). **1983 meets the target; 1981–82 miss it** (tertiary 32% and 36%
-  against 44%): Luohu is serviced in 1981 and its firms ramp through 1982. Customs is 3% / 13% / 28% of revenue in
+  5 / 59 / 36 (1982), 4 / 51 / 45 (1983). Against the tolerance (tertiary 35–55%, secondary 40–60%), **1983 and
+  1982 are inside it** (1982 only just: 35.5 / 59.4); **1981 misses** (tertiary 32%, secondary 61%): Luohu is
+  serviced in 1981 and its firms ramp through 1982. Customs is 3% / 13% / 28% of revenue in
   1981–83 (target 25–60% by 1983: met at the low end). 1979–80 customs is zero (the border trade is inside the
   county base, a stated gap).
 - **Goldens (end-1983):** historical 63,252 → 58,792 residents, ¥42.64M → ¥41.25M, split 4/69/27 → 4/51/45, revenue
