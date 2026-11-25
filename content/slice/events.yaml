@@ -74,22 +74,17 @@
 # ---- M5b (§5.8): the prologue beats ----
 
 - id: event.first_project
-  name: { zh: 第一个工程, en: The first project }
+  name: { zh: 先把情况摸清, en: "The city's own survey" }
   description:
-    zh: "你和搭档第一次商量，第一项工程放在哪里。通往罗湖、渔民村一带的道路或水管，是日后投资者和建设者最先需要的。"
-    en: "You and your partner in the leadership decide where the first work goes. A road or a water main toward Luohu and Yumin is what later investors and builders will need first."
+    zh: "市革委会的班子刚搭起来，第一件事是自己摸清情况：罗湖、上步和墟镇的地是谁的，路通到哪里。第一块地和第一条路，就画在地图上。"
+    en: "The committee's team has just been assembled, and its first job is its own survey: who holds the land in Luohu, Shangbu and the market town, and where the roads go. The first zone and the first road are drawn on the map."
   family: scripted
-  trigger: { prologue_turn: 0 }          # 1979-Q1: meet the pair, choose the first project toward Luohu (§2.1)
+  trigger: { prologue_turn: 0 }          # 1979-Q1 (§2.1, R9): the decision is made on the map; the card only reports
   card:
-    interrupting: true                   # a prologue decision: answered in its month (§5.8)
+    interrupting: true                   # it opens Turn 1 (R7)
     options:
-      - { id: project.road_link, name: { zh: 修通往罗湖的路, en: A road toward Luohu } }
-      - { id: project.water_main, name: { zh: 铺设供水管道, en: A water main } }
-      - { id: later, name: { zh: 以后再说, en: Later } }
-  on_answer:
-    - { kind: commit_choice, area: 2 }   # Luohu crossing and Yumin; `later` commits nothing
-  claims:
-    - { id: phase1.map.shennan_1980, use: design_note }
+      - { id: noted, name: { zh: 知道了, en: Noted } }
+  claims: []                             # a design beat: no documented Q1 1979 first-project decision (§2.1 framing)
 
 - id: event.shenzhen_city
   name: { zh: 宝安县改设深圳市, en: "Bao'an County becomes Shenzhen City" }
@@ -120,21 +115,21 @@
     - { id: phase1.event.shekou_command, use: anchor_date }
 
 - id: event.permit_choice
-  name: { zh: 临时建房许可, en: Temporary building permits }
+  name: { zh: 边防和户口规定怎么执行, en: Applying the border and residence rules }
   description:
-    zh: "建设者和新来的人都要申请临时建房许可。审批的宽严会影响外来人口来多少，也影响上级对你的关注。"
-    en: "Builders and newcomers want permits for temporary buildings. How freely you grant them changes how many migrants come and how closely the province watches you."
+    zh: "建设者和想留下的人越来越多。省里的边防和户口规定管着他们，市里执行得宽还是严，会影响来的人有多少，也影响上级对你的关注。"
+    en: "More builders, and more people who want to stay, are arriving. The province's border and residence rules apply to them. How strictly the city applies them changes how many come and how closely the province watches you."
   family: scripted
-  trigger: { prologue_turn: 2 }          # 1979-Q3: the permit regime and the scrutiny gauge switch on (§2.1)
+  trigger: { prologue_turn: 2 }          # 1979-Q3: the permit regime and the scrutiny gauge switch on (§2.1); R9: the province's rules, not the city's
   effects:
     - { kind: unlock, key: scrutiny.gauge }
     - { kind: unlock, key: tools.priorities }       # R9 (§2.1): works priority and enforcement
   card:
     interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:
-      - { id: standard, name: { zh: 照章审批, en: Standard approvals } }
-      - { id: loose, name: { zh: 先建后批, en: "Build first, approve later" } }
-      - { id: strict, name: { zh: 从严审批, en: Strict approvals } }
+      - { id: standard, name: { zh: 照章执行, en: Apply them as written } }
+      - { id: loose, name: { zh: 先让人进来干活, en: Let the builders in first } }
+      - { id: strict, name: { zh: 从严把关, en: Apply them strictly } }
   on_answer:
     - { kind: set_permit }
   claims: []                             # a design beat
@@ -161,8 +156,8 @@
 - id: event.corps_advance
   name: { zh: 基建工程兵先遣队到达, en: "The engineering corps' advance units arrive" }
   description:
-    zh: "基建工程兵先遣队到了，加入施工。他们要有地方住：盖营房马上花钱，住竹棚帐篷会引起关注。"
-    en: "The engineering corps' advance units arrive to join the works. They need somewhere to live: quarters cost money now, while tents and bamboo sheds draw attention."
+    zh: "基建工程兵先遣队到了，加入施工。他们要有地方住：先搭竹棚帐篷不花钱，但会引起关注；盖营房整齐，但马上要花钱。"
+    en: "The engineering corps' advance units arrive to join the works. They need somewhere to live: bamboo sheds and tents cost nothing but draw attention; proper quarters are orderly but cost money now."
   family: scripted
   trigger: { prologue_turn: 3 }          # 1979-Q4 (§2.1)
   effects:
@@ -171,8 +166,8 @@
   card:
     interrupting: true                   # a prologue decision: answered in its month (§5.8)
     options:
+      - { id: tents, name: { zh: 先住竹棚帐篷, en: Bamboo sheds and tents } }   # R9: the sheds first, the quarters the alternative
       - { id: quarters, name: { zh: 盖临时营房, en: Build them quarters } }
-      - { id: tents, name: { zh: 先住竹棚帐篷, en: Bamboo sheds and tents } }
   on_answer:
     - { kind: cost, option: quarters }
     - { kind: scrutiny, option: tents }
@@ -183,8 +178,8 @@
 - id: event.cofinancing
   name: { zh: 1980年工作汇报：贷款与合作建设, en: "The 1980 briefing: a loan and a co-financing offer" }
   description:
-    zh: "年度工作汇报带来了银行的项目贷款，还有一位香港投资者提出出资在墟镇建一条电力线路。接受合作建设，城市不花钱就有了线路，代价是给这位投资者优惠条件。"
-    en: "The year's briefing brings the bank's project loan and an offer from a Hong Kong investor to build a power line in the market town. Accepting the co-financing gets the line at no cost to the city, in return for a concession to the investor."
+    zh: "年度工作汇报带来了银行的项目贷款，还有一位香港投资者提出出资在罗湖一带建一座变电站。接受合作建设，城市不花钱就有了变电站，代价是给这位投资者优惠条件。"
+    en: "The year's briefing brings the bank's project loan and an offer from a Hong Kong investor to pay for a substation near Luohu. Accepting the co-financing gets the substation at no cost to the city, in return for a concession to the investor."
   family: scripted
   trigger: { prologue_turn: 4 }          # 1980-Q1 (§2.1)
   effects:
@@ -195,8 +190,8 @@
     options:
       - { id: decline, name: { zh: 婉拒, en: Decline } }
       - { id: accept, name: { zh: 接受合作建设, en: Accept the co-financing } }
-  on_answer:                             # a Hong Kong investor builds a power line in the market town, for a concession
-    - { kind: cofinance, template: project.power_line, area: 1, option: accept }
+  on_answer:                             # R9 (§5.8): a co-financed substation near Luohu, a composite, for a concession
+    - { kind: cofinance, structure: power_substation, area: 2, option: accept }
     - { kind: offer, archetype: investor.hk_processing, terms: true, option: accept }
   claims: []                             # a design beat
 

@@ -55,10 +55,9 @@ describe('R7 cards that can be judged', () => {
     expect(typhoon.defer!.map((l) => l.en)).toEqual([`Scrutiny +${n.scrutiny}`]);
 
     const first = effectBadges(slice.tick.events.find((d) => d.id === 'event.first_project')!, slice);
-    const road = slice.tick.fiscal!.projects.find((t) => t.id === 'project.road_link')!;
-    expect(first['project.road_link']!.map((l) => l.en)).toEqual([`Commits ${road.name.en}`,
-      `Cost ${yuan(slice.params.projects!['project.road_link']!.budget!)}`]);
-    expect(first.later).toEqual([BADGE.noEffect]);            // `later` is not a template: it commits nothing
+    expect(first.noted).toEqual([BADGE.noEffect]);            // R9: the survey card only reports
+    const co = effectBadges(slice.tick.events.find((d) => d.id === 'event.cofinancing')!, slice);
+    expect(co.accept!.map((l) => l.en)).toContain('At no city cost: Substation');
 
     const sez = effectBadges(slice.tick.events.find((d) => d.id === 'event.sez_established')!, slice);
     expect(sez['priority.industry']!.map((l) => l.en)).toContain('Unlocks investment');
@@ -89,7 +88,7 @@ describe('R7 Turn 1 tells the truth: GDP', () => {
     const g0 = gdpNow(s0, slice.params);
     expect(g0).toBeGreaterThan(0);
     const opening = s0.pendingCards.find((c) => c.card === 'event.first_project')!;
-    const r = step(s0, [{ type: 'answer_card', instance: opening.id, option: 'later' }], new Rng(1), newSession(slice).steps);
+    const r = step(s0, [{ type: 'answer_card', instance: opening.id, option: 'noted' }], new Rng(1), newSession(slice).steps);
     expect(r.state.history.gdp[0]).toBe(g0);                 // an idle first month: no work, every base job held
     expect(gdpNow(r.state, slice.params)).toBe(r.state.history.gdp[0]);
   });
@@ -109,7 +108,7 @@ describe('R7 Turn 1 tells the truth: the opening decision', () => {
     const card = unanswered(x0);
     expect(card.map((c) => c.card)).toEqual(['event.first_project']);
     expect(submit(x0).error).toBeDefined();                     // it must be answered first
-    let x = choose(x0, card[0]!.id, 'later');
+    let x = choose(x0, card[0]!.id, 'noted');
     x = enqueue(x, { type: 'set_permit_regime', regime: 'strict' });   // R9: enforcement is gated until 1979-Q4
     const y = submit(x);
     expect(y.error).toBeUndefined();
@@ -123,7 +122,7 @@ describe('R7 chips and money you can see', () => {
   /** The session at Turn 1 with the opening card answered `later`, and one zone with its site formation queued. */
   function queued(): { x0: Session; x: Session } {
     let x0 = newSession(slice);
-    for (const c of unanswered(x0)) x0 = choose(x0, c.id, 'later');
+    for (const c of unanswered(x0)) x0 = choose(x0, c.id, 'noted');
     const g = slice.startNetwork.routes.find((r) => r.id === 'site.guangshen_road')!;
     const W = x0.state.grid.width, c = g.cells[Math.floor(g.cells.length / 2)]!;
     const [gx, gy] = [c % W + 1, Math.floor(c / W)];

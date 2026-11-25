@@ -147,8 +147,10 @@ function effectBadge(d: EventDef, e: EventEffect, option: string, slice: Slice):
       return [then(B.team!, t?.name ?? raw(e.team))];
     }
     case 'cofinance': {
+      // R9 (§11.2): a co-financed structure reads by its kind; the M4 form by its project template
+      if (e.structure !== undefined) return [then(B.cofinance!, S.STRUCTURE[e.structure] ?? raw(e.structure))];
       const t = fc?.projects.find((x) => x.id === e.template);
-      return [then(B.cofinance!, t?.name ?? raw(e.template))];
+      return [then(B.cofinance!, t?.name ?? raw(e.template!))];
     }
     case 'offer': return [e.terms ? cat(B.offer!, B.offerTerms!, ', ', '，') : B.offer!];
     case 'offer_loan': return [B.loan!];

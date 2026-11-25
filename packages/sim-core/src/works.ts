@@ -59,6 +59,7 @@ export interface WorksOrder {
   rateFactor?: number;                     // service, R8b (§5.3): its tier's cost ÷ work, times the yuan per unit; absent = 1
   path?: PathCell[];                       // road: build order, nearest the network first
   placement?: StructurePlacement;          // structure
+  cofinanced?: true;                       // R9 (§5.8): an investor pays: rate 0, no forex, no maintenance
 }
 export const liveOrder = (o: WorksOrder) => o.stage === 'queued' || o.stage === 'working';
 export const cloneOrder = (o: WorksOrder): WorksOrder => ({ ...o,

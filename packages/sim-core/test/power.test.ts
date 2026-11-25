@@ -108,9 +108,10 @@ describe('R8c power binds', () => {
   const short = rec.quarterEnds.findIndex((s) =>
     [...utilityShares(s, placedSupply(s, growth, (f) => isOpen(f, s.date))).values()].some((v) => v < 0.99));
 
-  it('binds in the aggressive run by the end of the 1982 turns', () => {
+  // R9: the survey card commits no road and the co-financing orders a substation near Luohu (§5.8): it binds a quarter later
+  it('binds in the aggressive run by the 1983-Q1 turn', () => {
     expect(short).toBeGreaterThanOrEqual(0);
-    expect(rec.quarterEnds[short]!.date).toBeLessThanOrEqual(parseYM('1982-12'));
+    expect(rec.quarterEnds[short]!.date).toBeLessThanOrEqual(parseYM('1983-03'));
   });
 
   it('a counterfactual with power to spare posts more jobs over the next quarter', () => {

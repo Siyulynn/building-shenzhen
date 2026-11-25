@@ -11,6 +11,7 @@ import { createFirm, firmTerms, sizeOffer, type FirmOffer } from './systems/indu
 import { cellsOfRuns } from './zones.js';
 import { zoneBuiltM2 } from './growth.js';
 import { landFeeRate, regimeOf, withdrawCofinanced, type FiscalContent } from './fiscal.js';
+import { withdrawCofinancedOrder } from './orders.js';
 
 /**
  * One record of content/slice/investors.yaml, compiled. Its numbers are params.investors.archetypes[id].
@@ -155,6 +156,8 @@ export function offers(p: SliceParams, content: InvestorContent) {
       // a co-financing investor who walks away takes the power line with it (§5.8)
       const cof = card.payload?.cofinanced;
       if (typeof cof === 'number' && withdrawCofinanced(s, cof)) ev('cofinance_withdrawn', { card: card.id, project: cof });
+      const cofOrder = card.payload?.cofinancedOrder;               // R9: or the co-financed works order
+      if (typeof cofOrder === 'number' && withdrawCofinancedOrder(s, cofOrder)) ev('cofinance_withdrawn', { card: card.id, order: cofOrder });
       if (!s.events.unlocked.includes(SHEKOU_COMPETES)) return;
       const K = s.shekou;
       K.carry = Math.round((K.carry + p.shekou.capture_share) * 1e9) / 1e9;

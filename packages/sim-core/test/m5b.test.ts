@@ -14,8 +14,7 @@ import {
   type CardInstance, type DecisionPolicy, type GameState, type PlayerAction, type SimEvent, type SliceParams, type TickStep,
 } from '../src/index.js';
 import {
-  ROOT, areasJson, buildable, content, events, fiscal, investors, leaders, params, precedents, scenario, start, targets,
-} from './fixtures.js';
+  ROOT, areasJson, buildable, content, events, fiscal, investors, leaders, params, precedents, scenario, start, targets, UNGATED } from './fixtures.js';
 import { checkInvariants } from './invariants.js';
 
 const START = parseYM(scenario.start);
@@ -84,14 +83,20 @@ describe('M5b: no effect without the content', () => {
 describe('M5b: the prologue', () => {
   // the card of each prologue turn (§5.8's table) whose two options lead to different states
   const beats: [number, (c: CardInstance) => boolean, (c: CardInstance) => [string, string]][] = [
-    [0, (c) => c.card === 'event.first_project', () => ['project.road_link', 'later']],
     [1, (c) => c.card === 'investor.hk_processing', (c) => [c.options[0]!, 'decline']],
     [2, (c) => c.card === 'event.permit_choice', () => ['standard', 'loose']],
     [3, (c) => c.card === 'event.corps_advance', () => ['quarters', 'tents']],
     [4, (c) => c.card === 'event.cofinancing', () => ['decline', 'accept']],
     [5, (c) => c.card === 'event.readiness_check', () => ['noted', 'rush']],
   ];
-  it('every prologue quarter raises a card whose options lead to different states (no empty quarters)', () => {
+  // R9 (§5.8): turn 0's decision is made on the map, the first zone and road, so its card only reports
+  it("turn 0's card, the city's survey, only reports", () => {
+    const card = declined.states[0]!.events.fired.some((f) => f.id === 'event.first_project');
+    expect(card).toBe(true);
+    expect(events.find((d) => d.id === 'event.first_project')!.card!.options.map((o) => o.id)).toEqual(['noted']);
+  });
+
+  it('every prologue quarter from turn 1 raises a card whose options lead to different states (no empty quarters)', () => {
     for (const [turn, is, opts] of beats) {
       const m = declined.states.findIndex((s) => s.pendingCards.some(is));
       expect(m, `turn ${turn}`).toBeGreaterThanOrEqual(0);
@@ -381,23 +386,24 @@ describe('M5b: the briefing', () => {
     }
   });
 
-  it('accepting the co-financing builds a power line that costs the city nothing, and its firm gets the concession', () => {
+  it('accepting the co-financing builds a substation near Luohu that costs the city nothing, and its firm gets the concession', () => {
     const accept: DecisionPolicy = (s, pending) => declineAll(s, pending).map((a) => {
       const c = pending.find((x) => a.type === 'answer_card' && x.id === a.instance)!;
       if (c.card === 'event.cofinancing') return answer(c, 'accept');
       if (c.payload?.terms) return answer(c, c.options[0]!);          // the co-financing investor's own offer
       return a;
     });
-    const r = run(accept, monthOf('1980-12') + 1);
-    const x = r.state.fiscal.projects.find((q) => q.cofinanced)!;
-    expect(x.template).toBe('project.power_line');
+    // R9 (§5.8): a co-financed works order, so it needs the works content (the start network)
+    const r = run(accept, monthOf('1980-12') + 1, { steps: createTickSteps(params, UNGATED) });
+    const x = r.state.worksOrders.find((q) => q.cofinanced)!;
+    expect(x.placement!.kind).toBe('power_substation');
+    expect(r.state.areas.find((a) => a.id === 2)!.cells).toContain(x.placement!.cell);
     expect(x.budget).toBe(0);
     expect(x.spent).toBe(0);
     expect(x.stage).toBe('done');
-    expect(r.state.areas.find((a) => a.id === 1)!.utilities.powerCap)
-      .toBe(declined.states[r.states.length - 1]!.areas.find((a) => a.id === 1)!.utilities.powerCap + params.projects['project.power_line']!.power_kw!);
-    expect(r.state.fiscal.obligations.some((o) => o.createdBy === `project.${x.id}`)).toBe(false);
-    expect(r.state.fiscal.ledger.some((e) => e.ref === `project.${x.id}`)).toBe(false);
+    expect(r.state.structures.some((q) => q.kind === 'power_substation' && q.cell === x.placement!.cell)).toBe(true);
+    expect(r.state.fiscal.obligations.some((o) => o.createdBy === `works.${x.id}`)).toBe(false);
+    expect(r.state.fiscal.ledger.some((e) => e.ref === `works.${x.id}`)).toBe(false);
     const firm = r.state.firms.find((f) => f.terms?.taxHolidayMonths === params.events['event.cofinancing']!.tax_holiday_months)!;
     expect(firm).toBeDefined();
     expect(firm.terms!.landFeeFactor).toBe(params.events['event.cofinancing']!.land_fee_factor);

@@ -18,7 +18,9 @@ import { verdict } from './verdict.js';
 import { parseYM, type YM } from './ym.js';
 import { isOpeningBeat } from './opening.js';
 import { LAND_COVER_CLASSES, type LandCover } from './landcover.js';
-import { liveOrder } from './works.js';
+import { OFFERED_STRUCTURES, liveOrder, type StructureKind } from './works.js';
+import { orderCofinanced } from './orders.js';
+import type { StartNetwork } from './sites.js';
 
 export type EventEffect = { option?: string } & (
   | { kind: 'offer'; archetype: string; terms?: boolean }
@@ -34,7 +36,7 @@ export type EventEffect = { option?: string } & (
   | { kind: 'set_permit' }
   | { kind: 'commit_choice'; area: number }
   | { kind: 'offer_loan' }
-  | { kind: 'cofinance'; template: string; area: number }
+  | { kind: 'cofinance'; template?: string; structure?: StructureKind; area: number }   // R9: a structure in place of a template
   | { kind: 'contract_team'; team: string }
   | { kind: 'rush' }
   | { kind: 'orders' }
@@ -96,7 +98,12 @@ function effectsOf(raw: unknown, id: string, what: string): EventEffect[] {
     if (e.kind === 'unlock' && (typeof e.key !== 'string' || !e.key)) throw new Error(`${id}: an unlock names a key`);
     if (e.kind === 'set_regime' && typeof e.regime !== 'string') throw new Error(`${id}: set_regime names a regime`);
     if ((e.kind === 'commit_choice' || e.kind === 'cofinance') && !Number.isInteger(e.area)) throw new Error(`${id}: ${e.kind} names an area`);
-    if (e.kind === 'cofinance' && typeof e.template !== 'string') throw new Error(`${id}: cofinance names a template`);
+    if (e.kind === 'cofinance' && (typeof e.template === 'string') === (e.structure !== undefined)) {
+      throw new Error(`${id}: cofinance names a template or a structure, not both`);
+    }
+    if (e.kind === 'cofinance' && e.structure !== undefined && !OFFERED_STRUCTURES.includes(e.structure)) {
+      throw new Error(`${id}: cofinance cannot order a ${e.structure}`);
+    }
     if (e.kind === 'contract_team' && typeof e.team !== 'string') throw new Error(`${id}: contract_team names a team`);
     if (e.kind === 'veto' && typeof e.reason !== 'string') throw new Error(`${id}: a veto names its reason`);
     if (e.option !== undefined && what !== 'on_answer') throw new Error(`${id}: only an on_answer effect names an option`);
@@ -227,7 +234,7 @@ export function compileEvents(raw: unknown, p: SliceParams, investors: readonly 
       }
       if (fiscal) {
         if (e.kind === 'set_regime' && !fiscal.regimes.some((x) => x.id === e.regime)) throw new Error(`${r.id}: unknown regime ${e.regime}`);
-        if (e.kind === 'cofinance' && !fiscal.projects.some((x) => x.id === e.template && x.target === 'area')) {
+        if (e.kind === 'cofinance' && e.template !== undefined && !fiscal.projects.some((x) => x.id === e.template && x.target === 'area')) {
           throw new Error(`${r.id}: cofinance needs an area project template, not ${e.template}`);
         }
         if (e.kind === 'contract_team' && !fiscal.teams.some((x) => x.id === e.team && x.modes.includes('pool'))) {
@@ -313,7 +320,7 @@ export function budgetReport(s: GameState, p: SliceParams, fc: FiscalContent) {
 /** Tick step 2 (§5.7, §5.8): expire event cards, apply this month's answers, then fire the events that are due. */
 export function events(p: SliceParams, content: {
   events?: EventContent; investors?: readonly InvestorArchetype[]; buildable?: Buildable; fiscal?: FiscalContent;
-  landcover?: LandCover;
+  landcover?: LandCover; network?: StartNetwork;
 }) {
   const defs = content.events ?? [];
   const byId = new Map(defs.map((d) => [d.id, d]));
@@ -328,6 +335,7 @@ export function events(p: SliceParams, content: {
     const num = (d: EventDef, f: string) => (p.events[d.id] as Record<string, number>)[f]!;
     const expiry = () => s.date + (3 - s.subStep);                // a non-interrupting card stays to the next turn
     let cofinanced: number | undefined;                           // set by cofinance, taken by the next offer
+    let cofinancedOrder: number | undefined;                      // R9: the same, for a co-financed works order
 
     /** Apply one effect; a card-report effect returns its piece of the card's payload. */
     const apply = (d: EventDef, e: EventEffect, option?: string): Record<string, unknown> | undefined => {
@@ -338,6 +346,7 @@ export function events(p: SliceParams, content: {
           const inst = raiseOffer(ctx, 'events', a, num(d, 'jobs'), p, content.buildable);
           // the co-financed project of the same answer is the deal's: declining the investor withdraws it
           if (cofinanced !== undefined) { inst.payload = { ...inst.payload, cofinanced }; cofinanced = undefined; }
+          if (cofinancedOrder !== undefined) { inst.payload = { ...inst.payload, cofinancedOrder }; cofinancedOrder = undefined; }
           if (e.terms) {
             const terms: FirmTerms = {};
             const n = p.events[d.id]!;
@@ -395,8 +404,15 @@ export function events(p: SliceParams, content: {
           if (fc) offerProjectLoan(ctx, p);
           return undefined;
         case 'cofinance':
+          if (e.structure !== undefined) {                        // R9 (§5.8): a co-financed works order
+            const o = p.works && content.network ? orderCofinanced(s, p.works, content.network, e.structure, e.area) : undefined;
+            if (!o) { ev('event_action_failed', { action: 'cofinance', by: d.id, reason: `no free site beside a road in area ${e.area}` }); return undefined; }
+            cofinancedOrder = o.id;
+            ev('cofinanced', { order: o.id, by: d.id });
+            return undefined;
+          }
           if (!fc) return undefined;
-          cofinanced = commitCofinanced(s, p, fc, e.template, e.area).id;
+          cofinanced = commitCofinanced(s, p, fc, e.template!, e.area).id;
           ev('cofinanced', { project: cofinanced, by: d.id });
           return undefined;
         case 'contract_team':

@@ -68,6 +68,7 @@ function structureParams(w: WorksParams, kind: StructureKind, facility?: string)
 const cellRate = (c: CellWorksParams) => c.yuan_per_cell / c.units_per_cell;
 /** The order's yuan per unit, from params by its kind (§13.2). */
 function rateOf(o: WorksOrder, w: WorksParams): number {
+  if (o.cofinanced) return 0;                // R9 (§5.8): an investor pays for it
   if (o.kind === 'service') return cellRate(w.service) * (o.rateFactor ?? 1);
   if (o.kind === 'road') return cellRate(w.road);
   const sp = structureParams(w, o.placement!.kind, o.placement!.facility);
@@ -317,6 +318,40 @@ function orderStructure(s: GameState, wc: WorksContent, a: PlayerAction & { type
   o.budget = costTo(o, wc.works, sp.units);
   s.worksOrders.push(o);
   return o;
+}
+
+/**
+ * R9 (§5.8): a co-financed structure order in an area: the lowest playable free cell four-adjacent to a road (start or
+ * built), not zoned, with no works, path or structure; attached to its lowest road neighbour. Budget, spending and
+ * forex 0; its crew comes from the pool. Undefined, ordering nothing, when the area has no such cell.
+ */
+export function orderCofinanced(s: GameState, w: WorksParams, net: StartNetwork, kind: StructureKind, area: number): WorksOrder | undefined {
+  const a = s.areas.find((x) => x.id === area && x.access === 'playable');
+  if (!a) return undefined;
+  const roads = roadSet(s, net), path = queuedPath(s), feet = footprints(s);
+  const zoned = new Set(s.zones.flatMap((z) => cellsOfRuns(z.runs, s.grid)));
+  const works = new Set(s.cellWorks.map((x) => x.cell));
+  const sp = structureParams(w, kind);
+  for (const cell of a.cells) {                                    // area cells are sorted
+    if (roads.has(cell) || path.has(cell) || feet.has(cell) || zoned.has(cell) || works.has(cell)) continue;
+    const attach = neighbours(cell, s.grid.width, s.grid.height).filter((c) => roads.has(c)).sort((x, y) => x - y)[0];
+    if (attach === undefined) continue;
+    const placement: StructurePlacement = { kind, cell, attach, capacity: sp.capacity };
+    checkPlacement(s, placement);
+    const o: WorksOrder = { id: s.nextOrderId++, kind: 'structure', priority: 'normal', paused: false, committed: s.date,
+      stage: 'queued', unitsTotal: sp.units, unitsDone: 0, budget: 0, spent: 0, placement, cofinanced: true };
+    s.worksOrders.push(o);
+    return o;
+  }
+  return undefined;
+}
+/** R9 (§5.8): cancel a live co-financed order whose investor walked away; its sunk units stay, no structure is placed. */
+export function withdrawCofinancedOrder(s: GameState, id: number): boolean {
+  const o = s.worksOrders.find((q) => q.id === id);
+  if (!o || !o.cofinanced || !liveOrder(o)) return false;
+  o.stage = 'cancelled';
+  delete o.waiting;
+  return true;
 }
 
 function cancelWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'cancel_works' }): void {

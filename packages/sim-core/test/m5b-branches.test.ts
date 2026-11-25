@@ -14,8 +14,7 @@ import {
   type CardInstance, type DecisionPolicy, type EventDef, type ReviewIndicator, type GameState, type PlayerAction, type SimEvent, type SliceParams,
 } from '../src/index.js';
 import {
-  ROOT, areasJson, buildable, events, fiscal, investors, leaders, params, precedents, scenario, start, targets,
-} from './fixtures.js';
+  ROOT, areasJson, buildable, events, fiscal, investors, leaders, params, precedents, scenario, start, targets, UNGATED } from './fixtures.js';
 
 const START = parseYM(scenario.start);
 const monthOf = (d: string) => parseYM(d) - START;
@@ -64,8 +63,6 @@ describe('M5b: quarterly turns through the whole slice', () => {
       expect(a, id).toBeDefined();
       expect(Math.floor((a.answeredAt - START) / 3), id).toBe(a.turn);   // answered in the quarter that raised it
     }
-    const road = s.fiscal.projects.find((x) => x.template === 'project.road_link')!;
-    expect(road.committed).toBeLessThan(START + 3);                       // the first project starts in 1979-Q1
   });
 
   it('the failure card interrupts: runQuarter pauses on it, and answering it finishes the run', () => {
@@ -118,15 +115,16 @@ describe('M5b: the budget card\'s numbers', () => {
 });
 
 describe('M5b: the co-financing deal', () => {
-  it('declining the investor withdraws its power line', () => {
+  it('declining the investor cancels its substation order (R9)', () => {
     const policy: DecisionPolicy = (s, pending) => declineAll(s, pending).map((a) => {
       const c = pending.find((x) => a.type === 'answer_card' && x.id === a.instance)!;
       return c.card === 'event.cofinancing' ? answer(c, 'accept') : a;     // the investor's own offer is declined
     });
-    const r = run(policy, monthOf('1980-09'));
-    const x = r.state.fiscal.projects.find((q) => q.cofinanced)!;
+    const r = run(policy, monthOf('1980-09'), createTickSteps(params, UNGATED));   // a works order needs the start network
+    const x = r.state.worksOrders.find((q) => q.cofinanced)!;
     expect(x.stage).toBe('cancelled');
-    expect(r.events.flat().some((e) => e.kind === 'cofinance_withdrawn' && e.detail!.project === x.id)).toBe(true);
+    expect(r.state.structures.some((q) => q.cell === x.placement!.cell)).toBe(false);
+    expect(r.events.flat().some((e) => e.kind === 'cofinance_withdrawn' && e.detail!.order === x.id)).toBe(true);
   });
 
   it('an event-only team cannot be contracted by the player', () => {

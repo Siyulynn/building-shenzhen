@@ -25,7 +25,8 @@ export const declineAll: DecisionPolicy = (_s, pending) => pending.map((c) =>
     && c.options.includes('decline') ? 'decline' : c.options[0]!));
 
 /**
- * The scripted plan for the prologue snapshot (§9.1): the first project is the road toward Luohu; investors go into
+ * The scripted plan for the prologue snapshot (§9.1): its first project is the road toward Luohu, now its own
+ * turn-0 action (R9: the survey card commits nothing); investors go into
  * existing premises when they fit, else are declined; it takes the loan and the co-financing; and in its first month
  * it draws a 12-cell industrial zone in Shangbu (area 7) and commits a power line there and the zone's site
  * preparation. It applies no template zone.
@@ -36,13 +37,13 @@ export const historicalPrologue: DecisionPolicy = (s: GameState, pending) => {
     if (c.card === SHORTCUT_CARD) return answer(c, 'decline');
     if (c.card === LOAN_CARD) return answer(c, 'take');
     if (c.card === COFINANCING_CARD && c.options.includes('accept')) return answer(c, 'accept');
-    if (c.card === FIRST_PROJECT_CARD && c.options.includes('project.road_link')) return answer(c, 'project.road_link');
     return answer(c, c.options[0]!);
   });
   if (s.turn === 0 && s.subStep === 0 && s.zones.length === 0) {
     const area = s.areas.find((a) => a.id === 7)!;
     const zone = s.nextZoneId;
     out.push(
+      { type: 'commit_project', template: 'project.road_link', area: 2 },   // Luohu crossing and Yumin, as the card did before R9
       { type: 'create_zone', use: 'industrial', runs: runsOfCells([...area.cells.slice(0, 12)], s.grid.width) },
       { type: 'commit_project', template: 'project.power_line', area: 7 },
       { type: 'commit_project', template: 'project.site_preparation', zone },
@@ -69,6 +70,7 @@ const firstAccept = (c: CardInstance) => c.options.find((o) => o.startsWith('acc
 /** Cards the cautious player answers against the first option: it never borrows, never takes a grey option. */
 export const CAUTIOUS_CHOICES: Readonly<Record<string, string>> = Object.freeze({
   'event.permit_choice': 'strict', 'event.temporary_residence': 'strict', 'event.sweep': 'no_sweep',
+  'event.corps_advance': 'quarters',                 // R9: the sheds are the first option now; quarters draw no scrutiny
   [LOAN_CARD]: 'decline', [COFINANCING_CARD]: 'decline', [DEFICIT_CARD]: 'austerity',
 });
 

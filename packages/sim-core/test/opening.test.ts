@@ -26,12 +26,13 @@ describe('R7: the opening beat fires at init', () => {
     const s0 = createInitialState(slice.init);
     const paused = step(s0, [], new Rng(1), STEPS);
     expect(paused.status).toBe('paused');                        // an interrupting card is answered before the month
-    const r = step(s0, [{ type: 'answer_card', instance: opening(s0)[0]!.id, option: 'project.road_link' }], new Rng(1), STEPS);
+    const r = step(s0, [{ type: 'answer_card', instance: opening(s0)[0]!.id, option: 'noted' }], new Rng(1), STEPS);
     expect(r.status).toBe('advanced');
     expect(opening(r.state)).toEqual([]);
     expect(r.state.events.fired.filter((f) => f.id === 'event.first_project')).toHaveLength(1);
-    const road = r.state.fiscal.projects.find((x) => x.template === 'project.road_link')!;
-    expect(road.committed).toBe(START);                          // before R7: after month 1's pause, in 1979-02
+    // R9: the survey only reports; its answer is logged in the start month (before R7: after month 1's pause)
+    expect(r.state.actionLog.find((e) => e.action.type === 'answer_card')!.date).toBe(START);
+    expect(r.state.fiscal.projects).toEqual([]);
   });
 
   it("a policy's turn-0 actions still land in the start month, beside its answer", () => {
