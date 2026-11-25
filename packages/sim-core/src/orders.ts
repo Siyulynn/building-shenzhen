@@ -174,11 +174,11 @@ function commitWorks(s: GameState, wc: WorksContent, a: PlayerAction & { type: '
     cells = [...new Set(cellsOfRuns(a.cells, s.grid))].sort((x, y) => x - y);
     for (const c of cells) {
       if (!zc.has(c)) throw new Error(`cell ${c} is not in zone ${z.id}`);
-      if (!buildable(c)) throw new Error(`cell ${c} is not buildable: servicing it adds no capacity`);
-      if (!eligible(c)) throw new Error(`cell ${c} is serviced, a road, or already has works`);
+      if (!buildable(c)) throw new Error(`cell ${c} is not buildable: site formation there adds no capacity`);
+      if (!eligible(c)) throw new Error(`cell ${c} is already formed, a road, or already has works`);
     }
   } else cells = inZone.filter((c) => buildable(c) && eligible(c));
-  if (!cells.length) throw new Error(`zone ${z.id} has no cells left to service`);
+  if (!cells.length) throw new Error(`zone ${z.id} has no cells left for site formation`);
   const id = s.nextOrderId++;
   let units = 0;
   const added: CellWork[] = [];

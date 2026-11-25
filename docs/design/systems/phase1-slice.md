@@ -194,6 +194,7 @@ In the prologue the actions unlock one beat at a time (§2.1). From the SEZ's es
 | Set the temporary-permit regime (loose, standard, strict) | §6.2 | Changes migrant inflow and the climate value |
 | Accept or decline the leader's shortcut | leadership §2.5 | One shortcut card type (deal-maker) |
 | Prepare for the zone in the prologue: roads, water and power near Luohu and Shangbu, land cleared and surveyed | §7.1 | One readiness bar of three parts decides the size of the first investor wave |
+| Order site formation (三通一平) on a zone's cells: the **Form site** tool, a **site formation order** | §5.6, b&c §13.2 | Clearing, levelling, internal lanes, and the water and power connection at the plot edge. Each cell goes planned → forming → formed (§13, vocabulary) |
 | Answer event cards | §7 | About 15 events |
 
 ---
@@ -662,7 +663,7 @@ interface Cohort { /* buildings §2.2, M2 */ workDone?: number; workTotal?: numb
 **Deferred.**
 - **To M4** (specified in §5.6):
   - the preview's cash this quarter, retained tax and new obligations. They need the fiscal regime.
-  - **Serviced land (三通一平):** M4's site-preparation projects set a zone's `servicedShare`, which M3b already reads: road access, water, power, and cleared, level ground. A connected site stays distinct from one with spare water and power to operate.
+  - **Serviced land (三通一平; "formed land" to the player since R7, §13 vocabulary):** M4's site-preparation projects set a zone's `servicedShare`, which M3b already reads: road access, water, power, and cleared, level ground. A connected site stays distinct from one with spare water and power to operate.
   - **Construction capacity:** factories, roads, utilities and site preparation draw on one monthly pool of work, supplied by local labour and by teams that join it (contracted county crews, the Engineering Corps, outside state companies). A dedicated contract waives a project's draw on the pool but not its cost or time. Village self-build stays outside the pool.
 - **To M5** (specified in §5.7, M5a):
   - the guaranteed first contract in 1979-Q2, and the post-SEZ origins with their incentives;
@@ -811,7 +812,7 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
   - `school`: `schoolPlaces` in its area, plus `payroll` (staff × the state wage, `index: 'wages'`) and `service` per place;
   - every kind: `maintenance` = budget × `maint_rate_year` ÷ 12.
 
-**Serviced land (三通一平, the §5.5 hook).**
+**Serviced land (三通一平, the §5.5 hook).** The player-facing English is *site formation* and *formed land* (R7, §13 vocabulary); `servicedLand` is the legacy internal key.
 - **Serviced land is a property of the land, not of a zone.** `servicedLand` holds the serviced cells. In tick step 3, before names and offers, and again in step 4 once the month's work is done (so site preparation finished this month counts at once), each zone's `servicedShare` is set to its buildable cells in `servicedLand` ÷ its buildable cells (0 when it has none). Offers already raised keep their options; the next month's offers can site in the zone. So an edit that adds cells lowers the share until they are serviced, and removing a zone leaves its land serviced for the next. From R2, municipal works orders (`buildings-and-construction.md` §13.2) join the pool's queue as a third job type, and their unspent budgets count as commitments. Site preparation skips cells that have works.
 - **The start:** `servicedLand` is empty. The 1979 town has no serviced industrial land (a placeholder, like the start utilities). The first contracts use existing premises (§5.5).
 - **Connected is not supplied.** Site preparation adds floor capacity for new firms. It adds no water or power: a serviced zone can still have a utility bottleneck, which only mains and lines relieve (§5.5).
@@ -1759,12 +1760,12 @@ The same save doubles as a 1980-Q3 start for players who skip the prologue. It e
 R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layout conventions of classic city builders: a tool rail, a stat strip and drawers. It doesn't borrow their look, and §11's "ugly on purpose" still holds. The rule is a clear first level: the map, five number pairs, the I/C/R demand cue and one button. Every other detail stays one click away.
 
 **Layout** (the map fills the window; everything else floats over it):
-- **The tool rail (left):** zones, roads, infrastructure (water and power sources, hookups), special buildings (facilities and approved landmarks), Service and Erase.
+- **The tool rail (left):** zones, roads, infrastructure (water and power sources, hookups), special buildings (facilities and approved landmarks), Form site and Erase. (R7: the tool called Service in R5 reads **Form site / 平整土地**; see §13's vocabulary.)
   - Each tool opens a small flyout. For example, the zones tool offers the four uses and "show the Shangbu guide".
   - While the player draws, a preview next to the cursor shows the area, the cost and the crew time. The preview uses the pure functions of §11.1 and never calls `step`.
   - **The map is the one build system (R4.5 decision).** Roads, servicing, sources and facilities are all built as works orders from the rail (b&c §13.2). The UI hides M4's area-dropdown `commit_project` controls. `commit_project` stays in sim-core, for tests and for the projects that events spawn.
   - **Zone painting queues servicing by default.** A drag with the Zones tool queues `create_zone` and then `commit_works` for the new zone, as one turn's pair of actions with one preview. A **Plan only** toggle in the Zones flyout queues `create_zone` alone.
-  - **Service** (a tool of its own): a click on an existing zone queues `commit_works` for its cells that have no works yet (the action's default when `cells` is absent). A drag limits it to the dragged cells.
+  - **Form site** (a tool of its own; `service` in code): a click on an existing zone queues `commit_works` for its cells that have no works yet (the action's default when `cells` is absent). A drag limits it to the dragged cells.
   - **Erase / Cancel:** on a cell with unstarted work it queues `cancel_works` for that cell (a service cell, a road path cell and the rest of its path beyond, or an unstarted structure). Started work, built roads and built structures cannot be erased; the inspector says why. On a zone with no works it queues `remove_zone`.
 - **The I/C/R demand cue (top centre, first level):** three short bars, derived in `views.ts` from R3/R4 state. They add no sim fields:
   - **I (industrial):** organic industrial demand (the growth pass's floor demand, `floor_m2_per_month × order_index × orderFactor × regime factor`, plus `growth.carry`, b&c §13.3) and the utility headroom (the lower of the power and water utility shares, §5.11, that a new organic firm would see in the areas with industrial zones). The bar is low when either is.
@@ -1791,11 +1792,11 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
 - **The constraint ladder.** One pure function, `cellConstraint(state, content, cell)` in `views.ts`, names the first constraint that applies at a cell, in this order:
   1. **unbuildable** (off the buildable layer, §5.5);
   2. **unzoned**;
-  3. **not queued** (zoned, with no works and not serviced);
+  3. **not queued** (zoned, with no works and not serviced). R7 wording: "No site formation ordered";
   4. **order waiting**: its works order got less than its pace this month, with the order's `waiting` reason (paused, frozen, access, finance or capacity, b&c §13.2). A live site-preparation project covering the cell counts the same way, with the project's reason;
-  5. **no road frontage** (not in `spatialViews(…).frontage`);
-  6. **being serviced**: its work is unfinished and its order is not waiting (R5: an unserviced cell has no supplied share, so rung 7 cannot apply yet);
-  7. **utility shortfall** (the cell's supplied share of power or water is below 1; defined below);
+  5. **no road frontage** (not in `spatialViews(…).frontage`). R7 wording: "No road frontage: site formation cannot start";
+  6. **being serviced**: its work is unfinished and its order is not waiting (R5: an unserviced cell has no supplied share, so rung 7 cannot apply yet). R7 wording: "Site formation under way";
+  7. **utility shortfall** (the cell's supplied share of power or water is below 1; defined below). R7 wording: "Not enough power or water for its firms" — the supply a firm draws, not the plot-edge connection, which site formation already includes;
   8. **low demand or crowding** (its zone's use reads low on the I/C/R cue, or, for a residential zone, the area's demand crowding is below `growth.residential.min_crowding`, so work units build no dormitories there). Public and reserve zones have no organic builder and skip rungs 7 and 8;
   9. **building in progress** (a cohort or firm under construction in the zone);
   10. **active** (nothing holds it back).
@@ -1842,7 +1843,7 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
 - **Where work finished:** compared with the previous turn's start, by playable area: cells newly serviced, road cells built, sources and facilities placed, works orders done, and firms opened.
 
 **R5's build rules** (the details the layout above leaves open):
-- **The rail, as built:** Select (inspect a cell), Roads, Zones (industrial, commercial, residential, public; Plan only; show the Shangbu guide; zone the guide), Service, Erase, Water, Power and Facilities (the facility types in `works.facilities`). The guide is the historical template's footprint drawn over the map; showing it creates no action. "Zone the guide" queues `templateZoneAction`'s zone, clipped as §11.1's, with its `commit_works` unless Plan only is on. Tools are off while a card interrupts the quarter and after the end.
+- **The rail, as built:** Select (inspect a cell), Roads, Zones (industrial, commercial, residential; Plan only; show the Shangbu guide; zone the guide), Form site, Erase, Water, Power and Facilities (the facility types in `works.facilities`). The guide is the historical template's footprint drawn over the map; showing it creates no action. "Zone the guide" queues `templateZoneAction`'s zone, clipped as §11.1's, with its `commit_works` unless Plan only is on. Tools are off while a card interrupts the quarter and after the end.
 - **Gestures become actions in `src/tools.ts`,** a pure module (session, UI choices and gesture in, actions and a preview out), so the tests can play a quarter with the map tools alone. `map.ts` only turns pointer events into gestures.
   - **Zones:** a dragged rectangle, clipped by `previewZone`, gives `create_zone` and `commit_works { zone }`, the zone named by its queued id (§11.1).
   - **Roads:** a drag from cell A to cell B gives `build_road` with the waypoints A, (B.x, A.y), B, dropping repeats: horizontal first, then vertical. A click is a one-cell road.
@@ -1851,6 +1852,7 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
   - **Erase:** an action queued this turn that covers the cell is removed from the queue first, since no order exists yet for `cancel_works` to name.
   - **Previews and refusals.** Every gesture's actions are tried with `previewWorks` on the turn's queue plus the gesture, through `applyTurnAction`, so they pass the same validation as End quarter. The preview shows the new orders' estimates (area, cells, bridges, cost, forex, crew a month and months at full pace). A refused gesture queues nothing and shows sim-core's reason.
 - **Removing a queued action keeps the queue valid.** Removing a queued `create_zone` also removes the queued actions that name its zone (`commit_works`, `commit_project`, `edit_zone`, `remove_zone`), and renumbers the references to zones queued after it.
+- **`public` is not offered (R7).** The zones flyout shows it disabled, with the hover reason "Public buildings are placed directly; there is no public zone". `planGesture` and sim-core still accept it, and the enum leaves in R8b.
 - **The overlays:** areas; zones by use; works stage; the road network (components and frontage depth); utilities (sources and each cell's supplied share); held back (each zoned cell coloured by its ladder rung); demand (each zone coloured by its use's cue level); rental crowding; the illegal floor share (legality); the service gap; buildable and serviced land. Zones, their works stages, roads, structures and the start anchors draw on every overlay.
 - **The map draws** terrain and water from the Spike A grid when it is served, area outlines, the start anchors, the temporary routes in their keyed styles, roads autotiled from their four-neighbours, bridges (path cells off the buildable layer) with their own edge, and works stages: zoned (outline only), planned (hatched), servicing (filled to its share of work done) and serviced (solid). Queued, unsubmitted actions draw dashed.
 - **Core zoom** (a cell at least 14 screen pixels wide) adds the floor spread above as roofs within each cell, and **village thickening**: each settlement anchor's roofs multiply with its area's village floor over its footprint (§5.2). The roof pattern is a hash of the cell index, never the RNG.
@@ -1915,6 +1917,8 @@ R5 replaces M6c's side-by-side screens with a map-first HUD. It borrows the layo
 11. **Calibration checkpoints:** end-1979, the 1980-Q2 snapshot, and end-1983 before the visit (§9).
 12. **Free zoning with an optional historical template** (2026-11-23, §5.3). Zones are explicit entities with stable ids, so names survive edits, saves and replay.
 13. **Historical names attach by closeness, not by script:** location, purpose and scale (§5.3). Named emergence follows the same rule (§5.4).
+
+**Vocabulary (decided 2026-11-24, R7).** 三通一平 is **site formation** in English, never "servicing", which the HUD keeps for the service sector ("Services"). It means clearing, levelling, internal lanes, and the water and power connection at the plot edge; the hint says the connections are already included, so the player does not buy them again by placing a source. The tool is **Form site / 平整土地**, the order a **site formation order**, the outcome **formed land / 已平整土地**, and a cell's stages read **planned / forming / formed** (已安排 / 平整中 / 已平整). The internal identifiers are legacy keys and are not renamed: `servicedLand`, `servicedShare`, `CellWork.stage: 'planned' | 'servicing' | 'serviced'`, `WorksOrder.kind: 'service'`, `commit_works`, `works.service` in params and the tool id `service`. A mechanical rename would touch about 40 files and every golden and buy the player nothing; any later cleanup may do it. The spec's older sections keep "serviced" where they describe those keys.
 
 **Still open:**
 1. The exact sequence and on-site headcount of the 1979 advance crews (§2.1). Period orders or transport records could reconcile the September account with the later eyewitness dates.

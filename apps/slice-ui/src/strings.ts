@@ -77,13 +77,14 @@ export const WAITING: Readonly<Record<string, L>> = {
 /** The constraint ladder's rungs, as the inspector's "Held back by" names them. */
 export const RUNG: Readonly<Record<string, L>> = {
   unbuildable: l('不可建设用地', 'Unbuildable land'), unzoned: l('未规划', 'Not zoned'),
-  not_queued: l('未安排三通一平', 'Not queued for servicing'), waiting: l('工程在等待', 'Works waiting'),
-  no_frontage: l('不临路', 'No road frontage'), servicing: l('正在三通一平', 'Being serviced'),
-  utility: l('水电不足', 'Utility shortfall'), low_demand: l('需求不足', 'Low demand'),
+  not_queued: l('未安排三通一平', 'No site formation ordered'), waiting: l('工程在等待', 'Works waiting'),
+  no_frontage: l('不临路：三通一平无法开工', 'No road frontage: site formation cannot start'),
+  servicing: l('三通一平进行中', 'Site formation under way'),
+  utility: l('企业用电用水不足', 'Not enough power or water for its firms'), low_demand: l('需求不足', 'Low demand'),
   building: l('正在建设', 'Building under way'), active: l('无：已在运转', 'Nothing: active'),
 };
 export const ORDER_KIND: Readonly<Record<string, L>> = {
-  service: l('三通一平', 'Servicing'), road: l('道路', 'Road'), structure: l('设施', 'Structure'),
+  service: l('三通一平工程', 'Site formation order'), road: l('道路', 'Road'), structure: l('设施', 'Structure'),
 };
 export const ORDER_STAGE: Readonly<Record<string, L>> = {
   queued: l('排队中', 'Queued'), working: l('施工中', 'Working'), done: l('完工', 'Done'), cancelled: l('已取消', 'Cancelled'),
@@ -95,18 +96,18 @@ export const FACILITY: Readonly<Record<string, L>> = { school: l('学校', 'Scho
 /** A cell's works stage, and the stage of a zoned cell with no works. */
 export const WORK_STAGE: Readonly<Record<string, L>> = {
   zoned: l('已规划，未安排工程', 'Zoned, no works'), planned: l('已安排', 'Planned'),
-  servicing: l('三通一平中', 'Servicing'), serviced: l('已三通一平', 'Serviced'),
+  servicing: l('平整中', 'Forming'), serviced: l('已平整', 'Formed'),
 };
 export const TOOL: Readonly<Record<string, L>> = {
-  select: l('查看', 'Inspect'), road: l('道路', 'Roads'), zone: l('规划', 'Zones'), service: l('三通一平', 'Service'),
+  select: l('查看', 'Inspect'), road: l('道路', 'Roads'), zone: l('规划', 'Zones'), service: l('平整土地', 'Form site'),
   erase: l('撤销', 'Erase / cancel'), water: l('水源', 'Water'), power: l('电源', 'Power'), facility: l('公共设施', 'Facilities'),
 };
 /** What each tool does, shown in its flyout. */
 export const TOOL_HINT: Readonly<Record<string, L>> = {
   select: l('点击地块查看', 'Click a cell to inspect it'),
   road: l('从现有道路拖出一条路（先横后竖）', 'Drag a road out from an existing one (across, then down)'),
-  zone: l('拖出一个矩形：划区并安排三通一平', 'Drag a rectangle: zone it and queue its servicing'),
-  service: l('点击区块安排三通一平；拖动只安排拖过的格', 'Click a zone to service it; drag to service only those cells'),
+  zone: l('拖出一个矩形：划区并安排三通一平', 'Drag a rectangle: zone it and order its site formation'),
+  service: l('点击区块安排三通一平；拖动只平整拖过的格', 'Click a zone to order its site formation; drag to form only the cells you drag over'),
   erase: l('点击撤销未开工的工程或本回合的指令', "Click to cancel unstarted work or this turn's orders"),
   water: l('点击临路的地块放置水源', 'Click a cell beside a road to place a water source'),
   power: l('点击临路的地块放置电源', 'Click a cell beside a road to place a power source'),
@@ -126,7 +127,7 @@ export const CUE_INPUT: Readonly<Record<string, L>> = {
 export const OVERLAYS: Readonly<Record<string, L>> = {
   areas: l('片区', 'Areas'), land_use: l('用地规划', 'Land use'), illegal: l('违建比例', 'Illegal floor share'),
   occupancy: l('出租屋拥挤度', 'Rental crowding'), service_gap: l('公共服务缺口', 'Service gap'),
-  buildable: l('可建设用地与三通一平', 'Buildable and serviced land'),
+  buildable: l('可建设用地与已平整土地', 'Buildable and formed land'),
   stages: l('工程阶段', 'Works stages'), network: l('路网与临路深度', 'Road network and frontage'),
   utilities: l('水电供应', 'Utility supply'), held: l('受制约因素', 'Held back by'), demand: l('需求', 'Demand'),
 };
@@ -195,7 +196,7 @@ export const T = {
   retained: l('每年留成税收', 'Retained tax a year'), newObligations: l('每年新增支出', 'New obligations a year'),
   shortfall: l('缺口', 'Shortfall'), capacity: l('可借', 'Can borrow'), principal: l('本金', 'Principal'),
   rate: l('月利率', 'Monthly rate'), grace: l('宽限期（月）', 'Grace (months)'), term: l('期限（月）', 'Term (months)'),
-  bar: l('准备程度', 'Readiness'), readyRoads: l('道路', 'Roads'), readyLand: l('三通一平用地', 'Serviced land'),
+  bar: l('准备程度', 'Readiness'), readyRoads: l('道路', 'Roads'), readyLand: l('已平整土地', 'Formed land'),
   readyWaterPower: l('水电', 'Water and power'),
   mandate: l('任务', 'The mandate'), mandateMet: l('已完成', 'met'), mandateOpen: l('未完成', 'not yet met'),
   noMandate: l('特区成立后确定', 'Set when the zone is established'),
@@ -210,7 +211,7 @@ export const T = {
   // R5 (§11.2)
   endQuarter: l('结束季度', 'End quarter'), pendingDecisions: l('待决事项', 'Pending decisions'),
   toAnswer: l('必须回答', 'to answer'), overlay: l('图层', 'Overlay'), close: l('关闭', 'Close'),
-  planOnly: l('只规划，不安排三通一平', 'Plan only (no servicing)'), showGuide: l('显示历史规划', 'Show the historical plan'),
+  planOnly: l('只规划，不安排三通一平', 'Plan only (no site formation)'), showGuide: l('显示历史规划', 'Show the historical plan'),
   zoneGuide: l('按历史规划划区', 'Zone the historical plan'), facilityType: l('设施类型', 'Facility type'),
   cell: l('地块', 'Cell'), use: l('用途', 'Use'), stage: l('阶段', 'Stage'), progress: l('工程进度', 'Work progress'),
   supplied: l('水电供应（本格）', 'Power and water supplied (this cell)'), noDemand: l('无需求', 'no demand'),
@@ -222,12 +223,12 @@ export const T = {
   notZoned: l('不在区块内', 'Not in a zone'), depth: l('临路深度', 'Frontage depth'),
   workFinished: l('完工情况', 'Where work finished'), heldBackArea: l('最受制约的片区', 'The area most held back'),
   nothingHeld: l('没有受制约的片区', 'Nothing is held back'), noWorkFinished: l('上季度没有完工的工程', 'No work finished last quarter'),
-  toMap: l('回到地图', 'To the map'), servicedCells: l('格三通一平', 'cells serviced'), roadCells: l('格道路', 'road cells'),
+  toMap: l('回到地图', 'To the map'), servicedCells: l('格土地平整完成', 'cells formed'), roadCells: l('格道路', 'road cells'),
   sourcesPlaced: l('个水电源', 'sources'), facilitiesPlaced: l('个公共设施', 'facilities'), ordersDone: l('项工程完工', 'works done'),
   firmsOpened: l('家企业开业', 'firms opened'), cellsHeld: l('格', 'cells'),
   cost: l('费用', 'Cost'), crewPerMonth: l('每月施工', 'Crew a month'), months: l('满负荷月数', 'Months at full pace'),
   bridges: l('座桥', 'bridges'), units: l('工作量', 'Work units'), refused: l('不能这样建', 'Cannot build this'),
-  nothingToService: l('没有可以三通一平的格', 'No cells to service'),
+  nothingToService: l('没有可以平整的格', 'No cells to form'),
   startedWork: l('已开工的工程不能撤销', 'Started work cannot be erased'),
   builtRoad: l('已建成的道路不能拆除', 'A built road cannot be removed'),
   startRoad: l('原有道路不能拆除', 'A start road cannot be removed'),
@@ -243,6 +244,11 @@ export const T = {
   vacancies: l('可到达的空缺岗位', 'Accessible vacancies'), targetsMet: l('达标的考核指标', 'Review targets met'),
   demandCue: l('需求', 'Demand'), low: l('偏低', 'low'), exports: l('出口（美元，本季度）', 'Exports (USD, this quarter)'),
   newZone: l('新区块', 'new zone'), queued: l('本回合', 'this turn'), stocks: l('区块与片区的存量', 'Zone and area stock'),
+  // R7 (§13 vocabulary): 三通一平 is site formation; the hint says the plot-edge connections are already included
+  siteFormation: l('三通一平', 'Site formation'),
+  formationHint: l('清场、平整、内部道路，以及地块边上的接水接电。这些已经包含在内，不必另外建设。',
+    'Clearing, levelling, internal lanes, and the water and power connection at the plot edge. Already included — you do not build these separately.'),
+  noPublicZone: l('公共建筑直接放置，没有公共用地区块。', 'Public buildings are placed directly; there is no public zone.'),
 } as const satisfies Record<string, L>;
 
 /** Every table above, for the tests: each entry has an en and a zh. */

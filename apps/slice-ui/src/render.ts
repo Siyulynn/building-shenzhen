@@ -136,11 +136,18 @@ export function renderRail(v: View): string {
 export function renderFlyout(v: View): string {
   const t = tx(v.lang), { ui, slice } = v, k = ui.tool;
   let body = `<div class="muted">${t(S.TOOL_HINT[k]!)}</div>`;
+  // R7 (§13 vocabulary): the Form site hint, wherever site formation is ordered
+  const formation = `<div class="hint"><b>${t(S.T.siteFormation)}:</b> ${t(S.T.formationHint)}</div>`;
+  if (k === 'service') body += formation;
   if (k === 'zone') {
-    const uses = LAND_USES.filter((u) => u !== 'reserve').map((u) => `<button data-act="use" data-use="${u}" class="${ui.opts.use === u ? 'sel' : ''}"
+    // R7 (§11.2): public is shown disabled with its reason; planGesture and sim-core still accept it until R8b
+    const uses = LAND_USES.filter((u) => u !== 'reserve').map((u) => u === 'public'
+      ? `<span class="off" title="${esc(pick(S.T.noPublicZone, v.lang))}"><button disabled>${t(S.LAND_USE[u]!)}</button></span>`
+      : `<button data-act="use" data-use="${u}" class="${ui.opts.use === u ? 'sel' : ''}"
       style="border-left:6px solid rgba(${USE_COLOR[u]!.slice(0, 3).join(',')})">${t(S.LAND_USE[u]!)}</button>`).join('');
     const guides = (slice.tick.precedents ?? []).filter((p) => p.cells.length);
     body += `<div class="opts">${uses}</div>
+      ${ui.opts.planOnly ? '' : formation}
       <label><input type="checkbox" data-ui="planOnly" ${ui.opts.planOnly ? 'checked' : ''}> ${t(S.T.planOnly)}</label>
       <label><input type="checkbox" data-ui="guide" ${ui.guide ? 'checked' : ''}> ${t(S.T.showGuide)}</label>
       ${guides.map((p) => `<div class="q"><span>${esc(bi(p.name))}</span><button data-act="zoneGuide" data-id="${esc(p.id)}" ${off(v)}>${t(S.T.zoneGuide)}</button></div>`).join('')}`;
