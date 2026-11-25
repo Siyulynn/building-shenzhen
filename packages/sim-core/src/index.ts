@@ -11,6 +11,7 @@ export * from './zones.js';
 export * from './investors.js';
 export * from './landcover.js';
 export * from './power.js';
+export * from './freight.js';
 export * from './fiscal.js';
 export * from './events.js';
 export { gdpNow } from './systems/statistics.js';
@@ -29,7 +30,7 @@ export * from './play.js';
 export * from './summary.js';
 export * from './systems/reviews.js';
 export {
-  createFirm, firmTerms, inTaxHoliday, orderFactor, prospectiveShare, sizeOffer, utilityShare, utilityShares, type FirmOffer, type FirmSite,
+  createFirm, firmTerms, inTaxHoliday, orderFactor, postFirmJobs, prospectiveShare, sizeOffer, utilityShare, utilityShares, type FirmOffer, type FirmSite,
 } from './systems/industry.js';
 export { offerProjectLoan } from './systems/finance.js';
 export * from './reach.js';

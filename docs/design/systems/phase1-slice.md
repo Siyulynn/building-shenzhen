@@ -669,6 +669,11 @@ interface Cohort { /* buildings §2.2, M2 */ workDone?: number; workTotal?: numb
 - **Utilities.** `SliceArea.utilities` (`waterCap` in m³ per day, `powerCap` in kW) start from `start_1979.yaml`, as placeholders.
   - They are the spare capacity for new industry: enough for the first contracts, and low enough that growth hits a utility bottleneck, which M4's mains and lines relieve.
   - Households draw nothing from them in M3b.
+- **The city power pool (R8c).** Power is one city pool, and water is not an active constraint: it still loads, and a firm's share no longer reads it.
+  - `powerPool(s)` = the areas' local `powerCap` + purchased kW that has arrived + the capacity of every finished `power_station`.
+  - An area can take its local `powerCap` plus what its `power_substation`s deliver along the roads (`spatialViews(…).supply`).
+  - When the areas can take more than the pool holds, the pool is shared pro rata to what each can take (`poolShares`). An area's share is `min(1, its part ÷ its open firms' need)`.
+  - The retired `water_source` and `power_source` kinds still load, and are counted as delivery, but are no longer ordered.
 
 **The preview** (fiscal §7.2). `previewOffer(state, card, params, content)` is a pure function. For each site option it gives:
 - jobs, the months until it opens (`build_months − 1` for a new factory, 1 in existing premises), the floor and dormitory built, and the zone's free floor or the area's free premises jobs;
@@ -818,7 +823,12 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
   An invalid commit throws, like an invalid zone. Money is not a validity test: an unfunded commit is allowed, shows as negative money for projects, and offers the loan.
 - **Budget:** the template's `budget`, or for site preparation `budget_per_cell` × its cells. The cells are the zone's buildable cells outside `servicedLand` and outside every live site-preparation project at commit, frozen in the project. So land is never paid for, or maintained, twice.
 - **Other actions:** `set_project_priority { project; priority }`; `cancel_project { project }`, which stops the work and books `cancel_penalty` × the unspent budget as a one-month `transfer` obligation. What was spent is sunk.
-- **Bought power (R6 test):** `{ type: 'buy_power'; area; kw }` adds `kw` to the area's spare power capacity at once and creates a permanent monthly `service` obligation of `kw × fiscal.power_import.yuan_per_kw_month`. It needs no works order and assumes the network already reaches the area. It is a finance action, so it is logged and replayed like a project. No headless plan uses it: the calibration test (§5.10) found floor, ramp and crews binding before power, and the bought tariff made the spending ratio worse. Its tariff and the source's limit are placeholders until the source (Hong Kong or Guangdong) and the network's capacity have claims.
+- **Bought power (R8c):** `{ type: 'buy_power'; kw }` is city-level; an old action's `area` is ignored.
+  - The kW joins the pool after `fiscal.power_import.lead_months`, and from then owes a permanent monthly `service` obligation of `kw × yuan_per_kw_month`.
+  - Purchases still pending count toward `max_kw`, the line's limit.
+  - It needs no works order, but the power reaches firms only through substations or an area's local plant.
+  - It is a finance action, logged and replayed like a project. The tariff, lead time and limit are placeholders: `phase1_power_supply.yaml` holds only leads.
+  - A `power_station` (structure) is built at its own pace, `units ÷ build_months` a month, and joins the pool when it is finished.
 - **Spending follows the work.** A month's work on a city project costs its pro-rata share of the budget: spent after = round(budget × crew-units delivered so far ÷ (crew × workTotal)). So the total spent is exactly the budget at completion. It is paid from `debt`, then `land`, then `general`. `general` is drawn only down to `reserve_months` × last month's obligations due (in the first month, × this month's baselines), so the recurring side keeps its reserve.
 - **Waiting for finance:** a project whose month cannot be paid gets no work that month (`stage: 'stalled'`, `waiting: 'finance'`) and resumes when money returns. `stalled` and `waiting` describe this month only: a project that waits for capacity is `committed` or `building`, never `stalled`. This is buildings §4's stall, for a city project that loses its funding.
 - **Completion** applies the template's asset, then its obligations:
@@ -971,7 +981,7 @@ interface LeadershipState { leaders: Leader[]; entangled: { leader: string; ref:
   - **Map-built roads count too (R4.5).** Each built road cell (`GameState.roads`, from `build_road`, b&c §13.2) adds 0.1 km to the `roadKm` of the area it lies in, for this count only; `area.roadKm` itself is unchanged. A built road is counted as reach whether or not its component joins the start network, as M4's roads are.
   - **The start network's routes do not count.** They are the inherited 1979 roads, and counting them would move the start's bar and the first wave of every M-series run. Readiness measures the city's new works.
 - **Serviced land.** The share of readiness cells in `servicedLand` (§5.6) ÷ `full_at.serviced_land`, capped at 1. Site preparation's budget stands for clearing, surveying and compensation together. A compensation dispute is M5b's village petition event (§7). Cells a works `service` order finishes join `servicedLand` (b&c §13.2), so map servicing counts here with no extra rule.
-- **Water and power.** The spare capacity of the readiness areas (each area's caps, plus the capacity of every placed `power_source` or `water_source` whose footprint lies in the area (R4.5), less the needs of every firm sited there, never below 0) against the needs of a standard first wave (`readiness.standard_wave`: jobs × that ownership's per-job needs). The part is the lower of the power and water ratios, capped at 1, as a factory's output is bound by the scarcer one (§5.5). A placed source exists only once its works order is done, which needs its attach cell on a road (b&c §13.2). Readiness is a forecast, so it does not check which road component the source feeds: the firms' utility share does (§5.11).
+- **Water and power (power only from R8c).** The spare power of the readiness areas (each area's `powerCap`, plus the capacity of every placed substation whose footprint lies in the area (R4.5), less the needs of every firm sited there, never below 0), no more than the pool's spare, against the power need of a standard first wave (`readiness.standard_wave`: jobs × that ownership's `power_kw_per_job`). Capped at 1. Water no longer counts. The key stays `waterPower` until R8e. A placed source exists only once its works order is done, which needs its attach cell on a road (b&c §13.2). Readiness is a forecast, so it does not check which road component the source feeds: the firms' utility share does (§5.11).
 - **The bar** is the weighted mean of the three parts (`readiness.weights`). **The weakest part** is the lowest (ties in the order roads, serviced land, water and power).
 - **The targets are shares, so the parts stay below 1 at the start:** the start has no roads and no serviced land, and the start utilities cover part of a standard wave (§5.5).
 
@@ -1319,6 +1329,8 @@ M6b calibrated with named parameters only, in `params/slice.yaml`, and with the 
 
 **Bought power (R6 test).** `buy_power { area, kw }` is a finance action: it adds capacity at once and owes `kw × fiscal.power_import.yuan_per_kw_month` a month as a `service` obligation. It assumes the network reaches the area, so it needs no works order. In the test, buying 3,000 kW for area 7 every fourth turn from turn 8 raised GDP by 1.2% but pushed spending ÷ revenue from 0.96 to 1.32 and did not raise firm posts: the open firms were limited by floor, ramp and crews, not by power. No policy uses it. The action and its placeholder tariff stay for a later decision on the source (Hong Kong or Guangdong) and the network's limit.
 
+**Power binds (R8c).** The finding above, that power never binds, no longer holds. With one city pool, the aggressive plan's firms outgrow local plant plus purchases before 1983, and a quarter's pool share falls below 1 (tested: `test/power.test.ts`). The plans buy power from a turn in chunks (`MapPlan.utilities.import_kw`) and order one station (`station_turn`). The R8c golden deltas are in the tuning log.
+
 **Options A–C, retained as history.** R4's incumbency already answered C. The pass did not need A (a card as a batch of contracts) or B (a provincial transfer or arrears cap): the same firm archetypes and ordinary cards, at the calibrated scale, support the growth. The old finding that one card was one firm of 60–500 jobs remains true; the change is that many more organic firms now build on serviced land and that the crews and utilities can finish them.
 
 ### 5.11 Jobs, labour and migration on the map (R4)
@@ -1401,6 +1413,57 @@ Finished works now owe maintenance: a done order adds `spent × works.maint_rate
 - **At rest, saves and determinism.** M2's rest test still holds. Save, load and continue matches an uninterrupted run, and a version 4 save loads.
 
 ---
+
+### 5.12 Road tiers and gateway freight (R8d)
+
+One bottleneck, freight through the gateways, and no general traffic sim (`docs/design/phase1-revision-plan.md` §3.4). Every capacity and rate here is a **design setting, not a historical quantity**. Each is a placeholder cited `design_note`, and no hint or card states a historical volume.
+
+**Road classes.** `RoadClass = 'track' | 'street' | 'avenue'`, one per road cell.
+- `params.works.roads.classes[class]` gives `units_per_cell` and `capacity_t_month`. A class's cost is its units at `works.road`'s yuan per unit. Street keeps `works.road`'s units, so a street costs what every road cost before. A bridge cell of a class costs `works.bridge.units_per_cell × class units ÷ street units`.
+- A cell's class is, in order:
+  1. its entry in the override lists `GameState.roadClass?: { track, street, avenue }` (sorted cells);
+  2. its start route's `class` in `start_network.yaml`;
+  3. otherwise `street`.
+- `s.roads` stays the list of built road cells. Upgrading a start-network cell writes only the override, so readiness and `roadKm` still count built cells only (§5.7). R8d loads version-5 saves unchanged (absent overrides mean `street`); R8e's version bump makes this formal.
+
+**Building and upgrading.** `build_road { path; class?; priority? }`, where `class` defaults to `street`.
+- Cells that are not yet road become new road cells of that class.
+- A start or built road cell of a lower class becomes an **upgrade** cell, whose units are the difference between the two classes.
+- Cells of the same or a higher class, and cells on a live order's path, are stripped and end the segment, as before.
+- A segment may start at an upgrade cell, since it is already road. Otherwise one of its ends must touch a road (R4.5).
+- A cell keeps its old class until its units are done. Then a new cell joins `s.roads` (and the override when it is not a street); an upgraded cell changes its override only.
+
+**Gateways.** `content/slice/gateways.yaml`. Each record has:
+- an id, a `{zh, en}` name and a site;
+- a cell, taken from `at`: `site` (the site's cell in `slice_site_cells.json`) or `route_end: first | last` (the end cell of the site's start route);
+- `faces: hong_kong | mainland`, `mode: rail | road` and `capacity_t_month: { in, out }`;
+- claims: the site's claims, re-cited as `design_note`.
+
+At most one gateway per face and mode. A gateway's **yard** is the set of road cells within `freight.yard_cells` (Manhattan) of its cell. A rail gateway counts only the road from an area to its yard. The start network reaches the yards of Luohu, the station and the Guangshen road, and this is tested. Wenjindu has no start road.
+
+**Three flows.** All are derived from what the sim already computes, and recomputed from state each month, never stored.
+- *Exports* (out, by `freight.by_archetype[archetype].mode`). The firm's posts before freight (the `min` of §5.5 and §5.11) × `output_per_job_month` × `export_share` × `t_per_yuan`. This uses the firm's potential this month, not last month's output, so a short month does not swing the next month's demand.
+- *Firm inputs* (in, from Hong Kong). Exports × `input_ratio`. Processing trade brings its materials from Hong Kong, so in R8d inputs never come from the mainland. This departs from the plan's `input_from` split: it keeps the firm flows apart from the construction flow, and no gateway direction is shared between tick steps.
+- *Construction materials* (in, from the mainland, by rail). Each job in the pool queue (works orders at their pace, firm and organic cohorts at their crew, pooled projects and dedicated contracts at their crew, never more than the work left) × `freight.t_per_crew_month`, summed for the job's area. Village self-build uses local materials and draws nothing. An order with no work area (§5.11) is not constrained.
+- An archetype with no `by_archetype` entry has no freight. Firms in existing premises have none either: small contracts ship by the old ways (a stated simplification).
+
+**Allocation.** This is computed for each gateway and direction. Each area's **access** is its road cells and the road cells within `max_frontage_depth` (Chebyshev) of its cells.
+- The path capacity `P` comes from one widest-path (maximin) search per gateway from its yard, over road cells weighted by class capacity. `P` is the widest value over the area's access, and ties go to the lower cell.
+- Route: an area's flow of a face and mode goes to that face's gateway of the mode if `P > 0`, else to the face's other gateway. If neither is reached, the flow is **not constrained** (share 1, not reported). That way an unconnected area can still build the road that connects it.
+- Want `W = min(demand, P)`. If ΣW ≤ the gateway's capacity, each area gets its `W`. Otherwise the capacity (whole tonnes) is shared pro rata to `W`, by largest remainder in area order.
+- Unmet = demand − flow.
+- **Simplification:** two areas whose paths share a street do not share that street's capacity. Only gateways and each area's weakest link are capacities.
+
+**Where the shortfall lands.**
+- *Firms.* An area's freight share is the lower of its out and in shares, where each share is Σ flow ÷ Σ demand (1 with no demand). Each firm's post is `floor(posts before freight × share)`. Jobs, output, exports and value added fall through code that already exists.
+- *Building.* An area's materials share sets a unit budget for the month: `floor(flow ÷ t_per_crew_month)` (unbounded when not constrained). In queue order, each job's units are capped by both the pool's `left` and its area's budget. Spare units pass down the queue, and nothing is lost or refunded: works and builds just advance more slowly.
+
+**Report.** Each month, the construction and labour steps push `freight` events (gateway, direction, demand, flow). `history.freightUnmet` is `{ [gateway:direction]: number[] }`, unmet tonnes a month, starting at the first month freight is computed. The UI keeps its chips. The road flyout offers the tier before the drag. The Economy drawer lists each gateway's capacity and last month's unmet tonnes, and for each shipping area its path to the Hong Kong rail gateway and that path's weakest cell, so the fix is legible (§11.2).
+
+**Calibration (R8d, recorded in `m6-tuning-log.md`).** Streets carry what the 1979 start and the prologue need, and the first SEZ factories in Shangbu outgrow the start streets to Luohu by 1982. The gateways sit above what the start network can carry, so roads bind first.
+- The aggressive plan builds streets and meets the limit.
+- The historical plan upgrades its corridor from Shangbu to Luohu to avenue, after its outbound roads (`MapPlan.upgrades`).
+- If a §9 band fails because of freight, the capacities are raised, never the bands.
 
 ## 6. Systems and the monthly tick
 The tick follows PLAN §3.15's order. Steps marked *off* do nothing in the slice.

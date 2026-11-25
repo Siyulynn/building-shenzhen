@@ -6,6 +6,7 @@
 import { addServicedLand } from './fiscal.js';
 import { allocateUtility, roadNetwork, zoneFrontage, type Frontage, type RoadNetwork } from './network.js';
 import type { Priority } from './fiscal.js';
+import type { RoadClass } from './params.js';
 import type { StartNetwork } from './sites.js';
 import type { GameState } from './state.js';
 import type { YM } from './ym.js';
@@ -41,7 +42,8 @@ export interface PlacedStructure {
 
 export const ORDER_KINDS = ['service', 'road', 'structure'] as const;
 export type OrderKind = (typeof ORDER_KINDS)[number];
-export interface PathCell { cell: number; units: number; bridge: boolean }
+/** R8d (§5.12): `class` is the cell's class when done (absent: street); `upgrade` marks a road cell raised to it. */
+export interface PathCell { cell: number; units: number; bridge: boolean; class?: RoadClass; upgrade?: boolean }
 /** A municipal works order (b&c §13.2). */
 export interface WorksOrder {
   id: number;

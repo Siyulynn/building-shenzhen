@@ -5,7 +5,8 @@
  * state, the plan and the content, and every action is checked before it is given, so a policy never throws.
  */
 import { contractLive, liveProject, moneyForProjects } from './fiscal.js';
-import type { SliceParams } from './params.js';
+import { ROAD_CLASSES, type RoadClass, type SliceParams } from './params.js';
+import { roadClasses } from './freight.js';
 import type { LandUse } from './enums.js';
 import type { GameState, PlayerAction } from './state.js';
 import type { TickContent } from './ticks.js';
@@ -24,6 +25,8 @@ export interface MapPlan {
   zones: readonly ZonePlan[];
   /** Outbound roads, as orthogonal [x, y] waypoints, committed in order once the one before is queued. */
   roads: readonly (readonly [number, number])[][];
+  /** R8d (§5.12): road upgrades, as waypoints along existing roads and a class, ordered once every outbound road is built. */
+  upgrades?: readonly { path: readonly (readonly [number, number])[]; class: RoadClass; from_turn?: number }[];
   /** The share of the local crew pool a turn's new servicing may take: phasing to crew capacity. */
   crew_share: number;
   /** A zone is serviced further only while its developable room is below this (m²): the next cells, not the whole zone. */
@@ -172,12 +175,31 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
 
   // 1. outbound roads, one live road order at a time
   if (!live.some((o) => o.kind === 'road')) {
+    let pending = false;
     for (const path of plan.roads) {
       const r = roadOrder(s, tick, p, path);
       if (r === 'built' || r === 'blocked') continue;
+      pending = true;
       if (r.cost <= money) {
         out.push({ type: 'build_road', path: r.cells.map((c) => xy(c, w)) });
         money -= r.cost;
+      }
+      break;
+    }
+    // R8d (§5.12): then the plan's upgrades, one at a time, each when the money covers the cells still below its class
+    if (!pending && W.roads) for (const u of plan.upgrades ?? []) {
+      const cells = pathCells(w, u.path);
+      if (!cells || s.turn < (u.from_turn ?? 0)) continue;
+      const classes = roadClasses(s, tick.network);
+      if (cells.some((c) => !classes.has(c))) continue;            // an upgrade runs along roads only
+      const rank = (k: RoadClass) => ROAD_CLASSES.indexOf(k);
+      const low = cells.filter((c) => rank(classes.get(c)!) < rank(u.class));
+      if (!low.length) continue;
+      const rate = W.road.yuan_per_cell / W.road.units_per_cell, units = (k: RoadClass) => W.roads!.classes[k].units_per_cell;
+      const cost = low.reduce((n, c) => n + rate * (units(u.class) - units(classes.get(c)!)), 0);
+      if (cost <= money) {
+        out.push({ type: 'build_road', path: u.path.map((pt) => [pt[0], pt[1]] as [number, number]), class: u.class });
+        money -= cost;
       }
       break;
     }

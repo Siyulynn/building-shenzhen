@@ -1,0 +1,40 @@
+# R8d (phase1-slice §5.12): the gateways freight passes through. Every capacity is a design setting, not a historical
+# quantity: logistics volumes are hard to quantify from the sources, so each number is a placeholder (design_note),
+# and no hint or card may state it as a historical volume. A gateway's cell comes from its site's placement
+# (data/starts/slice_site_cells.json) or its start route's end, never a typed coordinate.
+- id: gateway.luohu
+  name: { zh: 罗湖口岸, en: Luohu crossing }
+  site: site.luohu_crossing
+  at: site
+  faces: hong_kong
+  mode: rail
+  capacity_t_month: { out: 90000, in: 30000 }       # placeholder: the railway to Hong Kong
+  claims:
+    - { id: site.luohu_crossing.exists_1979, use: design_note }
+- id: gateway.wenjindu
+  name: { zh: 文锦渡口岸, en: Wenjindu crossing }
+  site: site.wenjindu_crossing
+  at: site
+  faces: hong_kong
+  mode: road
+  capacity_t_month: { out: 12000, in: 6000 }        # placeholder: a narrow road crossing
+  claims:
+    - { id: site.wenjindu_crossing.exists_1979, use: design_note }
+- id: gateway.shenzhen_station
+  name: { zh: 深圳火车站, en: Shenzhen station }
+  site: site.shenzhen_station
+  at: site
+  faces: mainland
+  mode: rail
+  capacity_t_month: { in: 40000, out: 10000 }       # placeholder: supplies from the mainland arrive here
+  claims:
+    - { id: site.shenzhen_station.exists_1979, use: design_note }
+- id: gateway.guangshen_road
+  name: { zh: 广深公路, en: Guangzhou–Shenzhen road }
+  site: site.guangshen_road
+  at: { route_end: last }                           # the start route's north-west end, toward Guangzhou
+  faces: mainland
+  mode: road
+  capacity_t_month: { in: 15000, out: 5000 }        # placeholder
+  claims:
+    - { id: site.guangshen_road.exists_1979, use: design_note }

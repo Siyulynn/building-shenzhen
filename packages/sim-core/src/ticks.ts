@@ -18,6 +18,7 @@ import { events, type EventContent } from './events.js';
 import { climate, reviews, type TargetContent } from './systems/reviews.js';
 import { zoning, type Precedent } from './zones.js';
 import type { LandCover } from './landcover.js';
+import { freightContent, type Gateway } from './freight.js';
 
 /**
  * Content the tick reads, never stored in state (§5.3, §5.5, §5.6, §5.7). Without precedents no zone takes a
@@ -32,6 +33,7 @@ export interface TickContent {
   targets?: TargetContent;                       // M5b (§5.8): the annual reviews; read only with events
   network?: StartNetwork;                        // R2 (b&c §13.2): with fiscal, enables works orders
   landcover?: LandCover;                         // R8a (§5.5): formation cost, compensation and bridges; buildable is its formable cells
+  gateways?: readonly Gateway[];                 // R8d (§5.12): with params.freight and works.roads, freight limits firms and building
 }
 
 /** Tick step 3: serviced shares (with the fiscal content), zone names, then investors look for sites (§5.3, §5.5, §5.6). */
@@ -47,10 +49,11 @@ function investment(params: SliceParams, content: TickContent) {
 
 export function createTickSteps(params: SliceParams, content: TickContent = {}): readonly TickStep[] {
   const fc = content.fiscal;
+  const freight = freightContent(params, content.network, content.gateways);
   // works orders (R2, b&c §13.2) need their params, the fiscal content and the start network
   const wc: WorksContent | undefined = fc && content.network && params.works
     ? { params, works: params.works, network: content.network, ...(content.buildable ? { buildable: content.buildable } : {}),
-      ...(content.landcover ? { landcover: content.landcover } : {}) } : undefined;
+      ...(content.landcover ? { landcover: content.landcover } : {}), ...(freight ? { freight } : {}) } : undefined;
   // organic growth (R3, b&c §13.3) needs its params and the start network, for road reach
   const gc: GrowthContent | undefined = params.growth && content.network
     ? { network: content.network, ...(content.buildable ? { buildable: content.buildable } : {}) } : undefined;
@@ -62,12 +65,12 @@ export function createTickSteps(params: SliceParams, content: TickContent = {}):
     } : {}),
     investment: investment(params, content),
     construction: construction(params, !!fc, content.buildable, wc, gc),
-    labour: labour(params, content.network, content.buildable),
+    labour: labour(params, content.network, content.buildable, freight),
     housing: housing(params),
     migration: migration(params, content.network),
     production: production(params),
     ...(fc ? { finance: finance(params, fc) } : {}),
-    statistics: statistics(params, content.network),
+    statistics: statistics(params, content.network, freight?.gateways),
   };
   // the finance step owns the project and team actions (§5.6)
   const act = fc ? (s: GameState, a: PlayerAction): boolean => {

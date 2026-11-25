@@ -110,6 +110,13 @@ export const CAUTIOUS_PLAN: MapPlan = Object.freeze<MapPlan>({
   utilities: { headroom_jobs: 100, max_sources: 2, import_kw: 500, import_from_turn: 4 }, facilities: [], teams: [], reserve: 300_000,
 });
 /**
+ * R8d (§5.12): the corridor from Shangbu to the Luohu yard, along the Guangshen and Jianshe roads, as an avenue: in
+ * three legs, each committed when the money covers it, once the plan's outbound roads are built.
+ */
+const CORRIDOR_UPGRADES: MapPlan['upgrades'] = [
+  { path: [[378, 352], [380, 352], [380, 363]], class: 'avenue' }, { path: [[380, 363], [384, 363], [384, 377]], class: 'avenue' },
+  { path: [[384, 377], [386, 377], [386, 390]], class: 'avenue' }];
+/**
  * The aggressive plan: industrial zones in Shangbu (area 7) and Sungang (area 5), dormitories in Shangbu, shops in
  * the market town; a road south through Shangbu and one east into Dongmen–Wenjindu (area 4); half the crews on
  * servicing; power and water a year ahead; a school; both pool teams.
@@ -118,6 +125,7 @@ export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
   zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'residential', area: 7, cells: 8 }, { use: 'commercial', area: 1, cells: 4 },
     { use: 'industrial', area: 5, cells: 16 }],
   roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]]],
+  upgrades: CORRIDOR_UPGRADES.map((u) => ({ ...u, from_turn: 12 })),   // R8d: from turn 12, once it has met the limit
   crew_share: 0.5, room_ahead_m2: 40_000,
   utilities: { headroom_jobs: 300, max_sources: 8, import_kw: 1000, import_from_turn: 8, station_turn: 9 }, facilities: [['school', 1]],
   teams: ['team.engineering_corps', 'team.outside_soe'], reserve: 0,
@@ -129,6 +137,7 @@ export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
 export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
   zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'residential', area: 7, cells: 6 }, { use: 'commercial', area: 1, cells: 4 }],
   roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]]],
+  upgrades: CORRIDOR_UPGRADES,
   crew_share: 0.34, room_ahead_m2: 30_000,
   utilities: { headroom_jobs: 200, max_sources: 8, import_kw: 1000, import_from_turn: 2, station_turn: 6 }, facilities: [['school', 1]],
   teams: ['team.engineering_corps'], reserve: 0,

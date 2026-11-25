@@ -5,7 +5,7 @@ import {
   type PermitRegime, type PopKind, type Sector,
 } from './enums.js';
 import { cloneFiscal, initialFiscal, type FiscalState, type Priority, type TeamMode } from './fiscal.js';
-import type { SliceParams } from './params.js';
+import type { RoadClass, SliceParams } from './params.js';
 import { bedsByPool } from './systems/common.js';
 import { parseYM, type YM } from './ym.js';
 import { openingBeats } from './opening.js';
@@ -153,7 +153,7 @@ export type PlayerAction =
   | { type: 'buy_power'; kw: number; area?: number }   // R8c: city-level; an old action's area is ignored
   // R2 (buildings-and-construction §13.2): owned by the construction step, with works params, fiscal and network
   | { type: 'commit_works'; zone: number; cells?: CellRuns; priority?: Priority }
-  | { type: 'build_road'; path: [number, number][]; priority?: Priority }
+  | { type: 'build_road'; path: [number, number][]; class?: RoadClass; priority?: Priority }   // R8d: class defaults to street
   | { type: 'place_structure'; kind: StructureKind; cell: [number, number]; attach: [number, number]; facility?: string; priority?: Priority }
   | { type: 'cancel_works'; order: number; cells?: CellRuns }
   | { type: 'set_works_paused'; order: number; paused: boolean }
@@ -173,6 +173,8 @@ export interface History {
   projectSpend: number[]; reserve: number[]; debtOutstanding: number[]; austerity: number[];
   // R4 (§5.11): accessible vacancies, turned-away arrivals, service posts and crew construction posts
   vacancies: number[]; turnedAway: number[]; servicePosts: number[]; constructionPosts: number[];
+  // R8d (§5.12): unmet freight tonnes a month by `gateway:direction`, aligned with months; absent until freight runs
+  freightUnmet?: Record<string, number[]>;
 }
 
 export interface GameState {
@@ -203,6 +205,7 @@ export interface GameState {
   nextOrderId: number;
   requisitioned?: number[];   // R8a (§5.5): cells whose land compensation is owed or paid, sorted; required from R8e's save bump
   power?: PowerState;         // R8c (§5.5): the city's purchased power; required from R8e's save bump
+  roadClass?: Record<RoadClass, number[]>;   // R8d (§5.12): class overrides, sorted cells; absent: start route class, else street
   growth: { carry: number };  // R3 (b&c §13.3): m² of industrial demand banked toward the next organic firm
   events: EventsState;        // M5a (§5.7)
   sez: SezState;
@@ -478,6 +481,7 @@ export function cloneState(s: GameState): GameState {
     worksOrders: s.worksOrders.map(cloneOrder),
     ...(s.requisitioned ? { requisitioned: [...s.requisitioned] } : {}),
     ...(s.power ? { power: { purchases: s.power.purchases.map((x) => ({ ...x })) } } : {}),
+    ...(s.roadClass ? { roadClass: { track: [...s.roadClass.track], street: [...s.roadClass.street], avenue: [...s.roadClass.avenue] } } : {}),
     growth: { ...s.growth },
     events: { fired: [...s.events.fired], unlocked: [...s.events.unlocked] },   // fired entries are never changed
     sez: { ...s.sez },
@@ -507,6 +511,7 @@ export function cloneState(s: GameState): GameState {
       debtOutstanding: [...h.debtOutstanding], austerity: [...h.austerity],
       vacancies: [...h.vacancies], turnedAway: [...h.turnedAway], servicePosts: [...h.servicePosts],
       constructionPosts: [...h.constructionPosts],
+      ...(h.freightUnmet ? { freightUnmet: Object.fromEntries(Object.entries(h.freightUnmet).map(([k, v]) => [k, [...v]])) } : {}),
     },
   };
 }

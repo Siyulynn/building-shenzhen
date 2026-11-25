@@ -9,6 +9,7 @@ import { principalOutstanding } from '../fiscal.js';
 import { reachClasses } from '../reach.js';
 import type { StartNetwork } from '../sites.js';
 import { accessibleAreas } from './migration.js';
+import type { Gateway } from '../freight.js';
 
 /**
  * Nominal GDP at the state's current month (M4, §5.6): the firms' value added, base jobs and service posts at their
@@ -35,7 +36,7 @@ export function gdpNow(s: GameState, p: SliceParams, work = 0): number {
 }
 
 /** Without params (the M1 pipeline) there are no firms, and the industry series are zero. */
-export function statistics(p?: SliceParams, network?: StartNetwork) {
+export function statistics(p?: SliceParams, network?: StartNetwork, gateways?: readonly Gateway[]) {
   return (ctx: TickContext): void => {
     const s = ctx.state;
     const h = s.history;
@@ -96,5 +97,18 @@ export function statistics(p?: SliceParams, network?: StartNetwork) {
       crew.set(e.detail!.area as number, (crew.get(e.detail!.area as number) ?? 0) + (e.detail!.units as number));
     }
     h.constructionPosts.push(p ? [...crew.values()].reduce((a, u) => a + Math.floor(u * p.labour.jobs_per_crew_unit), 0) : 0);
+    // R8d (§5.12): unmet freight tonnes by gateway and direction, from the month's freight events
+    if (gateways?.length) {
+      const fu = h.freightUnmet ?? (h.freightUnmet = {});
+      const unmet = new Map<string, number>();
+      for (const e of ctx.events) if (e.kind === 'freight') {
+        const k = `${e.detail!.gateway as string}:${e.detail!.dir as string}`;
+        unmet.set(k, (unmet.get(k) ?? 0) + (e.detail!.demand as number) - (e.detail!.flow as number));
+      }
+      for (const g of gateways) for (const d of ['in', 'out']) {
+        const k = `${g.id}:${d}`, row = fu[k] ?? (fu[k] = h.months.slice(0, -1).map(() => 0));
+        row.push(Math.round(unmet.get(k) ?? 0));
+      }
+    }
   };
 }

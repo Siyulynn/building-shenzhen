@@ -128,3 +128,57 @@ The kept values give these results.
 - Cautious moves a little: 36,266 → 36,268 residents, and GDP 14.24 M → 14.28 M. Its five structural failures are
   unchanged.
 - Default and decline_all are unchanged, because they draw no zones.
+
+### R8c: the city power pool
+
+The numbers are those of commit 2b1d766 (seed 1, end-1983).
+
+| Run | Residents | GDP multiple | Why |
+|---|---|---|---|
+| historical | 50,690 → 50,577 | ×3.464 → ×3.455 | purchases owe a service line; no water sources to build (projects completed 5 → 3) |
+| aggressive | 49,980 → 50,704 | ×3.480 → ×3.491 | water no longer binds; power binds in 1982-Q4 (share 0.97) and 1983-Q1 (0.75), and eases when its station finishes in 1983-04 |
+| cautious | 36,268 → 39,964 | ×1.766 → ×2.189 | water no longer binds; it buys 500 kW from turn 4 |
+
+- Both banded runs pass all 20 bands.
+- Default and decline_all are unchanged.
+- The historical run's `fiscalTest.balance` turned slightly negative (−58k). It is not banded.
+
+### R8d: road tiers and gateway freight
+
+**Placeholders (design_note):**
+- Classes:
+  - track: 6 units, 2,000 t a month;
+  - street: 12 units (works.road's), 8,000 t;
+  - avenue: 18 units, 30,000 t.
+- Gateways: the plan's capacities, unchanged.
+- Freight:
+  - processing: 0.003 t per yuan of exports, inputs 0.3 of that;
+  - materials: 2 t per crew unit;
+  - yard: 6 cells.
+
+**Why these:**
+- Avenue was 24 units in the first try. The historical plan could not afford the corridor until 1982-07, so it was cut to 18.
+- Materials were 5 t a unit in the first try. That reported unmet station tonnage the pool never needed: the "wanted" units exceed the pool, so they were cut to 2. At 2 t, materials never bind in the golden runs.
+
+**What binds:** every run's Shangbu firms ship to Luohu over the start streets (Guangshen road, then Jianshe Road), so each area's path is one street (8,000 t). Area 7's exports reach that in 1982-Q2 in every map plan, because the historical run's exports are at or above the aggressive run's through 1982. The plans differ by when they upgrade the corridor to avenue (`MapPlan.upgrades`, three legs, about ¥700k and 282 crew units):
+
+| Plan | Upgrades | Binds | 1983 GDP multiple |
+|---|---|---|---|
+| aggressive, no upgrade | none | 1982-07 to the end | ×2.275, **fails** 3 bands |
+| aggressive, upgrades as soon as its roads are built | 1980-10 to 1981-06 | never | ×2.747, **fails** 3 bands: the money and crew go before the first wave |
+| aggressive, from turn 12, kept | 1982-04 to 1982-12 | 1982-07 to 1983-01 | ×3.486, passes |
+| historical, kept | first leg 1981-04, then 1982-04 to 1982-09 (money) | 1982-04 to 1982-09 | ×3.418, passes |
+
+- The first-wave effect (the early upgrade's row) is the largest move in this pass: the R4.5 readiness rule makes a pre-SEZ quarter's crews and money matter more than a later year's freight.
+- Raising capacities was not needed.
+
+**Goldens (end-1983):**
+
+| Run | Residents | GDP multiple |
+|---|---|---|
+| historical | 50,577 → 50,103 | ×3.455 → ×3.418 |
+| aggressive | 50,704 → 50,022 | ×3.491 → ×3.486 |
+| cautious (no upgrade; binds from 1982-Q2) | 39,964 → 37,441 | ×2.189 → ×1.865 |
+
+- Default and decline_all move only `params_sha256`.
+- historical_prologue and aggressive pass all 20 bands.

@@ -100,6 +100,7 @@ export interface SliceParams {
   gdp: { base_va_per_job_month: Record<Sector, number>; construction_va_ratio: number };
   works?: WorksParams;                   // R2 (buildings-and-construction §13.2): absent = no works actions
   growth?: GrowthParams;                 // R3 (buildings-and-construction §13.3): absent = no organic growth
+  freight?: FreightParams;               // R8d (§5.12): absent, or without works.roads or gateways, = no freight limit
 }
 
 /** R3 organic growth (b&c §13.3). Placeholders, not sourced. */
@@ -172,10 +173,21 @@ export interface StructureWorksParams {
 /** The facility types a placed facility can be, and the area stock each feeds (b&c §13.2, R4.5). */
 export const FACILITY_STOCK = { school: 'schoolPlaces' } as const;
 export interface CellWorksParams { units_per_cell: number; yuan_per_cell: number }
+/** R8d (§5.12): the road tiers, cheapest first. */
+export const ROAD_CLASSES = ['track', 'street', 'avenue'] as const;
+export type RoadClass = (typeof ROAD_CLASSES)[number];
+export interface RoadClassParams { units_per_cell: number; capacity_t_month: number }
+/** R8d (§5.12): freight through the gateways. Placeholders (design_note). */
+export interface FreightParams {
+  yard_cells: number;                // a gateway's yard: road cells within this Manhattan distance of its cell
+  t_per_crew_month: number;          // construction materials per crew unit at work, from the mainland
+  by_archetype: Record<string, { t_per_yuan: number; mode: 'rail' | 'road'; input_ratio: number }>;
+}
 export interface WorksParams {
   crew_per_order: number;
   maint_rate_year: number;           // R4 (phase1-slice §5.11): a done order's yearly maintenance, on its spending
   service: CellWorksParams; road: CellWorksParams; bridge: CellWorksParams;
+  roads?: { classes: Record<RoadClass, RoadClassParams> };   // R8d (§5.12): absent = every road a street, no capacity
   structures: {
     water_source: StructureWorksParams; power_source: StructureWorksParams;   // not offered from R8c; kept for old saves
     power_substation: StructureWorksParams;     // R8c (§5.5): distribution, kW through the road network
@@ -203,6 +215,18 @@ function validateWorksParams(w: WorksParams): void {
   for (const [k, v] of kinds) {
     if (!v || !whole(v.units, 1) || !whole(v.yuan, 0) || !whole(v.capacity, 0) || (v.forex_usd !== undefined && !whole(v.forex_usd, 0))) {
       throw new Error(`params: works.${k} needs whole units >= 1, yuan, capacity and any forex_usd >= 0`);
+    }
+  }
+  if (w.roads !== undefined) {
+    for (const k of ROAD_CLASSES) {
+      const c = w.roads.classes?.[k];
+      if (!c || !whole(c.units_per_cell, 1) || !whole(c.capacity_t_month, 1)) throw new Error(`params: works.roads.classes.${k} needs whole units_per_cell and capacity_t_month >= 1`);
+    }
+    const C = w.roads.classes;
+    if (C.street.units_per_cell !== w.road.units_per_cell) throw new Error('params: works.roads.classes.street must keep the units_per_cell of works.road');
+    if (!(C.track.units_per_cell < C.street.units_per_cell && C.street.units_per_cell < C.avenue.units_per_cell)
+      || !(C.track.capacity_t_month < C.street.capacity_t_month && C.street.capacity_t_month < C.avenue.capacity_t_month)) {
+      throw new Error('params: works.roads.classes must rise in units and capacity from track to avenue');
     }
   }
   if (!whole(w.structures.power_station.build_months, 1)) throw new Error('params: works.structures.power_station.build_months must be a whole number >= 1');
@@ -311,6 +335,16 @@ export function validateParams(raw: unknown): SliceParams {
   for (const m of p.migration.spring.away_months) if (!Number.isInteger(m) || m < 0 || m > 11) throw new Error('params: spring.away_months are 0..11');
   validateFiscalParams(p);
   if (p.works !== undefined) validateWorksParams(p.works);
+  if (p.freight !== undefined) {
+    const F = p.freight;
+    if (!Number.isSafeInteger(F.yard_cells) || F.yard_cells < 0) throw new Error('params: freight.yard_cells must be a whole number >= 0');
+    if (!(F.t_per_crew_month >= 0)) throw new Error('params: freight.t_per_crew_month must be >= 0');
+    for (const [k, v] of Object.entries(F.by_archetype ?? {})) {
+      if (!(v?.t_per_yuan >= 0) || !(v.input_ratio >= 0) || (v.mode !== 'rail' && v.mode !== 'road')) {
+        throw new Error(`params: freight.by_archetype.${k} needs t_per_yuan and input_ratio >= 0 and mode rail or road`);
+      }
+    }
+  }
   if (p.growth !== undefined) validateGrowthParams(p.growth, p);
   validateM5aParams(p);
   validateM5bParams(p);

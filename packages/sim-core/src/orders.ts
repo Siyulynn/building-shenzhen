@@ -6,7 +6,8 @@
 import {
   PRIORITIES, addObligation, liveProject, moneyForProjects, payProject, post, projectFunds, type Priority,
 } from './fiscal.js';
-import { FACILITY_STOCK, type CellWorksParams, type SliceParams, type StructureWorksParams, type WorksParams } from './params.js';
+import { FACILITY_STOCK, ROAD_CLASSES, type CellWorksParams, type RoadClass, type SliceParams, type StructureWorksParams, type WorksParams } from './params.js';
+import { roadClasses, setRoadClass, type FreightContent } from './freight.js';
 import type { StartNetwork } from './sites.js';
 import { cloneState, type GameState, type PlayerAction } from './state.js';
 import type { SimEvent, TickStep } from './step.js';
@@ -20,6 +21,7 @@ import { coverFactors, landCoverAt, needsBridge, type LandCover, type LandCoverC
 export interface WorksContent {
   params: SliceParams; works: WorksParams; network: StartNetwork; buildable?: { cells: Uint32Array };
   landcover?: LandCover;                  // R8a (§5.5): a cell's formation units and compensation, and which roads bridge
+  freight?: FreightContent;               // R8d (§5.12): construction materials through the mainland gateways
 }
 
 const WORKS_ACTIONS: readonly string[] = ['commit_works', 'build_road', 'place_structure', 'cancel_works', 'set_works_paused',
@@ -232,8 +234,12 @@ function requisition(s: GameState, wc: WorksContent, cells: readonly number[], r
  */
 function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'build_road' }): WorksOrder[] {
   const priority = checkPriority(a.priority);
+  const k = a.class ?? 'street';
+  if (!(ROAD_CLASSES as readonly string[]).includes(k)) throw new Error(`unknown road class ${k}`);
+  if (k !== 'street' && !wc.works.roads) throw new Error('road classes need works.roads in the params');
   const cells = expandPath(s, a.path);
   const roads = roadSet(s, wc.network), queued = queuedPath(s), feet = footprints(s);
+  const classes = roadClasses(s, wc.network), upgrades = new Set<number>();
   const works = new Set(s.cellWorks.map((w) => w.cell));
   const seen = new Set<number>();
   const segments: number[][] = [];
@@ -241,6 +247,8 @@ function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'bu
   for (const c of cells) {
     if (seen.has(c)) throw new Error(`the road path crosses itself at cell ${c}`);
     seen.add(c);
+    // R8d (§5.12): a built or start road of a lower class is upgraded; any other road, or a queued cell, is stripped
+    if (roads.has(c) && !queued.has(c) && rank(classes.get(c) ?? 'street') < rank(k)) { upgrades.add(c); run.push(c); continue; }
     if (roads.has(c) || queued.has(c)) {               // already a road: stripped, and it ends the segment
       if (run.length) segments.push(run);
       run = [];
@@ -256,8 +264,8 @@ function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'bu
   // either end of each segment may touch the network (R4.5): one drawn toward it is reversed, so it is built outward
   const touches = (c: number) => neighbours(c, s.grid.width, s.grid.height).some((n) => roads.has(n) || queued.has(n));
   const oriented = segments.map((seg) => {
-    if (touches(seg[0]!)) return seg;
-    if (touches(seg[seg.length - 1]!)) return [...seg].reverse();
+    if (upgrades.has(seg[0]!) || touches(seg[0]!)) return seg;
+    if (upgrades.has(seg[seg.length - 1]!) || touches(seg[seg.length - 1]!)) return [...seg].reverse();
     throw new Error('a new road must start or end next to a road');
   });
   const W = wc.works;
@@ -265,7 +273,8 @@ function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'bu
     const path: PathCell[] = seg.map((cell) => {
       // R8a (§5.5): with the land-cover layer only water and tidal flats bridge; a hill or village cell is road
       const bridge = wc.landcover ? needsBridge(wc.landcover, cell) : wc.buildable !== undefined && !inSorted(wc.buildable.cells, cell);
-      return { cell, bridge, units: (bridge ? W.bridge : W.road).units_per_cell };
+      if (!upgrades.has(cell)) return { cell, bridge, units: classUnits(W, k, bridge), ...(k !== 'street' ? { class: k } : {}) };
+      return { cell, bridge, units: classUnits(W, k, bridge) - classUnits(W, classes.get(cell)!, bridge), class: k, upgrade: true };
     });
     const units = path.reduce((n, c) => n + c.units, 0);
     const o: WorksOrder = { id: s.nextOrderId++, kind: 'road', priority, paused: false, committed: s.date, stage: 'queued',
@@ -274,6 +283,13 @@ function buildRoad(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'bu
     s.worksOrders.push(o);
     return o;
   });
+}
+
+const rank = (k: RoadClass) => ROAD_CLASSES.indexOf(k);
+/** A road cell's units in class `k` (§5.12): the class's units, and a bridge's scaled as street is to works.bridge. */
+function classUnits(W: WorksParams, k: RoadClass, bridge: boolean): number {
+  const u = W.roads ? W.roads.classes[k].units_per_cell : W.road.units_per_cell;
+  return bridge ? Math.round((W.bridge.units_per_cell * u) / W.road.units_per_cell) : u;
 }
 
 function orderStructure(s: GameState, wc: WorksContent, a: PlayerAction & { type: 'place_structure' }): WorksOrder {
@@ -377,7 +393,7 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
         const i = remainingPath(o);
         if (i >= o.path!.length) return 0;
         const next = o.path![i]!.cell;
-        const started = i > 0 || o.unitsDone > 0;
+        const started = i > 0 || o.unitsDone > 0 || o.path![i]!.upgrade === true;
         return started || neighbours(next, s.grid.width, s.grid.height).some((n) => roads.has(n)) ? left : 0;
       }
       const pl = o.placement!;
@@ -414,11 +430,14 @@ export function orderMonth(s: GameState, wc: WorksContent): OrderMonth {
       o.stage = 'working';
       if (o.kind === 'road') {
         // each path cell joins the roads once its cumulative units are done
+        // R8d (§5.12): an upgraded cell changes class only; a new cell of another class than street records it
         let acc = 0;
         const built: number[] = [];
         for (const c of o.path!) {
           acc += c.units;
-          if (acc > before && acc <= o.unitsDone) built.push(c.cell);
+          if (!(acc > before && acc <= o.unitsDone)) continue;
+          if (!c.upgrade) built.push(c.cell);
+          if (c.upgrade || (c.class !== undefined && c.class !== 'street')) setRoadClass(s, c.cell, c.class ?? 'street');
         }
         if (built.length) s.roads = [...s.roads, ...built].sort((a, b) => a - b);
       } else if (o.kind === 'structure' && o.unitsDone === o.unitsTotal) {
@@ -451,7 +470,7 @@ function feedFacility(s: GameState, w: WorksParams, o: WorksOrder, x: PlacedStru
  * The area an order's crew works in this month (phase1-slice §5.11): a service order's zone's area (or that of its
  * first unfinished cell if the zone is gone), the road cell being built, or the structure's cell.
  */
-function workArea(s: GameState, o: WorksOrder): number | undefined {
+export function workArea(s: GameState, o: WorksOrder): number | undefined {
   const areaOf = (c: number) => s.areas.find((a) => a.access === 'playable' && inSorted(a.cells, c))?.id;
   if (o.kind === 'service') {
     const z = s.zones.find((x) => x.id === o.zone);

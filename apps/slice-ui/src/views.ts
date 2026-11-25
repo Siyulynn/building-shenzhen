@@ -9,6 +9,7 @@ import {
   zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
   VILLAGE_ARCHETYPES, SOURCE_KINDS, areaTakes, poolFactor, powerPool, importedKw, utilityShares,
+  firmFreight, freightContent, freightNetwork,
   type CardInstance, type CellRuns, type EventDef, type EventEffect, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
   type WorksOrder, type Zone, type LandCoverClass, landCoverAt,
 } from '@sz/sim-core';
@@ -676,6 +677,26 @@ export function powerView(s: GameState, slice: Slice) {
   const I = slice.params.fiscal.power_import;
   return { ...pool, onOrder: bought.pending, sited, spare: Math.max(0, pool.total - sited), unmet,
     room: Math.max(0, I.max_kw - bought.arrived - bought.pending), step: Math.min(500, Math.max(0, I.max_kw - bought.arrived - bought.pending)) };
+}
+
+/**
+ * Freight for the Economy drawer (§5.12): each gateway's capacity and last month's unmet tonnes, and for each area
+ * with shipping firms its path to the Hong Kong rail gateway and the weakest cell on it. Undefined without freight.
+ */
+export function freightView(s: GameState, slice: Slice) {
+  const fc = freightContent(slice.params, slice.tick.network, slice.tick.gateways);
+  if (!fc) return undefined;
+  const net = freightNetwork(s, fc), W = s.grid.width;
+  const unmet = (k: string) => last(s.history.freightUnmet?.[k] ?? []);
+  const gateways = fc.gateways.map((g) => ({ id: g.id, name: g.name as L, capacity: g.capacity,
+    unmet: { in: unmet(`${g.id}:in`), out: unmet(`${g.id}:out`) } }));
+  const hk = fc.gateways.find((g) => g.faces === 'hong_kong' && g.mode === 'rail');
+  const shipping = [...new Set(s.firms.filter((f) => isOpenFirm(f, s.date) && firmFreight(f, fc.freight)).map((f) => f.area))].sort((a, b) => a - b);
+  const areas = hk ? shipping.map((a) => {
+    const p = net.path(a, hk);
+    return { area: a, capacity: p.capacity, ...(p.weakest !== undefined ? { weakest: [p.weakest % W, Math.floor(p.weakest / W)] as const } : {}) };
+  }) : [];
+  return { gateways, areas, hk: hk?.name as L | undefined };
 }
 
 export function constraintContext(s: GameState, slice: Slice): ConstraintContext {

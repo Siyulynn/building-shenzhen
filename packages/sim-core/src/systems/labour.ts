@@ -3,7 +3,8 @@ import { SECTORS, isMigrant, type PopKind, type Sector } from '../enums.js';
 import type { SliceParams } from '../params.js';
 import { reachClasses } from '../reach.js';
 import type { StartNetwork } from '../sites.js';
-import type { GameState, HeldJobs, JobRow, PopGroup } from '../state.js';
+import type { Firm, GameState, HeldJobs, JobRow, PopGroup } from '../state.js';
+import { allocateFreight, areaShare, firmDemands, firmFreight, freightEvents, freightNetwork, type FreightContent } from '../freight.js';
 import type { TickContext } from '../step.js';
 import { largestRemainder, stochRound } from '../round.js';
 import { labourForce, removeNewestFirst, sortHeld, underConstructionM2 } from './common.js';
@@ -144,7 +145,7 @@ function match(s: GameState, p: SliceParams, jobs: JobRow[], avail: Map<PopGroup
   }
 }
 
-export function labour(p: SliceParams, network?: StartNetwork, buildable?: { cells: Uint32Array }) {
+export function labour(p: SliceParams, network?: StartNetwork, buildable?: { cells: Uint32Array }, fc?: FreightContent) {
   return (ctx: TickContext): void => {
     const s = ctx.state;
     const L = p.labour;
@@ -152,7 +153,14 @@ export function labour(p: SliceParams, network?: StartNetwork, buildable?: { cel
 
     // jobs this month: the start economy, construction work and the firms' posts (§5.5). Construction work is the
     // floor under construction and, from R4 (§5.11), the crew units projects and works orders used this month
-    postFirmJobs(s, p, network ? placedSupply(s, { network, ...(buildable ? { buildable } : {}) }, (f) => isOpen(f, s.date)) : undefined);
+    // R8d (§5.12): exports and inputs through the Hong Kong gateways, from the posts before freight
+    const freight = fc ? (pre: ReadonlyMap<Firm, number>) => {
+      const a = allocateFreight(fc, freightNetwork(s, fc), firmDemands(s, p, fc, pre));
+      ctx.events.push(...freightEvents('labour', a));
+      return (f: Firm) => firmFreight(f, fc.freight)
+        ? Math.min(areaShare(a, f.area, 'out', 'hong_kong'), areaShare(a, f.area, 'in', 'hong_kong')) : 1;
+    } : undefined;
+    postFirmJobs(s, p, network ? placedSupply(s, { network, ...(buildable ? { buildable } : {}) }, (f) => isOpen(f, s.date)) : undefined, freight);
     const crew = new Map<number, number>();
     for (const e of ctx.events) {
       if (e.step === 'construction' && e.kind === 'crew') {

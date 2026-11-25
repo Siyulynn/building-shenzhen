@@ -94,6 +94,8 @@ export const STRUCTURE: Readonly<Record<string, L>> = {
   power_substation: l('变电站', 'Substation'), power_station: l('电厂', 'Power station'),
 };
 export const FACILITY: Readonly<Record<string, L>> = { school: l('学校', 'School') };
+/** R8d (§5.12): the road tiers. */
+export const ROAD_CLASS: Readonly<Record<string, L>> = { track: l('土路', 'Track'), street: l('街道', 'Street'), avenue: l('大道', 'Avenue') };
 /** A cell's works stage, and the stage of a zoned cell with no works. */
 export const WORK_STAGE: Readonly<Record<string, L>> = {
   zoned: l('已规划，未安排工程', 'Zoned, no works'), planned: l('已安排', 'Planned'),
@@ -190,6 +192,11 @@ export const T = {
   powerBought: l('外购（已到）', 'Bought (arrived)'), powerOnOrder: l('外购（在途）', 'Bought (on order)'),
   powerStations: l('电厂', 'Power stations'), powerSited: l('企业用电', 'Firms\' need'), powerSpare: l('富余', 'Spare'),
   powerUnmet: l('供电不足的片区', 'Areas short of power'), buyPower: l('外购电力', 'Buy power'),
+  roadTier: l('道路等级', 'Road tier'),
+  roadTierHint: l('等级越高，造价越高，运力越大；在已有道路上拖动可升级', 'A higher tier costs more and carries more freight; drag along an existing road to upgrade it'),
+  freight: l('货运（吨/月）', 'Freight (t/month)'), freightUnmet: l('上月未运出', 'Not moved last month'),
+  freightCapacity: l('容量 进/出', 'Capacity in / out'), freightRoute: l('片区至口岸的最弱路段', 'Weakest link, area to gateway'),
+  freightHint: l('口岸容量为设计设定，非历史数据', 'Gateway capacities are design settings, not historical figures'),
   buyPowerHint: l('全市购电：到货前有等待期，到货后每月付费；线路有上限', 'A city purchase: it arrives after a wait, then is paid monthly; the line has a ceiling'),
   facilities: l('公共设施', 'Facilities'), schoolPlaces: l('学位', 'School places'), clinicVisits: l('门诊量', 'Clinic visits'),
   policePosts: l('派出所', 'Police posts'), illegalShare: l('违建比例', 'Illegal floor share'), roadKm: l('道路（公里）', 'Roads (km)'),

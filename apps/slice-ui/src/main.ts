@@ -17,7 +17,7 @@ import { sceneOf } from './scene.js';
 import { BUILD_TOOLS, applyPlan, guidePlan, planGesture, type Plan, type Tool } from './tools.js';
 import { unanswered } from './controller.js';
 import type { DrawerId, OverlayLayer } from './views.js';
-import type { LandUse } from '@sz/sim-core';
+import type { LandUse, RoadClass } from '@sz/sim-core';
 
 const $ = (id: string) => document.getElementById(id)!;
 
@@ -124,6 +124,7 @@ document.addEventListener('click', (e) => {
     case 'lang': if (isLang(d.lang) && d.lang !== lang) setLang(d.lang); return;
     case 'tool': ui.tool = d.tool as Tool; plan = null; ui.drawer = null; break;   // the flyout and a drawer share the left column
     case 'use': ui.opts.use = d.use as LandUse; break;
+    case 'roadClass': ui.opts.roadClass = d.cls as RoadClass; break;
     case 'zoneGuide': {
       const p = slice.tick.precedents?.find((q) => q.id === d.id);
       if (p) x = applyPlan(x, guidePlan(x, ui.opts, p));

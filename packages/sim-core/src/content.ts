@@ -4,6 +4,7 @@
  */
 import { compileEvents, type EventContent } from './events.js';
 import { compileFiscal } from './fiscal.js';
+import { compileGateways } from './freight.js';
 import { compileInvestors } from './investors.js';
 import { compileLandCover, type LandCoverContent } from './landcover.js';
 import { validateParams, type SliceParams } from './params.js';
@@ -21,6 +22,7 @@ export const SLICE_FILES = Object.freeze({
   sites: 'content/slice/sites_1979.yaml',
   siteCells: 'data/starts/slice_site_cells.json',
   network: 'content/slice/start_network.yaml',
+  gateways: 'content/slice/gateways.yaml',          // R8d (§5.12); its hash joins the header in R8e
   scenario: 'content/slice/scenario.yaml',
   start: 'content/slice/start_1979.yaml',
   params: 'params/slice.yaml',
@@ -68,11 +70,13 @@ export function compileSlice(read: (path: string) => string, parse: (text: strin
   const leaders = compileLeaders(parse(text.leaders));
   const sites = parse(text.sites);
   const network = compileStartNetwork(parse(text.network), sites, areas);
+  const startSites = compileStartSites(sites, JSON.parse(text.siteCells), areas, hash(text.sites));
+  const gateways = compileGateways(parse(text.gateways), startSites, network, areas);
   return {
-    startSites: compileStartSites(sites, JSON.parse(text.siteCells), areas, hash(text.sites)),
+    startSites,
     startNetwork: network,
     init: { scenario: parse(text.scenario) as ScenarioContent, areas, start: parse(text.start) as StartContent, params, leaders, events },
-    tick: { precedents, investors, buildable, landcover, fiscal, events, targets, network },
+    tick: { precedents, investors, buildable, landcover, fiscal, events, targets, network, gateways },
     params,
     content: {
       areas_sha256: areas.areas_sha256, params_sha256: hash(text.params), precedents_sha256: hash(text.precedents),

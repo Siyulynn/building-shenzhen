@@ -1,5 +1,6 @@
 /** Descriptive start content (phase1-slice §1.1), independent of mutable block stocks. */
 import type { AreasContent, LocalizedString } from './state.js';
+import { ROAD_CLASSES, type RoadClass } from './params.js';
 
 type CellXY = readonly [number, number];
 interface Placement { cell: CellXY; landCell: CellXY }
@@ -19,12 +20,13 @@ export interface StartSite extends Placement {
 export interface StartRoute {
   id: string; name: LocalizedString; kind: 'road' | 'railway'; placement: 'temporary';
   claims: StartSite['claims']; cells: readonly number[];
+  class?: RoadClass;          // R8d (§5.12): a road's class for freight (absent: street); never counts for readiness
 }
 export interface StartNetwork { maxFrontageDepth: number; routes: readonly StartRoute[] }
 
 /** Join explicit prototype alignments to the register. An unplaced record alone never creates a route. */
 export function compileStartNetwork(raw: unknown, register: unknown, areas: AreasContent): StartNetwork {
-  const data = raw as { max_frontage_depth: number; routes: { site: string; placement: string; waypoints: CellXY[] }[] };
+  const data = raw as { max_frontage_depth: number; routes: { site: string; placement: string; waypoints: CellXY[]; class?: string }[] };
   if (!Number.isSafeInteger(data?.max_frontage_depth) || data.max_frontage_depth < 1 || !Array.isArray(data.routes)
     || !Array.isArray(register)) throw new Error('invalid start network');
   const seen = new Set<string>();
@@ -50,7 +52,9 @@ export function compileStartNetwork(raw: unknown, register: unknown, areas: Area
       if ((dx === 0) === (dy === 0)) throw new Error(`${s.id}: expected distinct orthogonal waypoints`);
       while (x !== pt[0] || y !== pt[1]) { x += dx; y += dy; push(x, y); }
     }
-    return { id: s.id, name: s.name, claims: s.claims, kind: s.kind, placement: 'temporary', cells };
+    if (r.class !== undefined && (s.kind !== 'road' || !(ROAD_CLASSES as readonly string[]).includes(r.class))) throw new Error(`${s.id}: invalid road class ${r.class}`);
+    return { id: s.id, name: s.name, claims: s.claims, kind: s.kind, placement: 'temporary', cells,
+      ...(r.class !== undefined ? { class: r.class as RoadClass } : {}) };
   });
   return { routes, maxFrontageDepth: data.max_frontage_depth };
 }

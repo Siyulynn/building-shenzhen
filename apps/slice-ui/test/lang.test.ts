@@ -73,6 +73,7 @@ const PLACES: string[] = [...new Set([
   ...slice.startSites.map((s) => bi(s.name)),
   ...slice.startNetwork.routes.map((r) => bi(r.name)),
   ...(slice.tick.precedents ?? []).map((p) => bi(p.name)),
+  ...(slice.tick.gateways ?? []).map((g) => bi(g.name)),             // R8d (§5.12): the gateways are place labels
 ])].sort((a, b) => b.length - a.length);
 
 const ENT: Record<string, string> = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };

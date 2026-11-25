@@ -13,7 +13,7 @@ import * as S from './strings.js';
 import { bi, type L } from './strings.js';
 import { BUILD_TOOLS, TOOLS, queuedBudget, type Plan, type Tool, type ToolOptions } from './tools.js';
 import {
-  DRAWERS, LAND_COVER_COLOR, powerView, OVERLAY_LAYERS, USE_COLOR, actionLabel, areaName, areaView, briefing, cardStack, chipsView, constraintContext,
+  DRAWERS, LAND_COVER_COLOR, powerView, freightView, OVERLAY_LAYERS, USE_COLOR, actionLabel, areaName, areaView, briefing, cardStack, chipsView, constraintContext,
   commitments, constraintLabel, finishedWork, icrCue, inspectorView, ledgerView, leadersView, mostHeldBack, num, pct, projectsView,
   reviewView, teamsView, verdictView, worksView, yuan, zoneName,
   type DrawerId, type OverlayLayer,
@@ -155,6 +155,12 @@ export function renderFlyout(v: View): string {
       <label><input type="checkbox" data-ui="planOnly" ${ui.opts.planOnly ? 'checked' : ''}> ${t(S.T.planOnly)}</label>
       <label><input type="checkbox" data-ui="guide" ${ui.guide ? 'checked' : ''}> ${t(S.T.showGuide)}</label>
       ${guides.map((p) => `<div class="q"><span>${esc(bi(p.name))}</span><button data-act="zoneGuide" data-id="${esc(p.id)}" ${off(v)}>${t(S.T.zoneGuide)}</button></div>`).join('')}`;
+  } else if (k === 'road') {
+    // R8d (§5.12): the tier before the drag
+    const cls = ui.opts.roadClass ?? 'street';
+    body += `<div class="muted">${t(S.T.roadTier)}</div><div class="opts">${['track', 'street', 'avenue'].map((c) =>
+      `<button data-act="roadClass" data-cls="${c}" class="${cls === c ? 'sel' : ''}">${t(S.ROAD_CLASS[c]!)}</button>`).join('')}</div>
+      <div class="hint">${t(S.T.roadTierHint)}</div>`;
   } else if (k === 'facility') {
     const types = Object.keys(slice.params.works?.facilities ?? {});
     body += `<label>${t(S.T.facilityType)} <select data-ui="facility">${types.map((f) =>
@@ -305,7 +311,19 @@ function drawerEconomy(v: View): string {
       ${tr(S.T.powerUnmet, pw.unmet.length ? pw.unmet.map((a) => t(areaName(s, a))).join(' · ') : t(S.T.none))}</table>
     <div class="muted">${t(S.T.buyPowerHint)}</div>
     <button data-act="buyPower" data-kw="${pw.step}" ${pw.step > 0 ? off(v) : 'disabled'}>${t(S.T.buyPower)} ${num(pw.step)} kW</button>
-    <h2>${t(S.T.utilities)}</h2><table>${areas.map((a) => tr(a.name, `${num(a.utilities.powerCap)} kW`)).join('')}</table>`;
+    <h2>${t(S.T.utilities)}</h2><table>${areas.map((a) => tr(a.name, `${num(a.utilities.powerCap)} kW`)).join('')}</table>${drawerFreight(v)}`;
+}
+
+/** R8d (§5.12): each gateway's capacity and unmet tonnes, and each shipping area's weakest link. */
+function drawerFreight(v: View): string {
+  const fv = freightView(v.x.state, v.slice);
+  if (!fv) return '';
+  const t = tx(v.lang), tr = row(v.lang), s = v.x.state;
+  return `<h2>${t(S.T.freight)}</h2><div class="muted">${t(S.T.freightHint)}</div><table>
+      ${fv.gateways.map((g) => tr({ zh: bi(g.name), en: bi(g.name) }, `${num(g.capacity.in)} / ${num(g.capacity.out)}${g.unmet.in + g.unmet.out > 0
+        ? ` · ${t(S.T.freightUnmet)} ${num(g.unmet.in)} / ${num(g.unmet.out)}` : ''}`)).join('')}</table>
+    ${fv.areas.length && fv.hk ? `<div class="muted">${t(S.T.freightRoute)}: ${esc(bi(fv.hk))}</div><table>${fv.areas.map((a) =>
+      tr(areaName(s, a.area), `${num(a.capacity)}${a.weakest ? ` · ${a.weakest[0]},${a.weakest[1]}` : ''}`)).join('')}</table>` : ''}`;
 }
 
 function drawerPolitics(v: View): string {

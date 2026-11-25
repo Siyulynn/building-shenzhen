@@ -124,8 +124,9 @@ export const orderFactor = (s: GameState) =>
   s.orders.until !== undefined && s.date <= s.orders.until ? s.orders.factor : 1;
 
 /** Tick step 5, before matching: each open firm posts min(ramp, floor, utilities, orders) jobs (§5.5). */
-export function postFirmJobs(s: GameState, p: SliceParams, supply?: ReadonlyMap<number, { power: number }>): void {
-  const shares = new Map<number, number>();
+export function postFirmJobs(s: GameState, p: SliceParams, supply?: ReadonlyMap<number, { power: number }>,
+  freight?: (pre: ReadonlyMap<Firm, number>) => (f: Firm) => number): void {
+  const shares = new Map<number, number>(), pre = new Map<Firm, number>();
   for (const f of s.firms) {
     f.staffed = 0;
     if (!isOpen(f, s.date)) { f.posted = 0; continue; }
@@ -136,6 +137,12 @@ export function postFirmJobs(s: GameState, p: SliceParams, supply?: ReadonlyMap<
     const utilities = Math.floor(f.jobs * (shares.get(f.area) ?? 1));
     const orders = Math.floor(f.jobs * p.industry.order_index * orderFactor(s));
     f.posted = Math.max(0, Math.min(ramp, floor, utilities, orders));
+    pre.set(f, f.posted);
+  }
+  // R8d (§5.12): a firm that cannot ship does not hire; its share comes from the posts above, so it does not swing
+  if (freight && pre.size) {
+    const share = freight(pre);
+    for (const [f, n] of pre) f.posted = Math.floor(n * Math.min(1, share(f)));
   }
 }
 

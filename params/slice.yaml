@@ -160,6 +160,13 @@ works:                                   # R2 municipal works orders (buildings-
   service: { units_per_cell: 40, yuan_per_cell: 30000 }   # project.site_preparation: 10 crew × 4 months; budget_per_cell
   road:    { units_per_cell: 12, yuan_per_cell: 30000 }    # project.road_link over its 2 km (20 cells): 40 × 6 ÷ 20; 600,000 ÷ 20
   bridge:  { units_per_cell: 48, yuan_per_cell: 120000 }   # a guess: four road cells, at a road's yuan per unit
+  # R8d (phase1-slice §5.12): road tiers. A class costs its units at the road's yuan per unit (street = works.road);
+  # capacity is freight tonnes a month along a path. Placeholders (design_note): design settings, not historical figures
+  roads:
+    classes:
+      track:  { units_per_cell: 6,  capacity_t_month: 2000 }
+      street: { units_per_cell: 12, capacity_t_month: 8000 }
+      avenue: { units_per_cell: 18, capacity_t_month: 30000 }
   structures:
     water_source: { units: 150, yuan: 150000, capacity: 500 }                     # project.water_main: 30 × 5; m³/day
     power_source: { units: 150, yuan: 200000, capacity: 1000, forex_usd: 10000 }   # project.power_line: 25 × 6; kW
@@ -168,6 +175,21 @@ works:                                   # R2 municipal works orders (buildings-
     power_station: { units: 720, yuan: 1500000, capacity: 6000, build_months: 24 }   # generation for the pool; 30 crew a month
   facilities:
     school: { units: 160, yuan: 300000, capacity: 400, staff: 12, service_per_place_month: 0.5 }   # project.school: 20 × 8; places, staff and service
+
+
+# R8d (phase1-slice §5.12): freight through the gateways (content/slice/gateways.yaml). Placeholders (design_note): no
+# number here is a historical volume. Exports are tonnes per yuan of a firm's exports; inputs come from Hong Kong at
+# input_ratio of the export tonnes; materials come from the mainland by rail, per crew unit at work.
+freight:
+  yard_cells: 6                          # a gateway's yard: road cells within this many cells (Manhattan) of its cell
+  t_per_crew_month: 2
+  by_archetype:
+    investor.hk_processing:     { t_per_yuan: 0.003, mode: rail, input_ratio: 0.3 }
+    organic.small_processing:   { t_per_yuan: 0.003, mode: rail, input_ratio: 0.3 }
+    investor.inland_state_unit: { t_per_yuan: 0.004, mode: rail, input_ratio: 0.3 }
+    investor.joint_venture:     { t_per_yuan: 0.002, mode: rail, input_ratio: 0.3 }
+    investor.foreign_owned:     { t_per_yuan: 0.002, mode: rail, input_ratio: 0.3 }
+    investor.overseas_chinese:  { t_per_yuan: 0.003, mode: road, input_ratio: 0.3 }   # fresh food and light goods by lorry
 
 growth:                                  # R3 organic growth (buildings-and-construction §13.3). Placeholder design guesses,
                                          # not sourced. None of these is a growth multiplier; R6 measures what they give
