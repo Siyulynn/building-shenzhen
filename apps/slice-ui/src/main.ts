@@ -248,10 +248,20 @@ document.addEventListener('click', (e) => {
 document.addEventListener('change', (e) => {
   const t = e.target as HTMLInputElement & HTMLSelectElement;
   switch (t.dataset.ui) {
-    case 'layer': ui.layer = t.value as OverlayLayer; break;
+    case 'layer': {
+      const wasPlan = ui.layer === 'plan_1984';
+      ui.layer = t.value as OverlayLayer;
+      if (ui.layer === 'plan_1984') ui.guide = true;
+      else if (wasPlan) ui.guide = false;
+      break;
+    }
     case 'facility': ui.opts.facility = t.value; break;
     case 'planOnly': ui.opts.planOnly = t.checked; break;
-    case 'guide': ui.guide = t.checked; break;
+    case 'guide':
+      ui.guide = t.checked;
+      if (t.checked) ui.layer = 'plan_1984';
+      else if (ui.layer === 'plan_1984') ui.layer = 'areas';
+      break;
     case 'details': ui.details = t.checked; break;
     case 'area': ui.area = Number(t.value); break;
     default: return;

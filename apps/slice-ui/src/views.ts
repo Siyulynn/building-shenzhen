@@ -43,16 +43,18 @@ export interface HistoricalZone {
   id: string; name: L; use: string; intensity: string; stage: string;
   cellCount: number; cells: readonly number[]; label: readonly [number, number];
 }
-export interface HistoricalPlan { date: string; zones: readonly HistoricalZone[] }
+export interface HistoricalRoad { class: string; points: readonly (readonly [number, number])[] }
+export interface HistoricalPlan { date: string; zones: readonly HistoricalZone[]; roads: readonly HistoricalRoad[] }
 /** Parse data/starts/slice_historical_zones.json into cell indices for a grid of `width`. */
 export function historicalPlan(raw: string, width: number): HistoricalPlan | null {
   const data = JSON.parse(raw) as { date?: string; zones?: { id: string; name: L; use: string; intensity: string;
-    stage: string; cellCount: number; runs: [number, number, number][]; label: [number, number] }[] };
+    stage: string; cellCount: number; runs: [number, number, number][]; label: [number, number] }[];
+    roads?: { class: string; points: [number, number][] }[] };
   if (!data.date || !Array.isArray(data.zones)) return null;
   return { date: data.date, zones: data.zones.map((z) => ({
     id: z.id, name: z.name, use: z.use, intensity: z.intensity, stage: z.stage, cellCount: z.cellCount, label: z.label,
     cells: z.runs.flatMap(([y, x0, x1]) => Array.from({ length: x1 - x0 + 1 }, (_, i) => y * width + x0 + i)),
-  })) };
+  })), roads: data.roads ?? [] };
 }
 
 /** R11.1: the name the player sees; the register keeps the full historical name and its citation. */
@@ -563,7 +565,7 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
 
 // ---- map overlays (§11): one RGBA pixel per cell ----
 
-export const OVERLAY_LAYERS = ['areas', 'land_use', 'stages', 'network', 'utilities', 'held', 'demand', 'occupancy', 'illegal',
+export const OVERLAY_LAYERS = ['areas', 'land_use', 'plan_1984', 'stages', 'network', 'utilities', 'held', 'demand', 'occupancy', 'illegal',
   'service_gap', 'buildable', 'land_cover'] as const;
 export type OverlayLayer = (typeof OVERLAY_LAYERS)[number];
 export type RGBA = [number, number, number, number];
@@ -600,6 +602,7 @@ export function overlayRgba(s: GameState, slice: Slice, layer: OverlayLayer): Ui
   const paint = (cells: Iterable<number>, c: RGBA) => { for (const i of cells) px.set(c, i * 4); };
   if (layer === 'areas') for (const a of s.areas) paint(a.cells, a.access === 'playable' ? PLAYABLE : CARD_ONLY);
   else if (layer === 'land_use') for (const z of s.zones) paint(cellsOfRuns(z.runs, s.grid), USE_COLOR[z.use] ?? [255, 255, 255, 180]);
+  else if (layer === 'plan_1984') { /* the map's historical layer draws this; no base tint */ }
   else if (layer === 'land_cover') {
     const lc = slice.tick.landcover;
     if (lc) for (let c = 0; c < lc.classOf.length; c++) { const k = landCoverAt(lc, c); if (k) px.set(LAND_COVER_COLOR[k], c * 4); }

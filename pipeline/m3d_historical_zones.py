@@ -99,6 +99,19 @@ def main():
 
     if not zones:
         raise SystemExit("no proposal zones found")
+
+    # The 1984 road plan: SVG paths with absolute coordinates. Keep them as polylines in game-cell space.
+    roads = []
+    for m in re.finditer(r'<path class="(avenue|street|track|rail)[^"]*" d="([^"]*)"', svg):
+        kind, d = m.group(1), m.group(2)
+        for part in d.split("M")[1:]:
+            pts = [(x0 + float(x) / 12, y0 + float(y) / 12) for x, y in
+                   re.findall(r"(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)", part)]
+            if len(pts) >= 2:
+                roads.append({"class": kind, "points": [[round(x, 3), round(y, 3)] for x, y in pts]})
+    if not roads:
+        raise SystemExit("no 1984 road paths found")
+
     doc = {
         "format": 1,
         "generated_by": "pipeline/m3d_historical_zones.py",
@@ -109,9 +122,10 @@ def main():
         "grid": proposal["grid"],
         "box": box,
         "zones": zones,
+        "roads": roads,
     }
     OUT.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"wrote {OUT.relative_to(ROOT)}: {len(zones)} proposal/works zones, {sum(z['cellCount'] for z in zones)} cells")
+    print(f"wrote {OUT.relative_to(ROOT)}: {len(zones)} proposal/works zones, {sum(z['cellCount'] for z in zones)} cells, {len(roads)} road paths")
     for z in zones:
         print(f"{z['id']:20s} {z['use']:12s} {z['intensity']:8s} {z['stage']:8s} {z['cellCount']:3d}")
 

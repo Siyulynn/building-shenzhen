@@ -150,6 +150,7 @@ describe('R11.2 the 1984 historical plan', () => {
   const hist = historicalPlan(readFileSync('data/starts/slice_historical_zones.json', 'utf8'), 931)!;
   it('extracts the proposal zones from the scene-review SVG', () => {
     expect(hist.zones).toHaveLength(10);
+    expect(hist.roads).toHaveLength(35);
     expect(hist.date).toBe('1984-01-24');
     const factories = hist.zones.find((z) => z.id === 'shangbu-factories')!;
     expect(factories.cellCount).toBe(15);
@@ -164,8 +165,10 @@ describe('R11.2 the 1984 historical plan', () => {
     expect(html).toContain('1984');
     expect(html).toContain('Shangbu factories');
     expect(html).toContain('Shangbu housing');
-    const sc = sceneOf(base, slice, { layer: 'areas', guide: true, historical: hist, selected: null, plan: null });
+    expect(html).toContain('1984 plan zones');
+    const sc = sceneOf(base, slice, { layer: 'plan_1984', guide: false, historical: hist, selected: null, plan: null });
     expect(sc.historical).toHaveLength(10);
+    expect(sc.historicalRoads).toHaveLength(35);
     expect(sc.guide).toBeNull();
     expect(base.queue).toHaveLength(0);
   });
@@ -175,6 +178,7 @@ describe('R11.2 map key', () => {
   it('names the zone colours', () => {
     const html = renderOverlaySelect(view());
     expect(html).toContain(S.T.zoneKey.en);
+    expect(html).toContain('1984 plan');
     expect(html).toContain(S.LAND_USE.industrial!.en);
     expect(html).toContain(S.LAND_USE.residential!.en);
     expect(html).toContain(S.LAND_USE.commercial!.en);

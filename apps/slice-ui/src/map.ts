@@ -6,7 +6,7 @@
  */
 import { isFormable, landCoverAt, type GameState, type Slice, type StartSite } from '@sz/sim-core';
 import { bi } from './strings.js';
-import { USE_COLOR, areaAt, areaBox, areaName, playableBox, siteName, sliceBox, type HistoricalZone } from './views.js';
+import { USE_COLOR, areaAt, areaBox, areaName, playableBox, siteName, sliceBox, type HistoricalRoad, type HistoricalZone } from './views.js';
 
 /** The present-day Shenzhen limit, loaded from data/starts/slice_city_border.json (reference only). */
 export interface CityBorder {
@@ -36,6 +36,7 @@ export interface Scene {
   preview: { cells: readonly number[]; ok: boolean } | null;
   guide: readonly number[] | null;         // the fallback historical footprint; commits nothing
   historical: readonly HistoricalZone[] | null;   // R11.2: the 1984 proposal's named zones
+  historicalRoads: readonly HistoricalRoad[] | null;   // R11.2: the 1984 road plan
   selected: { x: number; y: number } | null;
   tutorial: { cells: readonly number[]; label: string } | null;   // R11.1: the suggested first block
   floor: ReadonlyMap<number, number>;      // core zoom: each developable cell's share of its zone's floor
@@ -305,7 +306,7 @@ export class SliceMap {
       ctx.restore();
     };
     if (sc.guide) { ctx.fillStyle = 'rgba(255,120,220,.25)'; for (const c of sc.guide) { const [x, y] = at(c); ctx.fillRect(x, y, 1, 1); } }
-    if (sc.historical) this.drawHistorical(sc, sc.historical);
+    if (sc.historical) this.drawHistorical(sc, sc.historical, sc.historicalRoads);
     outline(sc.queued, 'rgba(120,230,255,.95)', [4, 3]);
     if (sc.preview) {
       ctx.fillStyle = sc.preview.ok ? 'rgba(120,230,255,.55)' : 'rgba(255,90,80,.55)';
@@ -375,7 +376,7 @@ export class SliceMap {
   }
 
   /** R11.2: the 1984 proposal, coloured by use, with works zones hatched and bilingual labels. */
-  private drawHistorical(sc: Scene, zones: readonly HistoricalZone[]) {
+  private drawHistorical(sc: Scene, zones: readonly HistoricalZone[], roads: readonly HistoricalRoad[] | null) {
     const { ctx } = this, W = sc.state.grid.width, px = devicePixelRatio / this.view.scale;
     const playable = new Set<number>();
     for (const a of sc.state.areas) if (a.access === 'playable') for (const c of a.cells) playable.add(c);
@@ -383,7 +384,7 @@ export class SliceMap {
     ctx.lineJoin = 'round';
     for (const zone of zones) {
       const c = USE_COLOR[zone.use] ?? [140, 120, 100, 180];
-      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${zone.stage === 'works' ? .24 : .32})`;
+      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${zone.stage === 'works' ? .35 : .45})`;
       for (const i of zone.cells) if (playable.has(i)) ctx.fillRect(i % W, Math.floor(i / W), 1, 1);
       ctx.strokeStyle = zone.stage === 'works' ? 'rgba(92,31,36,.9)' : 'rgba(36,71,107,.85)';
       ctx.lineWidth = Math.max(px, .06);
@@ -397,6 +398,20 @@ export class SliceMap {
       }
       ctx.stroke();
       ctx.setLineDash([]);
+    }
+    // the 1984 road plan: avenues, streets and tracks are the plan, not built roads
+    if (roads) for (const road of roads) {
+      const color = road.class === 'avenue' ? '#24476b' : road.class === 'street' ? '#4a6f8f'
+        : road.class === 'rail' ? '#2b1d17' : '#7a8b70';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max((road.class === 'avenue' ? .2 : road.class === 'rail' ? .16 : .12), px * 1.2);
+      ctx.setLineDash(road.class === 'track' ? [3 * px, 2 * px] : road.class === 'rail' ? [5 * px, 2 * px] : []);
+      ctx.beginPath();
+      road.points.forEach(([x, y], i) => { if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    for (const zone of zones) {
       if (this.cellPx >= 8 && !this.drawMode) {                 // labels at a readable zoom; the flyout lists them before that
         const [lx, ly] = zone.label;
         ctx.font = `bold ${10 * px}px "Courier New", Courier, ui-monospace, SimHei, "Heiti SC", "Microsoft YaHei", sans-serif`;

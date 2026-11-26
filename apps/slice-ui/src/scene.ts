@@ -74,7 +74,7 @@ export function sceneOf(x: Session, slice: Slice, ui: SceneInputs) {
   }
   const plan = ui.plan;
   const previewCells = plan && plan.kind === 'actions' ? actionCells(s, x.queue, plan.actions) : ui.previewCells ?? [];
-  const historical = ui.guide ? ui.historical ?? null : null;
+  const historical = (ui.layer === 'plan_1984' || ui.guide) ? ui.historical ?? null : null;
   const guide = ui.guide && !historical ? (slice.tick.precedents ?? []).flatMap((p) => [...p.cells]) : null;
   return {
     state: s,
@@ -87,7 +87,7 @@ export function sceneOf(x: Session, slice: Slice, ui: SceneInputs) {
     structures,
     queued: actionCells(s, x.queue, x.queue),
     preview: plan && plan.kind !== 'none' ? { cells: previewCells, ok: plan.kind !== 'refused' } : null,
-    guide, historical: historical?.zones ?? null,
+    guide, historical: historical?.zones ?? null, historicalRoads: historical?.roads ?? null,
     selected: ui.selected,
     tutorial: ui.tutorial ?? null,
     floor, floorUse,

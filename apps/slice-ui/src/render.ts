@@ -123,7 +123,10 @@ export function renderOverlaySelect(v: View): string {
       <div class="muted">${t(S.T.zoneKey)}</div>
       ${['industrial', 'residential', 'commercial'].map((k) => `<div><i class="sw" style="background:rgba(${USE_COLOR[k]!.slice(0, 3).join(',')},.7)"></i>${t(S.LAND_USE[k]!)}</div>`).join('')}
       ${v.historical ? `<div><i class="sw" style="border:1px dashed #24476b"></i>${t(S.T.historicalProposal)}</div>
-        <div><i class="sw" style="border:1px dashed #5c1f24;background:rgba(196,120,60,.25)"></i>${t(S.T.historicalWorks)}</div>` : ''}
+        <div><i class="sw" style="border:1px dashed #5c1f24;background:rgba(196,120,60,.25)"></i>${t(S.T.historicalWorks)}</div>
+        <div><i class="sw" style="border:0;border-top:3px solid #24476b"></i>${t(S.T.historicalRoadAvenue)}</div>
+        <div><i class="sw" style="border:0;border-top:2px solid #4a6f8f"></i>${t(S.T.historicalRoadStreet)}</div>
+        <div><i class="sw" style="border:0;border-top:2px dashed #7a8b70"></i>${t(S.T.historicalRoadTrack)}</div>` : ''}
       <div><i class="sw road"></i>${t(S.T.startRoutes)}</div>
     </details>
     <details class="key"><summary>${t(S.T.areasLegend)} (${s.areas.length})</summary>${areas}</details>
@@ -251,7 +254,8 @@ export function renderFlyout(v: View): string {
       <label><input type="checkbox" data-ui="guide" ${ui.guide ? 'checked' : ''}> ${t(S.T.showGuide)}</label>
       <div class="hint">${t(S.T.guideReference)}</div>
       ${v.historical ? `<div class="muted">${t(S.T.historicalPlan)} · ${esc(v.historical.date)}</div>` : ''}
-      ${guides.map((p) => `<div class="q"><span>${esc(bi(p.name))}</span></div>`).join('')}`;
+      <details class="key historical"><summary>${t(S.T.historicalPlanZones)} (${guides.length})</summary>
+        ${guides.map((p) => `<div class="q"><span>${esc(bi(p.name))}</span></div>`).join('')}</details>`;
   } else if (k === 'road') {
     // R8d (§5.12): the tier before the drag
     const cls = ui.opts.roadClass ?? 'street';

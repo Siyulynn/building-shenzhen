@@ -166,7 +166,7 @@ export const LAND_COVER: Readonly<Record<string, L>> = {
   upland: l('坡地', 'Upland'), lowland_farm: l('平地农田', 'Lowland farmland'),
 };
 export const OVERLAYS: Readonly<Record<string, L>> = {
-  areas: l('片区', 'Areas'), land_use: l('用地规划', 'Land use'), illegal: l('违建比例', 'Illegal floor share'),
+  areas: l('片区', 'Areas'), land_use: l('用地规划', 'Land use'), plan_1984: l('1984年规划', '1984 plan'), illegal: l('违建比例', 'Illegal floor share'),
   occupancy: l('出租屋拥挤度', 'Rental crowding'), service_gap: l('公共服务缺口', 'Service gap'),
   buildable: l('可建设用地与已平整土地', 'Buildable and formed land'), land_cover: l('1979年土地覆盖', 'Land cover, 1979'),
   stages: l('工程阶段', 'Works stages'), network: l('路网与临路深度', 'Road network and frontage'),
@@ -283,7 +283,7 @@ export const T = {
   // R5 (§11.2)
   endQuarter: l('结束季度', 'End quarter'), pendingDecisions: l('待决事项', 'Pending decisions'),
   toAnswer: l('必须回答', 'to answer'), overlay: l('图层', 'Overlay'), close: l('关闭', 'Close'),
-  planOnly: l('只规划，不安排三通一平', 'Plan only (no site formation)'), showGuide: l('显示历史规划', 'Show the historical plan'),
+  planOnly: l('只规划，不安排三通一平', 'Plan only (no site formation)'), showGuide: l('显示1984年规划', 'Show the 1984 plan'),
   zoneGuide: l('按历史规划划区', 'Zone the historical plan'), facilityType: l('设施类型', 'Facility type'),
   cell: l('地块', 'Cell'), use: l('用途', 'Use'), stage: l('阶段', 'Stage'), progress: l('工程进度', 'Work progress'),
   supplied: l('水电', 'Power and water'), noDemand: l('无需求', 'no demand'),
@@ -351,6 +351,10 @@ export const T = {
   notFormable: l('不可平整（划区时显示红色）', 'Not formable (red while zoning)'),
   zoneKey: l('规划用地', 'Zoned land'),
   historicalPlan: l('1984年规划', '1984 proposal'),
+  historicalPlanZones: l('1984年规划用地', '1984 plan zones'),
+  historicalRoadAvenue: l('1984年干道', '1984 avenue'),
+  historicalRoadStreet: l('1984年街道', '1984 street'),
+  historicalRoadTrack: l('1984年小路', '1984 track'),
   historicalProposal: l('建议用地', 'Proposed zone'),
   historicalWorks: l('在建用地', 'Works zone'),
   startRoutes: l('临时道路／铁路', 'Temporary road / rail'),
