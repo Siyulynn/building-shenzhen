@@ -119,7 +119,9 @@ export function renderOverlaySelect(v: View): string {
       <div><i class="sw card"></i>${t(S.T.cardOnlyArea)}</div>
       <div><i class="sw border"></i>${t(S.T.cityBorder)}</div>
       <div><i class="sw farm"></i>${t(S.T.farmlandBuildable)}</div>
-      ${v.ui.tool === 'zone' ? `<div><i class="sw noform"></i>${t(S.T.notFormable)}</div>` : ''}
+      ${v.ui.tool === 'zone' ? `<div class="muted">${t(S.T.notFormable)}</div>
+        <div><i class="sw villageNoform"></i>${t(S.T.notFormableVillage)}</div>
+        <div><i class="sw hillNoform"></i>${t(S.T.notFormableHill)}</div>` : ''}
       <div class="muted">${t(S.T.zoneKey)}</div>
       ${['industrial', 'residential', 'commercial'].map((k) => `<div><i class="sw" style="background:rgba(${USE_COLOR[k]!.slice(0, 3).join(',')},.7)"></i>${t(S.LAND_USE[k]!)}</div>`).join('')}
       ${v.historical ? `<div><i class="sw" style="border:1px dashed #24476b"></i>${t(S.T.historicalProposal)}</div>

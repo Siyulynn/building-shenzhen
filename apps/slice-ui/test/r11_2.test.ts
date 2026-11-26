@@ -8,7 +8,7 @@ import { sizeOffer, type GameState, type WorksOrder } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { newSession, type Session } from '../src/controller.js';
 import { initialUi, renderDecisions, renderDrawer, renderOverlaySelect, renderTutorial, type UiState, type View } from '../src/render.js';
-import { actionLabel, cardView, effectBadges, historicalPlan, readinessView, worksView } from '../src/views.js';
+import { USE_COLOR, actionLabel, cardView, effectBadges, historicalPlan, readinessView, worksView } from '../src/views.js';
 import { renderFlyout } from '../src/render.js';
 import { sceneOf } from '../src/scene.js';
 import { tutorialView } from '../src/tutorial.js';
@@ -171,6 +171,17 @@ describe('R11.2 the 1984 historical plan', () => {
     expect(sc.historicalRoads).toHaveLength(35);
     expect(sc.guide).toBeNull();
     expect(base.queue).toHaveLength(0);
+  });
+});
+
+describe('R11.2 the map palette', () => {
+  it('uses blue commerce, purple industry, beige housing and striped non-formable cover', () => {
+    expect(USE_COLOR.commercial!.slice(0, 3)).toEqual([54, 96, 160]);
+    expect(USE_COLOR.industrial!.slice(0, 3)).toEqual([126, 82, 160]);
+    expect(USE_COLOR.residential!.slice(0, 3)).toEqual([214, 192, 148]);
+    const key = renderOverlaySelect(view(base, { tool: 'zone' }));
+    expect(key).toContain(S.T.notFormableVillage.en);
+    expect(key).toContain(S.T.notFormableHill.en);
   });
 });
 

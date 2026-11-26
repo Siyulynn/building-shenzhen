@@ -576,7 +576,7 @@ export function ramp(v: number): RGBA {
   return [Math.round(240 - 40 * t), Math.round(220 - 180 * t), Math.round(120 - 90 * t), 170];
 }
 export const USE_COLOR: Record<string, RGBA> = {
-  industrial: [196, 120, 60, 200], residential: [220, 200, 90, 200], commercial: [200, 80, 120, 200],
+  industrial: [126, 82, 160, 210], residential: [214, 192, 148, 210], commercial: [54, 96, 160, 210],
   reserve: [120, 160, 110, 200],
 };
 const PLAYABLE: RGBA = [255, 236, 120, 60], CARD_ONLY: RGBA = [200, 150, 80, 60];

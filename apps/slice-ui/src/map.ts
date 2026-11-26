@@ -142,7 +142,7 @@ function hash(c: number, k: number): number {
   h = Math.imul(h ^ (h >>> 13), 1274126177);
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 }
-const ROOF: Record<string, string> = { industrial: '#c98a55', commercial: '#d46a8e', residential: '#e8d27a' };
+const ROOF: Record<string, string> = { industrial: '#8f6ab0', commercial: '#4f79b8', residential: '#d8c49a' };
 /** A cell at least this many screen pixels wide is core zoom. */
 export const CORE_ZOOM_PX = 14;
 
@@ -156,7 +156,7 @@ export class SliceMap {
   private shadow: HTMLCanvasElement;
   private playableEdge: HTMLCanvasElement;
   private farms = new Set<number>();                 // lowland farmland: buildable, but compensation is owed
-  private nonFormable = new Set<number>();           // water, tidal flat, hill and village: a zone cannot form here
+  private nonFormable = new Map<number, 'village' | 'hill' | 'other'>();   // a zone cannot form here
   private overlay: HTMLCanvasElement | null = null;
   private zones: HTMLCanvasElement | null = null;
   private zoneEdges: HTMLCanvasElement | null = null;
@@ -176,7 +176,7 @@ export class SliceMap {
     if (lc) for (let c = 0; c < lc.classOf.length; c++) {
       const k = landCoverAt(lc, c);
       if (k === 'lowland_farm') this.farms.add(c);
-      else if (k !== undefined && !isFormable(lc, c)) this.nonFormable.add(c);
+      else if (k !== undefined && !isFormable(lc, c)) this.nonFormable.set(c, k === 'village' ? 'village' : k === 'hill' ? 'hill' : 'other');
     }
     void terrain(s.grid.width, s.grid.height).then((t) => { this.ground = t; this.request(); });
     this.resize(); this.fitPlayable(s);
@@ -365,13 +365,22 @@ export class SliceMap {
     ctx.restore();
   }
 
-  /** R11.1: while zoning, a red cover over the land site formation cannot work. */
+  /** R11.2: while zoning, red stripes over the beige village cell or the bare hill terrain. */
   private drawNonFormable() {
     if (!this.zoneMode || !this.nonFormable.size) return;
-    const { ctx } = this, W = this.scene?.state.grid.width ?? 1;
+    const { ctx } = this, W = this.scene?.state.grid.width ?? 1, px = devicePixelRatio / this.view.scale;
     ctx.save();
-    ctx.fillStyle = 'rgba(172,38,32,.36)';
-    for (const c of this.nonFormable) ctx.fillRect(c % W, Math.floor(c / W), 1, 1);
+    ctx.fillStyle = 'rgba(224,206,166,.58)';
+    for (const [c, kind] of this.nonFormable) if (kind === 'village') ctx.fillRect(c % W, Math.floor(c / W), 1, 1);
+    ctx.strokeStyle = 'rgba(166,34,30,.72)';
+    ctx.lineWidth = Math.max(px * 1.1, .035);
+    ctx.beginPath();
+    for (const c of this.nonFormable.keys()) {
+      const x = c % W, y = Math.floor(c / W);
+      ctx.moveTo(x + .1, y + .9); ctx.lineTo(x + .9, y + .1);
+      ctx.moveTo(x + .5, y + .95); ctx.lineTo(x + .95, y + .5);
+    }
+    ctx.stroke();
     ctx.restore();
   }
 
