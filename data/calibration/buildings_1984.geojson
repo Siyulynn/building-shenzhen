@@ -1,0 +1,3393 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11466,
+     22.54321
+    ]
+   },
+   "properties": {
+    "id": "b1984.guomao",
+    "name_zh": "国贸大厦",
+    "name_en": "Guomao (International Trade Centre)",
+    "kind": "office_tower",
+    "area": 2,
+    "status_1984": "under_construction",
+    "date_1984": "1984-04-30",
+    "later": "present",
+    "cell": [
+     388,
+     380
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.guomao.ground_break",
+     "phase1.guomao.main_tower_topped",
+     "phase1.guomao.construction_visible_january_visit"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11283,
+     22.5419
+    ]
+   },
+   "properties": {
+    "id": "b1984.guoshang",
+    "name_zh": "国际商业大厦",
+    "name_en": "International Commercial Building (Guoshang)",
+    "kind": "office_tower",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1983-04",
+    "later": "present",
+    "cell": [
+     386,
+     382
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.guoshang.commercial_building_completed",
+     "phase1.photo.1984.guoshang"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08302,
+     22.54364
+    ]
+   },
+   "properties": {
+    "id": "b1984.electronics",
+    "name_zh": "电子大厦",
+    "name_en": "Electronics Building",
+    "kind": "office_tower",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982-08",
+    "later": "present",
+    "cell": [
+     355,
+     379
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.zoning.electronics_building.completed",
+     "phase1.photo.1984.shangbu_electronics_building"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07683,
+     22.54386
+    ]
+   },
+   "properties": {
+    "id": "b1984.shanghai_hotel",
+    "name_zh": "上海宾馆",
+    "name_en": "Shanghai Hotel",
+    "kind": "hotel",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1983",
+    "later": "present",
+    "cell": [
+     349,
+     379
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.historic.shanghai_hotel.built_1983"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.0933,
+     22.5435
+    ]
+   },
+   "properties": {
+    "id": "b1984.municipal_government",
+    "name_zh": "市委/市政府大楼",
+    "name_en": "Party and government office block",
+    "kind": "government",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1981",
+    "later": "present",
+    "cell": [
+     366,
+     380
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.site.municipal_government.1981_move",
+     "phase1.map.1982.municipal_government_compound"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.0962,
+     22.54483
+    ]
+   },
+   "properties": {
+    "id": "b1984.museum_old",
+    "name_zh": "深圳博物馆旧馆",
+    "name_en": "Old Shenzhen Museum",
+    "kind": "museum",
+    "area": 7,
+    "status_1984": "under_construction",
+    "date_1984": "1984",
+    "later": "renamed_or_reused",
+    "cell": [
+     369,
+     378
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.historic.museum_old.built_1984",
+     "phase1.culture.roster.tan_1982"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10033,
+     22.54533
+    ]
+   },
+   "properties": {
+    "id": "b1984.grand_theatre",
+    "name_zh": "深圳大剧院",
+    "name_en": "Shenzhen Grand Theatre",
+    "kind": "theatre",
+    "area": 3,
+    "status_1984": "under_construction",
+    "date_1984": "1984",
+    "later": "present",
+    "cell": [
+     373,
+     378
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.culture.theatre.design"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.09429,
+     22.551
+    ]
+   },
+   "properties": {
+    "id": "b1984.library_hongli",
+    "name_zh": "红荔路图书馆（今深圳少年儿童图书馆）",
+    "name_en": "Hongli Road Library (now Children's Library)",
+    "kind": "library",
+    "area": 7,
+    "status_1984": "under_construction",
+    "date_1984": "1983",
+    "later": "renamed_or_reused",
+    "cell": [
+     367,
+     371
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.culture.hongli_library.ground_break"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     113.93147,
+     22.5359
+    ]
+   },
+   "properties": {
+    "id": "b1984.szu",
+    "name_zh": "深圳大学（粤海校区）",
+    "name_en": "Shenzhen University (Yuehai campus)",
+    "kind": "university",
+    "area": 8,
+    "status_1984": "under_construction",
+    "date_1984": "1984-02-07",
+    "later": "present",
+    "cell": [
+     199,
+     385
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.szu.permanent_campus.ground_break",
+     "phase1.szu.first_opening_ceremony"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11331,
+     22.53108
+    ]
+   },
+   "properties": {
+    "id": "b1984.luohu_terminal",
+    "name_zh": "罗湖口岸联检大楼",
+    "name_en": "Luohu passenger terminal",
+    "kind": "border_terminal",
+    "area": 2,
+    "status_1984": "under_construction",
+    "date_1984": "1984",
+    "later": "unknown",
+    "cell": [
+     386,
+     394
+    ],
+    "flags": [],
+    "claims": [
+     "core_basin.luohu.terminal_opened_1985"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11211,
+     22.53449
+    ]
+   },
+   "properties": {
+    "id": "b1984.shenzhen_station",
+    "name_zh": "深圳火车站",
+    "name_en": "Shenzhen railway station",
+    "kind": "railway",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1979",
+    "later": "unknown",
+    "cell": [
+     385,
+     390
+    ],
+    "flags": [],
+    "claims": [
+     "site.shenzhen_station.exists_1979"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     113.91016,
+     22.48813
+    ]
+   },
+   "properties": {
+    "id": "b1984.sea_world",
+    "name_zh": "海上世界（明华轮）",
+    "name_en": "Sea World (Minghua)",
+    "kind": "leisure",
+    "area": 8,
+    "status_1984": "built",
+    "date_1984": "1984",
+    "later": "present",
+    "cell": [
+     176,
+     437
+    ],
+    "flags": [
+     "on_1979_water"
+    ],
+    "claims": [
+     "phase1.video.1984.sea_world_minghua"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     113.90918,
+     22.48002
+    ]
+   },
+   "properties": {
+    "id": "b1984.shekou_office",
+    "name_zh": "蛇口工业区办公大厦",
+    "name_en": "Shekou Industrial Zone office building",
+    "kind": "office",
+    "area": 8,
+    "status_1984": "built",
+    "date_1984": "1984",
+    "later": "present",
+    "cell": [
+     175,
+     446
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.photo.1984.shekou_office_building",
+     "phase1.photo.1985.shekou_office_slogan_sign"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     113.97985,
+     22.53519
+    ]
+   },
+   "properties": {
+    "id": "b1984.shenzhen_bay_hotel",
+    "name_zh": "深圳湾大酒店",
+    "name_en": "Shenzhen Bay Hotel",
+    "kind": "hotel",
+    "area": 9,
+    "status_1984": "built",
+    "date_1984": "1984",
+    "later": "replaced_lead",
+    "cell": [
+     249,
+     386
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.video.1984.shenzhen_bay_hotel_amusement",
+     "phase1.photo.1984.shenzhen_bay_hotel_park"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.0341,
+     22.54425
+    ]
+   },
+   "properties": {
+    "id": "b1984.xiangmihu",
+    "name_zh": "香蜜湖度假村",
+    "name_en": "Xiangmihu Resort",
+    "kind": "resort",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1984",
+    "later": "unknown",
+    "cell": [
+     305,
+     378
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.video.1984.xiangmihu_resort"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11186,
+     22.5482
+    ]
+   },
+   "properties": {
+    "id": "b1984.shenzhen_theatre",
+    "name_zh": "深圳戏院",
+    "name_en": "Shenzhen Theatre",
+    "kind": "theatre",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1960",
+    "later": "renamed_or_reused",
+    "cell": [
+     385,
+     375
+    ],
+    "flags": [],
+    "claims": [
+     "site.shenzhen_theatre.exists_1979",
+     "phase1.photo.1984.shenzhen_theatre_boya",
+     "phase1.map.1982.dongmen_old_town",
+     "phase1.map.1984.dongmen_frontage",
+     "phase1.observation.kh9_1980.core_anchor_review"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11212,
+     22.5478
+    ]
+   },
+   "properties": {
+    "id": "b1984.boya",
+    "name_zh": "博雅画廊",
+    "name_en": "Boya Gallery",
+    "kind": "retail",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1984",
+    "later": "renamed_or_reused",
+    "cell": [
+     385,
+     375
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.photo.1984.shenzhen_theatre_boya",
+     "phase1.map.1984.dongmen_frontage",
+     "phase1.boya.dongmen_history"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11212,
+     22.5478
+    ]
+   },
+   "properties": {
+    "id": "b1984.xinan_restaurant",
+    "name_zh": "新安酒家",
+    "name_en": "Xin'an Restaurant",
+    "kind": "restaurant",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1983",
+    "later": "renamed_or_reused",
+    "cell": [
+     385,
+     375
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.photo.1984.shenzhen_theatre_boya",
+     "phase1.map.1984.dongmen_frontage",
+     "phase1.xinan.early_operation_and_rebuild"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08035,
+     22.54735
+    ]
+   },
+   "properties": {
+    "id": "b1984.shenfang",
+    "name_zh": "深纺大厦",
+    "name_en": "Shenzhen Textile Building",
+    "kind": "industrial",
+    "area": 7,
+    "status_1984": "planned",
+    "date_1984": "1980",
+    "later": "present",
+    "cell": [
+     353,
+     375
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.landcover.1980.huaqiangbei_textile_building"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.09107,
+     22.56419
+    ]
+   },
+   "properties": {
+    "id": "b1984.bagualing",
+    "name_zh": "八卦岭工业区",
+    "name_en": "Bagualing Industrial Zone",
+    "kind": "industrial_zone",
+    "area": 7,
+    "status_1984": "under_construction",
+    "date_1984": "1983-10",
+    "later": "unknown",
+    "cell": [
+     364,
+     357
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.zoning.bagualing.first_works",
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11467,
+     22.53233
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_luohu_quarantine",
+    "name_zh": "卫生检疫所",
+    "name_en": "Health Quarantine Station (Luohu)",
+    "kind": "government",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     388,
+     392
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11095,
+     22.53293
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_customs_building",
+    "name_zh": "海关大楼",
+    "name_en": "Customs Building",
+    "kind": "government",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     384,
+     392
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.1145,
+     22.53444
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_train_crew_quarters",
+    "name_zh": "深圳行车公宇",
+    "name_en": "Shenzhen Train Crew Quarters",
+    "kind": "railway",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     387,
+     390
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11327,
+     22.53616
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_taxi_stand",
+    "name_zh": "小汽车出租点",
+    "name_en": "Car Rental / Taxi Stand",
+    "kind": "transport",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     386,
+     388
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11275,
+     22.53972
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_luohu_building",
+    "name_zh": "罗湖大厦",
+    "name_en": "Luohu Building",
+    "kind": "commercial",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     386,
+     384
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11276,
+     22.54249
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_friendship_building",
+    "name_zh": "友谊大厦",
+    "name_en": "Friendship Building",
+    "kind": "commercial",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     386,
+     381
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11523,
+     22.54084
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_railway_primary_school",
+    "name_zh": "铁路小学",
+    "name_en": "Railway Primary School",
+    "kind": "school",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     388,
+     383
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11295,
+     22.5438
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_tourism_bureau",
+    "name_zh": "旅游局",
+    "name_en": "Tourism Bureau",
+    "kind": "government",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     386,
+     380
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11578,
+     22.54397
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_foreign_trade_exhibition",
+    "name_zh": "中国外贸局展销大楼",
+    "name_en": "China Foreign Trade Bureau Exhibition Building",
+    "kind": "commercial",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     389,
+     379
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12037,
+     22.54179
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_food_export_plant",
+    "name_zh": "市食出加工场",
+    "name_en": "Municipal Food Export Processing Plant",
+    "kind": "industrial",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     394,
+     382
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12533,
+     22.54241
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_wenjindu_customs",
+    "name_zh": "文锦渡分关",
+    "name_en": "Wenjindu Sub-Customs",
+    "kind": "border_crossing",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     399,
+     381
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10885,
+     22.53737
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_chuanbu_wharf",
+    "name_zh": "深圳船步码头",
+    "name_en": "Shenzhen Chuanbu Wharf",
+    "kind": "transport",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     382,
+     387
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.1085,
+     22.54028
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_general_transport_co",
+    "name_zh": "运输总公司",
+    "name_en": "General Transport Company",
+    "kind": "transport",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     381,
+     383
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.luohu_station_crossing"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11156,
+     22.55056
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_workers_cultural_palace",
+    "name_zh": "工人文化宫",
+    "name_en": "Workers' Cultural Palace",
+    "kind": "civic",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     385,
+     372
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11192,
+     22.55238
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_xinyuan_guesthouse",
+    "name_zh": "新园招待所",
+    "name_en": "Xinyuan Guesthouse",
+    "kind": "hotel",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     385,
+     370
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11711,
+     22.55552
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_shenzhen_middle_school",
+    "name_zh": "深圳中学",
+    "name_en": "Shenzhen Middle School",
+    "kind": "school",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1977",
+    "later": "unknown",
+    "cell": [
+     391,
+     367
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1977.school_hospital",
+     "phase1.observation.kh9_1980.core_anchor_review",
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11777,
+     22.55288
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_shenzhen_bus_station",
+    "name_zh": "深圳汽车站",
+    "name_en": "Shenzhen Bus Station",
+    "kind": "transport",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     391,
+     370
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.1103,
+     22.54609
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_post_telecom_bureau",
+    "name_zh": "邮电局",
+    "name_en": "Post & Telecommunications Bureau",
+    "kind": "utility",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     383,
+     377
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10693,
+     22.54589
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_tcm_hospital",
+    "name_zh": "市中医院",
+    "name_en": "Municipal TCM Hospital",
+    "kind": "hospital",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     380,
+     377
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10852,
+     22.54338
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_quarantine_central",
+    "name_zh": "检疫所",
+    "name_en": "Quarantine Station (Jiefang Rd)",
+    "kind": "government",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     381,
+     380
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10656,
+     22.54196
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_peoples_stadium",
+    "name_zh": "人民体育场",
+    "name_en": "People's Stadium",
+    "kind": "civic",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     379,
+     382
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10641,
+     22.54814
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_old_library",
+    "name_zh": "图书馆",
+    "name_en": "Municipal Library (old town)",
+    "kind": "library",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     379,
+     375
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10606,
+     22.5491
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_no6_primary_school",
+    "name_zh": "市六小",
+    "name_en": "Municipal No. 6 Primary School",
+    "kind": "school",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     379,
+     374
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10819,
+     22.55037
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_railway_school",
+    "name_zh": "铁路学校",
+    "name_en": "Railway School",
+    "kind": "school",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     381,
+     372
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11317,
+     22.55441
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_epidemic_prevention",
+    "name_zh": "市卫生防疫站",
+    "name_en": "Municipal Epidemic Prevention Station",
+    "kind": "hospital",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     387,
+     368
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11318,
+     22.5562
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_housing_bureau_north",
+    "name_zh": "房管局（蛟湖）",
+    "name_en": "Housing Administration Bureau (Jiaohu)",
+    "kind": "government",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     387,
+     366
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11775,
+     22.54979
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_housing_bureau_south",
+    "name_zh": "房管局（解放路）",
+    "name_en": "Housing Administration Bureau (Jiefang Rd)",
+    "kind": "government",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     391,
+     373
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11283,
+     22.55748
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_may7_middle_school",
+    "name_zh": "五七中学",
+    "name_en": "May 7th Middle School",
+    "kind": "school",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     386,
+     364
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11635,
+     22.55345
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_petroleum_company",
+    "name_zh": "石油公司",
+    "name_en": "Petroleum Company",
+    "kind": "commercial",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     390,
+     369
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11916,
+     22.54889
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_motor_transport_co",
+    "name_zh": "汽车公司",
+    "name_en": "Motor Transport Company",
+    "kind": "transport",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     393,
+     374
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11614,
+     22.54611
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_foodstuffs_company",
+    "name_zh": "食品公司",
+    "name_en": "Foodstuffs Company",
+    "kind": "commercial",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     389,
+     377
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11933,
+     22.54613
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_luohu_crafts_factory",
+    "name_zh": "罗湖区工艺厂",
+    "name_en": "Luohu District Arts & Crafts Factory",
+    "kind": "industrial",
+    "area": 2,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     393,
+     377
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12185,
+     22.5554
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_sauce_factory",
+    "name_zh": "酱料厂",
+    "name_en": "Sauce & Condiment Factory",
+    "kind": "industrial",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     395,
+     367
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12043,
+     22.55434
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_radio_factory",
+    "name_zh": "无线电厂",
+    "name_en": "Radio Factory",
+    "kind": "industrial",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     394,
+     368
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12007,
+     22.55302
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_plastics_factory",
+    "name_zh": "塑料厂",
+    "name_en": "Plastics Factory",
+    "kind": "industrial",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     394,
+     370
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.1284,
+     22.55628
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_ag_machinery_school",
+    "name_zh": "农机学校",
+    "name_en": "Agricultural Machinery School",
+    "kind": "school",
+    "area": 4,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     402,
+     366
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.dongmen_old_town"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.09314,
+     22.54867
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_party_committee_dorm",
+    "name_zh": "市委宿舍",
+    "name_en": "Municipal Party Committee Dormitory",
+    "kind": "residential",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     366,
+     374
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.09205,
+     22.54306
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_science_museum",
+    "name_zh": "科学馆",
+    "name_en": "Science Museum",
+    "kind": "civic",
+    "area": null,
+    "status_1984": "planned",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     365,
+     380
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07666,
+     22.54704
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_huali_furniture",
+    "name_zh": "华丽装修家私公司",
+    "name_en": "Huali Decoration & Furniture Co.",
+    "kind": "industrial",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     349,
+     375
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07914,
+     22.54735
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_sz_printing_factory",
+    "name_zh": "深圳印刷制品厂",
+    "name_en": "Shenzhen Printing Products Factory",
+    "kind": "industrial",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     351,
+     375
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07665,
+     22.54476
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_aviation_company",
+    "name_zh": "航空公司",
+    "name_en": "Aviation Company (CATIC)",
+    "kind": "industrial",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     349,
+     378
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07913,
+     22.54442
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_huaqiang_electronics_n",
+    "name_zh": "华强电子工业公司（北）",
+    "name_en": "Huaqiang Electronics Industry Co. (North)",
+    "kind": "industrial",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     351,
+     378
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07945,
+     22.53483
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_huaqiang_electronics_s",
+    "name_zh": "华强电子工业公司（南）",
+    "name_en": "Huaqiang Electronics Industry Co. (South)",
+    "kind": "industrial",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     351,
+     389
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08249,
+     22.54429
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_jinghua_electronics",
+    "name_zh": "京华电子公司",
+    "name_en": "Jinghua Electronics Co.",
+    "kind": "industrial",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     355,
+     378
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08569,
+     22.54562
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_jiale_bedding",
+    "name_zh": "家乐床具厂",
+    "name_en": "Jiale Bedding Factory",
+    "kind": "industrial",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     358,
+     377
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08568,
+     22.54432
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_electronics_assembly_n",
+    "name_zh": "电子装配厂",
+    "name_en": "Electronics Assembly Plant (North)",
+    "kind": "industrial",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     358,
+     378
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08621,
+     22.54337
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_garment_factory",
+    "name_zh": "服装厂",
+    "name_en": "Garment Factory",
+    "kind": "industrial",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     359,
+     380
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08181,
+     22.54963
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_chicken_farm",
+    "name_zh": "养鸡场",
+    "name_en": "Chicken Farm",
+    "kind": "agriculture",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     354,
+     373
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08924,
+     22.54876
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_construction_training",
+    "name_zh": "建筑技术培训中心",
+    "name_en": "Construction Technology Training Centre",
+    "kind": "school",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     362,
+     374
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08941,
+     22.54747
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_peoples_hospital_shangbu",
+    "name_zh": "人民医院（上步）",
+    "name_en": "People's Hospital (Shangbu)",
+    "kind": "hospital",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     362,
+     375
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08904,
+     22.54403
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_auto_assembly_plant",
+    "name_zh": "汽车装配厂",
+    "name_en": "Auto Assembly Plant",
+    "kind": "industrial",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     361,
+     379
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08939,
+     22.5416
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_friendship_store",
+    "name_zh": "友谊商店",
+    "name_en": "Friendship Store (Shangbu)",
+    "kind": "retail",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     362,
+     382
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08443,
+     22.54115
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_sz_electronics_assembly_s",
+    "name_zh": "深圳电子装配厂",
+    "name_en": "Shenzhen Electronics Assembly Plant (South)",
+    "kind": "industrial",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     357,
+     382
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08673,
+     22.54128
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_party_organ_dorm",
+    "name_zh": "市委机关宿舍",
+    "name_en": "Municipal Party Committee Organ Dormitory",
+    "kind": "residential",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     359,
+     382
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.0869,
+     22.53885
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_construction_industry_co",
+    "name_zh": "建筑工业公司",
+    "name_en": "Construction Industry Company",
+    "kind": "industrial",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     359,
+     385
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08192,
+     22.53448
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_building_materials_transport",
+    "name_zh": "建材运输公司",
+    "name_en": "Building Materials Transport Company",
+    "kind": "transport",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     354,
+     389
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.09824,
+     22.54163
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_road_company",
+    "name_zh": "道路公司",
+    "name_en": "Road Construction Company",
+    "kind": "industrial",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     371,
+     382
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.shangbu_industrial"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07043,
+     22.53918
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_futian_ag_machinery",
+    "name_zh": "农机厂（福田）",
+    "name_en": "Agricultural Machinery Factory (Futian)",
+    "kind": "industrial",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     342,
+     384
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.futian_villages"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07345,
+     22.53952
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_futian_clinic",
+    "name_zh": "卫生院（福田）",
+    "name_en": "Health Clinic (Futian)",
+    "kind": "hospital",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     345,
+     384
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.futian_villages"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07202,
+     22.53814
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_futian_middle_school",
+    "name_zh": "福田中学",
+    "name_en": "Futian Middle School",
+    "kind": "school",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     344,
+     385
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.futian_villages"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07485,
+     22.53732
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_futian_primary_school",
+    "name_zh": "福田小学",
+    "name_en": "Futian Primary School",
+    "kind": "school",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     347,
+     386
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.futian_villages"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07254,
+     22.53572
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_glove_factory",
+    "name_zh": "手套厂",
+    "name_en": "Glove Factory",
+    "kind": "industrial",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     344,
+     388
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.futian_villages"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12759,
+     22.57334
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_municipal_substation",
+    "name_zh": "市变电站",
+    "name_en": "Municipal Substation",
+    "kind": "utility",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     402,
+     347
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12068,
+     22.57114
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_shuibei_primary_school",
+    "name_zh": "水贝小学",
+    "name_en": "Shuibei Primary School",
+    "kind": "school",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     395,
+     349
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10526,
+     22.56975
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_sungang_primary_school",
+    "name_zh": "笋岗小学",
+    "name_en": "Sungang Primary School",
+    "kind": "school",
+    "area": 5,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     379,
+     351
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11058,
+     22.56587
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_sungang_station",
+    "name_zh": "笋岗车站",
+    "name_en": "Sungang Railway Station",
+    "kind": "railway",
+    "area": 5,
+    "status_1984": "built",
+    "date_1984": "1977",
+    "later": "unknown",
+    "cell": [
+     384,
+     355
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.rail.sungang.renamed_1977",
+     "phase1.observation.kh9_1977.northern_settlement_anchors",
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10772,
+     22.56419
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_phosphate_fertilizer",
+    "name_zh": "磷肥厂",
+    "name_en": "Phosphate Fertilizer Plant",
+    "kind": "industrial",
+    "area": 5,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     381,
+     357
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11428,
+     22.56539
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_leather_shoe_factory",
+    "name_zh": "皮鞋厂",
+    "name_en": "Leather Shoe Factory",
+    "kind": "industrial",
+    "area": 5,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     388,
+     356
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11835,
+     22.56612
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_sugar_tobacco_liquor",
+    "name_zh": "糖烟酒公司",
+    "name_en": "Sugar",
+    "kind": "commercial",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     392,
+     355
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.1203,
+     22.56574
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_municipal_cannery",
+    "name_zh": "市罐头厂",
+    "name_en": "Municipal Cannery",
+    "kind": "industrial",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     394,
+     355
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12047,
+     22.56445
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_petroleum_supply_station",
+    "name_zh": "市石油公司供应站",
+    "name_en": "Municipal Petroleum Co. Supply Station",
+    "kind": "utility",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     394,
+     357
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.1164,
+     22.56405
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_cold_storage_plant",
+    "name_zh": "冷冻厂",
+    "name_en": "Cold Storage Plant",
+    "kind": "industrial",
+    "area": 5,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     390,
+     357
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11817,
+     22.56382
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_ag_machinery_company",
+    "name_zh": "农机公司",
+    "name_en": "Agricultural Machinery Company",
+    "kind": "commercial",
+    "area": 5,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     392,
+     358
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11656,
+     22.56194
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_soap_factory",
+    "name_zh": "肥皂厂",
+    "name_en": "Soap Factory",
+    "kind": "industrial",
+    "area": 5,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     390,
+     360
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11887,
+     22.56191
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_telecom_bureau",
+    "name_zh": "电信局",
+    "name_en": "Telecommunications Bureau",
+    "kind": "utility",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     393,
+     360
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12135,
+     22.56303
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_sz_brickworks",
+    "name_zh": "深圳市砖厂",
+    "name_en": "Shenzhen Brickworks",
+    "kind": "industrial",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     395,
+     358
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12291,
+     22.56194
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_peoples_hospital_inpatient",
+    "name_zh": "市人民医院留医部",
+    "name_en": "Municipal People's Hospital Inpatient Dept.",
+    "kind": "hospital",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1977",
+    "later": "unknown",
+    "cell": [
+     397,
+     360
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1977.school_hospital",
+     "phase1.observation.kh9_1980.core_anchor_review",
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11744,
+     22.5602
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_water_electricity_bureau",
+    "name_zh": "水电局",
+    "name_en": "Water & Electricity Bureau",
+    "kind": "utility",
+    "area": 5,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     391,
+     362
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12932,
+     22.5622
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_forestry_institute",
+    "name_zh": "林业研究所",
+    "name_en": "Forestry Research Institute",
+    "kind": "research",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     403,
+     360
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12772,
+     22.5608
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_loading_repair_works",
+    "name_zh": "装卸修配厂",
+    "name_en": "Loading/Unloading Repair Works",
+    "kind": "industrial",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     402,
+     361
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12258,
+     22.55985
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_landscaping_station",
+    "name_zh": "市园林站",
+    "name_en": "Municipal Landscaping Station",
+    "kind": "government",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     396,
+     362
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12523,
+     22.55984
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_fish_fry_farm",
+    "name_zh": "市鱼苗场",
+    "name_en": "Municipal Fish Fry Farm",
+    "kind": "agriculture",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     399,
+     362
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12381,
+     22.55845
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_highway_bureau",
+    "name_zh": "市公路局",
+    "name_en": "Municipal Highway Bureau",
+    "kind": "government",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     398,
+     364
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11478,
+     22.55906
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_preserved_fruit_factory",
+    "name_zh": "凉果厂",
+    "name_en": "Preserved Fruit Factory",
+    "kind": "industrial",
+    "area": 5,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     388,
+     363
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.11921,
+     22.55851
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_ag_auto_repair",
+    "name_zh": "农机汽车修理厂",
+    "name_en": "Agricultural Machinery & Auto Repair Works",
+    "kind": "industrial",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     393,
+     363
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.12558,
+     22.5579
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_normal_school",
+    "name_zh": "市师范学校",
+    "name_en": "Municipal Normal School",
+    "kind": "school",
+    "area": 1,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     399,
+     364
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.sungang_shuibei_tianbei"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.07902,
+     22.56054
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_meigang_forest_farm",
+    "name_zh": "梅岗林场",
+    "name_en": "Meigang Forest Farm",
+    "kind": "agriculture",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     352,
+     360
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.08204,
+     22.56268
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_shooting_range",
+    "name_zh": "打靶场",
+    "name_en": "Shooting Range",
+    "kind": "military",
+    "area": null,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     355,
+     358
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.09657,
+     22.56484
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_may7_farm",
+    "name_zh": "五七农场",
+    "name_en": "May 7th Farm",
+    "kind": "agriculture",
+    "area": 7,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     370,
+     356
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10061,
+     22.55742
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_weishi_factory",
+    "name_zh": "威士厂",
+    "name_en": "Weishi Factory",
+    "kind": "industrial",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     374,
+     364
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.1006,
+     22.55432
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_sz_shirt_factory",
+    "name_zh": "深圳恤衫厂",
+    "name_en": "Shenzhen Shirt Factory",
+    "kind": "industrial",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     374,
+     368
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10359,
+     22.55075
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_livestock_institute",
+    "name_zh": "宝安畜牧研究所",
+    "name_en": "Bao'an Livestock Research Institute",
+    "kind": "research",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     377,
+     372
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10679,
+     22.55273
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_coal_company",
+    "name_zh": "煤炭公司",
+    "name_en": "Coal Company",
+    "kind": "commercial",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     380,
+     370
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10643,
+     22.5514
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_coal_yard",
+    "name_zh": "贮煤场",
+    "name_en": "Coal Yard",
+    "kind": "industrial",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     380,
+     371
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.1082,
+     22.55167
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_timber_company",
+    "name_zh": "木材公司",
+    "name_en": "Timber Company",
+    "kind": "commercial",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     381,
+     371
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10376,
+     22.54815
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_weather_station",
+    "name_zh": "市气象站",
+    "name_en": "Municipal Weather Station",
+    "kind": "government",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     377,
+     375
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10056,
+     22.54682
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_yixing_factory",
+    "name_zh": "怡兴工厂",
+    "name_en": "Yixing Factory",
+    "kind": "industrial",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     373,
+     376
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.1034,
+     22.54634
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_public_security_bureau",
+    "name_zh": "公安局",
+    "name_en": "Public Security Bureau",
+    "kind": "government",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     376,
+     377
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10055,
+     22.54454
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_hongxing_auto_repair",
+    "name_zh": "红星汽车修配厂",
+    "name_en": "Hongxing Auto Repair Plant",
+    "kind": "industrial",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     373,
+     379
+    ],
+    "flags": [],
+    "claims": [
+     "phase1.map.1982.nigang_bagualing_hongling"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.10372,
+     22.54
+    ]
+   },
+   "properties": {
+    "id": "b1984.m82_tourism_supply_co",
+    "name_zh": "市旅游供应公司",
+    "name_en": "Municipal Tourism Supply Company",
+    "kind": "commercial",
+    "area": 3,
+    "status_1984": "built",
+    "date_1984": "1982",
+    "later": "unknown",
+    "cell": [
+     376,
+     384
+    ],
+    "flags": [
+     "on_1979_water"
+    ],
+    "claims": [
+     "phase1.map.1982.river_villages_planned_channel"
+    ]
+   }
+  }
+ ]
+}

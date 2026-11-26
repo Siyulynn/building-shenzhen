@@ -1,0 +1,1378 @@
+# Buildings and complexes reported as built or under construction in Shenzhen by 1984.
+# Calibration register, not a game content file: it exists so the map can be checked for cells that must not read
+# as empty or ricefield in 1984. Placement is a present-day proxy (lead), not a surveyed footprint.
+# docs/research/buildings-1984-register.md explains the corpus, the gaps and the method.
+#
+# status_1984: built | under_construction | planned
+# later.state: present | renamed_or_reused | replaced_lead | unknown
+#   present = the named feature is still in OSM/Photon in 2026. It does NOT mean unmodified.
+
+- id: b1984.guomao
+  name: { zh: 国贸大厦, en: Guomao (International Trade Centre) }
+  kind: office_tower
+  area: 2
+  lonlat: [114.11466, 22.54321]
+  place: { address: "人民南路3002号", basis: "Nominatim building centroid, 2026-11-25", confidence: 0.9 }
+  status_1984: under_construction
+  by_1984: { date: "1984-04-30", note: "Main structure topped; fit-out and opening followed in 1985." }
+  claims: [phase1.guomao.ground_break, phase1.guomao.main_tower_topped, phase1.guomao.construction_visible_january_visit]
+  later: { state: present, note: "OSM has 国贸大厦 at the same address in 2026; listed in the 2018 historic-building batch." }
+
+- id: b1984.guoshang
+  name: { zh: 国际商业大厦, en: International Commercial Building (Guoshang) }
+  kind: office_tower
+  area: 2
+  lonlat: [114.11283, 22.54190]
+  place: { address: "嘉宾路3005号", basis: "Photon result for 国际商业大厦 北座, 2026-11-25", confidence: 0.85 }
+  status_1984: built
+  by_1984: { date: "1983-04", note: "Reported complete in April 1983." }
+  claims: [phase1.guoshang.commercial_building_completed, phase1.photo.1984.guoshang]
+  later: { state: present, note: "Photon returns the north and east blocks at the same address in 2026." }
+
+- id: b1984.electronics
+  name: { zh: 电子大厦, en: Electronics Building }
+  kind: office_tower
+  area: 7
+  lonlat: [114.08302, 22.54364]
+  place: { address: "深南中路2070/2072号", basis: "Nominatim building centroid, 2026-11-25", confidence: 0.9 }
+  status_1984: built
+  by_1984: { date: "1982-08", note: "Reported complete in August 1982; still a 1984 photo subject." }
+  claims: [phase1.zoning.electronics_building.completed, phase1.photo.1984.shangbu_electronics_building]
+  later: { state: present, note: "OSM has 电子大厦 at 深南中路2072号 in 2026; listed in the 2018 historic-building batch." }
+
+- id: b1984.shanghai_hotel
+  name: { zh: 上海宾馆, en: Shanghai Hotel }
+  kind: hotel
+  area: 7
+  lonlat: [114.07683, 22.54386]
+  place: { address: "深南中路3032号", basis: "Nominatim building centroid, 2026-11-25", confidence: 0.9 }
+  status_1984: built
+  by_1984: { date: "1983", note: "Build year from the historic-building list; no opening day." }
+  claims: [phase1.historic.shanghai_hotel.built_1983]
+  later: { state: present, note: "OSM has 上海宾馆 at the same address in 2026; listed in the 2018 historic-building batch." }
+
+- id: b1984.municipal_government
+  name: { zh: 市委/市政府大楼, en: Party and government office block }
+  kind: government
+  area: 7
+  lonlat: [114.09330, 22.54350]
+  place: { address: "深南中路1008号市委大院", basis: "2010 gate photo geotag; compound label on the 1982 map", confidence: 0.85 }
+  status_1984: built
+  by_1984: { date: "1981", note: "Occupied at the end of 1981; preceding housing from 1979." }
+  claims: [phase1.site.municipal_government.1981_move, phase1.map.1982.municipal_government_compound]
+  later: { state: present, note: "The 市委 remains at the compound; the 2004 move took the bureaus to the Civic Center." }
+
+- id: b1984.museum_old
+  name: { zh: 深圳博物馆旧馆, en: Old Shenzhen Museum }
+  kind: museum
+  area: 7
+  lonlat: [114.09620, 22.54483]
+  place: { address: "同心路6号", basis: "Nominatim building centroid, 2026-11-25", confidence: 0.85 }
+  status_1984: under_construction
+  by_1984: { date: "1984", note: "Build year from the historic-building list; the M4 roster names the museum among the eight cultural facilities." }
+  claims: [phase1.historic.museum_old.built_1984, phase1.culture.roster.tan_1982]
+  later: { state: renamed_or_reused, note: "OSM names it 深圳博物馆古代艺术馆 in 2026; listed in the 2018 batch." }
+
+- id: b1984.grand_theatre
+  name: { zh: 深圳大剧院, en: Shenzhen Grand Theatre }
+  kind: theatre
+  area: 3
+  lonlat: [114.10033, 22.54533]
+  place: { address: "深南东路5018号", basis: "Nominatim building centroid, 2026-11-25", confidence: 0.85 }
+  status_1984: under_construction
+  by_1984: { date: "1984", note: "Design passed 1983 and site levelling followed in 1984; opening later." }
+  claims: [phase1.culture.theatre.design]
+  later: { state: present, note: "OSM has 深圳大剧院 at the same address in 2026." }
+
+- id: b1984.library_hongli
+  name: { zh: 红荔路图书馆（今深圳少年儿童图书馆）, en: Hongli Road Library (now Children's Library) }
+  kind: library
+  area: 7
+  lonlat: [114.09429, 22.55100]
+  place: { address: "红荔路1011号", basis: "Nominatim building centroid, 2026-11-25", confidence: 0.85 }
+  status_1984: under_construction
+  by_1984: { date: "1983", note: "Ground broken in 1983; opening followed in 1986." }
+  claims: [phase1.culture.hongli_library.ground_break]
+  later: { state: renamed_or_reused, note: "OSM names it 深圳少年儿童图书馆 in 2026; listed in the 2020 historic-building batch." }
+
+- id: b1984.szu
+  name: { zh: 深圳大学（粤海校区）, en: Shenzhen University (Yuehai campus) }
+  kind: university
+  area: 8
+  lonlat: [113.93147, 22.53590]
+  place: { address: "南海大道3688号", basis: "Nominatim campus centroid, 2026-11-25; the 1984 campus was a small part of the present site", confidence: 0.7 }
+  status_1984: under_construction
+  by_1984: { date: "1984-02-07", note: "Permanent campus ground broken; teaching had begun in temporary premises in 1983." }
+  claims: [phase1.szu.permanent_campus.ground_break, phase1.szu.first_opening_ceremony]
+  later: { state: present, note: "Campus expanded; the 1984 演会中心 is listed in the 2024 historic-building batch." }
+
+- id: b1984.luohu_terminal
+  name: { zh: 罗湖口岸联检大楼, en: Luohu passenger terminal }
+  kind: border_terminal
+  area: 2
+  lonlat: [114.11331, 22.53108]
+  place: { address: "罗湖口岸", basis: "Nominatim terminal centroid, 2026-11-25", confidence: 0.7 }
+  status_1984: under_construction
+  by_1984: { date: "1984", note: "Opened in 1985, so at most under construction in 1984; the 1983 agreement is not a works date." }
+  claims: [core_basin.luohu.terminal_opened_1985]
+  later: { state: unknown, note: "The 1985 building has been replaced by the present terminal; replacement date not sourced here." }
+
+- id: b1984.shenzhen_station
+  name: { zh: 深圳火车站, en: Shenzhen railway station }
+  kind: railway
+  area: 2
+  lonlat: [114.11211, 22.53449]
+  place: { address: "建设路1001号", basis: "Nominatim station centroid, 2026-11-25", confidence: 0.9 }
+  status_1984: built
+  by_1984: { date: "1979", note: "Operating before 1979; the present station building is later." }
+  claims: [site.shenzhen_station.exists_1979]
+  later: { state: unknown, note: "The station has been rebuilt since; replacement date not sourced here." }
+
+- id: b1984.sea_world
+  name: { zh: 海上世界（明华轮）, en: Sea World (Minghua) }
+  kind: leisure
+  area: 8
+  lonlat: [113.91016, 22.48813]
+  place: { address: "蛇口海上世界", basis: "Nominatim station centroid, 2026-11-25", confidence: 0.75, note: "The Minghua was moored offshore in 1979; the 1979-water flag is expected." }
+  status_1984: built
+  by_1984: { date: "1984", note: "The Minghua was moored and in use as a leisure complex in 1984." }
+  claims: [phase1.video.1984.sea_world_minghua]
+  later: { state: present, note: "The ship remains; the surrounding shoreline has been reclaimed and redeveloped." }
+
+- id: b1984.shekou_office
+  name: { zh: 蛇口工业区办公大厦, en: Shekou Industrial Zone office building }
+  kind: office
+  area: 8
+  lonlat: [113.90918, 22.48002]
+  place: { address: "蛇口工业区", basis: "OSM way 蛇口工业区大厦, 2026-11-25", confidence: 0.7 }
+  status_1984: built
+  by_1984: { date: "1984", note: "Photographed in 1984; the 1985 silhouette view shows the slogan board at the same office." }
+  claims: [phase1.photo.1984.shekou_office_building, phase1.photo.1985.shekou_office_slogan_sign]
+  later: { state: present, note: "OSM has 蛇口工业区大厦 in 2026; the present building may incorporate later work." }
+
+- id: b1984.shenzhen_bay_hotel
+  name: { zh: 深圳湾大酒店, en: Shenzhen Bay Hotel }
+  kind: hotel
+  area: 9
+  lonlat: [113.97985, 22.53519]
+  place: { address: "深南大道9009号一带", basis: "Photon result for InterContinental Shenzhen at 9009 Shennan; site proxy", confidence: 0.5 }
+  status_1984: built
+  by_1984: { date: "1984", note: "The hotel and its amusement park appear in 1984 film and photographs." }
+  claims: [phase1.video.1984.shenzhen_bay_hotel_amusement, phase1.photo.1984.shenzhen_bay_hotel_park]
+  later: { state: replaced_lead, note: "The address now returns InterContinental Shenzhen; replacement of the 1980s hotel is a lead, not a demolition record." }
+
+- id: b1984.xiangmihu
+  name: { zh: 香蜜湖度假村, en: Xiangmihu Resort }
+  kind: resort
+  area: 7
+  lonlat: [114.03410, 22.54425]
+  place: { address: "香蜜湖", basis: "Photon result for 香蜜湖度假村家属楼; resort-area proxy", confidence: 0.5 }
+  status_1984: built
+  by_1984: { date: "1984", note: "Pavilions and lakeside buildings appear in 1984 film." }
+  claims: [phase1.video.1984.xiangmihu_resort]
+  later: { state: unknown, note: "The resort area has since been redeveloped; no closure or demolition record is in the register." }
+
+# --- Dongmen theatre frontage and other reported sites -------------------------------------
+
+- id: b1984.shenzhen_theatre
+  name: { zh: 深圳戏院, en: Shenzhen Theatre }
+  kind: theatre
+  area: 1
+  lonlat: [114.11186, 22.54820]
+  place: { address: "新园路一带, 东门", basis: "Draft September 1980 KH-9 core-basin theatre point; checked for relative position against both period street maps", confidence: 0.35 }
+  status_1984: built
+  by_1984: { date: "1960", note: "The municipal archive dates the theatre to 1960; the 1984 photograph caption and map detail anchor its surroundings." }
+  claims: [site.shenzhen_theatre.exists_1979, phase1.photo.1984.shenzhen_theatre_boya, phase1.map.1982.dongmen_old_town, phase1.map.1984.dongmen_frontage, phase1.observation.kh9_1980.core_anchor_review]
+  later: { state: renamed_or_reused, note: "The archive reports a 1997 joint redevelopment/refurbishment." }
+
+- id: b1984.boya
+  name: { zh: 博雅画廊, en: Boya Gallery }
+  kind: retail
+  area: 1
+  lonlat: [114.11212, 22.54780]
+  place: { address: "解放路南侧、深圳戏院对面，东门", basis: "Shared frontage proxy south of the draft theatre anchor, from the 1984 public detail crop 5-2.jpg", confidence: 0.25 }
+  status_1984: built
+  by_1984: { date: "1984", note: "The photo caption and map support this frontage by the 1984 edition; the organisation's earlier history does not date the building." }
+  claims: [phase1.photo.1984.shenzhen_theatre_boya, phase1.map.1984.dongmen_frontage, phase1.boya.dongmen_history]
+  later: { state: renamed_or_reused, note: "The gallery business moved and was renamed; the fate of the original building is unresolved." }
+
+- id: b1984.xinan_restaurant
+  name: { zh: 新安酒家, en: Xin'an Restaurant }
+  kind: restaurant
+  area: 1
+  lonlat: [114.11212, 22.54780]
+  place: { address: "解放路南侧、博雅画廊旁，东门", basis: "Shared frontage proxy with Boya; restaurant symbol and label on 1984 public crop 5-2.jpg", confidence: 0.25 }
+  status_1984: built
+  by_1984: { date: "1983", note: "The retrospective reports reopening after refurbishment in 1983; the 1984 map and photo support the Dongmen frontage." }
+  claims: [phase1.photo.1984.shenzhen_theatre_boya, phase1.map.1984.dongmen_frontage, phase1.xinan.early_operation_and_rebuild]
+  later: { state: renamed_or_reused, note: "The restaurant history records a 1994–96 rebuild and reopening." }
+
+- id: b1984.shekou_shopping
+  name: { zh: 蛇口购物中心, en: Shekou Shopping Centre }
+  kind: retail
+  area: 8
+  lonlat: null
+  place: { address: "蛇口", basis: "caption gives the district only", confidence: 0 }
+  status_1984: built
+  by_1984: { date: "1984-05-05", note: "Photographed on 5 May 1984." }
+  claims: [phase1.photo.1984.shekou_shopping_centre]
+  later: { state: unknown, note: "Not checked against a current survey." }
+
+- id: b1984.nanshan_hotel
+  name: { zh: 蛇口南山宾馆, en: Nanshan Hotel, Shekou }
+  kind: hotel
+  area: 8
+  lonlat: null
+  place: { address: "蛇口", basis: "caption gives the district only", confidence: 0 }
+  status_1984: built
+  by_1984: { date: "1984", note: "Photographed in 1984; name still to be checked against a Shekou hotel list." }
+  claims: [phase1.photo.1984.shekou_nanshan_hotel]
+  later: { state: unknown, note: "Not checked against a current survey." }
+
+- id: b1984.bitao
+  name: { zh: 碧涛中心, en: Bitao Centre }
+  kind: commercial
+  area: 8
+  lonlat: null
+  place: { address: "蛇口工业区", basis: "caption gives the zone only", confidence: 0 }
+  status_1984: built
+  by_1984: { date: "1984-10-13", note: "Photographed on 13 October 1984." }
+  claims: [phase1.photo.1984.shekou_bitao_centre]
+  later: { state: unknown, note: "Not checked against a current survey." }
+
+- id: b1984.shenfang
+  name: { zh: 深纺大厦, en: Shenzhen Textile Building }
+  kind: industrial
+  area: 7
+  lonlat: [114.08035, 22.54735]
+  place: { address: "华强路/振华路, 华强北西侧", basis: "Photon results for 深纺大厦 A座 and C座, 2026-11-25; midpoint", confidence: 0.7 }
+  status_1984: planned
+  by_1984: { date: "1980", note: "Site was graded by 1980 for the building; no completion date by 1984 is established." }
+  claims: [phase1.landcover.1980.huaqiangbei_textile_building]
+  later: { state: present, note: "Photon returns 深纺大厦 A座 and C座 in 2026; the blog says it still stood in 2025." }
+
+- id: b1984.shangbu_factory_1
+  name: { zh: 上步工业区1#厂房, en: Shangbu Industrial Zone No. 1 factory }
+  kind: industrial
+  area: 7
+  lonlat: null
+  place: { address: "中航路, 上步工业区", basis: "filing gives the estate and road, not a parcel", confidence: 0 }
+  status_1984: built
+  by_1984: { date: "1983-07", note: "Reported complete in July 1983." }
+  claims: [phase1.zoning.shangbu.factory_1_completed]
+  later: { state: unknown, note: "The estate has been redeveloped; this building's survival is not checked." }
+
+- id: b1984.bagualing
+  name: { zh: 八卦岭工业区, en: Bagualing Industrial Zone }
+  kind: industrial_zone
+  area: 7
+  lonlat: [114.09107, 22.56419]
+  place: { address: "八卦岭, 泥岗路南侧", basis: "1982 深圳市区图 affine georeference (10 GCPs, 201 m RMS); locality label lead", confidence: 0.4 }
+  status_1984: under_construction
+  by_1984: { date: "1983-10", note: "Locality labelled on the 1982 深圳市区图; industrial-zone works and naming began in October 1983, completion reported in 1984." }
+  claims: [phase1.zoning.bagualing.first_works, phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "The industrial estate has been redeveloped; individual buildings not tracked." }
+
+# --- Added from the 1982 ????? (phase1_1982_shenzhen_city_map) -------------------------
+# Coordinates come from the 10-GCP affine georeference (201 m in-sample RMS, 332 m LOO RMS).
+# Caveat: the 1982 schematic map may mix built and planned facilities (e.g. ???).
+
+- id: b1984.m82_luohu_quarantine
+  name: { zh: "卫生检疫所", en: "Health Quarantine Station (Luohu)" }
+  kind: government
+  area: 2
+  lonlat: [114.11467, 22.53233]
+  place: { address: "1982 ????? (px 1470,1345)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_customs_building
+  name: { zh: "海关大楼", en: "Customs Building" }
+  kind: government
+  area: 2
+  lonlat: [114.11095, 22.53293]
+  place: { address: "1982 ????? (px 1365,1320)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_train_crew_quarters
+  name: { zh: "深圳行车公宇", en: "Shenzhen Train Crew Quarters" }
+  kind: railway
+  area: 2
+  lonlat: [114.1145, 22.53444]
+  place: { address: "1982 ????? (px 1465,1280)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_taxi_stand
+  name: { zh: "小汽车出租点", en: "Car Rental / Taxi Stand" }
+  kind: transport
+  area: 2
+  lonlat: [114.11327, 22.53616]
+  place: { address: "1982 ????? (px 1430,1225)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_luohu_building
+  name: { zh: "罗湖大厦", en: "Luohu Building" }
+  kind: commercial
+  area: 2
+  lonlat: [114.11275, 22.53972]
+  place: { address: "1982 ????? (px 1415,1115)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_friendship_building
+  name: { zh: "友谊大厦", en: "Friendship Building" }
+  kind: commercial
+  area: 2
+  lonlat: [114.11276, 22.54249]
+  place: { address: "1982 ????? (px 1415,1030)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_railway_primary_school
+  name: { zh: "铁路小学", en: "Railway Primary School" }
+  kind: school
+  area: 2
+  lonlat: [114.11523, 22.54084]
+  place: { address: "1982 ????? (px 1485,1085)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_tourism_bureau
+  name: { zh: "旅游局", en: "Tourism Bureau" }
+  kind: government
+  area: 2
+  lonlat: [114.11295, 22.5438]
+  place: { address: "1982 ????? (px 1420,990)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_foreign_trade_exhibition
+  name: { zh: "中国外贸局展销大楼", en: "China Foreign Trade Bureau Exhibition Building" }
+  kind: commercial
+  area: 2
+  lonlat: [114.11578, 22.54397]
+  place: { address: "1982 ????? (px 1500,990)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_food_export_plant
+  name: { zh: "市食出加工场", en: "Municipal Food Export Processing Plant" }
+  kind: industrial
+  area: 2
+  lonlat: [114.12037, 22.54179]
+  place: { address: "1982 ????? (px 1630,1065)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_wenjindu_customs
+  name: { zh: "文锦渡分关", en: "Wenjindu Sub-Customs" }
+  kind: border_crossing
+  area: 2
+  lonlat: [114.12533, 22.54241]
+  place: { address: "1982 ????? (px 1770,1055)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_chuanbu_wharf
+  name: { zh: "深圳船步码头", en: "Shenzhen Chuanbu Wharf" }
+  kind: transport
+  area: 2
+  lonlat: [114.10885, 22.53737]
+  place: { address: "1982 ????? (px 1305,1180)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_general_transport_co
+  name: { zh: "运输总公司", en: "General Transport Company" }
+  kind: transport
+  area: 2
+  lonlat: [114.1085, 22.54028]
+  place: { address: "1982 ????? (px 1295,1090)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.luohu_station_crossing]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_workers_cultural_palace
+  name: { zh: "工人文化宫", en: "Workers' Cultural Palace" }
+  kind: civic
+  area: 1
+  lonlat: [114.11156, 22.55056]
+  place: { address: "1982 ????? (px 1380,780)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_xinyuan_guesthouse
+  name: { zh: "新园招待所", en: "Xinyuan Guesthouse" }
+  kind: hotel
+  area: 1
+  lonlat: [114.11192, 22.55238]
+  place: { address: "1982 ????? (px 1390,725)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_shenzhen_middle_school
+  name: { zh: "深圳中学", en: "Shenzhen Middle School" }
+  kind: school
+  area: 1
+  lonlat: [114.11711, 22.55552]
+  place: { address: "深圳中学校址一带", basis: "1977 street sheet and September 1980 KH-9 locality; same proxy as site.shenzhen_middle_school", confidence: 0.35 }
+  status_1984: built
+  by_1984: { date: "1977", note: "Already labelled on the 1977 street sheet." }
+  claims: [phase1.map.1977.school_hospital, phase1.observation.kh9_1980.core_anchor_review, phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_shenzhen_bus_station
+  name: { zh: "深圳汽车站", en: "Shenzhen Bus Station" }
+  kind: transport
+  area: 1
+  lonlat: [114.11777, 22.55288]
+  place: { address: "1982 ????? (px 1555,720)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_post_telecom_bureau
+  name: { zh: "邮电局", en: "Post & Telecommunications Bureau" }
+  kind: utility
+  area: 3
+  lonlat: [114.1103, 22.54609]
+  place: { address: "1982 ????? (px 1345,915)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_tcm_hospital
+  name: { zh: "市中医院", en: "Municipal TCM Hospital" }
+  kind: hospital
+  area: 3
+  lonlat: [114.10693, 22.54589]
+  place: { address: "1982 ????? (px 1250,915)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_quarantine_central
+  name: { zh: "检疫所", en: "Quarantine Station (Jiefang Rd)" }
+  kind: government
+  area: 2
+  lonlat: [114.10852, 22.54338]
+  place: { address: "1982 ????? (px 1295,995)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_peoples_stadium
+  name: { zh: "人民体育场", en: "People's Stadium" }
+  kind: civic
+  area: 3
+  lonlat: [114.10656, 22.54196]
+  place: { address: "1982 ????? (px 1240,1035)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_old_library
+  name: { zh: "图书馆", en: "Municipal Library (old town)" }
+  kind: library
+  area: 3
+  lonlat: [114.10641, 22.54814]
+  place: { address: "1982 ????? (px 1235,845)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_no6_primary_school
+  name: { zh: "市六小", en: "Municipal No. 6 Primary School" }
+  kind: school
+  area: 3
+  lonlat: [114.10606, 22.5491]
+  place: { address: "1982 ????? (px 1225,815)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_railway_school
+  name: { zh: "铁路学校", en: "Railway School" }
+  kind: school
+  area: 3
+  lonlat: [114.10819, 22.55037]
+  place: { address: "1982 ????? (px 1285,780)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_epidemic_prevention
+  name: { zh: "市卫生防疫站", en: "Municipal Epidemic Prevention Station" }
+  kind: hospital
+  area: 1
+  lonlat: [114.11317, 22.55441]
+  place: { address: "1982 ????? (px 1425,665)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_housing_bureau_north
+  name: { zh: "房管局（蛟湖）", en: "Housing Administration Bureau (Jiaohu)" }
+  kind: government
+  area: 1
+  lonlat: [114.11318, 22.5562]
+  place: { address: "1982 ????? (px 1425,610)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_housing_bureau_south
+  name: { zh: "房管局（解放路）", en: "Housing Administration Bureau (Jiefang Rd)" }
+  kind: government
+  area: 1
+  lonlat: [114.11775, 22.54979]
+  place: { address: "1982 ????? (px 1555,815)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_may7_middle_school
+  name: { zh: "五七中学", en: "May 7th Middle School" }
+  kind: school
+  area: 1
+  lonlat: [114.11283, 22.55748]
+  place: { address: "1982 ????? (px 1415,570)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_petroleum_company
+  name: { zh: "石油公司", en: "Petroleum Company" }
+  kind: commercial
+  area: 1
+  lonlat: [114.11635, 22.55345]
+  place: { address: "1982 ????? (px 1515,700)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_motor_transport_co
+  name: { zh: "汽车公司", en: "Motor Transport Company" }
+  kind: transport
+  area: 1
+  lonlat: [114.11916, 22.54889]
+  place: { address: "1982 ????? (px 1595,845)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_foodstuffs_company
+  name: { zh: "食品公司", en: "Foodstuffs Company" }
+  kind: commercial
+  area: 2
+  lonlat: [114.11614, 22.54611]
+  place: { address: "1982 ????? (px 1510,925)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_luohu_crafts_factory
+  name: { zh: "罗湖区工艺厂", en: "Luohu District Arts & Crafts Factory" }
+  kind: industrial
+  area: 2
+  lonlat: [114.11933, 22.54613]
+  place: { address: "1982 ????? (px 1600,930)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_sauce_factory
+  name: { zh: "酱料厂", en: "Sauce & Condiment Factory" }
+  kind: industrial
+  area: 1
+  lonlat: [114.12185, 22.5554]
+  place: { address: "1982 ????? (px 1670,650)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_radio_factory
+  name: { zh: "无线电厂", en: "Radio Factory" }
+  kind: industrial
+  area: 1
+  lonlat: [114.12043, 22.55434]
+  place: { address: "1982 ????? (px 1630,680)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_plastics_factory
+  name: { zh: "塑料厂", en: "Plastics Factory" }
+  kind: industrial
+  area: 1
+  lonlat: [114.12007, 22.55302]
+  place: { address: "1982 ????? (px 1620,720)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_ag_machinery_school
+  name: { zh: "农机学校", en: "Agricultural Machinery School" }
+  kind: school
+  area: 4
+  lonlat: [114.1284, 22.55628]
+  place: { address: "1982 ????? (px 1855,635)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.dongmen_old_town]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_party_committee_dorm
+  name: { zh: "市委宿舍", en: "Municipal Party Committee Dormitory" }
+  kind: residential
+  area: 7
+  lonlat: [114.09314, 22.54867]
+  place: { address: "1982 ????? (px 860,805)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_science_museum
+  name: { zh: "科学馆", en: "Science Museum" }
+  kind: civic
+  area: null
+  lonlat: [114.09205, 22.54306]
+  place: { address: "1982 ????? (px 830,975)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: planned
+  by_1984: { date: "1982", note: "Likely still planned in 1982." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_huali_furniture
+  name: { zh: "华丽装修家私公司", en: "Huali Decoration & Furniture Co." }
+  kind: industrial
+  area: 7
+  lonlat: [114.07666, 22.54704]
+  place: { address: "1982 ????? (px 395,825)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_sz_printing_factory
+  name: { zh: "深圳印刷制品厂", en: "Shenzhen Printing Products Factory" }
+  kind: industrial
+  area: 7
+  lonlat: [114.07914, 22.54735]
+  place: { address: "1982 ????? (px 465,820)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_aviation_company
+  name: { zh: "航空公司", en: "Aviation Company (CATIC)" }
+  kind: industrial
+  area: 7
+  lonlat: [114.07665, 22.54476]
+  place: { address: "1982 ????? (px 395,895)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_huaqiang_electronics_n
+  name: { zh: "华强电子工业公司（北）", en: "Huaqiang Electronics Industry Co. (North)" }
+  kind: industrial
+  area: 7
+  lonlat: [114.07913, 22.54442]
+  place: { address: "1982 ????? (px 465,910)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_huaqiang_electronics_s
+  name: { zh: "华强电子工业公司（南）", en: "Huaqiang Electronics Industry Co. (South)" }
+  kind: industrial
+  area: null
+  lonlat: [114.07945, 22.53483]
+  place: { address: "1982 ????? (px 475,1205)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_jinghua_electronics
+  name: { zh: "京华电子公司", en: "Jinghua Electronics Co." }
+  kind: industrial
+  area: 7
+  lonlat: [114.08249, 22.54429]
+  place: { address: "1982 ????? (px 560,920)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_jiale_bedding
+  name: { zh: "家乐床具厂", en: "Jiale Bedding Factory" }
+  kind: industrial
+  area: 7
+  lonlat: [114.08569, 22.54562]
+  place: { address: "1982 ????? (px 650,885)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_electronics_assembly_n
+  name: { zh: "电子装配厂", en: "Electronics Assembly Plant (North)" }
+  kind: industrial
+  area: 7
+  lonlat: [114.08568, 22.54432]
+  place: { address: "1982 ????? (px 650,925)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_garment_factory
+  name: { zh: "服装厂", en: "Garment Factory" }
+  kind: industrial
+  area: null
+  lonlat: [114.08621, 22.54337]
+  place: { address: "1982 ????? (px 665,955)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_chicken_farm
+  name: { zh: "养鸡场", en: "Chicken Farm" }
+  kind: agriculture
+  area: 7
+  lonlat: [114.08181, 22.54963]
+  place: { address: "1982 ????? (px 540,755)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_construction_training
+  name: { zh: "建筑技术培训中心", en: "Construction Technology Training Centre" }
+  kind: school
+  area: 7
+  lonlat: [114.08924, 22.54876]
+  place: { address: "1982 ????? (px 750,795)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_peoples_hospital_shangbu
+  name: { zh: "人民医院（上步）", en: "People's Hospital (Shangbu)" }
+  kind: hospital
+  area: 7
+  lonlat: [114.08941, 22.54747]
+  place: { address: "1982 ????? (px 755,835)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_auto_assembly_plant
+  name: { zh: "汽车装配厂", en: "Auto Assembly Plant" }
+  kind: industrial
+  area: 7
+  lonlat: [114.08904, 22.54403]
+  place: { address: "1982 ????? (px 745,940)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_friendship_store
+  name: { zh: "友谊商店", en: "Friendship Store (Shangbu)" }
+  kind: retail
+  area: null
+  lonlat: [114.08939, 22.5416]
+  place: { address: "1982 ????? (px 755,1015)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_sz_electronics_assembly_s
+  name: { zh: "深圳电子装配厂", en: "Shenzhen Electronics Assembly Plant (South)" }
+  kind: industrial
+  area: null
+  lonlat: [114.08443, 22.54115]
+  place: { address: "1982 ????? (px 615,1020)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_party_organ_dorm
+  name: { zh: "市委机关宿舍", en: "Municipal Party Committee Organ Dormitory" }
+  kind: residential
+  area: null
+  lonlat: [114.08673, 22.54128]
+  place: { address: "1982 ????? (px 680,1020)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_construction_industry_co
+  name: { zh: "建筑工业公司", en: "Construction Industry Company" }
+  kind: industrial
+  area: null
+  lonlat: [114.0869, 22.53885]
+  place: { address: "1982 ????? (px 685,1095)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_building_materials_transport
+  name: { zh: "建材运输公司", en: "Building Materials Transport Company" }
+  kind: transport
+  area: null
+  lonlat: [114.08192, 22.53448]
+  place: { address: "1982 ????? (px 545,1220)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_road_company
+  name: { zh: "道路公司", en: "Road Construction Company" }
+  kind: industrial
+  area: null
+  lonlat: [114.09824, 22.54163]
+  place: { address: "1982 ????? (px 1005,1030)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.shangbu_industrial]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_futian_ag_machinery
+  name: { zh: "农机厂（福田）", en: "Agricultural Machinery Factory (Futian)" }
+  kind: industrial
+  area: null
+  lonlat: [114.07043, 22.53918]
+  place: { address: "1982 ????? (px 220,1055)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.futian_villages]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_futian_clinic
+  name: { zh: "卫生院（福田）", en: "Health Clinic (Futian)" }
+  kind: hospital
+  area: null
+  lonlat: [114.07345, 22.53952]
+  place: { address: "1982 ????? (px 305,1050)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.futian_villages]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_futian_middle_school
+  name: { zh: "福田中学", en: "Futian Middle School" }
+  kind: school
+  area: null
+  lonlat: [114.07202, 22.53814]
+  place: { address: "1982 ????? (px 265,1090)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.futian_villages]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_futian_primary_school
+  name: { zh: "福田小学", en: "Futian Primary School" }
+  kind: school
+  area: null
+  lonlat: [114.07485, 22.53732]
+  place: { address: "1982 ????? (px 345,1120)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.futian_villages]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_glove_factory
+  name: { zh: "手套厂", en: "Glove Factory" }
+  kind: industrial
+  area: null
+  lonlat: [114.07254, 22.53572]
+  place: { address: "1982 ????? (px 280,1165)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.futian_villages]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_municipal_substation
+  name: { zh: "市变电站", en: "Municipal Substation" }
+  kind: utility
+  area: 1
+  lonlat: [114.12759, 22.57334]
+  place: { address: "1982 ????? (px 1830,110)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_shuibei_primary_school
+  name: { zh: "水贝小学", en: "Shuibei Primary School" }
+  kind: school
+  area: 1
+  lonlat: [114.12068, 22.57114]
+  place: { address: "1982 ????? (px 1635,165)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_sungang_primary_school
+  name: { zh: "笋岗小学", en: "Sungang Primary School" }
+  kind: school
+  area: 5
+  lonlat: [114.10526, 22.56975]
+  place: { address: "1982 ????? (px 1200,180)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_sungang_station
+  name: { zh: "笋岗车站", en: "Sungang Railway Station" }
+  kind: railway
+  area: 5
+  lonlat: [114.11058, 22.56587]
+  place: { address: "笋岗铁路货场一带", basis: "December 1977 KH-9 railway-corridor proxy; same as site.sungang_freight", confidence: 0.35 }
+  status_1984: built
+  by_1984: { date: "1977", note: "Reported as the main freight yard from 1977; the station is labelled 笋岗车站 on the 1982 sheet." }
+  claims: [phase1.rail.sungang.renamed_1977, phase1.observation.kh9_1977.northern_settlement_anchors, phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_phosphate_fertilizer
+  name: { zh: "磷肥厂", en: "Phosphate Fertilizer Plant" }
+  kind: industrial
+  area: 5
+  lonlat: [114.10772, 22.56419]
+  place: { address: "1982 ????? (px 1270,355)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_leather_shoe_factory
+  name: { zh: "皮鞋厂", en: "Leather Shoe Factory" }
+  kind: industrial
+  area: 5
+  lonlat: [114.11428, 22.56539]
+  place: { address: "1982 ????? (px 1455,330)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_sugar_tobacco_liquor
+  name: { zh: "糖烟酒公司", en: "Sugar" }
+  kind: commercial
+  area: 1
+  lonlat: [114.11835, 22.56612]
+  place: { address: "1982 ????? (px 1570,315)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_municipal_cannery
+  name: { zh: "市罐头厂", en: "Municipal Cannery" }
+  kind: industrial
+  area: 1
+  lonlat: [114.1203, 22.56574]
+  place: { address: "1982 ????? (px 1625,330)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_petroleum_supply_station
+  name: { zh: "市石油公司供应站", en: "Municipal Petroleum Co. Supply Station" }
+  kind: utility
+  area: 1
+  lonlat: [114.12047, 22.56445]
+  place: { address: "1982 ????? (px 1630,370)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_cold_storage_plant
+  name: { zh: "冷冻厂", en: "Cold Storage Plant" }
+  kind: industrial
+  area: 5
+  lonlat: [114.1164, 22.56405]
+  place: { address: "1982 ????? (px 1515,375)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_ag_machinery_company
+  name: { zh: "农机公司", en: "Agricultural Machinery Company" }
+  kind: commercial
+  area: 5
+  lonlat: [114.11817, 22.56382]
+  place: { address: "1982 ????? (px 1565,385)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_soap_factory
+  name: { zh: "肥皂厂", en: "Soap Factory" }
+  kind: industrial
+  area: 5
+  lonlat: [114.11656, 22.56194]
+  place: { address: "1982 ????? (px 1520,440)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_telecom_bureau
+  name: { zh: "电信局", en: "Telecommunications Bureau" }
+  kind: utility
+  area: 1
+  lonlat: [114.11887, 22.56191]
+  place: { address: "1982 ????? (px 1585,445)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_sz_brickworks
+  name: { zh: "深圳市砖厂", en: "Shenzhen Brickworks" }
+  kind: industrial
+  area: 1
+  lonlat: [114.12135, 22.56303]
+  place: { address: "1982 ????? (px 1655,415)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_peoples_hospital_inpatient
+  name: { zh: "市人民医院留医部", en: "Municipal People's Hospital Inpatient Dept." }
+  kind: hospital
+  area: 1
+  lonlat: [114.12291, 22.56194]
+  place: { address: "人民医院留医部一带", basis: "1977 street sheet and September 1980 KH-9 locality; same proxy as site.peoples_hospital_inpatient", confidence: 0.35 }
+  status_1984: built
+  by_1984: { date: "1977", note: "The inpatient unit is already labelled on the 1977 street sheet." }
+  claims: [phase1.map.1977.school_hospital, phase1.observation.kh9_1980.core_anchor_review, phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_water_electricity_bureau
+  name: { zh: "水电局", en: "Water & Electricity Bureau" }
+  kind: utility
+  area: 5
+  lonlat: [114.11744, 22.5602]
+  place: { address: "1982 ????? (px 1545,495)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_forestry_institute
+  name: { zh: "林业研究所", en: "Forestry Research Institute" }
+  kind: research
+  area: 1
+  lonlat: [114.12932, 22.5622]
+  place: { address: "1982 ????? (px 1880,455)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_loading_repair_works
+  name: { zh: "装卸修配厂", en: "Loading/Unloading Repair Works" }
+  kind: industrial
+  area: 1
+  lonlat: [114.12772, 22.5608]
+  place: { address: "1982 ????? (px 1835,495)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_landscaping_station
+  name: { zh: "市园林站", en: "Municipal Landscaping Station" }
+  kind: government
+  area: 1
+  lonlat: [114.12258, 22.55985]
+  place: { address: "1982 ????? (px 1690,515)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_fish_fry_farm
+  name: { zh: "市鱼苗场", en: "Municipal Fish Fry Farm" }
+  kind: agriculture
+  area: 1
+  lonlat: [114.12523, 22.55984]
+  place: { address: "1982 ????? (px 1765,520)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_highway_bureau
+  name: { zh: "市公路局", en: "Municipal Highway Bureau" }
+  kind: government
+  area: 1
+  lonlat: [114.12381, 22.55845]
+  place: { address: "1982 ????? (px 1725,560)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_preserved_fruit_factory
+  name: { zh: "凉果厂", en: "Preserved Fruit Factory" }
+  kind: industrial
+  area: 5
+  lonlat: [114.11478, 22.55906]
+  place: { address: "1982 ????? (px 1470,525)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_ag_auto_repair
+  name: { zh: "农机汽车修理厂", en: "Agricultural Machinery & Auto Repair Works" }
+  kind: industrial
+  area: 1
+  lonlat: [114.11921, 22.55851]
+  place: { address: "1982 ????? (px 1595,550)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_normal_school
+  name: { zh: "市师范学校", en: "Municipal Normal School" }
+  kind: school
+  area: 1
+  lonlat: [114.12558, 22.5579]
+  place: { address: "1982 ????? (px 1775,580)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.sungang_shuibei_tianbei]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_meigang_forest_farm
+  name: { zh: "梅岗林场", en: "Meigang Forest Farm" }
+  kind: agriculture
+  area: null
+  lonlat: [114.07902, 22.56054]
+  place: { address: "1982 ????? (px 460,415)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_shooting_range
+  name: { zh: "打靶场", en: "Shooting Range" }
+  kind: military
+  area: null
+  lonlat: [114.08204, 22.56268]
+  place: { address: "1982 ????? (px 545,355)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_may7_farm
+  name: { zh: "五七农场", en: "May 7th Farm" }
+  kind: agriculture
+  area: 7
+  lonlat: [114.09657, 22.56484]
+  place: { address: "1982 ????? (px 955,315)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_weishi_factory
+  name: { zh: "威士厂", en: "Weishi Factory" }
+  kind: industrial
+  area: 3
+  lonlat: [114.10061, 22.55742]
+  place: { address: "1982 ????? (px 1070,550)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_sz_shirt_factory
+  name: { zh: "深圳恤衫厂", en: "Shenzhen Shirt Factory" }
+  kind: industrial
+  area: 3
+  lonlat: [114.1006, 22.55432]
+  place: { address: "1982 ????? (px 1070,645)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_livestock_institute
+  name: { zh: "宝安畜牧研究所", en: "Bao'an Livestock Research Institute" }
+  kind: research
+  area: 3
+  lonlat: [114.10359, 22.55075]
+  place: { address: "1982 ????? (px 1155,760)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_coal_company
+  name: { zh: "煤炭公司", en: "Coal Company" }
+  kind: commercial
+  area: 3
+  lonlat: [114.10679, 22.55273]
+  place: { address: "1982 ????? (px 1245,705)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_coal_yard
+  name: { zh: "贮煤场", en: "Coal Yard" }
+  kind: industrial
+  area: 3
+  lonlat: [114.10643, 22.5514]
+  place: { address: "1982 ????? (px 1235,745)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_timber_company
+  name: { zh: "木材公司", en: "Timber Company" }
+  kind: commercial
+  area: 3
+  lonlat: [114.1082, 22.55167]
+  place: { address: "1982 ????? (px 1285,740)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_weather_station
+  name: { zh: "市气象站", en: "Municipal Weather Station" }
+  kind: government
+  area: 3
+  lonlat: [114.10376, 22.54815]
+  place: { address: "1982 ????? (px 1160,840)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_yixing_factory
+  name: { zh: "怡兴工厂", en: "Yixing Factory" }
+  kind: industrial
+  area: 3
+  lonlat: [114.10056, 22.54682]
+  place: { address: "1982 ????? (px 1070,875)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_public_security_bureau
+  name: { zh: "公安局", en: "Public Security Bureau" }
+  kind: government
+  area: 3
+  lonlat: [114.1034, 22.54634]
+  place: { address: "1982 ????? (px 1150,895)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_hongxing_auto_repair
+  name: { zh: "红星汽车修配厂", en: "Hongxing Auto Repair Plant" }
+  kind: industrial
+  area: 3
+  lonlat: [114.10055, 22.54454]
+  place: { address: "1982 ????? (px 1070,945)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.nigang_bagualing_hongling]
+  later: { state: unknown, note: "Not yet checked against a current survey." }
+
+- id: b1984.m82_tourism_supply_co
+  name: { zh: "市旅游供应公司", en: "Municipal Tourism Supply Company" }
+  kind: commercial
+  area: 3
+  lonlat: [114.10372, 22.54]
+  place: { address: "1982 ????? (px 1160,1090)", basis: "1982 ????? affine georeference (10 GCPs, 201 m RMS); schematic map lead", confidence: 0.4 }
+  status_1984: built
+  by_1984: { date: "1982", note: "Labelled on the 1982 ?????; schematic map may mix built and planned works." }
+  claims: [phase1.map.1982.river_villages_planned_channel]
+  later: { state: unknown, note: "Not yet checked against a current survey." }

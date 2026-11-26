@@ -56,6 +56,35 @@ interface Site {
 }
 const STATUS_COLOR: Record<string, string> = { lead: '#d9473a', disputed: '#d9473a', sourced: '#e0a63a', verified: '#4caf6a' };
 
+/** 1984 reported buildings: a calibration checklist, not a site register (data/calibration/buildings_1984.yaml). */
+interface B1984 {
+  id: string; name: { zh: string; en: string }; kind: string; area?: number;
+  status_1984: 'built' | 'under_construction' | 'planned';
+  by_1984?: { date?: string; note?: string };
+  later?: { state?: string; note?: string };
+  cell: [number, number] | null; flags: string[]; claims: string[];
+}
+const B84_COLOR: Record<string, string> = { built: '#4caf6a', under_construction: '#e0a63a', planned: '#8fa3b3' };
+async function loadB1984(): Promise<B1984[]> {
+  const res = await fetch('/grid/buildings_1984.json');
+  if (!res.ok) return [];
+  const d: { buildings: B1984[] } = await res.json();
+  return d.buildings;
+}
+
+interface M1982 {
+  id: string; name: { zh: string; en: string };
+  category: 'building' | 'village' | 'hill' | 'hydro'; kind: string;
+  cell: [number, number] | null; landcover_1979?: string;
+}
+const M82_COLOR: Record<string, string> = { building: '#56c2d6', village: '#e8b84b', hill: '#b08968', hydro: '#4a90e2' };
+async function loadM1982(): Promise<M1982[]> {
+  const res = await fetch('/grid/map_1982_labels.json');
+  if (!res.ok) return [];
+  const d: { labels: M1982[] } = await res.json();
+  return d.labels;
+}
+
 /** Optional M1b layers: a missing file disables its toggle. */
 async function load1979(n: number) {
   const img = new Image();
@@ -193,6 +222,8 @@ async function main() {
   if (!sa) { $<HTMLInputElement>('slice').disabled = true; }
   let base = buildBase(g, opts, sa);
   const y79 = await load1979(meta.width * meta.height);
+  const b84 = await loadB1984();
+  const m82 = await loadM1982();
   const changeLayer = y79.change ? buildChange(meta.width, meta.height, y79.change) : null;
   const m1c = await loadM1c(meta.width * meta.height);
   const change7984 = m1c.change ? (() => {
@@ -202,9 +233,10 @@ async function main() {
     off.getContext('2d')!.putImageData(img, 0, 0);
     return off;
   })() : null;
-  const LAYER_KEYS = ['landsat', 'coast', 'sites', 'kh9', 'landsat84', 'change84'] as const;
-  const layers = { landsat: false, coast: false, sites: true, kh9: false, landsat84: false, change84: false };
+  const LAYER_KEYS = ['landsat', 'coast', 'sites', 'm82', 'b84', 'kh9', 'landsat84', 'change84'] as const;
+  const layers = { landsat: false, coast: false, sites: true, m82: false, b84: true, kh9: false, landsat84: false, change84: false };
   const present = { landsat: !!y79.landsat, coast: !!changeLayer, sites: y79.sites.length > 0,
+    m82: m82.length > 0, b84: b84.length > 0,
     kh9: !!m1c.kh9, landsat84: !!m1c.landsat84, change84: !!change7984 };
   for (const key of LAYER_KEYS) {
     if (!present[key]) { $<HTMLInputElement>(key).disabled = true; $<HTMLInputElement>(key).checked = false; layers[key] = false; }
@@ -212,6 +244,11 @@ async function main() {
   const unplaced = y79.sites.filter((s) => !s.cell);
   $('unplaced').textContent = unplaced.length
     ? `${y79.sites.length - unplaced.length} placed, ${unplaced.length} not placed yet: ${unplaced.map((s) => s.name.zh).join('、')}` : '';
+  const b84unplaced = b84.filter((b) => !b.cell);
+  $('m82count').textContent = m82.length ? `(${m82.length} labels, ±201 m RMS)` : '';
+  $('b84count').textContent = `(${b84.length} reported, ${b84.length - b84unplaced.length} placed)`;
+  $('b84unplaced').textContent = b84unplaced.length
+    ? `${b84.length - b84unplaced.length} placed, ${b84unplaced.length} not placed: ${b84unplaced.map((b) => b.name.zh).join('、')}` : '';
   let selected: string | null = null;
   const view = { scale: 1, ox: 0, oy: 0 };
 
@@ -247,6 +284,42 @@ async function main() {
     if (layers.coast && changeLayer) ctx.drawImage(changeLayer, 0, 0);
     if (layers.change84 && change7984) ctx.drawImage(change7984, 0, 0);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    if (layers.m82) {
+      const dpr = devicePixelRatio;
+      ctx.textAlign = 'left';
+      for (const m of m82) {
+        if (!m.cell) continue;
+        const sx = view.ox + (m.cell[0] + 0.5) * view.scale, sy = view.oy + (m.cell[1] + 0.5) * view.scale;
+        const r = Math.max(3.5 * dpr, Math.min(7 * dpr, view.scale * 0.55));
+        ctx.beginPath();
+        ctx.moveTo(sx, sy - r); ctx.lineTo(sx + r, sy); ctx.lineTo(sx, sy + r); ctx.lineTo(sx - r, sy); ctx.closePath();
+        ctx.fillStyle = M82_COLOR[m.category] ?? '#999';
+        ctx.strokeStyle = 'rgba(14,26,36,.9)'; ctx.lineWidth = 1.1 * dpr;
+        ctx.fill(); ctx.stroke();
+        if (view.scale > 3) {
+          ctx.font = `${10 * dpr}px system-ui, sans-serif`;
+          ctx.lineWidth = 2.5 * dpr; ctx.strokeStyle = 'rgba(14,26,36,.8)'; ctx.fillStyle = '#d9f0ff';
+          ctx.strokeText(m.name.zh, sx + 6 * dpr, sy + 3 * dpr); ctx.fillText(m.name.zh, sx + 6 * dpr, sy + 3 * dpr);
+        }
+      }
+    }
+    if (layers.b84) {
+      const dpr = devicePixelRatio;
+      ctx.textAlign = 'left';
+      for (const b of b84) {
+        if (!b.cell) continue;
+        const sx = view.ox + (b.cell[0] + 0.5) * view.scale, sy = view.oy + (b.cell[1] + 0.5) * view.scale;
+        const s = Math.max(4 * dpr, Math.min(9 * dpr, view.scale * 0.7));
+        ctx.fillStyle = B84_COLOR[b.status_1984] ?? '#999';
+        ctx.strokeStyle = 'rgba(14,26,36,.9)'; ctx.lineWidth = 1.2 * dpr;
+        ctx.fillRect(sx - s / 2, sy - s / 2, s, s); ctx.strokeRect(sx - s / 2, sy - s / 2, s, s);
+        if (view.scale > 2.5) {
+          ctx.font = `${11 * dpr}px system-ui, sans-serif`;
+          ctx.lineWidth = 3 * dpr; ctx.strokeStyle = 'rgba(14,26,36,.8)'; ctx.fillStyle = '#f4ecd8';
+          ctx.strokeText(b.name.zh, sx + 7 * dpr, sy - 5 * dpr); ctx.fillText(b.name.zh, sx + 7 * dpr, sy - 5 * dpr);
+        }
+      }
+    }
     if (layers.sites) {
       const dpr = devicePixelRatio;
       ctx.font = `${11 * dpr}px system-ui, sans-serif`; ctx.textAlign = 'left';
@@ -337,7 +410,10 @@ async function main() {
     const c84 = m1c.change ? ` · 1979→1984: ${CHANGE_7984[m1c.change[i]!]?.[0] ?? '?'}` : '';
     const ar = sa?.areas.find((a) => a.id === sa.cell[i]);
     const sl = ar ? ` · area ${ar.id} ${ar.name.zh} (${ar.access === 'card_only' ? 'card only' : 'playable'})` : '';
-    $('hover').textContent = `cell ${cx},${cy} · ${g.water[i] ? 'water' : `${g.elev[i]} m`} · ${d ? `${d.name} ${d.en}` : 'outside Shenzhen'}${s ? ` · ${s.name}` : ''}${sl}${then}${c84}`;
+    const b84here = layers.b84 ? b84.filter((b) => b.cell?.[0] === cx && b.cell[1] === cy)
+      .map((b) => `${b.name.zh} / ${b.name.en}`).join('、') : '';
+    const m82here = layers.m82 ? m82.find((m) => m.cell && m.cell[0] === cx && m.cell[1] === cy) : null;
+    $('hover').textContent = `cell ${cx},${cy} · ${g.water[i] ? 'water' : `${g.elev[i]} m`} · ${d ? `${d.name} ${d.en}` : 'outside Shenzhen'}${s ? ` · ${s.name}` : ''}${b84here ? ` · 1984: ${b84here}` : ''}${m82here ? ` · 1982:${m82here.name.zh}` : ''}${sl}${then}${c84}`;
   });
   for (const key of ['hill', 'dist', 'sub', 'slice'] as const) {
     $<HTMLInputElement>(key).addEventListener('change', (e) => {

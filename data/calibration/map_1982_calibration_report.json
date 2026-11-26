@@ -1,0 +1,840 @@
+{
+ "source": "data/calibration/map_1982_labels.yaml",
+ "count": 205,
+ "by_category": {
+  "building": 106,
+  "village": 87,
+  "hill": 9,
+  "hydro": 3
+ },
+ "georef": {
+  "model": "6-parameter affine (px, py -> EPSG:32650 E, N)",
+  "gcp_count": 10,
+  "scale_x_m_per_px": 3.653,
+  "scale_y_m_per_px": 3.612,
+  "in_sample_rms_m": 200.6,
+  "loo_rms_m": 331.9,
+  "loo_median_m": 300.3,
+  "gcps": [
+   {
+    "id": "gcp.luohu_bridge",
+    "name": "罗湖桥",
+    "px": 1420,
+    "py": 1412,
+    "lonlat": [
+     114.1135,
+     22.5301
+    ],
+    "dE_m": -63.3,
+    "dN_m": -4.8,
+    "err_m": 63.4
+   },
+   {
+    "id": "gcp.sz_station",
+    "name": "深圳车站",
+    "px": 1430,
+    "py": 1308,
+    "lonlat": [
+     114.11211,
+     22.53449
+    ],
+    "dE_m": 115.7,
+    "dN_m": -116.8,
+    "err_m": 164.3
+   },
+   {
+    "id": "gcp.guoshang",
+    "name": "国际商业大厦",
+    "px": 1490,
+    "py": 1055,
+    "lonlat": [
+     114.11283,
+     22.5419
+    ],
+    "dE_m": 266.0,
+    "dN_m": -13.1,
+    "err_m": 266.3
+   },
+   {
+    "id": "gcp.wenjindu",
+    "name": "文锦渡",
+    "px": 1760,
+    "py": 1070,
+    "lonlat": [
+     114.1269,
+     22.543
+    ],
+    "dE_m": -200.2,
+    "dN_m": -118.0,
+    "err_m": 232.4
+   },
+   {
+    "id": "gcp.yumin",
+    "name": "渔民村",
+    "px": 1240,
+    "py": 1190,
+    "lonlat": [
+     114.1071,
+     22.5358
+    ],
+    "dE_m": -55.0,
+    "dN_m": 123.9,
+    "err_m": 135.5
+   },
+   {
+    "id": "gcp.municipal_gov",
+    "name": "深圳市人民政府",
+    "px": 875,
+    "py": 902,
+    "lonlat": [
+     114.0933,
+     22.5435
+    ],
+    "dE_m": 40.8,
+    "dN_m": 224.8,
+    "err_m": 228.5
+   },
+   {
+    "id": "gcp.bijiashan_peak",
+    "name": "笔架山",
+    "px": 470,
+    "py": 228,
+    "lonlat": [
+     114.08033,
+     22.56722
+    ],
+    "dE_m": -97.2,
+    "dN_m": -60.1,
+    "err_m": 114.3
+   },
+   {
+    "id": "gcp.xiangxi",
+    "name": "向西",
+    "px": 1610,
+    "py": 965,
+    "lonlat": [
+     114.1207,
+     22.5454
+    ],
+    "dE_m": -105.9,
+    "dN_m": -41.0,
+    "err_m": 113.6
+   },
+   {
+    "id": "gcp.sungang",
+    "name": "笋岗",
+    "px": 1345,
+    "py": 250,
+    "lonlat": [
+     114.1093,
+     22.5701
+    ],
+    "dE_m": 107.3,
+    "dN_m": -260.6,
+    "err_m": 281.8
+   },
+   {
+    "id": "gcp.datouling_peak",
+    "name": "大头岭",
+    "px": 1865,
+    "py": 255,
+    "lonlat": [
+     114.12894,
+     22.56629
+    ],
+    "dE_m": -8.0,
+    "dN_m": 265.6,
+    "err_m": 265.7
+   }
+  ],
+  "loo": [
+   {
+    "id": "gcp.luohu_bridge",
+    "name": "罗湖桥",
+    "loo_err_m": 86.3
+   },
+   {
+    "id": "gcp.sz_station",
+    "name": "深圳车站",
+    "loo_err_m": 207.3
+   },
+   {
+    "id": "gcp.guoshang",
+    "name": "国际商业大厦",
+    "loo_err_m": 304.8
+   },
+   {
+    "id": "gcp.wenjindu",
+    "name": "文锦渡",
+    "loo_err_m": 295.8
+   },
+   {
+    "id": "gcp.yumin",
+    "name": "渔民村",
+    "loo_err_m": 165.4
+   },
+   {
+    "id": "gcp.municipal_gov",
+    "name": "深圳市人民政府",
+    "loo_err_m": 309.6
+   },
+   {
+    "id": "gcp.bijiashan_peak",
+    "name": "笔架山",
+    "loo_err_m": 375.7
+   },
+   {
+    "id": "gcp.xiangxi",
+    "name": "向西",
+    "loo_err_m": 132.7
+   },
+   {
+    "id": "gcp.sungang",
+    "name": "笋岗",
+    "loo_err_m": 411.7
+   },
+   {
+    "id": "gcp.datouling_peak",
+    "name": "大头岭",
+    "loo_err_m": 647.6
+   }
+  ]
+ },
+ "calibration": {
+  "sites_1979_vs_1982_map": [
+   {
+    "site_1979_id": "site.luohu_crossing",
+    "label_1982_id": "m82.luohu_bridge",
+    "name": "罗湖桥",
+    "site_1979_lonlat": [
+     114.1135,
+     22.5301
+    ],
+    "map_1982_lonlat": [
+     114.11289,
+     22.53005
+    ],
+    "offset_m": 63.4,
+    "dE_m": -63.3,
+    "dN_m": -4.8,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.shenzhen_station",
+    "label_1982_id": "m82.sz_station",
+    "name": "深圳车站",
+    "site_1979_lonlat": [
+     114.1121,
+     22.5345
+    ],
+    "map_1982_lonlat": [
+     114.11379,
+     22.53342
+    ],
+    "offset_m": 210.7,
+    "dE_m": 171.2,
+    "dN_m": -122.7,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.wenjindu_crossing",
+    "label_1982_id": "m82.wenjindu_customs",
+    "name": "文锦渡分关",
+    "site_1979_lonlat": [
+     114.1269,
+     22.543
+    ],
+    "map_1982_lonlat": [
+     114.12533,
+     22.54241
+    ],
+    "offset_m": 174.0,
+    "dE_m": -162.5,
+    "dN_m": -62.2,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.wenjindu_crossing",
+    "label_1982_id": "m82.wenjindu",
+    "name": "文锦渡",
+    "site_1979_lonlat": [
+     114.1269,
+     22.543
+    ],
+    "map_1982_lonlat": [
+     114.12498,
+     22.5419
+    ],
+    "offset_m": 232.4,
+    "dE_m": -200.2,
+    "dN_m": -118.0,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.shenzhen_theatre",
+    "label_1982_id": "m82.shenzhen_theatre",
+    "name": "深圳戏院",
+    "site_1979_lonlat": [
+     114.11186,
+     22.5482
+    ],
+    "map_1982_lonlat": [
+     114.11191,
+     22.54944
+    ],
+    "offset_m": 137.9,
+    "dE_m": 7.5,
+    "dN_m": 137.7,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.shenzhen_middle_school",
+    "label_1982_id": "m82.shenzhen_middle_school",
+    "name": "深圳中学",
+    "site_1979_lonlat": [
+     114.11711,
+     22.55552
+    ],
+    "map_1982_lonlat": [
+     114.11742,
+     22.55563
+    ],
+    "offset_m": 34.6,
+    "dE_m": 32.4,
+    "dN_m": 11.9,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.hubei",
+    "label_1982_id": "m82.hubei",
+    "name": "湖贝",
+    "site_1979_lonlat": [
+     114.11985,
+     22.54914
+    ],
+    "map_1982_lonlat": [
+     114.11988,
+     22.55138
+    ],
+    "offset_m": 248.1,
+    "dE_m": 8.2,
+    "dN_m": 247.9,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.xiangxi",
+    "label_1982_id": "m82.xiangxi",
+    "name": "向西",
+    "site_1979_lonlat": [
+     114.1207,
+     22.5454
+    ],
+    "map_1982_lonlat": [
+     114.11986,
+     22.54567
+    ],
+    "offset_m": 91.8,
+    "dE_m": -86.0,
+    "dN_m": 32.0,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.sungang_freight",
+    "label_1982_id": "m82.sungang_station",
+    "name": "笋岗车站",
+    "site_1979_lonlat": [
+     114.11058,
+     22.56587
+    ],
+    "map_1982_lonlat": [
+     114.11144,
+     22.56555
+    ],
+    "offset_m": 95.9,
+    "dE_m": 88.3,
+    "dN_m": -37.4,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.peoples_hospital_inpatient",
+    "label_1982_id": "m82.peoples_hospital_inpatient",
+    "name": "市人民医院留医部",
+    "site_1979_lonlat": [
+     114.12291,
+     22.56194
+    ],
+    "map_1982_lonlat": [
+     114.12329,
+     22.56217
+    ],
+    "offset_m": 47.1,
+    "dE_m": 40.1,
+    "dN_m": 24.7,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.shuibei",
+    "label_1982_id": "m82.shuibei",
+    "name": "水贝",
+    "site_1979_lonlat": [
+     114.11906,
+     22.57424
+    ],
+    "map_1982_lonlat": [
+     114.12016,
+     22.57388
+    ],
+    "offset_m": 119.8,
+    "dE_m": 112.1,
+    "dN_m": -42.0,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.sungang",
+    "label_1982_id": "m82.sungang",
+    "name": "笋岗",
+    "site_1979_lonlat": [
+     114.1093,
+     22.5701
+    ],
+    "map_1982_lonlat": [
+     114.11039,
+     22.56777
+    ],
+    "offset_m": 281.8,
+    "dE_m": 107.3,
+    "dN_m": -260.6,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.tianbei_lower",
+    "label_1982_id": "m82.xiatianbei",
+    "name": "下田贝",
+    "site_1979_lonlat": [
+     114.11824,
+     22.567
+    ],
+    "map_1982_lonlat": [
+     114.11818,
+     22.56806
+    ],
+    "offset_m": 117.8,
+    "dE_m": -3.4,
+    "dN_m": 117.8,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.tianbei_upper",
+    "label_1982_id": "m82.shangtianbei",
+    "name": "上田贝",
+    "site_1979_lonlat": [
+     114.12214,
+     22.56617
+    ],
+    "map_1982_lonlat": [
+     114.12119,
+     22.56808
+    ],
+    "offset_m": 232.5,
+    "dE_m": -93.2,
+    "dN_m": 213.0,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.nigang",
+    "label_1982_id": "m82.nigang",
+    "name": "泥岗",
+    "site_1979_lonlat": [
+     114.0958,
+     22.57111
+    ],
+    "map_1982_lonlat": [
+     114.09535,
+     22.57128
+    ],
+    "offset_m": 49.8,
+    "dE_m": -45.6,
+    "dN_m": 20.0,
+    "flag": "within_map_rms"
+   },
+   {
+    "site_1979_id": "site.shangbu_land",
+    "label_1982_id": "m82.shangbu_village",
+    "name": "上步",
+    "site_1979_lonlat": [
+     114.0789,
+     22.5504
+    ],
+    "map_1982_lonlat": [
+     114.0947,
+     22.54224
+    ],
+    "offset_m": 1861.0,
+    "dE_m": 1608.7,
+    "dN_m": -935.7,
+    "flag": "large_offset_gt_300m"
+   },
+   {
+    "site_1979_id": "site.caiwuwei",
+    "label_1982_id": "m82.caiwuwei",
+    "name": "蔡屋围",
+    "site_1979_lonlat": [
+     114.1027,
+     22.5409
+    ],
+    "map_1982_lonlat": [
+     114.10374,
+     22.54408
+    ],
+    "offset_m": 367.8,
+    "dE_m": 113.8,
+    "dN_m": 349.8,
+    "flag": "large_offset_gt_300m"
+   },
+   {
+    "site_1979_id": "site.yumin",
+    "label_1982_id": "m82.yumin",
+    "name": "渔民村",
+    "site_1979_lonlat": [
+     114.1071,
+     22.5358
+    ],
+    "map_1982_lonlat": [
+     114.10637,
+     22.5369
+    ],
+    "offset_m": 143.2,
+    "dE_m": -73.3,
+    "dN_m": 123.1,
+    "flag": "within_map_rms"
+   }
+  ],
+  "buildings_1984_vs_1982_map": [
+   {
+    "b1984_id": "b1984.shenzhen_station",
+    "label_1982_id": "m82.sz_station",
+    "name": "深圳车站",
+    "b1984_lonlat": [
+     114.11211,
+     22.53449
+    ],
+    "map_1982_lonlat": [
+     114.11379,
+     22.53342
+    ],
+    "offset_m": 209.2,
+    "dE_m": 170.2,
+    "dN_m": -121.6
+   },
+   {
+    "b1984_id": "b1984.guoshang",
+    "label_1982_id": "m82.guoshang",
+    "name": "国际商业大厦",
+    "b1984_lonlat": [
+     114.11283,
+     22.5419
+    ],
+    "map_1982_lonlat": [
+     114.11542,
+     22.54183
+    ],
+    "offset_m": 266.3,
+    "dE_m": 266.0,
+    "dN_m": -13.1
+   },
+   {
+    "b1984_id": "b1984.shenzhen_theatre",
+    "label_1982_id": "m82.shenzhen_theatre",
+    "name": "深圳戏院",
+    "b1984_lonlat": [
+     114.11186,
+     22.5482
+    ],
+    "map_1982_lonlat": [
+     114.11191,
+     22.54944
+    ],
+    "offset_m": 137.9,
+    "dE_m": 7.5,
+    "dN_m": 137.7
+   },
+   {
+    "b1984_id": "b1984.m82_shenzhen_middle_school",
+    "label_1982_id": "m82.shenzhen_middle_school",
+    "name": "深圳中学",
+    "b1984_lonlat": [
+     114.11711,
+     22.55552
+    ],
+    "map_1982_lonlat": [
+     114.11742,
+     22.55563
+    ],
+    "offset_m": 34.6,
+    "dE_m": 32.4,
+    "dN_m": 11.9
+   },
+   {
+    "b1984_id": "b1984.municipal_government",
+    "label_1982_id": "m82.municipal_government",
+    "name": "深圳市人民政府",
+    "b1984_lonlat": [
+     114.0933,
+     22.5435
+    ],
+    "map_1982_lonlat": [
+     114.09365,
+     22.54554
+    ],
+    "offset_m": 228.5,
+    "dE_m": 40.8,
+    "dN_m": 224.8
+   },
+   {
+    "b1984_id": "b1984.electronics",
+    "label_1982_id": "m82.sz_electronics_building",
+    "name": "深圳电子工业大楼",
+    "b1984_lonlat": [
+     114.08302,
+     22.54364
+    ],
+    "map_1982_lonlat": [
+     114.08159,
+     22.54033
+    ],
+    "offset_m": 395.3,
+    "dE_m": -154.1,
+    "dN_m": -364.0
+   },
+   {
+    "b1984_id": "b1984.m82_sungang_station",
+    "label_1982_id": "m82.sungang_station",
+    "name": "笋岗车站",
+    "b1984_lonlat": [
+     114.11058,
+     22.56587
+    ],
+    "map_1982_lonlat": [
+     114.11144,
+     22.56555
+    ],
+    "offset_m": 95.9,
+    "dE_m": 88.3,
+    "dN_m": -37.4
+   },
+   {
+    "b1984_id": "b1984.m82_peoples_hospital_inpatient",
+    "label_1982_id": "m82.peoples_hospital_inpatient",
+    "name": "市人民医院留医部",
+    "b1984_lonlat": [
+     114.12291,
+     22.56194
+    ],
+    "map_1982_lonlat": [
+     114.12329,
+     22.56217
+    ],
+    "offset_m": 47.1,
+    "dE_m": 40.1,
+    "dN_m": 24.7
+   },
+   {
+    "b1984_id": "b1984.bagualing",
+    "label_1982_id": "m82.bagualing",
+    "name": "八卦岭",
+    "b1984_lonlat": [
+     114.09107,
+     22.56419
+    ],
+    "map_1982_lonlat": [
+     114.09107,
+     22.56419
+    ],
+    "offset_m": 0.5,
+    "dE_m": 0.4,
+    "dN_m": -0.3
+   }
+  ],
+  "by_area_summary": {
+   "outside_slice": {
+    "total": 55,
+    "buildings": 18,
+    "villages": 16,
+    "buildings_unbuilt_in_lc79": 0,
+    "villages_unbuilt_in_lc79": 0
+   },
+   "2": {
+    "total": 26,
+    "buildings": 18,
+    "villages": 5,
+    "buildings_unbuilt_in_lc79": 1,
+    "villages_unbuilt_in_lc79": 0
+   },
+   "4": {
+    "total": 4,
+    "buildings": 1,
+    "villages": 1,
+    "buildings_unbuilt_in_lc79": 0,
+    "villages_unbuilt_in_lc79": 0
+   },
+   "1": {
+    "total": 43,
+    "buildings": 29,
+    "villages": 7,
+    "buildings_unbuilt_in_lc79": 1,
+    "villages_unbuilt_in_lc79": 0
+   },
+   "3": {
+    "total": 23,
+    "buildings": 17,
+    "villages": 3,
+    "buildings_unbuilt_in_lc79": 1,
+    "villages_unbuilt_in_lc79": 0
+   },
+   "7": {
+    "total": 27,
+    "buildings": 14,
+    "villages": 1,
+    "buildings_unbuilt_in_lc79": 14,
+    "villages_unbuilt_in_lc79": 1
+   },
+   "5": {
+    "total": 27,
+    "buildings": 9,
+    "villages": 3,
+    "buildings_unbuilt_in_lc79": 0,
+    "villages_unbuilt_in_lc79": 0
+   }
+  },
+  "playable_villages_missing_in_1979_landcover": [
+   {
+    "id": "m82.yuanlingzai",
+    "name": "园岭仔",
+    "category": "village",
+    "kind": "village",
+    "area": 7,
+    "cell": [
+     359,
+     364
+    ],
+    "landcover_1979": "lowland_farm"
+   }
+  ],
+  "playable_buildings_unbuilt_in_1979_landcover_count": 17,
+  "hills_vs_dem": [
+   {
+    "id": "m82.shangbuling",
+    "name": "上步岭",
+    "area": 7,
+    "cell": [
+     369,
+     379
+    ],
+    "elev_at_cell_m": 18,
+    "elev_max_200m_m": 27,
+    "landcover_1979": "lowland_farm"
+   },
+   {
+    "id": "m82.maguling",
+    "name": "马古岭",
+    "area": 1,
+    "cell": [
+     398,
+     351
+    ],
+    "elev_at_cell_m": 20,
+    "elev_max_200m_m": 35,
+    "landcover_1979": "lowland_farm"
+   },
+   {
+    "id": "m82.datouling_peak",
+    "name": "大头岭",
+    "area": 1,
+    "cell": [
+     403,
+     352
+    ],
+    "elev_at_cell_m": 65,
+    "elev_max_200m_m": 135,
+    "landcover_1979": "hill"
+   },
+   {
+    "id": "m82.bijiashan",
+    "name": "笔架山",
+    "area": null,
+    "cell": [
+     352,
+     354
+    ],
+    "elev_at_cell_m": 139,
+    "elev_max_200m_m": 162,
+    "landcover_1979": "outside_playable"
+   },
+   {
+    "id": "m82.baishaling",
+    "name": "白沙岭",
+    "area": 7,
+    "cell": [
+     357,
+     367
+    ],
+    "elev_at_cell_m": 22,
+    "elev_max_200m_m": 31,
+    "landcover_1979": "lowland_farm"
+   },
+   {
+    "id": "m82.yuantouling",
+    "name": "园头岭",
+    "area": 7,
+    "cell": [
+     367,
+     368
+    ],
+    "elev_at_cell_m": 21,
+    "elev_max_200m_m": 25,
+    "landcover_1979": "lowland_farm"
+   },
+   {
+    "id": "m82.dafenshan",
+    "name": "大坟山",
+    "area": null,
+    "cell": [
+     348,
+     365
+    ],
+    "elev_at_cell_m": 18,
+    "elev_max_200m_m": 24,
+    "landcover_1979": "outside_playable"
+   },
+   {
+    "id": "m82.wangniudun",
+    "name": "望牛墩",
+    "area": 7,
+    "cell": [
+     370,
+     364
+    ],
+    "elev_at_cell_m": 25,
+    "elev_max_200m_m": 26,
+    "landcover_1979": "lowland_farm"
+   },
+   {
+    "id": "m82.xibianling",
+    "name": "西边岭",
+    "area": 5,
+    "cell": [
+     381,
+     349
+    ],
+    "elev_at_cell_m": 21,
+    "elev_max_200m_m": 26,
+    "landcover_1979": "village"
+   }
+  ]
+ },
+ "caveats": [
+  "1982 深圳市区图 is a schematic folded paper city map photographed at an angle (~201 m in-sample RMS, ~332 m LOO RMS).",
+  "A 1982 building reading as lowland_farm in 1979 landcover may be genuine 1979->1982 construction (e.g. Shangbu), OR an existing pre-1979 facility outside the 1979 site-register radius.",
+  "An overlay label with no built cell in the sampled neighbourhood is a review lead. The label alone cannot establish 1979 existence, classify the cell or delimit the site."
+ ]
+}

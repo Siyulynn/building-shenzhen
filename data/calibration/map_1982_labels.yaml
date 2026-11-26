@@ -1,0 +1,251 @@
+# Complete label transcription and georeferencing control points for the 1982 深圳市区图.
+# Source image: data/raw/sources/phase1_1982_shenzhen_city_map/map_1982.jpg (2000x1500 px)
+# Source record: data/evidence/sources/phase1_1982_shenzhen_city_map.yaml (tier D, reference_only)
+#
+# Caveats:
+#   - Folded paper city map photographed at a slight angle; no scale, imprint or legend visible.
+#   - Schematic city map: old-town blocks are slightly widened for legibility and Shangbu's grid is drawn orthogonal.
+#   - Mixes existing features with planned works (e.g. 科学馆, 计划中水道).
+#   - Affine georeferencing has ~201 m in-sample RMS (~2 grid cells) and ~332 m leave-one-out RMS.
+#
+# Categories:
+#   building  named building, factory, office, school, hospital, station, depot or facility
+#   village   village, hamlet, residential quarter or named locality
+#   hill      named hill, peak or ridge
+#   hydro     named river, pond, lake or planned waterway
+
+source: phase1_1982_shenzhen_city_map
+image: data/raw/sources/phase1_1982_shenzhen_city_map/map_1982.jpg
+image_size: [2000, 1500]
+
+gcps:
+  - { id: gcp.luohu_bridge, name: 罗湖桥, px: 1420, py: 1412, lonlat: [114.11350, 22.53010], basis: "site.luohu_crossing proxy" }
+  - { id: gcp.sz_station, name: 深圳车站, px: 1430, py: 1308, lonlat: [114.11211, 22.53449], basis: "b1984.shenzhen_station Nominatim centroid" }
+  - { id: gcp.guoshang, name: 国际商业大厦, px: 1490, py: 1055, lonlat: [114.11283, 22.54190], basis: "b1984.guoshang Photon centroid" }
+  - { id: gcp.wenjindu, name: 文锦渡, px: 1760, py: 1070, lonlat: [114.12690, 22.54300], basis: "site.wenjindu_crossing proxy" }
+  - { id: gcp.yumin, name: 渔民村, px: 1240, py: 1190, lonlat: [114.10710, 22.53580], basis: "site.yumin proxy" }
+  - { id: gcp.municipal_gov, name: 深圳市人民政府, px: 875, py: 902, lonlat: [114.09330, 22.54350], basis: "b1984.municipal_government gate geotag" }
+  - { id: gcp.bijiashan_peak, name: 笔架山, px: 470, py: 228, lonlat: [114.08033, 22.56722], basis: "Copernicus DEM 162 m peak cell (353,353)" }
+  - { id: gcp.xiangxi, name: 向西, px: 1610, py: 965, lonlat: [114.12070, 22.54540], basis: "site.xiangxi proxy" }
+  - { id: gcp.sungang, name: 笋岗, px: 1345, py: 250, lonlat: [114.10930, 22.57010], basis: "site.sungang proxy" }
+  - { id: gcp.datouling_peak, name: 大头岭, px: 1865, py: 255, lonlat: [114.12894, 22.56629], basis: "Copernicus DEM 137 m peak cell (403,355)" }
+
+labels:
+  # --- Luohu station, crossing & Wenjindu corridor ------------------------------------------
+  - { id: m82.luohu_bridge, name: { zh: 罗湖桥, en: Luohu Bridge }, category: building, kind: border_crossing, px: 1420, py: 1412, claim: phase1.map.1982.luohu_station_crossing, existing_1979_id: site.luohu_crossing }
+  - { id: m82.sz_station, name: { zh: 深圳车站, en: Shenzhen Railway Station }, category: building, kind: railway, px: 1445, py: 1310, claim: phase1.map.1982.luohu_station_crossing, existing_1984_id: b1984.shenzhen_station, existing_1979_id: site.shenzhen_station }
+  - { id: m82.luohu_quarantine, name: { zh: 卫生检疫所, en: Health Quarantine Station (Luohu) }, category: building, kind: government, px: 1470, py: 1345, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.customs_building, name: { zh: 海关大楼, en: Customs Building }, category: building, kind: government, px: 1365, py: 1320, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.train_crew_quarters, name: { zh: 深圳行车公宇, en: Shenzhen Train Crew Quarters }, category: building, kind: railway, px: 1465, py: 1280, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.taxi_stand, name: { zh: 小汽车出租点, en: Car Rental / Taxi Stand }, category: building, kind: transport, px: 1430, py: 1225, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.luohu_building, name: { zh: 罗湖大厦, en: Luohu Building }, category: building, kind: commercial, px: 1415, py: 1115, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.friendship_building, name: { zh: 友谊大厦, en: Friendship Building }, category: building, kind: commercial, px: 1415, py: 1030, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.guoshang, name: { zh: 国际商业大厦, en: International Commercial Building (Guoshang) }, category: building, kind: office_tower, px: 1490, py: 1055, claim: phase1.map.1982.luohu_station_crossing, existing_1984_id: b1984.guoshang }
+  - { id: m82.railway_primary_school, name: { zh: 铁路小学, en: Railway Primary School }, category: building, kind: school, px: 1485, py: 1085, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.tourism_bureau, name: { zh: 旅游局, en: Tourism Bureau }, category: building, kind: government, px: 1420, py: 990, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.foreign_trade_exhibition, name: { zh: 中国外贸局展销大楼, en: China Foreign Trade Bureau Exhibition Building }, category: building, kind: commercial, px: 1500, py: 990, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.food_export_plant, name: { zh: 市食出加工场, en: Municipal Food Export Processing Plant }, category: building, kind: industrial, px: 1630, py: 1065, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.wenjindu_customs, name: { zh: 文锦渡分关, en: Wenjindu Sub-Customs }, category: building, kind: border_crossing, px: 1770, py: 1055, claim: phase1.map.1982.luohu_station_crossing, existing_1979_id: site.wenjindu_crossing }
+  - { id: m82.chuanbu_wharf, name: { zh: 深圳船步码头, en: Shenzhen Chuanbu Wharf }, category: building, kind: transport, px: 1305, py: 1180, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.general_transport_co, name: { zh: 运输总公司, en: General Transport Company }, category: building, kind: transport, px: 1295, py: 1090, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.xinjiaocun, name: { zh: 新郊村, en: Xinjiao Village }, category: village, kind: village, px: 1290, py: 1110, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.hutangwei, name: { zh: 湖塘尾, en: Hutangwei }, category: village, kind: village, px: 1555, py: 1065, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.huangnidi, name: { zh: 黄泥地, en: Huangnidi }, category: village, kind: locality, px: 1595, py: 1245, claim: phase1.map.1982.luohu_station_crossing }
+  - { id: m82.wenjindu, name: { zh: 文锦渡, en: Wenjindu }, category: village, kind: locality, px: 1760, py: 1070, claim: phase1.map.1982.luohu_station_crossing, existing_1979_id: site.wenjindu_crossing }
+  - { id: m82.xiashuiliang, name: { zh: 下水亮, en: Xiashuiliang }, category: village, kind: locality, px: 1845, py: 1050, claim: phase1.map.1982.luohu_station_crossing }
+
+  # --- Dongmen old town, Hubei & Xiangxi ----------------------------------------------------
+  - { id: m82.shenzhen_theatre, name: { zh: 深圳戏院, en: Shenzhen Theatre }, category: building, kind: theatre, px: 1390, py: 815, claim: phase1.map.1982.dongmen_old_town, existing_1984_id: b1984.shenzhen_theatre, existing_1979_id: site.shenzhen_theatre }
+  - { id: m82.workers_cultural_palace, name: { zh: 工人文化宫, en: Workers' Cultural Palace }, category: building, kind: civic, px: 1380, py: 780, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.xinyuan_guesthouse, name: { zh: 新园招待所, en: Xinyuan Guesthouse }, category: building, kind: hotel, px: 1390, py: 725, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.shenzhen_middle_school, name: { zh: 深圳中学, en: Shenzhen Middle School }, category: building, kind: school, px: 1545, py: 635, claim: phase1.map.1982.dongmen_old_town, existing_1979_id: site.shenzhen_middle_school, existing_1984_id: b1984.m82_shenzhen_middle_school }
+  - { id: m82.shenzhen_bus_station, name: { zh: 深圳汽车站, en: Shenzhen Bus Station }, category: building, kind: transport, px: 1555, py: 720, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.post_telecom_bureau, name: { zh: 邮电局, en: Post & Telecommunications Bureau }, category: building, kind: utility, px: 1345, py: 915, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.tcm_hospital, name: { zh: 市中医院, en: Municipal TCM Hospital }, category: building, kind: hospital, px: 1250, py: 915, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.quarantine_central, name: { zh: 检疫所, en: Quarantine Station (Jiefang Rd) }, category: building, kind: government, px: 1295, py: 995, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.peoples_stadium, name: { zh: 人民体育场, en: People's Stadium }, category: building, kind: civic, px: 1240, py: 1035, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.old_library, name: { zh: 图书馆, en: Municipal Library (old town) }, category: building, kind: library, px: 1235, py: 845, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.no6_primary_school, name: { zh: 市六小, en: Municipal No. 6 Primary School }, category: building, kind: school, px: 1225, py: 815, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.railway_school, name: { zh: 铁路学校, en: Railway School }, category: building, kind: school, px: 1285, py: 780, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.epidemic_prevention, name: { zh: 市卫生防疫站, en: Municipal Epidemic Prevention Station }, category: building, kind: hospital, px: 1425, py: 665, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.housing_bureau_north, name: { zh: 房管局（蛟湖）, en: Housing Administration Bureau (Jiaohu) }, category: building, kind: government, px: 1425, py: 610, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.housing_bureau_south, name: { zh: 房管局（解放路）, en: Housing Administration Bureau (Jiefang Rd) }, category: building, kind: government, px: 1555, py: 815, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.may7_middle_school, name: { zh: 五七中学, en: May 7th Middle School }, category: building, kind: school, px: 1415, py: 570, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.petroleum_company, name: { zh: 石油公司, en: Petroleum Company }, category: building, kind: commercial, px: 1515, py: 700, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.motor_transport_co, name: { zh: 汽车公司, en: Motor Transport Company }, category: building, kind: transport, px: 1595, py: 845, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.foodstuffs_company, name: { zh: 食品公司, en: Foodstuffs Company }, category: building, kind: commercial, px: 1510, py: 925, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.luohu_crafts_factory, name: { zh: 罗湖区工艺厂, en: Luohu District Arts & Crafts Factory }, category: building, kind: industrial, px: 1600, py: 930, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.sauce_factory, name: { zh: 酱料厂, en: Sauce & Condiment Factory }, category: building, kind: industrial, px: 1670, py: 650, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.radio_factory, name: { zh: 无线电厂, en: Radio Factory }, category: building, kind: industrial, px: 1630, py: 680, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.plastics_factory, name: { zh: 塑料厂, en: Plastics Factory }, category: building, kind: industrial, px: 1620, py: 720, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.ag_machinery_school, name: { zh: 农机学校, en: Agricultural Machinery School }, category: building, kind: school, px: 1855, py: 635, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.education_new_village, name: { zh: 教育新村, en: Education New Village }, category: village, kind: residential, px: 1765, py: 615, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.hubei, name: { zh: 湖贝, en: Hubei Village }, category: village, kind: village, px: 1615, py: 770, claim: phase1.map.1982.dongmen_old_town, existing_1979_id: site.hubei }
+  - { id: m82.hetangcun, name: { zh: 禾塘村, en: Hetang Village }, category: village, kind: village, px: 1555, py: 775, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.xiangxi, name: { zh: 向西, en: Xiangxi Village }, category: village, kind: village, px: 1615, py: 945, claim: phase1.map.1982.dongmen_old_town, existing_1979_id: site.xiangxi }
+  - { id: m82.hedong, name: { zh: 河东, en: Hedong }, category: village, kind: village, px: 1675, py: 975, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.dongan, name: { zh: 东安, en: Dong'an }, category: village, kind: locality, px: 1740, py: 970, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.jiaohu, name: { zh: 蛟湖, en: Jiaohu }, category: village, kind: locality, px: 1395, py: 625, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.dongxinjiao, name: { zh: 东新郊, en: Dongxinjiao }, category: village, kind: village, px: 1655, py: 595, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.tianbeitang, name: { zh: 田贝塘, en: Tianbeitang }, category: hydro, kind: pond, px: 1685, py: 745, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.zhubian, name: { zh: 竹边, en: Zhubian }, category: village, kind: locality, px: 1755, py: 690, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.aozai, name: { zh: 坳仔, en: Aozai }, category: village, kind: locality, px: 1795, py: 740, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.dafenwei, name: { zh: 大坟尾, en: Dafenwei }, category: village, kind: locality, px: 1740, py: 785, claim: phase1.map.1982.dongmen_old_town }
+  - { id: m82.maowuzai, name: { zh: 茅屋仔, en: Maowuzai }, category: village, kind: village, px: 1815, py: 815, claim: phase1.map.1982.dongmen_old_town }
+
+  # --- Shangbu & Huaqiang industrial / civic grid -------------------------------------------
+  - { id: m82.municipal_government, name: { zh: 深圳市人民政府, en: Shenzhen Municipal People's Government }, category: building, kind: government, px: 875, py: 902, claim: phase1.map.1982.municipal_government_compound, existing_1984_id: b1984.municipal_government }
+  - { id: m82.party_committee_dorm, name: { zh: 市委宿舍, en: Municipal Party Committee Dormitory }, category: building, kind: residential, px: 860, py: 805, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.science_museum, name: { zh: 科学馆, en: Science Museum }, category: building, kind: civic, px: 830, py: 975, claim: phase1.map.1982.shangbu_industrial, planned_in_1982: true, notes: "Likely still planned in 1982." }
+  - { id: m82.shangbuling, name: { zh: 上步岭, en: Shangbuling }, category: hill, kind: hill, px: 945, py: 940, claim: phase1.map.1982.shangbuling }
+  - { id: m82.huali_furniture, name: { zh: 华丽装修家私公司, en: Huali Decoration & Furniture Co. }, category: building, kind: industrial, px: 395, py: 825, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.sz_printing_factory, name: { zh: 深圳印刷制品厂, en: Shenzhen Printing Products Factory }, category: building, kind: industrial, px: 465, py: 820, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.aviation_company, name: { zh: 航空公司, en: Aviation Company (CATIC) }, category: building, kind: industrial, px: 395, py: 895, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.huaqiang_electronics_n, name: { zh: 华强电子工业公司（北）, en: Huaqiang Electronics Industry Co. (North) }, category: building, kind: industrial, px: 465, py: 910, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.huaqiang_electronics_s, name: { zh: 华强电子工业公司（南）, en: Huaqiang Electronics Industry Co. (South) }, category: building, kind: industrial, px: 475, py: 1205, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.jinghua_electronics, name: { zh: 京华电子公司, en: Jinghua Electronics Co. }, category: building, kind: industrial, px: 560, py: 920, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.jiale_bedding, name: { zh: 家乐床具厂, en: Jiale Bedding Factory }, category: building, kind: industrial, px: 650, py: 885, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.electronics_assembly_n, name: { zh: 电子装配厂, en: Electronics Assembly Plant (North) }, category: building, kind: industrial, px: 650, py: 925, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.garment_factory, name: { zh: 服装厂, en: Garment Factory }, category: building, kind: industrial, px: 665, py: 955, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.chicken_farm, name: { zh: 养鸡场, en: Chicken Farm }, category: building, kind: agriculture, px: 540, py: 755, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.construction_training, name: { zh: 建筑技术培训中心, en: Construction Technology Training Centre }, category: building, kind: school, px: 750, py: 795, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.peoples_hospital_shangbu, name: { zh: 人民医院（上步）, en: People's Hospital (Shangbu) }, category: building, kind: hospital, px: 755, py: 835, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.auto_assembly_plant, name: { zh: 汽车装配厂, en: Auto Assembly Plant }, category: building, kind: industrial, px: 745, py: 940, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.friendship_store, name: { zh: 友谊商店, en: Friendship Store (Shangbu) }, category: building, kind: retail, px: 755, py: 1015, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.huaqiang_residential, name: { zh: 华强生活区, en: Huaqiang Residential Quarter }, category: village, kind: residential, px: 455, py: 1030, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.sz_electronics_building, name: { zh: 深圳电子工业大楼, en: Shenzhen Electronics Industry Building }, category: building, kind: office_tower, px: 535, py: 1040, claim: phase1.map.1982.shangbu_industrial, existing_1984_id: b1984.electronics, notes: "Drawn south of Shennan Rd on this schematic map; built 电子大厦 stands on the north side." }
+  - { id: m82.sz_electronics_assembly_s, name: { zh: 深圳电子装配厂, en: Shenzhen Electronics Assembly Plant (South) }, category: building, kind: industrial, px: 615, py: 1020, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.party_organ_dorm, name: { zh: 市委机关宿舍, en: Municipal Party Committee Organ Dormitory }, category: building, kind: residential, px: 680, py: 1020, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.construction_industry_co, name: { zh: 建筑工业公司, en: Construction Industry Company }, category: building, kind: industrial, px: 685, py: 1095, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.building_materials_transport, name: { zh: 建材运输公司, en: Building Materials Transport Company }, category: building, kind: transport, px: 545, py: 1220, claim: phase1.map.1982.shangbu_industrial }
+  - { id: m82.road_company, name: { zh: 道路公司, en: Road Construction Company }, category: building, kind: industrial, px: 1005, py: 1030, claim: phase1.map.1982.shangbu_industrial }
+
+  # --- Futian villages & local facilities ---------------------------------------------------
+  - { id: m82.futian_ag_machinery, name: { zh: 农机厂（福田）, en: Agricultural Machinery Factory (Futian) }, category: building, kind: industrial, px: 220, py: 1055, claim: phase1.map.1982.futian_villages }
+  - { id: m82.futian_clinic, name: { zh: 卫生院（福田）, en: Health Clinic (Futian) }, category: building, kind: hospital, px: 305, py: 1050, claim: phase1.map.1982.futian_villages }
+  - { id: m82.futian_middle_school, name: { zh: 福田中学, en: Futian Middle School }, category: building, kind: school, px: 265, py: 1090, claim: phase1.map.1982.futian_villages }
+  - { id: m82.futian_primary_school, name: { zh: 福田小学, en: Futian Primary School }, category: building, kind: school, px: 345, py: 1120, claim: phase1.map.1982.futian_villages }
+  - { id: m82.glove_factory, name: { zh: 手套厂, en: Glove Factory }, category: building, kind: industrial, px: 280, py: 1165, claim: phase1.map.1982.futian_villages }
+  - { id: m82.futian_village, name: { zh: 福田, en: Futian Village }, category: village, kind: village, px: 335, py: 1215, claim: phase1.map.1982.futian_villages }
+  - { id: m82.futian_new_village, name: { zh: 福田新村, en: Futian New Village }, category: village, kind: village, px: 155, py: 1130, claim: phase1.map.1982.futian_villages }
+  - { id: m82.xincun_futian, name: { zh: 新村（福田东）, en: Xin Village (East of Futian) }, category: village, kind: village, px: 400, py: 1215, claim: phase1.map.1982.futian_villages }
+  - { id: m82.xiabumiao, name: { zh: 下步庙, en: Xiabumiao }, category: village, kind: village, px: 535, py: 1135, claim: phase1.map.1982.futian_villages }
+  - { id: m82.jiuxu, name: { zh: 旧圩, en: Jiuxu }, category: village, kind: village, px: 615, py: 1090, claim: phase1.map.1982.futian_villages }
+  - { id: m82.shabutou, name: { zh: 沙步头, en: Shabutou }, category: village, kind: village, px: 690, py: 1125, claim: phase1.map.1982.futian_villages }
+  - { id: m82.shangchiwei, name: { zh: 上赤尾, en: Upper Chiwei }, category: village, kind: village, px: 475, py: 1245, claim: phase1.map.1982.futian_villages }
+  - { id: m82.xiachiwei, name: { zh: 下赤尾, en: Lower Chiwei }, category: village, kind: village, px: 435, py: 1355, claim: phase1.map.1982.futian_villages }
+  - { id: m82.tianmian, name: { zh: 田面, en: Tianmian Village }, category: village, kind: village, px: 205, py: 945, claim: phase1.map.1982.futian_villages }
+  - { id: m82.chilitou, name: { zh: 赤离头, en: Chilitou }, category: village, kind: locality, px: 335, py: 955, claim: phase1.map.1982.futian_villages }
+  - { id: m82.changliushui, name: { zh: 长流水, en: Changliushui }, category: village, kind: locality, px: 100, py: 1060, claim: phase1.map.1982.futian_villages }
+  - { id: m82.wangguanghu, name: { zh: 王光湖, en: Wangguanghu }, category: hydro, kind: lake, px: 100, py: 865, claim: phase1.map.1982.futian_villages }
+  - { id: m82.dashanwei, name: { zh: 大山尾, en: Dashanwei }, category: village, kind: locality, px: 515, py: 925, claim: phase1.map.1982.futian_villages }
+  - { id: m82.chanchushi, name: { zh: 蟾蜍石, en: Chanchushi }, category: village, kind: locality, px: 605, py: 825, claim: phase1.map.1982.futian_villages }
+
+  # --- Sungang, Shuibei, Tianbei & Cuizhu belt ----------------------------------------------
+  - { id: m82.municipal_substation, name: { zh: 市变电站, en: Municipal Substation }, category: building, kind: utility, px: 1830, py: 110, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.shuibei_primary_school, name: { zh: 水贝小学, en: Shuibei Primary School }, category: building, kind: school, px: 1635, py: 165, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.sungang_primary_school, name: { zh: 笋岗小学, en: Sungang Primary School }, category: building, kind: school, px: 1200, py: 180, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.sungang_station, name: { zh: 笋岗车站, en: Sungang Railway Station }, category: building, kind: railway, px: 1375, py: 320, claim: phase1.map.1982.sungang_shuibei_tianbei, existing_1979_id: site.sungang_freight, existing_1984_id: b1984.m82_sungang_station }
+  - { id: m82.phosphate_fertilizer, name: { zh: 磷肥厂, en: Phosphate Fertilizer Plant }, category: building, kind: industrial, px: 1270, py: 355, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.leather_shoe_factory, name: { zh: 皮鞋厂, en: Leather Shoe Factory }, category: building, kind: industrial, px: 1455, py: 330, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.sugar_tobacco_liquor, name: { zh: 糖烟酒公司, en: Sugar, Tobacco & Liquor Company }, category: building, kind: commercial, px: 1570, py: 315, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.municipal_cannery, name: { zh: 市罐头厂, en: Municipal Cannery }, category: building, kind: industrial, px: 1625, py: 330, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.petroleum_supply_station, name: { zh: 市石油公司供应站, en: Municipal Petroleum Co. Supply Station }, category: building, kind: utility, px: 1630, py: 370, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.cold_storage_plant, name: { zh: 冷冻厂, en: Cold Storage Plant }, category: building, kind: industrial, px: 1515, py: 375, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.ag_machinery_company, name: { zh: 农机公司, en: Agricultural Machinery Company }, category: building, kind: commercial, px: 1565, py: 385, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.soap_factory, name: { zh: 肥皂厂, en: Soap Factory }, category: building, kind: industrial, px: 1520, py: 440, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.telecom_bureau, name: { zh: 电信局, en: Telecommunications Bureau }, category: building, kind: utility, px: 1585, py: 445, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.sz_brickworks, name: { zh: 深圳市砖厂, en: Shenzhen Brickworks }, category: building, kind: industrial, px: 1655, py: 415, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.peoples_hospital_inpatient, name: { zh: 市人民医院留医部, en: Municipal People's Hospital Inpatient Dept. }, category: building, kind: hospital, px: 1710, py: 445, claim: phase1.map.1982.sungang_shuibei_tianbei, existing_1979_id: site.peoples_hospital_inpatient, existing_1984_id: b1984.m82_peoples_hospital_inpatient }
+  - { id: m82.water_electricity_bureau, name: { zh: 水电局, en: Water & Electricity Bureau }, category: building, kind: utility, px: 1545, py: 495, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.forestry_institute, name: { zh: 林业研究所, en: Forestry Research Institute }, category: building, kind: research, px: 1880, py: 455, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.loading_repair_works, name: { zh: 装卸修配厂, en: Loading/Unloading Repair Works }, category: building, kind: industrial, px: 1835, py: 495, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.landscaping_station, name: { zh: 市园林站, en: Municipal Landscaping Station }, category: building, kind: government, px: 1690, py: 515, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.fish_fry_farm, name: { zh: 市鱼苗场, en: Municipal Fish Fry Farm }, category: building, kind: agriculture, px: 1765, py: 520, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.highway_bureau, name: { zh: 市公路局, en: Municipal Highway Bureau }, category: building, kind: government, px: 1725, py: 560, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.preserved_fruit_factory, name: { zh: 凉果厂, en: Preserved Fruit Factory }, category: building, kind: industrial, px: 1470, py: 525, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.ag_auto_repair, name: { zh: 农机汽车修理厂, en: Agricultural Machinery & Auto Repair Works }, category: building, kind: industrial, px: 1595, py: 550, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.normal_school, name: { zh: 市师范学校, en: Municipal Normal School }, category: building, kind: school, px: 1775, py: 580, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.shuibei, name: { zh: 水贝, en: Shuibei Village }, category: village, kind: village, px: 1620, py: 80, claim: phase1.map.1982.sungang_shuibei_tianbei, existing_1979_id: site.shuibei }
+  - { id: m82.sungang, name: { zh: 笋岗, en: Sungang Village }, category: village, kind: village, px: 1345, py: 250, claim: phase1.map.1982.sungang_shuibei_tianbei, existing_1979_id: site.sungang }
+  - { id: m82.tianxin, name: { zh: 田心, en: Tianxin Village }, category: village, kind: village, px: 1330, py: 160, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.xiatianbei, name: { zh: 下田贝, en: Lower Tianbei }, category: village, kind: village, px: 1565, py: 255, claim: phase1.map.1982.sungang_shuibei_tianbei, existing_1979_id: site.tianbei_lower }
+  - { id: m82.shangtianbei, name: { zh: 上田贝, en: Upper Tianbei }, category: village, kind: village, px: 1650, py: 260, claim: phase1.map.1982.sungang_shuibei_tianbei, existing_1979_id: site.tianbei_upper }
+  - { id: m82.maguling, name: { zh: 马古岭, en: Maguling }, category: hill, kind: hill, px: 1740, py: 215, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.datouling_peak, name: { zh: 大头岭, en: Datouling Peak }, category: hill, kind: hill, px: 1865, py: 255, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.dalong, name: { zh: 大龙, en: Dalong }, category: village, kind: locality, px: 1790, py: 175, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.quanwangye, name: { zh: 犬王爷, en: Quanwangye }, category: village, kind: locality, px: 1545, py: 130, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.wanzai, name: { zh: 湾仔, en: Wanzai }, category: village, kind: locality, px: 1485, py: 240, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.fuding, name: { zh: 甫丁, en: Fuding }, category: village, kind: locality, px: 1455, py: 410, claim: phase1.map.1982.sungang_shuibei_tianbei }
+  - { id: m82.changkeng, name: { zh: 长坑, en: Changkeng }, category: village, kind: locality, px: 1425, py: 475, claim: phase1.map.1982.sungang_shuibei_tianbei }
+
+  # --- Nigang, Bagualing, Bijiashan & Hongling belt -----------------------------------------
+  - { id: m82.meigang_forest_farm, name: { zh: 梅岗林场, en: Meigang Forest Farm }, category: building, kind: agriculture, px: 460, py: 415, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.shooting_range, name: { zh: 打靶场, en: Shooting Range }, category: building, kind: military, px: 545, py: 355, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.may7_farm, name: { zh: 五七农场, en: May 7th Farm }, category: building, kind: agriculture, px: 955, py: 315, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.weishi_factory, name: { zh: 威士厂, en: Weishi Factory }, category: building, kind: industrial, px: 1070, py: 550, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.sz_shirt_factory, name: { zh: 深圳恤衫厂, en: Shenzhen Shirt Factory }, category: building, kind: industrial, px: 1070, py: 645, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.livestock_institute, name: { zh: 宝安畜牧研究所, en: Bao'an Livestock Research Institute }, category: building, kind: research, px: 1155, py: 760, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.coal_company, name: { zh: 煤炭公司, en: Coal Company }, category: building, kind: commercial, px: 1245, py: 705, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.coal_yard, name: { zh: 贮煤场, en: Coal Yard }, category: building, kind: industrial, px: 1235, py: 745, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.timber_company, name: { zh: 木材公司, en: Timber Company }, category: building, kind: commercial, px: 1285, py: 740, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.weather_station, name: { zh: 市气象站, en: Municipal Weather Station }, category: building, kind: government, px: 1160, py: 840, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.yixing_factory, name: { zh: 怡兴工厂, en: Yixing Factory }, category: building, kind: industrial, px: 1070, py: 875, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.public_security_bureau, name: { zh: 公安局, en: Public Security Bureau }, category: building, kind: government, px: 1150, py: 895, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.hongxing_auto_repair, name: { zh: 红星汽车修配厂, en: Hongxing Auto Repair Plant }, category: building, kind: industrial, px: 1070, py: 945, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.bijiashan, name: { zh: 笔架山, en: Bijiashan Peak }, category: hill, kind: hill, px: 470, py: 228, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.baishaling, name: { zh: 白沙岭, en: Baishaling }, category: hill, kind: hill, px: 620, py: 600, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.yuantouling, name: { zh: 园头岭, en: Yuantouling }, category: hill, kind: hill, px: 880, py: 640, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.bagualing, name: { zh: 八卦岭, en: Bagualing }, category: village, kind: locality, px: 800, py: 325, claim: phase1.map.1982.nigang_bagualing_hongling, existing_1984_id: b1984.bagualing }
+  - { id: m82.nigang, name: { zh: 泥岗, en: Nigang Village }, category: village, kind: village, px: 920, py: 115, claim: phase1.map.1982.nigang_bagualing_hongling, existing_1979_id: site.nigang }
+  - { id: m82.huangmugang, name: { zh: 黄木岗, en: Huangmugang }, category: village, kind: locality, px: 470, py: 500, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.yuanlingzai, name: { zh: 园岭仔, en: Yuanlingzai }, category: village, kind: village, px: 675, py: 525, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.dafenshan, name: { zh: 大坟山, en: Dafenshan }, category: hill, kind: hill, px: 375, py: 535, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.songyuan, name: { zh: 松园, en: Songyuan }, category: village, kind: locality, px: 1135, py: 635, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.hongling, name: { zh: 洪岭, en: Hongling }, category: village, kind: locality, px: 1160, py: 710, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.longweitang, name: { zh: 龙尾塘, en: Longweitang }, category: village, kind: locality, px: 1050, py: 740, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.wangniudun, name: { zh: 望牛墩, en: Wangniudun }, category: hill, kind: hill, px: 960, py: 525, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.kengwei, name: { zh: 坑尾, en: Kengwei }, category: village, kind: locality, px: 905, py: 575, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.huangnitang, name: { zh: 黄泥塘, en: Huangnitang }, category: village, kind: locality, px: 1135, py: 470, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.datang, name: { zh: 大堂, en: Datang }, category: village, kind: locality, px: 1235, py: 485, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.woyuan, name: { zh: 窝园, en: Woyuan }, category: village, kind: locality, px: 1150, py: 330, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.maliulang, name: { zh: 马流浪, en: Maliulang }, category: village, kind: locality, px: 1055, py: 350, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.hedipo, name: { zh: 河笛坡, en: Hedipo }, category: village, kind: locality, px: 1015, py: 240, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.weibeikeng, name: { zh: 围背坑, en: Weibeikeng }, category: village, kind: locality, px: 1110, py: 215, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.xibianling, name: { zh: 西边岭, en: Xibianling }, category: hill, kind: hill, px: 1255, py: 130, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.meizaiyuan, name: { zh: 梅仔园, en: Meizaiyuan }, category: village, kind: locality, px: 1140, py: 95, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.nanan, name: { zh: 南安, en: Nan'an }, category: village, kind: locality, px: 840, py: 175, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.jiangbantian, name: { zh: 江板田, en: Jiangbantian }, category: village, kind: locality, px: 715, py: 200, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.lanbei, name: { zh: 兰背, en: Lanbei }, category: village, kind: locality, px: 685, py: 80, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.xiaohengkeng, name: { zh: 小横坑, en: Xiaohengkeng }, category: village, kind: locality, px: 505, py: 120, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.hengjing, name: { zh: 横径, en: Hengjing }, category: village, kind: locality, px: 420, py: 85, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.hunantian, name: { zh: 虎南田, en: Hunantian }, category: village, kind: locality, px: 175, py: 105, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.sanxia, name: { zh: 散下, en: Sanxia }, category: village, kind: locality, px: 160, py: 175, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.yangpengkeng, name: { zh: 羊棚坑, en: Yangpengkeng }, category: village, kind: locality, px: 355, py: 295, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.damangtian, name: { zh: 大茫田, en: Damangtian }, category: village, kind: locality, px: 85, py: 335, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.wakeng, name: { zh: 瓦坑, en: Wakeng }, category: village, kind: locality, px: 145, py: 410, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.xiedi, name: { zh: 蟹地, en: Xiedi }, category: village, kind: locality, px: 375, py: 425, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.wenzhou, name: { zh: 蚊州, en: Wenzhou }, category: village, kind: locality, px: 65, py: 620, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.hongmuqiao, name: { zh: 洪木桥, en: Hongmuqiao }, category: village, kind: locality, px: 165, py: 635, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.tulongzhen, name: { zh: 屠龙枕, en: Tulongzhen }, category: village, kind: locality, px: 250, py: 685, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.xiazhushu, name: { zh: 下竹树, en: Xiazhushu }, category: village, kind: locality, px: 340, py: 640, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.wunilong, name: { zh: 乌泥龙, en: Wunilong }, category: village, kind: locality, px: 840, py: 670, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.xibiankeng, name: { zh: 西边坑, en: Xibiankeng }, category: village, kind: locality, px: 920, py: 775, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.nanmenkou, name: { zh: 南门口, en: Nanmenkou }, category: village, kind: locality, px: 835, py: 365, claim: phase1.map.1982.nigang_bagualing_hongling }
+  - { id: m82.guibei, name: { zh: 鬼背, en: Guibei }, category: village, kind: locality, px: 1260, py: 235, claim: phase1.map.1982.nigang_bagualing_hongling }
+
+  # --- Shenzhen River floodplain villages & planned waterway --------------------------------
+  - { id: m82.tourism_supply_co, name: { zh: 市旅游供应公司, en: Municipal Tourism Supply Company }, category: building, kind: commercial, px: 1160, py: 1090, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.shangbu_village, name: { zh: 上步, en: Shangbu Village }, category: village, kind: village, px: 905, py: 1005, claim: phase1.map.1982.river_villages_planned_channel, existing_1979_id: site.shangbu_land }
+  - { id: m82.xiangdongwei, name: { zh: 向东围, en: Xiangdongwei }, category: village, kind: village, px: 825, py: 1035, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.bading, name: { zh: 巴丁, en: Bading Village }, category: village, kind: village, px: 930, py: 1040, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.xiantang, name: { zh: 咸塘, en: Xiantang }, category: village, kind: village, px: 1065, py: 1005, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.xinwei, name: { zh: 新围, en: Xinwei }, category: village, kind: village, px: 1115, py: 1040, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.caiwuwei, name: { zh: 蔡屋围, en: Caiwuwei Village }, category: village, kind: village, px: 1160, py: 965, claim: phase1.map.1982.river_villages_planned_channel, existing_1979_id: site.caiwuwei }
+  - { id: m82.sanjiaowei, name: { zh: 三角围, en: Sanjiaowei }, category: village, kind: village, px: 835, py: 1135, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.citangcun, name: { zh: 祠堂村, en: Citang Village }, category: village, kind: village, px: 805, py: 1165, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.xiantianjiao, name: { zh: 咸田脚, en: Xiantianjiao }, category: village, kind: locality, px: 965, py: 1110, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.shenchong, name: { zh: 深冲, en: Shenchong }, category: village, kind: locality, px: 915, py: 1195, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.xiawei, name: { zh: 下围, en: Xiawei }, category: village, kind: village, px: 1040, py: 1220, claim: phase1.map.1982.river_villages_planned_channel }
+  - { id: m82.yumin, name: { zh: 渔民村, en: Yumin Village }, category: village, kind: village, px: 1235, py: 1190, claim: phase1.map.1982.river_villages_planned_channel, existing_1979_id: site.yumin }
+  - { id: m82.planned_waterway, name: { zh: 计划中水道, en: Planned Shenzhen River Channel }, category: hydro, kind: canal, px: 990, py: 1205, claim: phase1.map.1982.river_villages_planned_channel, planned_in_1982: true, notes: "Dashed straightening channel; planned engineering work." }

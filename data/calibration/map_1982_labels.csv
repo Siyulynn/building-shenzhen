@@ -1,0 +1,206 @@
+id,name_zh,name_en,category,kind,px,py,lon,lat,cell_x,cell_y,area_grid,landcover_1979,built_within_200m_1979,planned_in_1982,claim
+m82.luohu_bridge,罗湖桥,Luohu Bridge,building,border_crossing,1420,1412,114.11289,22.53005,386,395,,outside_playable,True,False,phase1.map.1982.luohu_station_crossing
+m82.sz_station,深圳车站,Shenzhen Railway Station,building,railway,1445,1310,114.11379,22.53342,387,391,2,town,True,False,phase1.map.1982.luohu_station_crossing
+m82.luohu_quarantine,卫生检疫所,Health Quarantine Station (Luohu),building,government,1470,1345,114.11467,22.53233,388,392,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.customs_building,海关大楼,Customs Building,building,government,1365,1320,114.11095,22.53293,384,392,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.train_crew_quarters,深圳行车公宇,Shenzhen Train Crew Quarters,building,railway,1465,1280,114.1145,22.53444,387,390,2,town,True,False,phase1.map.1982.luohu_station_crossing
+m82.taxi_stand,小汽车出租点,Car Rental / Taxi Stand,building,transport,1430,1225,114.11327,22.53616,386,388,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.luohu_building,罗湖大厦,Luohu Building,building,commercial,1415,1115,114.11275,22.53972,386,384,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.friendship_building,友谊大厦,Friendship Building,building,commercial,1415,1030,114.11276,22.54249,386,381,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.guoshang,国际商业大厦,International Commercial Building (Guoshang),building,office_tower,1490,1055,114.11542,22.54183,389,382,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.railway_primary_school,铁路小学,Railway Primary School,building,school,1485,1085,114.11523,22.54084,388,383,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.tourism_bureau,旅游局,Tourism Bureau,building,government,1420,990,114.11295,22.5438,386,380,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.foreign_trade_exhibition,中国外贸局展销大楼,China Foreign Trade Bureau Exhibition Building,building,commercial,1500,990,114.11578,22.54397,389,379,2,upland,True,False,phase1.map.1982.luohu_station_crossing
+m82.food_export_plant,市食出加工场,Municipal Food Export Processing Plant,building,industrial,1630,1065,114.12037,22.54179,394,382,2,village,True,False,phase1.map.1982.luohu_station_crossing
+m82.wenjindu_customs,文锦渡分关,Wenjindu Sub-Customs,building,border_crossing,1770,1055,114.12533,22.54241,399,381,2,lowland_farm,False,False,phase1.map.1982.luohu_station_crossing
+m82.chuanbu_wharf,深圳船步码头,Shenzhen Chuanbu Wharf,building,transport,1305,1180,114.10885,22.53737,382,387,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.general_transport_co,运输总公司,General Transport Company,building,transport,1295,1090,114.1085,22.54028,381,383,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.xinjiaocun,新郊村,Xinjiao Village,village,village,1290,1110,114.10832,22.53962,381,384,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.hutangwei,湖塘尾,Hutangwei,village,village,1555,1065,114.11772,22.54164,391,382,2,lowland_farm,True,False,phase1.map.1982.luohu_station_crossing
+m82.huangnidi,黄泥地,Huangnidi,village,locality,1595,1245,114.11911,22.53585,392,389,2,upland,True,False,phase1.map.1982.luohu_station_crossing
+m82.wenjindu,文锦渡,Wenjindu,village,locality,1760,1070,114.12498,22.5419,398,382,2,upland,False,False,phase1.map.1982.luohu_station_crossing
+m82.xiashuiliang,下水亮,Xiashuiliang,village,locality,1845,1050,114.12799,22.54273,402,381,4,lowland_farm,False,False,phase1.map.1982.luohu_station_crossing
+m82.shenzhen_theatre,深圳戏院,Shenzhen Theatre,building,theatre,1390,815,114.11191,22.54944,385,373,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.workers_cultural_palace,工人文化宫,Workers' Cultural Palace,building,civic,1380,780,114.11156,22.55056,385,372,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.xinyuan_guesthouse,新园招待所,Xinyuan Guesthouse,building,hotel,1390,725,114.11192,22.55238,385,370,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.shenzhen_middle_school,深圳中学,Shenzhen Middle School,building,school,1545,635,114.11742,22.55563,391,367,1,town,True,False,phase1.map.1982.dongmen_old_town
+m82.shenzhen_bus_station,深圳汽车站,Shenzhen Bus Station,building,transport,1555,720,114.11777,22.55288,391,370,1,upland,True,False,phase1.map.1982.dongmen_old_town
+m82.post_telecom_bureau,邮电局,Post & Telecommunications Bureau,building,utility,1345,915,114.1103,22.54609,383,377,3,town,True,False,phase1.map.1982.dongmen_old_town
+m82.tcm_hospital,市中医院,Municipal TCM Hospital,building,hospital,1250,915,114.10693,22.54589,380,377,3,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.quarantine_central,检疫所,Quarantine Station (Jiefang Rd),building,government,1295,995,114.10852,22.54338,381,380,2,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.peoples_stadium,人民体育场,People's Stadium,building,civic,1240,1035,114.10656,22.54196,379,382,3,upland,True,False,phase1.map.1982.dongmen_old_town
+m82.old_library,图书馆,Municipal Library (old town),building,library,1235,845,114.10641,22.54814,379,375,3,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.no6_primary_school,市六小,Municipal No. 6 Primary School,building,school,1225,815,114.10606,22.5491,379,374,3,town,True,False,phase1.map.1982.dongmen_old_town
+m82.railway_school,铁路学校,Railway School,building,school,1285,780,114.10819,22.55037,381,372,3,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.epidemic_prevention,市卫生防疫站,Municipal Epidemic Prevention Station,building,hospital,1425,665,114.11317,22.55441,387,368,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.housing_bureau_north,房管局（蛟湖）,Housing Administration Bureau (Jiaohu),building,government,1425,610,114.11318,22.5562,387,366,1,town,True,False,phase1.map.1982.dongmen_old_town
+m82.housing_bureau_south,房管局（解放路）,Housing Administration Bureau (Jiefang Rd),building,government,1555,815,114.11775,22.54979,391,373,1,village,True,False,phase1.map.1982.dongmen_old_town
+m82.may7_middle_school,五七中学,May 7th Middle School,building,school,1415,570,114.11283,22.55748,386,364,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.petroleum_company,石油公司,Petroleum Company,building,commercial,1515,700,114.11635,22.55345,390,369,1,village,True,False,phase1.map.1982.dongmen_old_town
+m82.motor_transport_co,汽车公司,Motor Transport Company,building,transport,1595,845,114.11916,22.54889,393,374,1,upland,True,False,phase1.map.1982.dongmen_old_town
+m82.foodstuffs_company,食品公司,Foodstuffs Company,building,commercial,1510,925,114.11614,22.54611,389,377,2,village,True,False,phase1.map.1982.dongmen_old_town
+m82.luohu_crafts_factory,罗湖区工艺厂,Luohu District Arts & Crafts Factory,building,industrial,1600,930,114.11933,22.54613,393,377,2,upland,True,False,phase1.map.1982.dongmen_old_town
+m82.sauce_factory,酱料厂,Sauce & Condiment Factory,building,industrial,1670,650,114.12185,22.5554,395,367,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.radio_factory,无线电厂,Radio Factory,building,industrial,1630,680,114.12043,22.55434,394,368,1,upland,True,False,phase1.map.1982.dongmen_old_town
+m82.plastics_factory,塑料厂,Plastics Factory,building,industrial,1620,720,114.12007,22.55302,394,370,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.ag_machinery_school,农机学校,Agricultural Machinery School,building,school,1855,635,114.1284,22.55628,402,366,4,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.education_new_village,教育新村,Education New Village,village,residential,1765,615,114.12522,22.55674,399,366,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.hubei,湖贝,Hubei Village,village,village,1615,770,114.11988,22.55138,393,371,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.hetangcun,禾塘村,Hetang Village,village,village,1555,775,114.11776,22.55109,391,372,1,upland,True,False,phase1.map.1982.dongmen_old_town
+m82.xiangxi,向西,Xiangxi Village,village,village,1615,945,114.11986,22.54567,393,378,2,upland,True,False,phase1.map.1982.dongmen_old_town
+m82.hedong,河东,Hedong,village,village,1675,975,114.12198,22.54482,395,379,2,village,True,False,phase1.map.1982.dongmen_old_town
+m82.dongan,东安,Dong'an,village,locality,1740,970,114.12428,22.54512,398,378,2,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.jiaohu,蛟湖,Jiaohu,village,locality,1395,625,114.11211,22.55565,385,366,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.dongxinjiao,东新郊,Dongxinjiao,village,village,1655,595,114.12132,22.55717,395,365,1,town,True,False,phase1.map.1982.dongmen_old_town
+m82.tianbeitang,田贝塘,Tianbeitang,hydro,pond,1685,745,114.12237,22.55234,396,370,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.zhubian,竹边,Zhubian,village,locality,1755,690,114.12485,22.55428,399,368,1,lowland_farm,False,False,phase1.map.1982.dongmen_old_town
+m82.aozai,坳仔,Aozai,village,locality,1795,740,114.12626,22.55273,400,370,4,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.dafenwei,大坟尾,Dafenwei,village,locality,1740,785,114.12431,22.55115,398,372,1,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.maowuzai,茅屋仔,Maowuzai,village,village,1815,815,114.12696,22.55033,401,373,4,lowland_farm,True,False,phase1.map.1982.dongmen_old_town
+m82.municipal_government,深圳市人民政府,Shenzhen Municipal People's Government,building,government,875,902,114.09365,22.54554,366,377,7,lowland_farm,False,False,phase1.map.1982.municipal_government_compound
+m82.party_committee_dorm,市委宿舍,Municipal Party Committee Dormitory,building,residential,860,805,114.09314,22.54867,366,374,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.science_museum,科学馆,Science Museum,building,civic,830,975,114.09205,22.54306,365,380,,outside_playable,False,True,phase1.map.1982.shangbu_industrial
+m82.shangbuling,上步岭,Shangbuling,hill,hill,945,940,114.09613,22.54444,369,379,7,lowland_farm,True,False,phase1.map.1982.shangbuling
+m82.huali_furniture,华丽装修家私公司,Huali Decoration & Furniture Co.,building,industrial,395,825,114.07666,22.54704,349,375,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.sz_printing_factory,深圳印刷制品厂,Shenzhen Printing Products Factory,building,industrial,465,820,114.07914,22.54735,351,375,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.aviation_company,航空公司,Aviation Company (CATIC),building,industrial,395,895,114.07665,22.54476,349,378,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.huaqiang_electronics_n,华强电子工业公司（北）,Huaqiang Electronics Industry Co. (North),building,industrial,465,910,114.07913,22.54442,351,378,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.huaqiang_electronics_s,华强电子工业公司（南）,Huaqiang Electronics Industry Co. (South),building,industrial,475,1205,114.07945,22.53483,351,389,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.jinghua_electronics,京华电子公司,Jinghua Electronics Co.,building,industrial,560,920,114.08249,22.54429,355,378,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.jiale_bedding,家乐床具厂,Jiale Bedding Factory,building,industrial,650,885,114.08569,22.54562,358,377,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.electronics_assembly_n,电子装配厂,Electronics Assembly Plant (North),building,industrial,650,925,114.08568,22.54432,358,378,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.garment_factory,服装厂,Garment Factory,building,industrial,665,955,114.08621,22.54337,359,380,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.chicken_farm,养鸡场,Chicken Farm,building,agriculture,540,755,114.08181,22.54963,354,373,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.construction_training,建筑技术培训中心,Construction Technology Training Centre,building,school,750,795,114.08924,22.54876,362,374,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.peoples_hospital_shangbu,人民医院（上步）,People's Hospital (Shangbu),building,hospital,755,835,114.08941,22.54747,362,375,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.auto_assembly_plant,汽车装配厂,Auto Assembly Plant,building,industrial,745,940,114.08904,22.54403,361,379,7,lowland_farm,False,False,phase1.map.1982.shangbu_industrial
+m82.friendship_store,友谊商店,Friendship Store (Shangbu),building,retail,755,1015,114.08939,22.5416,362,382,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.huaqiang_residential,华强生活区,Huaqiang Residential Quarter,village,residential,455,1030,114.07876,22.54049,351,383,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.sz_electronics_building,深圳电子工业大楼,Shenzhen Electronics Industry Building,building,office_tower,535,1040,114.08159,22.54033,354,383,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.sz_electronics_assembly_s,深圳电子装配厂,Shenzhen Electronics Assembly Plant (South),building,industrial,615,1020,114.08443,22.54115,357,382,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.party_organ_dorm,市委机关宿舍,Municipal Party Committee Organ Dormitory,building,residential,680,1020,114.08673,22.54128,359,382,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.construction_industry_co,建筑工业公司,Construction Industry Company,building,industrial,685,1095,114.0869,22.53885,359,385,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.building_materials_transport,建材运输公司,Building Materials Transport Company,building,transport,545,1220,114.08192,22.53448,354,389,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.road_company,道路公司,Road Construction Company,building,industrial,1005,1030,114.09824,22.54163,371,382,,outside_playable,False,False,phase1.map.1982.shangbu_industrial
+m82.futian_ag_machinery,农机厂（福田）,Agricultural Machinery Factory (Futian),building,industrial,220,1055,114.07043,22.53918,342,384,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.futian_clinic,卫生院（福田）,Health Clinic (Futian),building,hospital,305,1050,114.07345,22.53952,345,384,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.futian_middle_school,福田中学,Futian Middle School,building,school,265,1090,114.07202,22.53814,344,385,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.futian_primary_school,福田小学,Futian Primary School,building,school,345,1120,114.07485,22.53732,347,386,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.glove_factory,手套厂,Glove Factory,building,industrial,280,1165,114.07254,22.53572,344,388,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.futian_village,福田,Futian Village,village,village,335,1215,114.07449,22.53421,346,389,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.futian_new_village,福田新村,Futian New Village,village,village,155,1130,114.06812,22.5366,340,387,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.xincun_futian,新村（福田东）,Xin Village (East of Futian),village,village,400,1215,114.07679,22.53434,349,389,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.xiabumiao,下步庙,Xiabumiao,village,village,535,1135,114.08158,22.53723,354,386,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.jiuxu,旧圩,Jiuxu,village,village,615,1090,114.08442,22.53887,357,384,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.shabutou,沙步头,Shabutou,village,village,690,1125,114.08707,22.53788,359,386,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.shangchiwei,上赤尾,Upper Chiwei,village,village,475,1245,114.07944,22.53352,351,390,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.xiachiwei,下赤尾,Lower Chiwei,village,village,435,1355,114.07801,22.52985,350,394,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.tianmian,田面,Tianmian Village,village,village,205,945,114.06992,22.54274,342,380,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.chilitou,赤离头,Chilitou,village,locality,335,955,114.07452,22.54268,346,380,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.changliushui,长流水,Changliushui,village,locality,100,1060,114.06618,22.53877,338,384,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.wangguanghu,王光湖,Wangguanghu,hydro,lake,100,865,114.06621,22.54512,338,377,,outside_playable,False,False,phase1.map.1982.futian_villages
+m82.dashanwei,大山尾,Dashanwei,village,locality,515,925,114.0809,22.54404,353,379,7,lowland_farm,False,False,phase1.map.1982.futian_villages
+m82.chanchushi,蟾蜍石,Chanchushi,village,locality,605,825,114.0841,22.54748,356,375,7,lowland_farm,False,False,phase1.map.1982.futian_villages
+m82.municipal_substation,市变电站,Municipal Substation,building,utility,1830,110,114.12759,22.57334,402,347,1,lowland_farm,False,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.shuibei_primary_school,水贝小学,Shuibei Primary School,building,school,1635,165,114.12068,22.57114,395,349,1,village,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.sungang_primary_school,笋岗小学,Sungang Primary School,building,school,1200,180,114.10526,22.56975,379,351,5,village,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.sungang_station,笋岗车站,Sungang Railway Station,building,railway,1375,320,114.11144,22.56555,385,355,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.phosphate_fertilizer,磷肥厂,Phosphate Fertilizer Plant,building,industrial,1270,355,114.10772,22.56419,381,357,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.leather_shoe_factory,皮鞋厂,Leather Shoe Factory,building,industrial,1455,330,114.11428,22.56539,388,356,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.sugar_tobacco_liquor,糖烟酒公司,Sugar,building,commercial,1570,315,114.11835,22.56612,392,355,1,village,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.municipal_cannery,市罐头厂,Municipal Cannery,building,industrial,1625,330,114.1203,22.56574,394,355,1,village,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.petroleum_supply_station,市石油公司供应站,Municipal Petroleum Co. Supply Station,building,utility,1630,370,114.12047,22.56445,394,357,1,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.cold_storage_plant,冷冻厂,Cold Storage Plant,building,industrial,1515,375,114.1164,22.56405,390,357,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.ag_machinery_company,农机公司,Agricultural Machinery Company,building,commercial,1565,385,114.11817,22.56382,392,358,5,village,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.soap_factory,肥皂厂,Soap Factory,building,industrial,1520,440,114.11656,22.56194,390,360,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.telecom_bureau,电信局,Telecommunications Bureau,building,utility,1585,445,114.11887,22.56191,393,360,1,village,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.sz_brickworks,深圳市砖厂,Shenzhen Brickworks,building,industrial,1655,415,114.12135,22.56303,395,358,1,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.peoples_hospital_inpatient,市人民医院留医部,Municipal People's Hospital Inpatient Dept.,building,hospital,1710,445,114.12329,22.56217,397,359,1,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.water_electricity_bureau,水电局,Water & Electricity Bureau,building,utility,1545,495,114.11744,22.5602,391,362,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.forestry_institute,林业研究所,Forestry Research Institute,building,research,1880,455,114.12932,22.5622,403,360,1,upland,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.loading_repair_works,装卸修配厂,Loading/Unloading Repair Works,building,industrial,1835,495,114.12772,22.5608,402,361,1,town,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.landscaping_station,市园林站,Municipal Landscaping Station,building,government,1690,515,114.12258,22.55985,396,362,1,town,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.fish_fry_farm,市鱼苗场,Municipal Fish Fry Farm,building,agriculture,1765,520,114.12523,22.55984,399,362,1,town,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.highway_bureau,市公路局,Municipal Highway Bureau,building,government,1725,560,114.12381,22.55845,398,364,1,town,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.preserved_fruit_factory,凉果厂,Preserved Fruit Factory,building,industrial,1470,525,114.11478,22.55906,388,363,5,town,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.ag_auto_repair,农机汽车修理厂,Agricultural Machinery & Auto Repair Works,building,industrial,1595,550,114.11921,22.55851,393,363,1,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.normal_school,市师范学校,Municipal Normal School,building,school,1775,580,114.12558,22.5579,399,364,1,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.shuibei,水贝,Shuibei Village,village,village,1620,80,114.12016,22.57388,394,346,1,pond,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.sungang,笋岗,Sungang Village,village,village,1345,250,114.11039,22.56777,384,353,5,village,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.tianxin,田心,Tianxin Village,village,village,1330,160,114.10987,22.57067,383,350,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.xiatianbei,下田贝,Lower Tianbei,village,village,1565,255,114.11818,22.56806,392,353,1,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.shangtianbei,上田贝,Upper Tianbei,village,village,1650,260,114.12119,22.56808,395,353,1,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.maguling,马古岭,Maguling,hill,hill,1740,215,114.12439,22.56973,398,351,1,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.datouling_peak,大头岭,Datouling Peak,hill,hill,1865,255,114.12881,22.56869,403,352,1,hill,False,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.dalong,大龙,Dalong,village,locality,1790,175,114.12617,22.57114,400,350,1,village,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.quanwangye,犬王爷,Quanwangye,village,locality,1545,130,114.11749,22.57209,391,348,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.wanzai,湾仔,Wanzai,village,locality,1485,240,114.11535,22.56838,389,352,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.fuding,甫丁,Fuding,village,locality,1455,410,114.11427,22.56278,388,359,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.changkeng,长坑,Changkeng,village,locality,1425,475,114.11319,22.5606,387,361,5,lowland_farm,True,False,phase1.map.1982.sungang_shuibei_tianbei
+m82.meigang_forest_farm,梅岗林场,Meigang Forest Farm,building,agriculture,460,415,114.07902,22.56054,352,360,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.shooting_range,打靶场,Shooting Range,building,military,545,355,114.08204,22.56268,355,358,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.may7_farm,五七农场,May 7th Farm,building,agriculture,955,315,114.09657,22.56484,370,356,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.weishi_factory,威士厂,Weishi Factory,building,industrial,1070,550,114.10061,22.55742,374,364,3,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.sz_shirt_factory,深圳恤衫厂,Shenzhen Shirt Factory,building,industrial,1070,645,114.1006,22.55432,374,368,3,lowland_farm,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.livestock_institute,宝安畜牧研究所,Bao'an Livestock Research Institute,building,research,1155,760,114.10359,22.55075,377,372,3,town,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.coal_company,煤炭公司,Coal Company,building,commercial,1245,705,114.10679,22.55273,380,370,3,town,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.coal_yard,贮煤场,Coal Yard,building,industrial,1235,745,114.10643,22.5514,380,371,3,lowland_farm,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.timber_company,木材公司,Timber Company,building,commercial,1285,740,114.1082,22.55167,381,371,3,lowland_farm,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.weather_station,市气象站,Municipal Weather Station,building,government,1160,840,114.10376,22.54815,377,375,3,town,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.yixing_factory,怡兴工厂,Yixing Factory,building,industrial,1070,875,114.10056,22.54682,373,376,3,lowland_farm,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.public_security_bureau,公安局,Public Security Bureau,building,government,1150,895,114.1034,22.54634,376,377,3,town,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.hongxing_auto_repair,红星汽车修配厂,Hongxing Auto Repair Plant,building,industrial,1070,945,114.10055,22.54454,373,379,3,lowland_farm,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.bijiashan,笔架山,Bijiashan Peak,hill,hill,470,228,114.0794,22.56666,352,354,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.baishaling,白沙岭,Baishaling,hill,hill,620,600,114.08466,22.55485,357,367,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.yuantouling,园头岭,Yuantouling,hill,hill,880,640,114.09387,22.55409,367,368,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.bagualing,八卦岭,Bagualing,village,locality,800,325,114.09107,22.56419,364,357,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.nigang,泥岗,Nigang Village,village,village,920,115,114.09535,22.57128,369,349,5,village,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.huangmugang,黄木岗,Huangmugang,village,locality,470,500,114.07936,22.55779,352,363,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.yuanlingzai,园岭仔,Yuanlingzai,village,village,675,525,114.08662,22.55741,359,364,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.dafenshan,大坟山,Dafenshan,hill,hill,375,535,114.07599,22.55646,348,365,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.songyuan,松园,Songyuan,village,locality,1135,635,114.1029,22.55478,376,367,3,upland,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.hongling,洪岭,Hongling,village,locality,1160,710,114.10377,22.55239,377,370,3,town,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.longweitang,龙尾塘,Longweitang,village,locality,1050,740,114.09987,22.55118,373,371,3,town,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.wangniudun,望牛墩,Wangniudun,hill,hill,960,525,114.09672,22.558,370,364,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.kengwei,坑尾,Kengwei,village,locality,905,575,114.09476,22.55626,368,365,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.huangnitang,黄泥塘,Huangnitang,village,locality,1135,470,114.10292,22.56016,376,361,5,lowland_farm,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.datang,大堂,Datang,village,locality,1235,485,114.10646,22.55988,380,362,5,lowland_farm,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.woyuan,窝园,Woyuan,village,locality,1150,330,114.10347,22.56475,377,356,5,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.maliulang,马流浪,Maliulang,village,locality,1055,350,114.1001,22.5639,373,357,5,upland,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.hedipo,河笛坡,Hedipo,village,locality,1015,240,114.0987,22.56741,372,353,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.weibeikeng,围背坑,Weibeikeng,village,locality,1110,215,114.10207,22.56842,375,352,5,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.xibianling,西边岭,Xibianling,hill,hill,1255,130,114.10722,22.57149,381,349,5,village,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.meizaiyuan,梅仔园,Meizaiyuan,village,locality,1140,95,114.10315,22.57239,377,348,5,lowland_farm,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.nanan,南安,Nan'an,village,locality,840,175,114.09251,22.56916,366,351,5,village,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.jiangbantian,江板田,Jiangbantian,village,locality,715,200,114.08808,22.56808,361,352,5,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.lanbei,兰背,Lanbei,village,locality,685,80,114.08703,22.57193,360,348,5,upland,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.xiaohengkeng,小横坑,Xiaohengkeng,village,locality,505,120,114.08065,22.57025,353,350,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.hengjing,横径,Hengjing,village,locality,420,85,114.07764,22.57122,350,349,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.hunantian,虎南田,Hunantian,village,locality,175,105,114.06896,22.57005,341,350,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.sanxia,散下,Sanxia,village,locality,160,175,114.06842,22.56774,341,352,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.yangpengkeng,羊棚坑,Yangpengkeng,village,locality,355,295,114.07531,22.56424,348,356,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.damangtian,大茫田,Damangtian,village,locality,85,335,114.06574,22.56237,338,358,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.wakeng,瓦坑,Wakeng,village,locality,145,410,114.06786,22.56005,340,361,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.xiedi,蟹地,Xiedi,village,locality,375,425,114.07601,22.56004,348,361,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.wenzhou,蚊州,Wenzhou,village,locality,65,620,114.065,22.55304,337,368,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.hongmuqiao,洪木桥,Hongmuqiao,village,locality,165,635,114.06854,22.55276,341,369,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.tulongzhen,屠龙枕,Tulongzhen,village,locality,250,685,114.07154,22.55131,344,370,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.xiazhushu,下竹树,Xiazhushu,village,locality,340,640,114.07474,22.55296,347,369,,outside_playable,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.wunilong,乌泥龙,Wunilong,village,locality,840,670,114.09244,22.55303,365,369,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.xibiankeng,西边坑,Xibiankeng,village,locality,920,775,114.09526,22.54977,368,373,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.nanmenkou,南门口,Nanmenkou,village,locality,835,365,114.09231,22.56296,365,358,7,lowland_farm,False,False,phase1.map.1982.nigang_bagualing_hongling
+m82.guibei,鬼背,Guibei,village,locality,1260,235,114.10738,22.56808,381,353,5,upland,True,False,phase1.map.1982.nigang_bagualing_hongling
+m82.tourism_supply_co,市旅游供应公司,Municipal Tourism Supply Company,building,commercial,1160,1090,114.10372,22.54,376,384,3,pond,True,False,phase1.map.1982.river_villages_planned_channel
+m82.shangbu_village,上步,Shangbu Village,village,village,905,1005,114.0947,22.54224,367,381,,outside_playable,False,False,phase1.map.1982.river_villages_planned_channel
+m82.xiangdongwei,向东围,Xiangdongwei,village,village,825,1035,114.09186,22.5411,364,382,,outside_playable,False,False,phase1.map.1982.river_villages_planned_channel
+m82.bading,巴丁,Bading Village,village,village,930,1040,114.09558,22.54115,368,382,,outside_playable,False,False,phase1.map.1982.river_villages_planned_channel
+m82.xiantang,咸塘,Xiantang,village,village,1065,1005,114.10037,22.54257,373,381,3,lowland_farm,True,False,phase1.map.1982.river_villages_planned_channel
+m82.xinwei,新围,Xinwei,village,village,1115,1040,114.10214,22.54154,375,382,3,pond,True,False,phase1.map.1982.river_villages_planned_channel
+m82.caiwuwei,蔡屋围,Caiwuwei Village,village,village,1160,965,114.10374,22.54408,377,379,3,village,True,False,phase1.map.1982.river_villages_planned_channel
+m82.sanjiaowei,三角围,Sanjiaowei,village,village,835,1135,114.09221,22.53786,365,386,,outside_playable,False,False,phase1.map.1982.river_villages_planned_channel
+m82.citangcun,祠堂村,Citang Village,village,village,805,1165,114.09114,22.53682,363,387,,outside_playable,False,False,phase1.map.1982.river_villages_planned_channel
+m82.xiantianjiao,咸田脚,Xiantianjiao,village,locality,965,1110,114.09681,22.53894,369,385,,outside_playable,False,False,phase1.map.1982.river_villages_planned_channel
+m82.shenchong,深冲,Shenchong,village,locality,915,1195,114.09503,22.53607,367,388,,outside_playable,False,False,phase1.map.1982.river_villages_planned_channel
+m82.xiawei,下围,Xiawei,village,village,1040,1220,114.09945,22.53551,372,389,,outside_playable,False,False,phase1.map.1982.river_villages_planned_channel
+m82.yumin,渔民村,Yumin Village,village,village,1235,1190,114.10637,22.5369,379,387,2,pond,True,False,phase1.map.1982.river_villages_planned_channel
+m82.planned_waterway,计划中水道,Planned Shenzhen River Channel,hydro,canal,990,1205,114.09769,22.5359,370,388,,outside_playable,False,True,phase1.map.1982.river_villages_planned_channel

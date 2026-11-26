@@ -1,0 +1,36 @@
+{
+ "source": "data/calibration/buildings_1984.yaml",
+ "count": 124,
+ "placed": 120,
+ "unplaced": 4,
+ "by_status": {
+  "built": 115,
+  "under_construction": 7,
+  "planned": 2
+ },
+ "flagged": [
+  {
+   "id": "b1984.sea_world",
+   "name": "海上世界（明华轮）",
+   "flags": [
+    "on_1979_water"
+   ],
+   "cell": [
+    176,
+    437
+   ]
+  },
+  {
+   "id": "b1984.m82_tourism_supply_co",
+   "name": "市旅游供应公司",
+   "flags": [
+    "on_1979_water"
+   ],
+   "cell": [
+    376,
+    384
+   ]
+  }
+ ],
+ "caveat": "Grid checks are hints. 1979 water is an automatic threshold (tide unknown); the 1979->84 change layer exists only in areas 4 and 6, so outside those areas there is no 1984 build signal to check, and its absence is not evidence that a building was missing."
+}

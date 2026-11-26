@@ -17,6 +17,8 @@
     "spike:location": "vitest run packages/sim-core/test/location-choice.test.ts",
     "spike:grid": "pipeline/.venv/Scripts/python -I pipeline/spike_a_grid.py",
     "spike:map": "vite apps/map-spike --port 5173 --strictPort",
+    "calibration:1982": "pipeline\\.venv\\Scripts\\python -I pipeline/map_1982_georef.py",
+    "calibration:1984": "pipeline\\.venv\\Scripts\\python -I pipeline/buildings_1984.py",
     "slice": "tsx apps/cli/src/main.ts",
     "golden:update": "tsx apps/cli/src/main.ts golden --update",
     "slice:ui": "vite apps/slice-ui --port 5174 --strictPort"
