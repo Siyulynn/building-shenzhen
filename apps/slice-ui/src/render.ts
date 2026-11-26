@@ -90,7 +90,8 @@ export function renderQuarter(v: View): string {
   const { x } = v, s = x.state, t = tx(v.lang);
   const turn = Math.min(s.turn + 1, s.scenario.turns);
   return `${renderLangSwitch(v.lang)}<div class="when">${esc(formatYM(s.date))}</div>
-    <div class="muted">${t(S.T.turn)} ${turn} / ${s.scenario.turns}${x.mode === 'paused' ? ` · ${t(S.T.paused)}` : ''}</div>`;
+    <div class="muted">${t(S.T.turn)} ${turn} / ${s.scenario.turns}${x.mode === 'paused' ? ` · ${t(S.T.paused)}` : ''}</div>
+    <button class="gamebtn" data-act="gameMenu">${t(S.MENU.game)}</button>`;
 }
 
 /** The I/C/R cue (top centre): three bars and no numbers; hovering a bar names its two inputs. */

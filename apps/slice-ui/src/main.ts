@@ -19,6 +19,11 @@ import { unanswered } from './controller.js';
 import { STARTER_FROM, STARTER_TO, tutorialView } from './tutorial.js';
 import { T } from './strings.js';
 import { historicalPlan, type DrawerId, type OverlayLayer } from './views.js';
+import { renderGameMenu, renderMainMenu, type MenuNote, type MenuPage } from './menu.js';
+import {
+  canSave, deleteSlot, exportName, latestSlot, listSlots, readSlot, sessionFromSave, sessionToSave, writeSlot, type SlotId,
+} from './saves.js';
+import { MENU } from './strings.js';
 import type { Intensity, LandUse, RoadClass } from '@sz/sim-core';
 
 const $ = (id: string) => document.getElementById(id)!;
@@ -35,6 +40,10 @@ let plan: Plan | null = null;                      // the gesture being drawn, a
 let cursor = { x: 0, y: 0 };
 let briefingShown = false, decisionsShown = false;  // reset a modal's scroll only when it opens
 let tutorialFocusStep = -1;                        // centre the starter block once when its step opens
+// R12: the title screen opens first; the Game menu saves and loads in play
+let menu: MenuPage | null = 'home';
+let gameMenu = false;
+let menuNote: MenuNote | undefined;
 
 const siteAt = (c: { x: number; y: number }) => slice.startSites.find((s) => s.cell[0] === c.x && s.cell[1] === c.y);
 const view = (): View => ({ slice, x, ui, lang, historical: historical ?? undefined,
@@ -167,9 +176,66 @@ function render(): void {
   else if (tut?.step !== 3) tutorialFocusStep = -1;
   placePreview();
   const verdict = renderVerdict(v);
-  if (verdict === undefined) $('verdict').style.display = 'none';
+  if (verdict === undefined || menu || gameMenu) $('verdict').style.display = 'none';
   else { $('verdictBody').innerHTML = verdict; $('verdict').style.display = 'flex'; }
+  renderMenus();
 }
+
+/** R12: the title screen and the Game menu, over everything else. */
+function renderMenus(): void {
+  const slots = listSlots(slice);
+  if (menu) { $('mainmenuBody').innerHTML = renderMainMenu(lang, menu, slots, latestSlot(slice), menuNote); $('mainmenu').style.display = 'flex'; }
+  else $('mainmenu').style.display = 'none';
+  if (gameMenu && !menu) { $('gamemenuBody').innerHTML = renderGameMenu(lang, x, slots, menuNote); $('gamemenu').style.display = 'flex'; }
+  else $('gamemenu').style.display = 'none';
+}
+
+/** Start a fresh UI over session `next`: a new game opens with the guide, a loaded one without it. */
+function adopt(next: Session, fresh: boolean): void {
+  x = next; plan = null;
+  ui.briefing = true; ui.selected = null;
+  ui.tutorial = fresh; ui.tutorialStep = 0;
+  ui.scrutinySeen = !fresh && x.state.climate.scrutiny > 0;
+  ui.sezReported = !fresh && x.state.sez.opened !== undefined;
+  briefingShown = false; decisionsShown = false; tutorialFocusStep = -1;
+}
+
+/** Load save text from a slot or a file; a failure stays on the open menu with its reason. */
+function loadText(text: string | undefined, source: string): void {
+  if (text === undefined) { menuNote = { what: MENU.badFile, detail: source, warn: true }; return; }
+  try {
+    const { session, contentMatches } = sessionFromSave(slice, text);
+    adopt(session, false);
+    menu = null; gameMenu = false;
+    menuNote = contentMatches ? undefined : { what: MENU.otherContent, warn: true };
+    if (!contentMatches) gameMenu = true;            // show the warning once, in the Game menu
+  } catch (e) {
+    menuNote = { what: MENU.badFile, detail: e instanceof Error ? e.message : String(e), warn: true };
+  }
+}
+
+/** Autosave at each new turn's start; quietly skipped when storage refuses it. */
+function autosave(): void {
+  if (canSave(x)) writeSlot(x, 'auto', new Date().toISOString());
+}
+
+function exportSave(): void {
+  if (!canSave(x)) { menuNote = { what: MENU.saveOnlyAtTurnStart, warn: true }; return; }
+  const url = URL.createObjectURL(new Blob([sessionToSave(x)], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = exportName(x.state);
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+  menuNote = { what: MENU.saved, detail: a.download };
+}
+
+($('importFile') as HTMLInputElement).addEventListener('change', async (e) => {
+  const input = e.target as HTMLInputElement, file = input.files?.[0];
+  input.value = '';
+  if (!file) return;
+  loadText(await file.text(), file.name);
+  render();
+});
 
 const act = (a: Parameters<typeof enqueue>[1]) => { x = enqueue(x, a); render(); };
 
@@ -178,6 +244,21 @@ document.addEventListener('click', (e) => {
   if (!t) return;
   const d = t.dataset;
   switch (d.act) {
+    // R12: menus
+    case 'menuNew': adopt(newSession(slice, seed), true); menu = null; menuNote = undefined; break;
+    case 'menuLoadPage': menu = 'load'; menuNote = undefined; break;
+    case 'menuHome': menu = 'home'; gameMenu = false; menuNote = undefined; break;
+    case 'menuLoad': loadText(readSlot(d.slot as SlotId), d.slot ?? ''); break;
+    case 'menuDelete': deleteSlot(d.slot as SlotId); menuNote = undefined; break;
+    case 'menuSave':
+      menuNote = !canSave(x) ? { what: MENU.saveOnlyAtTurnStart, warn: true }
+        : writeSlot(x, d.slot as SlotId, new Date().toISOString()) ? { what: MENU.saved, detail: `${pickSlot(d.slot)}` }
+        : { what: MENU.storageFull, warn: true };
+      break;
+    case 'menuExport': exportSave(); break;
+    case 'menuImport': ($('importFile') as HTMLInputElement).click(); return;
+    case 'gameMenu': gameMenu = true; menuNote = undefined; break;
+    case 'gameMenuClose': gameMenu = false; menuNote = undefined; break;
     case 'lang': if (isLang(d.lang) && d.lang !== lang) setLang(d.lang); return;
     case 'tool':
       // R11.1: choosing a tool is also how a player leaves the briefing or the decisions modal;
@@ -228,7 +309,7 @@ document.addEventListener('click', (e) => {
     case 'submit': {
       const before = x.turnStart;
       x = submit(x);
-      if (x.turnStart !== before && x.mode === 'turn') { ui.briefing = true; ui.decisions = false; }
+      if (x.turnStart !== before && x.mode === 'turn') { ui.briefing = true; ui.decisions = false; autosave(); }
       if (x.mode === 'paused') ui.decisions = true;
       break;
     }
@@ -274,6 +355,8 @@ document.addEventListener('change', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  if (menu) { if (menu === 'load') { menu = 'home'; menuNote = undefined; render(); } return; }
+  if (gameMenu) { gameMenu = false; menuNote = undefined; render(); return; }
   if (plan) plan = null;
   else if (ui.decisions && !unanswered(x).length) ui.decisions = false;
   else if (ui.drawer) ui.drawer = null;
@@ -282,5 +365,7 @@ document.addEventListener('keydown', (e) => {
   else ui.tool = 'select';
   render();
 });
+
+const pickSlot = (slot?: string) => (slot === 'auto' ? (lang === 'zh' ? MENU.auto.zh : MENU.auto.en) : `${lang === 'zh' ? MENU.slot.zh : MENU.slot.en} ${slot ?? ''}`);
 
 render();

@@ -463,3 +463,24 @@ export const bi = (s: L) => `${s.zh} ${s.en}`;
  * fields read `zh en` (§11.1).
  */
 export const place = (s: L): L => ({ zh: bi(s), en: bi(s) });
+/** R12: the main menu and the in-game Game menu (save and load). */
+export const MENU = {
+  title: l('深圳 1979–1984', 'Shenzhen 1979–1984'),
+  subtitle: l('从边境小镇到经济特区', 'From a border market town to a special zone'),
+  newGame: l('新游戏', 'New game'), continue: l('继续', 'Continue'), load: l('读取存档', 'Load'),
+  back: l('返回', 'Back'), game: l('游戏', 'Game'), save: l('保存', 'Save'), close: l('关闭', 'Close'),
+  mainMenu: l('主菜单', 'Main menu'), resume: l('回到游戏', 'Resume'),
+  slot: l('存档位', 'Slot'), auto: l('自动存档', 'Autosave'), empty: l('空', 'Empty'),
+  turnShort: l('第', 'Turn '), turnSuffix: l('回合', ''),
+  exportFile: l('导出到文件', 'Export to file'), importFile: l('从文件读取', 'Load from file'),
+  delete: l('删除', 'Delete'),
+  saveOnlyAtTurnStart: l('只能在回合开始时保存（季度进行中或游戏结束后不能保存）。',
+    'You can save only at the start of a turn, not mid-quarter or after the end.'),
+  saved: l('已保存', 'Saved'), loaded: l('已读取', 'Loaded'),
+  storageFull: l('浏览器存储已满或被禁用；请改用“导出到文件”。', 'Browser storage is full or blocked; use Export to file instead.'),
+  otherContent: l('此存档用不同版本的游戏内容制作，读取后结果可能与原来不同。',
+    'This save was made with different game content; it loads, but play may differ from the original.'),
+  badFile: l('无法读取此文件', 'Could not read this file'),
+  leaveWarning: l('未保存的进度将丢失。', 'Unsaved progress will be lost.'),
+  autosaveNote: l('每个回合开始时自动存档。', 'The game autosaves at the start of each turn.'),
+};

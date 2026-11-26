@@ -12,7 +12,7 @@ their outlines cite claims for the sites, not for the extents.
 | 1979 yards | Done | Land-cover class `transport_yard` (ninth, last): Luohu station, Sungang freight yard, Wenjindu crossing. Not formable; roads cross at the road rate. |
 | 1979 streets | Done | Jiefang Road, Renmin Road and the old-town west approach join the start network as temporary paths. Proxy streets and tracks stay on the map only. |
 | 1979 map reconciliation | Done | See below. |
-| Main menu, save and load | Next | |
+| Main menu, save and load | Done | Title screen (New game, Continue, Load), a Game menu in play (three slots, an autosave at each turn start, export and import as a file). Saves only at a turn start; a save keeps the unsent answers and queued actions, so End turn after a load gives what it would have given. `apps/slice-ui/src/saves.ts`. |
 | Historical run follows the 1984 map | Later | Needs explicit-cell zone plans (spec first) and a recalibration. |
 
 ## 1979 reconciliation

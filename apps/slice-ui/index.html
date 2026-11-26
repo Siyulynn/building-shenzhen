@@ -242,6 +242,25 @@
     .portrait { float: right; width: 34px; height: 40px; border: 1px dashed var(--ink-2); background: var(--paper-2); display: flex; align-items: center; justify-content: center; font: 18px var(--type); color: var(--ink-2); }
     .bar { height: 6px; background: var(--paper-2); border: 1px solid var(--ink-2); flex: 1; min-width: 30px; } .bar > i { display: block; height: 6px; background: var(--maroon); }
     ::-webkit-scrollbar { width: 9px; height: 9px; } ::-webkit-scrollbar-thumb { background: var(--paper-3); border: 2px solid var(--paper); }
+    /* R12: the main menu and the Game menu */
+    #mainmenu { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 11;
+      background: radial-gradient(ellipse at center, rgba(43,29,23,.88), rgba(43,29,23,.97)); }
+    .menu-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(43,29,23,.6); z-index: 10; }
+    #mainmenu > div, .menu-modal > div { background: var(--guilloche), var(--paper); color: var(--ink); border: 4px double var(--maroon);
+      padding: 18px 22px; width: min(520px, calc(100vw - 32px)); max-height: 86vh; overflow: auto;
+      box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px rgba(168,50,45,.5), 4px 6px 0 rgba(43,29,23,.45); }
+    .menu-title { font-size: 26px; margin: 6px 0 2px; text-align: center; }
+    .menu-sub { text-align: center; color: var(--ink-2); margin-bottom: 16px; }
+    .menu-buttons { display: flex; flex-direction: column; gap: 10px; align-items: stretch; margin: 10px auto; max-width: 340px; }
+    .menu-buttons button.go { margin: 0; }
+    .menu-note { margin-top: 10px; }
+    .slots { width: 100%; border-collapse: collapse; margin: 8px 0; }
+    .slots th, .slots td { border-bottom: 1px solid var(--rule); padding: 5px 4px; text-align: left; }
+    .slots .slot-acts { text-align: right; white-space: nowrap; } .slots .slot-acts button { margin-left: 4px; }
+    .menu-files { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+    .menu-foot { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 12px; }
+    .menu-foot button.go { margin: 0; } .menu-back { display: block; margin: 12px auto 0; }
+    .gamebtn { margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -262,6 +281,9 @@
   <div id="decisions" class="float"></div>
   <div id="preview" class="float"></div>
   <div id="verdict"><div id="verdictBody"></div></div>
+  <div id="gamemenu" class="menu-modal"><div id="gamemenuBody"></div></div>
+  <div id="mainmenu"><div id="mainmenuBody"></div></div>
+  <input id="importFile" type="file" accept=".json,application/json" hidden>
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
