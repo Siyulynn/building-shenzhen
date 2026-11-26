@@ -2,12 +2,15 @@
  * R11.2: the playtest fixes. Decision-queue folding, shortcut origin, mixed offer cards, works feedback,
  * readiness deltas, the SEZ prologue result and the map key.
  */
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { sizeOffer, type GameState, type WorksOrder } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { newSession, type Session } from '../src/controller.js';
 import { initialUi, renderDecisions, renderDrawer, renderOverlaySelect, renderTutorial, type UiState, type View } from '../src/render.js';
-import { actionLabel, cardView, readinessView, worksView } from '../src/views.js';
+import { actionLabel, cardView, effectBadges, historicalPlan, readinessView, worksView } from '../src/views.js';
+import { renderFlyout } from '../src/render.js';
+import { sceneOf } from '../src/scene.js';
 import { tutorialView } from '../src/tutorial.js';
 import * as S from '../src/strings.js';
 
@@ -121,6 +124,50 @@ describe('R11.2 readiness and the prologue result', () => {
     const html = renderTutorial(view(x, ui));
     expect(html).toContain(S.T.sezResultDone.en);
     expect(tutorialView(x, { ...ui, sezReported: true }, slice)).toBeUndefined();
+  });
+});
+
+describe('R11.2 strategic card clarity', () => {
+  it('shows the co-financing concession terms and the SEZ first-wave mix', () => {
+    const co = slice.tick.events.find((e) => e.id === 'event.cofinancing')!;
+    const badges = effectBadges(co, slice).accept!;
+    expect(badges.some((b) => b.en.includes('24') && b.en.includes('0.5'))).toBe(true);
+    const card = { id: 'event.sez_established@test', card: 'event.sez_established', interrupting: true,
+      options: ['priority.industry', 'priority.trade', 'priority.commerce'] };
+    const view = cardView(base.state, slice, card as never);
+    expect(view.options.every((o) => o.note?.en.includes(S.T.firstWaveMix.en))).toBe(true);
+    expect(view.options[0]!.note!.en).toContain('%');
+  });
+
+  it('does not claim a standing rise on the first-zone card', () => {
+    const first = slice.tick.events.find((e) => e.id === 'event.first_zone')!;
+    expect(first.description!.en).not.toContain('standing rises');
+    expect(first.description!.zh).not.toContain('上级评价随之提高');
+  });
+});
+
+describe('R11.2 the 1984 historical plan', () => {
+  const hist = historicalPlan(readFileSync('data/starts/slice_historical_zones.json', 'utf8'), 931)!;
+  it('extracts the proposal zones from the scene-review SVG', () => {
+    expect(hist.zones).toHaveLength(10);
+    expect(hist.date).toBe('1984-01-24');
+    const factories = hist.zones.find((z) => z.id === 'shangbu-factories')!;
+    expect(factories.cellCount).toBe(15);
+    expect(factories.cells).toHaveLength(15);
+    expect(factories.use).toBe('industrial');
+    expect(hist.zones.some((z) => z.id === 'shangbu-housing' && z.use === 'residential')).toBe(true);
+  });
+
+  it('replaces the two-zone guide in the flyout and the map scene, and commits nothing', () => {
+    const v: View = { ...view(), historical: hist, ui: { ...initialUi(slice), tool: 'zone', guide: true } };
+    const html = renderFlyout(v);
+    expect(html).toContain('1984');
+    expect(html).toContain('Shangbu factories');
+    expect(html).toContain('Shangbu housing');
+    const sc = sceneOf(base, slice, { layer: 'areas', guide: true, historical: hist, selected: null, plan: null });
+    expect(sc.historical).toHaveLength(10);
+    expect(sc.guide).toBeNull();
+    expect(base.queue).toHaveLength(0);
   });
 });
 

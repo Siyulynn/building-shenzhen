@@ -713,8 +713,8 @@
 - id: event.first_zone
   name: { zh: 第一个工业区投产, en: The first industrial zone opens }
   description:
-    zh: "你规划的区块里第一家企业开工投产。领导班子的上级评价随之提高。"
-    en: "The first firm in one of your zones has opened. Your leaders' standing rises with it."
+    zh: "你规划的区块里第一家企业开工投产。"
+    en: "The first firm in one of your zones has opened."
   family: milestone
   trigger: { condition: first_zone_firm_open }
   effects:

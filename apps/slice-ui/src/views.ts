@@ -38,6 +38,23 @@ export const SHORT_AREA: Readonly<Record<number, L>> = {
   2: { zh: '罗湖口岸', en: 'Luohu crossing' },
   4: { zh: '黄贝岭', en: 'Huangbeiling' },
 };
+/** R11.2: the 1984 scene-review proposal, compiled by pipeline/m3d_historical_zones.py. Reference only. */
+export interface HistoricalZone {
+  id: string; name: L; use: string; intensity: string; stage: string;
+  cellCount: number; cells: readonly number[]; label: readonly [number, number];
+}
+export interface HistoricalPlan { date: string; zones: readonly HistoricalZone[] }
+/** Parse data/starts/slice_historical_zones.json into cell indices for a grid of `width`. */
+export function historicalPlan(raw: string, width: number): HistoricalPlan | null {
+  const data = JSON.parse(raw) as { date?: string; zones?: { id: string; name: L; use: string; intensity: string;
+    stage: string; cellCount: number; runs: [number, number, number][]; label: [number, number] }[] };
+  if (!data.date || !Array.isArray(data.zones)) return null;
+  return { date: data.date, zones: data.zones.map((z) => ({
+    id: z.id, name: z.name, use: z.use, intensity: z.intensity, stage: z.stage, cellCount: z.cellCount, label: z.label,
+    cells: z.runs.flatMap(([y, x0, x1]) => Array.from({ length: x1 - x0 + 1 }, (_, i) => y * width + x0 + i)),
+  })) };
+}
+
 /** R11.1: the name the player sees; the register keeps the full historical name and its citation. */
 export const SITE_NAME: Readonly<Record<string, L>> = {
   'site.sungang_freight': { zh: '笋岗货场', en: 'Sungang freight yard' },
@@ -203,7 +220,13 @@ function effectBadge(d: EventDef, e: EventEffect, option: string, slice: Slice, 
       const t = fc?.projects.find((x) => x.id === e.template);
       return [then(B.cofinance!, t?.name ?? raw(e.template!))];
     }
-    case 'offer': return [e.terms ? cat(B.offer!, B.offerTerms!, ', ', '，') : B.offer!];
+    case 'offer': {
+      if (!e.terms) return [B.offer!];
+      const terms: L[] = [];
+      if (n.tax_holiday_months) terms.push(cat(raw(String(n.tax_holiday_months)), B.months!, ' '));
+      if (n.land_fee_factor !== undefined) terms.push(cat(B.landFee!, raw(`×${n.land_fee_factor}`), ' '));
+      return [terms.length ? cat(B.offerTerms!, joinL(terms, ' · '), ': ') : B.offerTerms!];
+    }
     case 'offer_loan': return [B.loan!];
     case 'sez_open': return [B.sezOpen!];
     case 'set_regime': return [B.regime!];
@@ -255,14 +278,28 @@ export function cardView(s: GameState, slice: Slice, c: CardInstance, count = 1,
   const shortcutLine: Line[] = shortcut?.archetype
     ? [{ label: S.T.shortcutFrom, value: joinL([from ?? raw(shortcut.archetype), lv(S.T.offerJobs, num(shortcut.jobs ?? 0))], ' · ') }]
     : [];
+  // R11.2: the SEZ priority card says what the first-wave mix actually is, instead of a wall of shared badges.
+  const sezNote = (option: string): L | undefined => {
+    if (c.card !== 'event.sez_established') return undefined;
+    const mix = slice.params.sez?.priorities?.[option];
+    if (!mix) return undefined;
+    const total = Object.values(mix).reduce((n, w) => n + w, 0);
+    if (!total) return undefined;
+    const parts = Object.entries(mix).filter(([, w]) => w > 0).map(([id, w]) =>
+      cat(named(slice.tick.investors, id) ?? raw(id), raw(`${Math.round(100 * w / total)}%`), ' '));
+    return cat(S.T.firstWaveMix, joinL(parts, ' · '), ': ');
+  };
   return {
     id: c.id, card: c.card, title: cardTitle(slice, c.card) ?? raw(c.card), interrupting: c.interrupting,
     ids, count,
     ...(c.raisedAt !== undefined ? { raised: formatYM(c.raisedAt) } : {}),
     ...(c.expires !== undefined ? { expires: formatYM(c.expires) } : {}),
     ...(ev?.description ? { description: ev.description } : {}),
-    options: c.options.map((o) => ({ id: o, label: optionLabel(s, slice, c.card, o) ?? raw(o), badges: badges[o] ?? [],
-      ...(offer?.notes.get(o) ? { note: offer.notes.get(o) } : {}) })),
+    options: c.options.map((o) => {
+      const note = offer?.notes.get(o) ?? sezNote(o);
+      return { id: o, label: optionLabel(s, slice, c.card, o) ?? raw(o), badges: badges[o] ?? [],
+        ...(note ? { note } : {}) };
+    }),
     lines: [...(offer?.lines ?? []), ...shortcutLine, ...cardLines(s, slice, c)],
   };
 }

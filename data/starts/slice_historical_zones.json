@@ -1,0 +1,409 @@
+{
+  "format": 1,
+  "generated_by": "pipeline/m3d_historical_zones.py",
+  "source": "docs/spikes/scene-review/zoning/core-basin-1984.svg",
+  "proposal": "docs/spikes/scene-review/zoning/core-basin-proposals.json",
+  "date": "1984-01-24",
+  "evidence_status": "design_note",
+  "grid": {
+    "crs": "EPSG:32650",
+    "cell_m": 100,
+    "origin_top_left": [
+      164400,
+      2533900
+    ],
+    "box": [
+      344,
+      343,
+      419,
+      398
+    ]
+  },
+  "box": [
+    344,
+    343,
+    419,
+    398
+  ],
+  "zones": [
+    {
+      "id": "luohu-high",
+      "name": {
+        "zh": "罗湖干道沿线",
+        "en": "Luohu avenue frontage"
+      },
+      "use": "commercial",
+      "intensity": "high",
+      "stage": "proposal",
+      "cellCount": 1,
+      "runs": [
+        [
+          387,
+          396,
+          396
+        ]
+      ],
+      "label": [
+        391,
+        380.5
+      ],
+      "claims": [
+        "phase1.fiscal.luohu.site_servicing_estimate.1980",
+        "phase1.shennan.east_reach_1983",
+        "core_basin.guomao.site"
+      ]
+    },
+    {
+      "id": "shangbu-factories",
+      "name": {
+        "zh": "上步厂区",
+        "en": "Shangbu factories"
+      },
+      "use": "industrial",
+      "intensity": "standard",
+      "stage": "proposal",
+      "cellCount": 15,
+      "runs": [
+        [
+          386,
+          355,
+          355
+        ],
+        [
+          387,
+          358,
+          360
+        ],
+        [
+          387,
+          362,
+          362
+        ],
+        [
+          387,
+          364,
+          365
+        ],
+        [
+          388,
+          355,
+          356
+        ],
+        [
+          388,
+          358,
+          360
+        ],
+        [
+          388,
+          362,
+          362
+        ],
+        [
+          388,
+          364,
+          365
+        ]
+      ],
+      "label": [
+        353,
+        374.25
+      ],
+      "claims": [
+        "phase1.zoning.shangbu.factory_1_completed",
+        "phase1.housing.shangbu_bagualing.completed_industrial_floor.1984"
+      ]
+    },
+    {
+      "id": "shangbu-housing",
+      "name": {
+        "zh": "上步住宅组团",
+        "en": "Shangbu housing"
+      },
+      "use": "residential",
+      "intensity": "standard",
+      "stage": "proposal",
+      "cellCount": 7,
+      "runs": [
+        [
+          385,
+          358,
+          361
+        ],
+        [
+          386,
+          367,
+          367
+        ],
+        [
+          387,
+          366,
+          367
+        ]
+      ],
+      "label": [
+        349,
+        385
+      ],
+      "claims": [
+        "phase1.map.1982.shangbu_industrial",
+        "atlas.photo.szlzp.1559"
+      ]
+    },
+    {
+      "id": "luohu-support",
+      "name": {
+        "zh": "罗湖商业街块",
+        "en": "Luohu commercial blocks"
+      },
+      "use": "commercial",
+      "intensity": "standard",
+      "stage": "proposal",
+      "cellCount": 8,
+      "runs": [
+        [
+          387,
+          392,
+          393
+        ],
+        [
+          388,
+          389,
+          389
+        ],
+        [
+          389,
+          389,
+          389
+        ],
+        [
+          389,
+          391,
+          391
+        ],
+        [
+          389,
+          393,
+          394
+        ],
+        [
+          390,
+          389,
+          389
+        ]
+      ],
+      "label": [
+        391.25,
+        388.5
+      ],
+      "claims": [
+        "phase1.fiscal.luohu.site_servicing_estimate.1980",
+        "phase1.video.1984.aerial_urban_fabric"
+      ]
+    },
+    {
+      "id": "luohu-housing",
+      "name": {
+        "zh": "罗湖住宅组团",
+        "en": "Luohu housing"
+      },
+      "use": "residential",
+      "intensity": "standard",
+      "stage": "proposal",
+      "cellCount": 7,
+      "runs": [
+        [
+          391,
+          391,
+          394
+        ],
+        [
+          392,
+          388,
+          389
+        ],
+        [
+          392,
+          392,
+          392
+        ]
+      ],
+      "label": [
+        389,
+        386.5
+      ],
+      "claims": [
+        "phase1.video.1984.aerial_urban_fabric",
+        "atlas.photo.szlzp.1523"
+      ]
+    },
+    {
+      "id": "bagualing",
+      "name": {
+        "zh": "八卦岭工业建设",
+        "en": "Bagualing works"
+      },
+      "use": "industrial",
+      "intensity": "standard",
+      "stage": "works",
+      "cellCount": 12,
+      "runs": [
+        [
+          369,
+          377,
+          378
+        ],
+        [
+          370,
+          373,
+          378
+        ],
+        [
+          371,
+          373,
+          376
+        ]
+      ],
+      "label": [
+        362,
+        364
+      ],
+      "claims": [
+        "phase1.zoning.bagualing.first_works",
+        "phase1.zoning.bagualing.road_envelope_gazetteer"
+      ]
+    },
+    {
+      "id": "shuibei",
+      "name": {
+        "zh": "水贝工业候选区",
+        "en": "Shuibei candidate"
+      },
+      "use": "industrial",
+      "intensity": "low",
+      "stage": "proposal",
+      "cellCount": 9,
+      "runs": [
+        [
+          357,
+          399,
+          400
+        ],
+        [
+          358,
+          399,
+          400
+        ],
+        [
+          359,
+          398,
+          400
+        ],
+        [
+          360,
+          398,
+          399
+        ]
+      ],
+      "label": [
+        400,
+        348
+      ],
+      "claims": [
+        "phase1.zoning.shuibei.industrial_development_proposal",
+        "phase1.zoning.shuibei.road_envelope_gazetteer"
+      ]
+    },
+    {
+      "id": "hubei-housing",
+      "name": {
+        "zh": "湖贝路侧住宅组团",
+        "en": "Hubei roadside housing"
+      },
+      "use": "residential",
+      "intensity": "standard",
+      "stage": "proposal",
+      "cellCount": 3,
+      "runs": [
+        [
+          381,
+          414,
+          415
+        ],
+        [
+          382,
+          407,
+          407
+        ]
+      ],
+      "label": [
+        402,
+        367
+      ],
+      "claims": [
+        "atlas.photo.szlzp.1552",
+        "atlas.photo.szlzp.1553"
+      ]
+    },
+    {
+      "id": "huangbeiling-works",
+      "name": {
+        "zh": "黄贝岭路侧工地",
+        "en": "Huangbeiling roadside works"
+      },
+      "use": "industrial",
+      "intensity": "low",
+      "stage": "works",
+      "cellCount": 5,
+      "runs": [
+        [
+          383,
+          416,
+          418
+        ],
+        [
+          384,
+          416,
+          417
+        ]
+      ],
+      "label": [
+        405,
+        378.5
+      ],
+      "claims": [
+        "atlas.photo.szlzp.1552"
+      ]
+    },
+    {
+      "id": "shangbu-edge",
+      "name": {
+        "zh": "上步预留地",
+        "en": "Shangbu reserve"
+      },
+      "use": "reserve",
+      "intensity": "low",
+      "stage": "proposal",
+      "cellCount": 9,
+      "runs": [
+        [
+          379,
+          352,
+          355
+        ],
+        [
+          380,
+          352,
+          356
+        ]
+      ],
+      "label": [
+        353.78,
+        379.56
+      ],
+      "claims": [
+        "site.shangbu_land.exists_1979"
+      ]
+    }
+  ]
+}

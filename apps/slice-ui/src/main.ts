@@ -18,7 +18,7 @@ import { BUILD_TOOLS, applyPlan, planGesture, type Plan, type Tool } from './too
 import { unanswered } from './controller.js';
 import { STARTER_FROM, STARTER_TO, tutorialView } from './tutorial.js';
 import { T } from './strings.js';
-import type { DrawerId, OverlayLayer } from './views.js';
+import { historicalPlan, type DrawerId, type OverlayLayer } from './views.js';
 import type { Intensity, LandUse, RoadClass } from '@sz/sim-core';
 
 const $ = (id: string) => document.getElementById(id)!;
@@ -29,6 +29,7 @@ const seed = Number(new URLSearchParams(location.search).get('seed') ?? 1) || 1;
 let lang: Lang = resolveLang(location.search, readStoredLang());
 storeLang(lang);                                   // a ?lang visit is remembered too
 let x: Session = newSession(slice, seed);
+const historical = historicalPlan(readBundled('data/starts/slice_historical_zones.json'), x.state.grid.width);
 const ui: UiState = initialUi(slice);
 let plan: Plan | null = null;                      // the gesture being drawn, and its preview
 let cursor = { x: 0, y: 0 };
@@ -36,7 +37,8 @@ let briefingShown = false, decisionsShown = false;  // reset a modal's scroll on
 let tutorialFocusStep = -1;                        // centre the starter block once when its step opens
 
 const siteAt = (c: { x: number; y: number }) => slice.startSites.find((s) => s.cell[0] === c.x && s.cell[1] === c.y);
-const view = (): View => ({ slice, x, ui, lang, selectedSite: ui.selected ? siteAt(ui.selected) : undefined });
+const view = (): View => ({ slice, x, ui, lang, historical: historical ?? undefined,
+  selectedSite: ui.selected ? siteAt(ui.selected) : undefined });
 const isBuildTool = (t: Tool) => BUILD_TOOLS.includes(t);
 
 function gesture(from: Cell, to: Cell, done: boolean): void {
@@ -153,7 +155,7 @@ function render(): void {
   briefingShown = briefingOn; decisionsShown = ui.decisions;
   $('dim').style.display = briefingOn || ui.decisions ? 'block' : 'none';
   const tutCells = tut?.cells?.map(([tx, ty]) => ty * x.state.grid.width + tx) ?? null;
-  map.setScene(sceneOf(x, slice, { layer: ui.layer, guide: ui.guide, selected: ui.selected, plan,
+  map.setScene(sceneOf(x, slice, { layer: ui.layer, guide: ui.guide, historical, selected: ui.selected, plan,
     tutorial: tutCells ? { cells: tutCells, label: lang === 'zh' ? T.startHere.zh : T.startHere.en } : null }));
   map.setDrawMode(isBuildTool(ui.tool) && x.mode === 'turn');
   map.setZoneMode(ui.tool === 'zone' && x.mode === 'turn');

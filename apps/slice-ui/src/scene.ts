@@ -7,7 +7,7 @@ import type { Session } from './controller.js';
 import type { Plan } from './tools.js';
 import {
   USE_COLOR, constraintContext, floorSpread, isBuildable, overlayRgba, villageFloors,
-  type OverlayLayer, type RGBA,
+  type HistoricalPlan, type OverlayLayer, type RGBA,
 } from './views.js';
 
 const MEMO = new WeakMap<GameState, Map<string, Uint8ClampedArray>>();
@@ -55,6 +55,7 @@ export function actionCells(s: GameState, queue: readonly PlayerAction[], action
 export interface SceneInputs {
   layer: OverlayLayer; guide: boolean; selected: { x: number; y: number } | null; plan: Plan | null; previewCells?: readonly number[];
   tutorial?: { cells: readonly number[]; label: string } | null;
+  historical?: HistoricalPlan | null;              // R11.2: the 1984 proposal replaces the two pink precedents
 }
 
 /** Everything map.ts draws, from the session and the UI's choices. */
@@ -73,7 +74,8 @@ export function sceneOf(x: Session, slice: Slice, ui: SceneInputs) {
   }
   const plan = ui.plan;
   const previewCells = plan && plan.kind === 'actions' ? actionCells(s, x.queue, plan.actions) : ui.previewCells ?? [];
-  const guide = ui.guide ? (slice.tick.precedents ?? []).flatMap((p) => [...p.cells]) : null;
+  const historical = ui.guide ? ui.historical ?? null : null;
+  const guide = ui.guide && !historical ? (slice.tick.precedents ?? []).flatMap((p) => [...p.cells]) : null;
   return {
     state: s,
     overlay: memo(s, ui.layer, () => overlayRgba(s, slice, ui.layer)),
@@ -85,7 +87,7 @@ export function sceneOf(x: Session, slice: Slice, ui: SceneInputs) {
     structures,
     queued: actionCells(s, x.queue, x.queue),
     preview: plan && plan.kind !== 'none' ? { cells: previewCells, ok: plan.kind !== 'refused' } : null,
-    guide,
+    guide, historical: historical?.zones ?? null,
     selected: ui.selected,
     tutorial: ui.tutorial ?? null,
     floor, floorUse,

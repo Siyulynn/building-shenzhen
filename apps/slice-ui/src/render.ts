@@ -46,6 +46,7 @@ export const initialUi = (slice: Slice): UiState => ({
 export interface View {
   readonly slice: Slice; readonly x: Session; readonly ui: Readonly<UiState>; readonly lang: Lang;
   readonly selectedSite?: StartSite | undefined;
+  readonly historical?: import('./views.js').HistoricalPlan | undefined;   // R11.2: the 1984 proposal
 }
 
 const ESC: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
@@ -121,6 +122,8 @@ export function renderOverlaySelect(v: View): string {
       ${v.ui.tool === 'zone' ? `<div><i class="sw noform"></i>${t(S.T.notFormable)}</div>` : ''}
       <div class="muted">${t(S.T.zoneKey)}</div>
       ${['industrial', 'residential', 'commercial'].map((k) => `<div><i class="sw" style="background:rgba(${USE_COLOR[k]!.slice(0, 3).join(',')},.7)"></i>${t(S.LAND_USE[k]!)}</div>`).join('')}
+      ${v.historical ? `<div><i class="sw" style="border:1px dashed #24476b"></i>${t(S.T.historicalProposal)}</div>
+        <div><i class="sw" style="border:1px dashed #5c1f24;background:rgba(196,120,60,.25)"></i>${t(S.T.historicalWorks)}</div>` : ''}
       <div><i class="sw road"></i>${t(S.T.startRoutes)}</div>
     </details>
     <details class="key"><summary>${t(S.T.areasLegend)} (${s.areas.length})</summary>${areas}</details>
@@ -239,7 +242,7 @@ export function renderFlyout(v: View): string {
       return lock ? lockedButton(lock, v.lang, t(S.INTENSITY[k]!))
         : `<button data-act="intensity" data-tier="${k}" class="${tier === k ? 'sel' : ''}" title="${esc(t(S.INTENSITY_DETAIL[k]!))}">${t(S.INTENSITY[k]!)}</button>`;
     }).join('');
-    const guides = (slice.tick.precedents ?? []).filter((p) => p.cells.length);
+    const guides = v.historical?.zones.length ? v.historical.zones : (slice.tick.precedents ?? []).filter((p) => p.cells.length);
     body += `<div class="opts">${uses}</div>
       <div class="muted">${t(S.T.intensity)}</div><div class="opts">${tiers}</div>
       <div class="hint">${t(ui.details ? S.T.intensityHint : S.INTENSITY_BRIEF[tier]!)}</div>
@@ -247,6 +250,7 @@ export function renderFlyout(v: View): string {
       <label><input type="checkbox" data-ui="planOnly" ${ui.opts.planOnly ? 'checked' : ''}> ${t(S.T.planOnly)}</label>
       <label><input type="checkbox" data-ui="guide" ${ui.guide ? 'checked' : ''}> ${t(S.T.showGuide)}</label>
       <div class="hint">${t(S.T.guideReference)}</div>
+      ${v.historical ? `<div class="muted">${t(S.T.historicalPlan)} · ${esc(v.historical.date)}</div>` : ''}
       ${guides.map((p) => `<div class="q"><span>${esc(bi(p.name))}</span></div>`).join('')}`;
   } else if (k === 'road') {
     // R8d (§5.12): the tier before the drag
