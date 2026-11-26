@@ -245,3 +245,15 @@
   summary: Some land in the slice was military or restricted in 1979.
   status: lead
   notes: Where is open. Not placed.
+
+- id: site.town_west_approach.visible_1980
+  source: kh9_1980_09_11_a048
+  locator: "Frame A048 segment c, registered by pipeline/m1c_kh9_mosaic.py; grid cells (375,379) to (384,376), west of the market town"
+  summary: >-
+    A road runs west from the market town past the county offices on the September 1980 KH-9 frame (the core-basin
+    design map's old-town west approach).
+  status: lead
+  extracted_by: ai:r12-core-basin
+  notes: >-
+    Image interpretation of a September 1980 frame, after the first works began: evidence that the road existed at
+    that date, not in 1979. The name is descriptive; no historical name is attached.

@@ -97,6 +97,36 @@
     - { id: site.jianshe_road.town_to_station, use: encyclopedia }
   research: [Georeference the 1977 street sheet against the 1980 KH-9 mosaic and trace the road (docs/research/phase1-transport.md)]
 
+- id: site.jiefang_road            # R12: the old-town street, a temporary path in start_network.yaml
+  name: { zh: 解放路, en: Jiefang Road }
+  kind: road
+  area: 1
+  geometry: { kind: unplaced }
+  in_start_state: road
+  claims:
+    - { id: phase1.map.dongmen.crossroads_early_reform, use: encyclopedia }
+  research: [Trace on the 1977 street sheet; the 1980 KH-9 block break is only a candidate]
+
+- id: site.renmin_road             # R12: crosses Jiefang Road in the old core
+  name: { zh: 人民路, en: Renmin Road }
+  kind: road
+  area: 1
+  geometry: { kind: unplaced }
+  in_start_state: road
+  claims:
+    - { id: phase1.map.dongmen.crossroads_early_reform, use: encyclopedia }
+  research: [Trace and width; the 1980 KH-9 junction is only a candidate]
+
+- id: site.town_west_approach      # R12: past the county offices
+  name: { zh: 深圳墟西侧进路, en: Old-town west approach }
+  kind: road
+  area: 3
+  geometry: { kind: unplaced }
+  in_start_state: road
+  claims:
+    - { id: site.town_west_approach.visible_1980, use: encyclopedia }
+  research: [A 1979 or earlier source for the road and its name]
+
 - id: site.wenjindu_crossing
   name: { zh: 文锦渡, en: Wenjindu crossing }
   kind: crossing

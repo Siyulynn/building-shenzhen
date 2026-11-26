@@ -191,10 +191,10 @@ describe('R11.1 the reference-only historical plan and the wording', () => {
   });
 
   it('reads frontage prospectively for an unzoned cell beside the start road', () => {
-    const c = inspectorView(start, slice, 387, 376);
+    const c = inspectorView(start, slice, 388, 376);
     expect(c.frontage).toBeUndefined();
     expect(c.prospectiveFrontage?.depth).toBeGreaterThan(0);
-    expect(renderInspector(view({ selected: { x: 387, y: 376 } }))).toContain(T.frontageIfZoned.en);
+    expect(renderInspector(view({ selected: { x: 388, y: 376 } }))).toContain(T.frontageIfZoned.en);
   });
 
   it('gives the briefing and decisions a scrolling body and a fixed footer', () => {

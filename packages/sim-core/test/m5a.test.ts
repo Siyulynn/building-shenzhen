@@ -166,7 +166,7 @@ describe('M5a: readiness', () => {
   it('starts with every part below 1, and each part rises with its own work', () => {
     const s = initial();
     const r0 = readiness(s, params, buildable);
-    expect(r0.cells).toBe(431 + 242 + 222 + 536);    // Formable land-cover cells of areas 1, 2, 3 and 7.
+    expect(r0.cells).toBe(431 + 230 + 222 + 536);    // Formable land-cover cells of areas 1, 2, 3 and 7 (R12: 12 of area 2's are yards).
     expect(r0.roads).toBe(0);
     expect(r0.servicedLand).toBe(0);
     expect(r0.waterPower).toBeGreaterThan(0);

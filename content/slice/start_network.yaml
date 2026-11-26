@@ -11,3 +11,12 @@ routes:
   - site: site.jianshe_road           # R4.5: the town's road to the station joins Areas 1 and 2 (phase1-slice §1.1)
     placement: temporary             # beside the market-town cell on the Guangshen route, east of the railway
     waypoints: [[386, 378], [386, 390]]
+  - site: site.jiefang_road           # R12: the old-town streets of the core-basin 1979 design map (phase1-slice §1.1)
+    placement: temporary
+    waypoints: [[386, 375], [390, 375]]
+  - site: site.renmin_road            # crosses Jiefang at (387,375); south end beside the Guangshen route's (387,377)
+    placement: temporary
+    waypoints: [[387, 374], [387, 376]]
+  - site: site.town_west_approach     # county offices east to (384,376), beside the Guangshen route's (384,377)
+    placement: temporary
+    waypoints: [[375, 379], [376, 379], [376, 378], [377, 378], [377, 377], [380, 377], [380, 376], [384, 376]]

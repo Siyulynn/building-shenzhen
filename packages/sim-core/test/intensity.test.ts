@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   HIGH_INTENSITY_KEY, INTENSITIES, LAND_USES, Rng, applyTurnAction, cellsOfRuns, createFirm, createTickSteps,
-  intensityOf, loadGame, post, roadClasses, runsOfCells, saveFromJson, saveGame, saveToJson, setRoadClass, sizeOffer,
+  intensityOf, isFormable, loadGame, post, roadClasses, runsOfCells, saveFromJson, saveGame, saveToJson, setRoadClass, sizeOffer,
   validateParams, zoneCapacityM2, zoneRoomM2,
   type CellRuns, type GameState, type PlayerAction, type Zone,
 } from '../src/index.js';
@@ -28,8 +28,11 @@ const unlocked = () => { const s = initial(); s.events.unlocked.push(HIGH_INTENS
 /** A 1-cell zone site 4-adjacent to a road cell, with that road cell: the first that a zone may take. */
 function besideRoad(s: GameState): { road: number; runs: CellRuns } {
   const W = s.grid.width;
-  for (const road of roadClasses(s, UNGATED.network!).keys()) {
+  const roads = roadClasses(s, UNGATED.network!);
+  for (const road of roads.keys()) {
     for (const n of [road - W, road + W, road - 1, road + 1]) {
+      // a formable cell that is not itself a road: site formation must have something to form (R12's town streets)
+      if (roads.has(n) || !isFormable(UNGATED.landcover!, n)) continue;
       const t = initial();
       try { apply(t, { type: 'create_zone', use: 'industrial', runs: runsOfCells([n], W) }); } catch { continue; }
       return { road, runs: runsOfCells([n], W) };

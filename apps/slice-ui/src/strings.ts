@@ -164,6 +164,7 @@ export const LAND_COVER: Readonly<Record<string, L>> = {
   pond: l('鱼塘', 'Fishponds'), hill: l('山地（不可平整）', 'Hill (not formable)'),
   village: l('村庄（不可平整）', 'Village (not formable)'), town: l('镇区边缘', 'Town fringe'),
   upland: l('坡地', 'Upland'), lowland_farm: l('平地农田', 'Lowland farmland'),
+  transport_yard: l('站场口岸（不可平整）', 'Rail and port yard (not formable)'),
 };
 export const OVERLAYS: Readonly<Record<string, L>> = {
   areas: l('片区', 'Areas'), land_use: l('用地规划', 'Land use'), plan_1984: l('1984年规划', '1984 plan'), illegal: l('违建比例', 'Illegal floor share'),

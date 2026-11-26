@@ -584,6 +584,7 @@ const PLAYABLE: RGBA = [255, 236, 120, 60], CARD_ONLY: RGBA = [200, 150, 80, 60]
 export const LAND_COVER_COLOR: Record<LandCoverClass, RGBA> = {
   water: [70, 120, 190, 200], tidal_flat: [140, 170, 190, 200], pond: [90, 170, 190, 210], hill: [110, 120, 90, 190],
   village: [170, 80, 60, 220], town: [120, 60, 70, 220], upland: [170, 160, 90, 180], lowland_farm: [190, 210, 120, 170],
+  transport_yard: [120, 112, 104, 210],
 };
 
 /** The per-area value a layer shows, 0..1 (rental crowding is shown as occupants ÷ beds, capped at 1.5). */

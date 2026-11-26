@@ -8,11 +8,14 @@ import type { LandCoverParams, SliceParams } from './params.js';
 import type { AreasContent } from './state.js';
 import { cellsOfRuns } from './zones.js';
 
-export const LAND_COVER_CLASSES = ['water', 'tidal_flat', 'pond', 'hill', 'village', 'town', 'upland', 'lowland_farm'] as const;
+/** R12: `transport_yard` is last so the earlier indices keep their values (§5.5). */
+export const LAND_COVER_CLASSES = ['water', 'tidal_flat', 'pond', 'hill', 'village', 'town', 'upland', 'lowland_farm',
+  'transport_yard'] as const;
 export type LandCoverClass = (typeof LAND_COVER_CLASSES)[number];
 /**
  * The classes site formation can work (decided, §5.5). Villages are not formable in Phase 1: development wraps around
- * them. Water and tidal flats need reclamation, hills terracing; neither is modelled.
+ * them. Water and tidal flats need reclamation, hills terracing; neither is modelled. Railway and port yards are
+ * transport land, never a zone's site (R12).
  */
 export const FORMABLE_CLASSES: readonly LandCoverClass[] = ['upland', 'lowland_farm', 'pond', 'town'];
 /** Classes a road crosses as a bridge (§13.2): no land under it. */

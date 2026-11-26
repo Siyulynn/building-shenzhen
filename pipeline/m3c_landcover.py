@@ -20,6 +20,7 @@ One class per cell, first match wins (thresholds are fixed numbers, never per-ar
   6. town        within TOWN_RADIUS cells of a `kind: town | state_unit | railway` point, and built texture on KH-9
   7. upland      UPLAND_SLOPE_PCT < slope <= HILL_SLOPE_PCT
   8. lowland_farm everything else
+  9. transport_yard (R12) not a raster rule: the 1979 design map's transport_yard cells override rules 4-8
 Two deviations from the plan's wording, both forced by the inputs (recorded in phase1-slice.md §5.5):
   - In the playable areas every water1979 cell is also coast_change == 3, because m1b defines code 3 as "1979
     water, DEM land". Rule 1 as first written ("or water1979 == 1") would take every pond. The reservoir is told
@@ -45,7 +46,10 @@ from m3b_buildable import slope_pct  # noqa: E402
 from slice_areas import GRID, ROOT, area_mask, load_areas, load_grid  # noqa: E402
 
 OUT = ROOT / "data/starts/slice_landcover.json"
-CLASSES = ["water", "tidal_flat", "pond", "hill", "village", "town", "upland", "lowland_farm"]
+CLASSES = ["water", "tidal_flat", "pond", "hill", "village", "town", "upland", "lowland_farm", "transport_yard"]
+YARD = CLASSES.index("transport_yard")
+WET = {CLASSES.index(c) for c in ("water", "tidal_flat", "pond")}
+DESIGN_GRID = ROOT / "docs/spikes/scene-review/zoning/core-basin-design-grid.json"
 
 # Fixed thresholds, set once from the tuning crops in docs/research/phase1-landcover.md (not from the audit sample)
 RESERVOIR_MIN_CELLS = 50      # a 1979 water body this large is a reservoir or river, not fishponds
@@ -162,6 +166,28 @@ def selftest():
     print("selftest ok:", " ".join(f"{c}={int((a == i).sum())}" for i, c in enumerate(CLASSES)))
 
 
+def design_yards():
+    """The 1979 design map's railway, station and port cells, as (x, y), with the claims each area cites."""
+    opening = json.loads(DESIGN_GRID.read_text(encoding="utf-8"))["phases"]["opening"]
+    cells, claims = set(), []
+    for area in opening["context_areas"]:
+        if area["ground_state"] != "transport_yard":
+            continue
+        for y, x0, x1 in area["runs"]:
+            cells.update((x, y) for x in range(x0, x1 + 1))
+        claims += [c for c in area.get("claims", []) if c not in claims]
+    return cells, claims
+
+
+def apply_yards(cls):
+    """Rule 9: yards replace every dry class. Returns the claims to cite."""
+    cells, claims = design_yards()
+    for x, y in cells:
+        if cls[y, x] not in WET:
+            cls[y, x] = YARD
+    return claims
+
+
 def main():
     if "--candidate" in sys.argv:
         from m3c_landcover_candidate import main as candidate_main
@@ -175,6 +201,7 @@ def main():
     change = np.fromfile(GRID / "coast_change.bin", dtype=np.uint8).reshape(H, W)
     tex, cov = kh9_features(H, W)
     cls, f = classify(g, water79, change, tex, cov)
+    yards = apply_yards(cls)
     if "--features" in sys.argv:
         np.savez(sys.argv[sys.argv.index("--features") + 1], cls=cls, area=m, **f)
     areas = []
@@ -202,6 +229,7 @@ def main():
             "town: within town_radius cells of a town, state-unit or railway point, and KH-9 built texture",
             "upland: slope > upland_slope_pct",
             "lowland_farm: everything else",
+            "transport_yard: a cell of the 1979 design map's transport_yard areas that rules 1-3 left dry",
         ],
         "thresholds": {"reservoir_min_cells": RESERVOIR_MIN_CELLS, "pond_max_elev_m": POND_MAX_ELEV_M,
                        "hill_slope_pct": HILL_SLOPE_PCT, "upland_slope_pct": UPLAND_SLOPE_PCT,
@@ -216,8 +244,10 @@ def main():
             "The points supply locality only; the built-texture and terrain rules still classify the cells.",
             "Cells without KH-9 coverage (about a sixth of Donghu-Liantang) can never be village or town.",
             "The 1977 street sheet and county map are not georeferenced: they audit and label, they do not classify.",
+            "Transport yards are drawn on the core-basin 1979 design map from the station, crossing and freight-yard "
+            "sites; their extents are design notes, not surveyed boundaries.",
         ],
-        "claims": CLAIMS,
+        "claims": CLAIMS + [{"id": c, "use": "design_note"} for c in yards if c not in {x["id"] for x in CLAIMS}],
         "grid": {"width": W, "height": H, "cell_m": float(g["meta"]["cell_m"])},
         "areas": areas,
     }
