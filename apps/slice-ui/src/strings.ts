@@ -39,7 +39,9 @@ export const LAND_USE: Readonly<Record<string, L>> = {
 };
 export const ENFORCEMENT: Readonly<Record<string, L>> = { low: l('低', 'Low'), medium: l('中', 'Medium'), high: l('高', 'High') };
 /** R10d (phase1-slice §5.13): the import quota setting. */
-export const IMPORT_QUOTA: Readonly<Record<string, L>> = { strict: l('从严', 'Strict'), balanced: l('适中', 'Balanced'), open: l('放开', 'Open') };
+export const IMPORT_QUOTA: Readonly<Record<string, L>> = {
+  strict: l('从严审批', 'Strict approval'), balanced: l('按常规审批', 'Standard approval'), open: l('从宽审批', 'Lenient approval'),
+};
 export const PERMIT: Readonly<Record<string, L>> = { loose: l('宽松', 'Loose'), standard: l('一般', 'Standard'), strict: l('严格', 'Strict') };
 export const PRIORITY: Readonly<Record<string, L>> = { high: l('优先', 'High'), normal: l('正常', 'Normal'), low: l('靠后', 'Low') };
 export const POP_KIND: Readonly<Record<string, L>> = {
@@ -211,7 +213,7 @@ export const T = {
   target: l('目标', 'Target'), floor: l('底线', 'Floor'), value: l('现值', 'Now'), held: l('已进行的考核', 'Reviews held'),
   pass: l('通过', 'pass'), fail: l('未通过', 'fail'), vetoed: l('一票否决', 'vetoed'), noReviewLeft: l('没有更多考核', 'No review left'),
   enforcement: l('违建执法力度', 'Enforcement against illegal floors'), permits: l('暂住证政策', 'Temporary permits'),
-  importQuota: l('进口额度', 'Import quota'), forexBurned: l('外汇：进口花去 · 留成所得 · 余额', 'Forex: spent on imports · earned · left'),
+  importQuota: l('进口审批松紧', 'Import approval'), forexBurned: l('外汇：进口花去 · 留成所得 · 余额', 'Forex: spent on imports · earned · left'),
   drawZone: l('画一个区块：选用途，在地图上拖动', 'Draw a zone: pick a use, then drag on the map'),
   drawOff: l('不画', 'Not drawing'),
   template: l('历史规划', 'The historical plan'), apply: l('采用', 'Apply'),
@@ -221,6 +223,10 @@ export const T = {
   teams: l('施工队伍', 'Construction teams'), contract: l('签约（统筹使用）', 'Contract (pool)'), live: l('在场', 'on site'),
   verdict: l('结局', 'The verdict'), growth: l('增长（相对第一年）', 'Growth (over the first year)'),
   fiscalTest: l('财政检验（不计补助）', 'The fiscal test (without the grant)'), reserve: l('储备', 'Reserve'),
+  bankShare: l('基建贷款占比（1982–83）', 'Bank share of construction (1982–83)'),
+  debtToRevenue: l('债务 ÷ 年收入', 'Debt ÷ yearly revenue'), wage: l('工厂月工资', 'Factory monthly wage'),
+  sheds: l('工棚床位', 'Worksite shed beds'), briefingLoan: l('1980年简报贷款', 'The 1980 briefing loan'),
+  debtService: l('未来12个月还本付息', 'Debt service, next 12 months'),
   debt: l('债务', 'Debt'), arrears: l('拖欠', 'Arrears'), ended: l('试玩结束', 'The slice is over'),
   failure: l('因上级关注度过高被撤职', 'Removed: scrutiny stayed too high'),
   report: l('报告', 'Report'), preview: l('预估', 'Preview'), opensIn: l('开工还需（月）', 'Months to open'),
@@ -315,7 +321,7 @@ export const DESK: Readonly<Record<string, L>> = {
 /** R9 (§5.8, §11.2): what each timed-modifier target scales, in words. */
 export const MODIFIER_TARGET: Readonly<Record<string, L>> = {
   investor_rate: l('投资者到来', 'Investor arrivals'), scrutiny_gain: l('上级关注的增长', 'Scrutiny gains'),
-  cohort_crew: l('民间施工每平方米所需人力', "Builders' crew per m²"),
+  cohort_crew: l('民间施工每平方米所需人力', "Builders' crew per m²"), wage_drift: l('名义工资增长', 'Nominal wage growth'),
 };
 
 /** R7 (§11.2): an option's effect badges, derived from its on_answer effects in views.ts effectBadges. */
@@ -326,6 +332,7 @@ export const BADGE: Readonly<Record<string, L>> = {
   team: l('施工队伍：', 'Adds a team: '), cofinance: l('不花城市的钱：', 'At no city cost: '),
   offer: l('一份投资意向', 'An investor offer'), offerTerms: l('附优惠条件', 'with a concession'),
   loan: l('提供项目贷款', 'Offers the project loan'), sezOpen: l('特区开放', 'Opens the zone'),
+  credit: l('动用基建贷款额度', 'Draws on the construction credit line'),
   regime: l('新的财政体制', 'A new fiscal regime'), unlockInvestment: l('开放投资', 'Unlocks investment'),
   unlock: l('开启新的一步', 'Unlocks the next step'), firstWave: l('第一批投资者', 'The first wave of investors'),
   orders: l('香港订单变化', 'Hong Kong orders change'), veto: l('今年考核一项不及格', "Fails one of this year's review items"),

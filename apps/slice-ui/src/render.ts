@@ -423,7 +423,10 @@ export function renderVerdict(v: View): string | undefined {
     ${vd ? `<h2>${t(S.T.growth)}</h2><table>${tr(S.T.residents, `×${vd.growth.residents.toFixed(2)}`)}${tr(S.T.gdpYear, `×${vd.growth.gdp.toFixed(2)}`)}
       ${tr(S.T.reserve, yuan(vd.ledger.reserve))}${tr(S.T.debt, yuan(vd.ledger.debtOutstanding))}${tr(S.T.arrears, yuan(vd.ledger.arrears))}
       ${tr(S.T.scrutiny, num(vd.scrutiny))}${tr(S.T.illegalShare, pct(vd.illegalShare))}
-      ${tr(S.T.fiscalTest, yuan(vd.fiscalTest.balance))}
+      ${tr(S.T.fiscalTest, yuan(vd.fiscalTest.balance))}${tr(S.T.debtService, yuan(vd.fiscalTest.debtService))}
+      ${tr(S.T.bankShare, pct(vd.bankShare))}${tr(S.T.debtToRevenue, vd.debtToRevenue.toFixed(2))}
+      ${tr(S.T.briefingLoan, yuan(vd.briefingLoan))}
+      ${tr(S.T.wage, yuan(vd.wageMonth))}${tr(S.T.sheds, num(vd.shedBeds))}
       ${tr(S.T.forexBurned, `$${num(vd.forex.burnedUsd)} · $${num(vd.forex.earnedUsd)} · $${num(vd.forex.quotaUsd)}`)}</table>` : `<div class="muted">${t(S.T.ended)} · ${formatYM(x.state.date)}</div>`}
     <h2>${t(S.T.held)}</h2>${reviewView(x.state, slice).held.map((r) => `<div>${r.at}: ${r.score.toFixed(2)} ${t(r.pass ? S.T.pass : S.T.fail)}</div>`).join('')}
     <button class="go" data-act="restart">${t(S.T.restart)}</button>`;

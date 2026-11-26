@@ -24,6 +24,8 @@ export interface Obligation {
 export interface Loan {
   id: number; kind: 'project' | 'short'; principal: number; rate: number;
   schedule: { date: YM; principal: number; interest: number }[]; taken: YM;
+  /** R11a (§5.14): which project source a loan is. Absent on older saves: the briefing loan. */
+  origin?: 'briefing' | 'line';
 }
 export const PROJECT_KINDS = ['road', 'water_main', 'power_line', 'site_preparation', 'school'] as const;
 export type ProjectKind = (typeof PROJECT_KINDS)[number];
@@ -70,6 +72,8 @@ export interface Regime {
   tax: { value_added_rate: Record<Ownership, number>; local_share: number };
   landFee: { from: YM; perM2Year: number }[];
   landForRecurring: 'sanctioned' | 'grey' | 'forbidden';
+  /** R11a (§5.14): the state bank's construction credit, by dated entry; the first entry opens the line. */
+  credit: { from: YM; limitRevenueMultiple: number; bankLoanShareMax: number; rateMonth: number; graceMonths: number; termMonths: number }[];
   grantSchedule: { from: YM; factor: number }[];
 }
 export interface ProjectTemplate { id: string; name: LocalizedString; kind: ProjectKind; target: 'area' | 'zone' }
@@ -117,8 +121,17 @@ export function compileFiscal(raw: { regimes: unknown; projects: unknown; teams:
       if (!(e.per_m2_year >= 0)) throw new Error(`${r.id}: land_fee per_m2_year must be >= 0`);
       return { perM2Year: e.per_m2_year as number };
     });
+    const credit = dated(r.construction_credit, r.id, 'construction_credit', (e) => {
+      if (!(e.limit_revenue_multiple >= 0)) throw new Error(`${r.id}: construction_credit limit_revenue_multiple must be >= 0`);
+      if (!(e.bank_loan_share_max >= 0 && e.bank_loan_share_max <= 1)) throw new Error(`${r.id}: construction_credit bank_loan_share_max must be in [0, 1]`);
+      if (!(e.rate_month >= 0)) throw new Error(`${r.id}: construction_credit rate_month must be >= 0`);
+      if (!Number.isInteger(e.grace_months) || e.grace_months < 0) throw new Error(`${r.id}: construction_credit grace_months must be a whole number >= 0`);
+      if (!Number.isInteger(e.term_months) || e.term_months < 1) throw new Error(`${r.id}: construction_credit term_months must be a positive whole number`);
+      return { limitRevenueMultiple: e.limit_revenue_multiple as number, bankLoanShareMax: e.bank_loan_share_max as number,
+        rateMonth: e.rate_month as number, graceMonths: e.grace_months as number, termMonths: e.term_months as number };
+    });
     return { id: r.id, name: nameOf(r, r.id), tax: { value_added_rate: { ...rates }, local_share: r.tax.local_share },
-      landFee, landForRecurring: r.land_for_recurring, grantSchedule };
+      landFee, landForRecurring: r.land_for_recurring, credit, grantSchedule };
   });
   if (!regimes.some((r) => r.id === p.fiscal.start_regime)) throw new Error(`params: fiscal.start_regime ${p.fiscal.start_regime} is not a regime`);
   const projects = list(raw.projects, 'projects').map((r): ProjectTemplate => {
@@ -194,6 +207,12 @@ export function scheduleAt<T extends { from: YM }>(sched: readonly T[], t: YM, g
 }
 export const grantFactor = (r: Regime, t: YM) => scheduleAt(r.grantSchedule, t, (e) => e.factor);
 export const landFeeRate = (r: Regime, t: YM) => scheduleAt(r.landFee, t, (e) => e.perM2Year);
+/** R11a (§5.14): the construction-credit entry in force in month t, or undefined before the line opens. */
+export function creditAt(r: Regime, t: YM) {
+  let v: Regime['credit'][number] | undefined;
+  for (const e of r.credit) if (e.from <= t) v = e;
+  return v;
+}
 
 export const isLive = (o: Obligation, t: YM) => o.from <= t && (o.until === undefined || t <= o.until);
 export function obligationDue(o: Obligation, s: GameState): number {
@@ -224,6 +243,60 @@ export function loanSchedule(principal: number, rate: number, first: YM, grace: 
     left -= pr;
   }
   return out;
+}
+
+/** R11a (§5.14): take a project loan on the regime's construction line: principal into the debt account, a schedule. */
+export function takeConstructionLoan(s: GameState, principal: number,
+  terms: { rateMonth: number; graceMonths: number; termMonths: number }, origin: 'briefing' | 'line' = 'line'): Loan {
+  const id = s.fiscal.nextId.loan++;
+  const l: Loan = { id, kind: 'project', principal, rate: terms.rateMonth, taken: s.date, origin,
+    schedule: loanSchedule(principal, terms.rateMonth, s.date + 1, terms.graceMonths, terms.termMonths) };
+  s.fiscal.loans.push(l);
+  post(s, 'loan', 'debt', principal, `loan.${id}`);
+  return l;
+}
+
+/** Trailing recurring revenue (the tax and grant lines the revenue series records). */
+export const trailingRevenue = (s: GameState) => s.history.revenue.slice(-12).reduce((a, b) => a + b, 0);
+/** R11a: what the regime's line still allows: its two ceilings (outstanding project debt, and the bank's share of the
+ *  capital construction paid or committed since the line opened) less what is outstanding and already drawn. */
+export function constructionCreditRoom(s: GameState, p: SliceParams, fc: FiscalContent): number {
+  const c = creditAt(regimeOf(s, fc), s.date);
+  if (!c) return 0;
+  const owed = s.fiscal.loans.reduce((a, l) => a + (l.kind === 'project' ? principalOutstanding(l, s.date) : 0), 0);
+  const ceiling = c.limitRevenueMultiple * trailingRevenue(s) - owed;
+  // the flow cap: the bank funds at most bank_loan_share_max of the construction paid or committed since the line
+  // opened; the draws already made count against it, so a draw lowers the room at once
+  const draws = s.fiscal.loans.reduce((a, l) => a + (l.kind === 'project' && (l.origin ?? 'briefing') === 'line'
+    && l.taken >= c.from ? l.principal : 0), 0);
+  const programme = constructionFinance(s, c.from, s.date).total + unspentCommitments(s);
+  const shareRoom = c.bankLoanShareMax * programme - draws;
+  return Math.max(0, Math.floor(Math.min(ceiling, shareRoom)));
+}
+/** R11a: draw up to `amount` from the line, capped by its room; returns what was drawn (0 with no room). */
+export function drawConstructionCredit(s: GameState, p: SliceParams, fc: FiscalContent, amount: number): number {
+  const room = constructionCreditRoom(s, p, fc);
+  const n = Math.max(0, Math.min(Math.round(amount), room));
+  if (n <= 0) return 0;
+  takeConstructionLoan(s, n, creditAt(regimeOf(s, fc), s.date)!);
+  return n;
+}
+/** R11a (§5.14): the bank's share of capital construction is the credit line's own draws against the window's project
+ *  payments; the briefing loan is reported apart, since the statistics' bank loans are the line's years, not the beat's.
+ *  A draw may land before its work is paid, so the share is capped at 1. */
+export function constructionFinance(s: GameState, from: YM, to: YM):
+  { line: number; briefing: number; total: number; share: number; briefingShare: number } {
+  let total = 0;
+  for (const e of s.fiscal.ledger) {
+    if (e.type === 'project' && e.account !== 'forex' && e.date >= from && e.date <= to) total += Math.abs(e.amount);
+  }
+  let line = 0, briefing = 0;
+  for (const l of s.fiscal.loans) {
+    if (l.kind !== 'project' || l.taken < from || l.taken > to) continue;
+    if (l.origin === 'line') line += l.principal; else briefing += l.principal;
+  }
+  return { line, briefing, total, share: total > 0 ? Math.min(1, line / total) : 0,
+    briefingShare: total > 0 ? Math.min(1, briefing / total) : 0 };
 }
 
 // ---- money for projects ----
@@ -302,7 +375,7 @@ export function addServicedLand(s: GameState, runs: CellRuns): void {
 
 // ---- actions (owned by the finance step, §5.6) ----
 
-const FISCAL_ACTIONS: readonly string[] = ['commit_project', 'set_project_priority', 'cancel_project', 'contract_team', 'buy_power'];
+const FISCAL_ACTIONS: readonly string[] = ['commit_project', 'set_project_priority', 'cancel_project', 'contract_team', 'buy_power', 'draw_credit'];
 export const isFiscalAction = (a: PlayerAction) => FISCAL_ACTIONS.includes(a.type);
 
 const projectParams = (p: SliceParams, id: string): ProjectParams => {
@@ -350,7 +423,7 @@ export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalConten
     F.projects.push({ id, template: t.id, kind: t.kind, area, ...(zone !== undefined ? { zone, cells } : {}),
       budget: Math.round(budget), spent: 0, crew, workTotal: pp.work_months, workDone: 0, crewBank: 0,
       priority: a.priority ?? 'normal', committed: s.date, stage: 'committed' });
-    if (moneyForProjects(s, p) < 0 && F.projectLoan !== 'taken') F.loanWanted = true;
+    if (moneyForProjects(s, p) < 0) F.loanWanted = true;
   } else if (a.type === 'set_project_priority') {
     if (!(PRIORITIES as readonly string[]).includes(a.priority)) throw new Error(`unknown priority ${a.priority}`);
     const x = findProject(s, a.project);
@@ -391,6 +464,10 @@ export function applyFiscalAction(s: GameState, p: SliceParams, fc: FiscalConten
     }
   } else if (a.type === 'buy_power') {
     buyPower(s, p, a);                       // R8c (§5.5): the city pool's purchased power
+  } else if (a.type === 'draw_credit') {
+    // R11a (§5.14): draw on the state bank's construction line, up to the regime's ceiling
+    if (!(a.amount > 0) || !Number.isFinite(a.amount)) throw new Error('draw_credit needs a positive amount');
+    if (drawConstructionCredit(s, p, fc, a.amount) <= 0) throw new Error(`the construction credit line has no room`);
   } else {
     throw new Error(`not a fiscal action: ${a.type}`);
   }

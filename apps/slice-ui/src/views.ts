@@ -176,6 +176,7 @@ function effectBadge(d: EventDef, e: EventEffect, option: string, slice: Slice):
       const w = m < 0 ? B.sooner! : B.later!;
       return [{ zh: `${src.zh}${B.effectsOf!.zh}${w.zh}${Math.abs(m)}${B.months!.zh}`, en: `${src.en}${B.effectsOf!.en} ${w.en} ${Math.abs(m)} ${B.months!.en}` }];
     }
+    case 'credit_draw': return [lv(B.credit!, `${Math.round((n.credit ?? 0) / 1e4)}万`)];
     default: { const never: never = e; return never; }
   }
 }

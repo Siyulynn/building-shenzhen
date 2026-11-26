@@ -133,7 +133,8 @@ describe('M2 fixture job shock', () => {
     expect(inflow).toBe(SHOCK_MONTH);
     expect(crowded).toBeGreaterThanOrEqual(inflow);   // occupancy is refreshed at the end of migration
     expect(building).toBeGreaterThan(crowded);
-    expect(moreBeds).toBeGreaterThanOrEqual(building + params.village_build.duration_months);
+    // R11c (§5.14): the worksite sheds are beds from the month building starts, so beds can rise with `building`
+    expect(moreBeds).toBeGreaterThanOrEqual(building);
     expect(Math.max(...h.rent)).toBeGreaterThan(1.5 * h.rent[0]!);
     expect(h.migrants[MONTHS - 1]!).toBeGreaterThan(10 * startMigrants);
     expect(h.rentalBeds[MONTHS - 1]!).toBeGreaterThan(5 * h.rentalBeds[0]!);

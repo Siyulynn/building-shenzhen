@@ -21,12 +21,15 @@ labour:
   wage_start: { farming_fishing: 40, factory: 60, construction: 70, services: 50, state: 55 }
   wage_floor: { farming_fishing: 40, factory: 60, construction: 70, services: 50, state: 55 }
   wage_speed: 0.02                       # share of the wage per month, times (vacancy rate - unemployment rate)
+  wage_speed_up: 0.06                    # R11b (§5.14): bidding wages up when the market is tight
+  wage_speed_down: 0.01                  # R11b: slowly down when there is slack
   construction_jobs_per_m2: 0.02         # workers per m² under construction
   turnover_month: 0.02                   # R4 placeholder: share of a job row's migrant holders who quit to idle each month
   jobs_per_crew_unit: 1                  # R4: a crew unit is one worker-month (§5.6), so one job for the month
 
 migration:
   inland_wage: 45                        # the reference wage migrants compare with
+  inland_wage_growth_month: 0.004        # R11b: the outside benchmark grows more slowly, so the gap widens in the boom
   base: { migrant_factory: 2300, migrant_construction: 1150 }   # people per month at gap 1, full pull, network 1
   sector: { migrant_factory: factory, migrant_construction: construction }
   pull_sectors:                          # R4 (§5.11): the sectors whose vacancies pull each kind (fill_order lets them in)
@@ -53,6 +56,9 @@ housing:
   crowding_floor: 0.5                    # below this, crowding no longer lowers the target rent
   rent_speed: 0.15                       # share of the gap to the target closed each month
   crowding_max: 2.5                      # above this, the excess migrants leave
+  sheds:                                 # R11c (§5.14): worksite sheds derived from construction jobs. Placeholders
+    beds_per_construction_job: 1.0       # a bed for each construction post on the sites
+    scrutiny_per_1000: 0.5               # scrutiny points a month per 1,000 shed beds
 
 village_build:
   build_cost_per_m2: 150
@@ -303,6 +309,8 @@ events:                                  # by event id (content/slice/events.yam
   event.1983q4.rectification: { follow: 1.1, strict: 0.8, transmit: 1.3, months: 6 }   # scrutiny_gain by option
   event.1981q1.slogan: { cohort_crew: 0.9, months: 9, standing: 2 }   # endorsing: the private builders work faster
   event.investment_programme: { investor_rate: 1.2, months: 12, cost: 150000 }   # R9.2: the 1982 push
+  news.1982q3.wage_reform: { wage_drift: 1.006, months: 12 }   # R11b (§5.14): the dated wage-policy step
+  news.1979q1.wage_growth: { wage_drift: 1.012, months: 60 }   # R11b: the nominal-wage path the claims describe
 
 readiness:                               # one bar of three parts over the readiness cells (§7.1)
   areas: [1, 2, 3, 7]                    # the market town, Luohu, Caiwuwei and Shangbu
@@ -317,7 +325,7 @@ readiness:                               # one bar of three parts over the readi
 trade:                                   # R10c (phase1-slice §5.13): customs, step 11. Placeholders, design_note
   customs:
     input_rate: 0.02                     # duty on processing firms' imported inputs (mostly bonded, so low)
-    import_rate: 0.35                    # duty on imports for resale
+    import_rate: 0.45                    # duty on imports for resale; R11: was 0.35, still a placeholder
     local_share: 0.5                     # share kept by the city; design_note until a retention claim is found
   import_quota:                          # R10d (§5.13): the standing setting, from the 1982-02 beat. Placeholders, design_note:
                                          # demand_factor × the trading stream's demand; turnover_factor × an importer's turnover;
@@ -358,6 +366,7 @@ climate:
     illegal_share: 4                     # × the real illegal-floor share
     grey_land_per_100k: 2                # per ¥100,000 of land money spent on recurring lines when it is not sanctioned
     shortcut: 5                          # per accepted shortcut
+    shed_per_1000: 0.5                   # R11c (§5.14): per 1,000 worksite shed beds
 
 sweep:                                   # the pre-inspection sweep (§6.8, leadership §4.4)
   cash_cost: 50000

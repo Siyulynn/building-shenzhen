@@ -8,6 +8,7 @@ import { allocateFreight, areaShare, firmDemands, firmFreight, freightEvents, fr
 import type { TickContext } from '../step.js';
 import { largestRemainder, stochRound } from '../round.js';
 import { labourForce, removeNewestFirst, sortHeld, underConstructionM2 } from './common.js';
+import { modifierFactor } from '../modifiers.js';
 import { firmPosts, isOpen, postFirmJobs, staffFirms } from './industry.js';
 import { placedSupply, servicePosts } from '../growth.js';
 
@@ -203,15 +204,18 @@ export function labour(p: SliceParams, network?: StartNetwork, buildable?: { cel
     for (const h of s.labour.held) groups.get(`${h.home}|${h.kind}`)!.employed[h.sector] += h.n;
     staffFirms(s, jobs);
 
-    // wages move toward clearing, never below the floor
+    // wages: R11b (§5.14) a live `wage_drift` modifier first (the dated nominal-wage path; Phase 1 has no price level),
+    // then the market step, which bids up faster than it lets down, never below the floor
+    const drift = Math.max(0, modifierFactor(s, 'wage_drift') - 1);
     for (const sec of SECTORS) {
       let nJobs = 0, nFilled = 0, lf = 0, idle = 0;
       for (const r of jobs) if (r.sector === sec) { nJobs += r.jobs; nFilled += r.filled; }
       for (const g of s.pops) if (L.fill_order[sec].includes(g.kind)) { lf += force.get(g)!; idle += avail.get(g)!; }
       const vacancyRate = nJobs > 0 ? (nJobs - nFilled) / nJobs : 0;
       const unemploymentRate = lf > 0 ? idle / lf : 0;
-      const w = s.labour.wage[sec];
-      s.labour.wage[sec] = Math.max(L.wage_floor[sec], w + L.wage_speed * w * (vacancyRate - unemploymentRate));
+      const w0 = Math.max(L.wage_floor[sec], s.labour.wage[sec] * (1 + drift));
+      const speed = vacancyRate > unemploymentRate ? (L.wage_speed_up ?? L.wage_speed) : (L.wage_speed_down ?? L.wage_speed);
+      s.labour.wage[sec] = Math.max(L.wage_floor[sec], w0 + speed * w0 * (vacancyRate - unemploymentRate));
     }
     for (const g of s.pops) {
       const n = SECTORS.reduce((a, sec) => a + g.employed[sec], 0);

@@ -6,7 +6,7 @@ import type { GameState } from './state.js';
 import type { YM } from './ym.js';
 
 /** The knobs a modifier may scale (a new target is a spec change). */
-export const MODIFIER_TARGETS = ['investor_rate', 'scrutiny_gain', 'cohort_crew'] as const;
+export const MODIFIER_TARGETS = ['investor_rate', 'scrutiny_gain', 'cohort_crew', 'wage_drift'] as const;
 export type ModifierTarget = (typeof MODIFIER_TARGETS)[number];
 export interface Modifier { source: string; target: ModifierTarget; factor: number; until: YM }
 

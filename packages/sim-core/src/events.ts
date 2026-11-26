@@ -5,7 +5,8 @@
  */
 import { PERMIT_REGIMES, type PermitRegime } from './enums.js';
 import {
-  addObligation, applyFiscalAction, commitCofinanced, fiscalViews, grantFactor, liveProject, regimeOf, type FiscalContent,
+  addObligation, applyFiscalAction, commitCofinanced, drawConstructionCredit, fiscalViews, grantFactor, liveProject,
+  regimeOf, type FiscalContent,
 } from './fiscal.js';
 import type { SliceParams } from './params.js';
 import type { CardInstance, FirmTerms, GameState, LocalizedString } from './state.js';
@@ -48,13 +49,15 @@ export type EventEffect = { option?: string } & (
   // R9 (§5.8): timed modifiers; factor and months name params.events.<id> fields (defaults: the target, `months`)
   | { kind: 'modifier'; target: ModifierTarget; factor?: string; months?: string }
   | { kind: 'modifier_shift'; source: string; months?: string }
+  | { kind: 'credit_draw' }                          // R11a (§5.14): draw params.events.<id>.credit on the line
   | { kind: 'crew_arrival'; team: string });          // R9 (§5.6): a permanent arrival of an event-only team
 const EFFECT_KINDS = ['offer', 'readiness_check', 'unlock', 'set_regime', 'sez_open', 'first_wave', 'scrutiny', 'cost',
   'standing', 'set_permit', 'commit_choice', 'offer_loan', 'cofinance', 'contract_team', 'rush', 'orders', 'budget_report',
-  'sweep', 'veto', 'end_run', 'modifier', 'modifier_shift', 'crew_arrival'] as const;
+  'sweep', 'veto', 'end_run', 'modifier', 'modifier_shift', 'credit_draw', 'crew_arrival'] as const;
 /** The effect kinds whose number is params.events.<id>.<field>. */
 const NUMBER_OF: Partial<Record<EventEffect['kind'], string[]>> = {
   scrutiny: ['scrutiny'], cost: ['cost'], standing: ['standing'], orders: ['factor', 'months'],
+  credit_draw: ['credit'],
 };
 
 /** Milestone conditions (§5.8), read from the state. */
@@ -475,6 +478,13 @@ export function events(p: SliceParams, content: {
           const a = { team: e.team, crew: p.teams[e.team]!.crew, from: s.date };
           s.crew = [...s.crew, a].sort((x, y) => x.from - y.from || (x.team < y.team ? -1 : x.team > y.team ? 1 : 0));
           ev('crew_arrived', { ...a, by: d.id });
+          return undefined;
+        }
+        case 'credit_draw': {                                      // R11a (§5.14): a tranche of the construction line
+          if (!fc) return undefined;
+          const drawn = drawConstructionCredit(s, p, fc, num(d, 'credit'));
+          if (drawn > 0) ev('credit_drawn', { amount: drawn, by: d.id });
+          else ev('event_action_failed', { action: 'credit_draw', by: d.id, reason: 'no room on the construction line' });
           return undefined;
         }
         case 'modifier': {                                         // R9 (§5.8): a timed modifier from this month

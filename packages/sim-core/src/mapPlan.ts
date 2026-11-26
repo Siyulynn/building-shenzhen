@@ -5,10 +5,10 @@
  * state, the plan and the content, and every action is checked before it is given, so a policy never throws.
  * R9 (§5.9): an action whose tool gate is locked (§5.8) is held back until it opens, at no cost to the turn's money.
  */
-import { contractLive, liveProject, moneyForProjects } from './fiscal.js';
+import { contractLive, constructionCreditRoom, liveProject, moneyForProjects } from './fiscal.js';
 import { ROAD_CLASSES, intensityOf, type RoadClass, type SliceParams } from './params.js';
 import { roadClasses } from './freight.js';
-import type { LandUse } from './enums.js';
+import type { ImportQuota, LandUse } from './enums.js';
 import type { GameState, PlayerAction, Zone } from './state.js';
 import type { TickContent } from './ticks.js';
 import { liveOrder, spatialViews } from './works.js';
@@ -48,7 +48,11 @@ export interface MapPlan {
    * Absent: the plan commits only what it has.
    */
   borrow_until_turn?: number;
-  /** R9 (§5.9): live road orders at once (default 1): a later plan road that touches the network starts beside the first. */
+  /** R11a (§5.14): the share of each new work the plan finances from the construction line, when it is open. Absent: 0. */
+  credit_share?: number;
+  /** R11 (§5.14): from this turn, apply this import-approval setting once the gate is open. Absent: the plan leaves it. */
+  import_quota?: { level: ImportQuota; from_turn: number };
+  /** R9 (§5.6): live road orders at once (default 1): a later plan road that touches the network starts beside the first. */
   roads_at_once?: number;
 }
 
@@ -199,10 +203,29 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
   if (plan.borrow_until_turn !== undefined && s.turn <= plan.borrow_until_turn && s.fiscal.projectLoan === 'not_offered') {
     money += p.fiscal.loan.principal;
   }
+  // R11a (§5.14): the city draws on the regime's construction line for part of what it builds (credit_share); when
+  // its own money cannot cover the rest, it draws that too, up to the line's room. The draw is a turn action of its own,
+  // applied before the action it pays for.
+  let credit = tick.fiscal ? constructionCreditRoom(s, p, tick.fiscal) : 0;
+  const share = Math.max(0, Math.min(1, plan.credit_share ?? 0));
   const live = s.worksOrders.filter(liveOrder);
   // keep the plan's road corridors free for the roads (a source must not take a cell a later plan road needs)
   const used = new Set<number>(plan.roads.flatMap((r) => pathCells(w, r) ?? []));   // cells this turn's works leave free
   const newRoad = new Set<number>();                    // road cells this turn's actions take
+  /** Pay a cost from the plan's money plus the line's share of it; empty when the two together cannot cover it. */
+  const spend = (cost: number, a: PlayerAction): PlayerAction[] => {
+    const shareDraw = Math.min(Math.floor(share * cost), credit);
+    const need = cost - money - shareDraw;
+    const total = shareDraw + (need > 0 ? need : 0);
+    if (total > credit) return [];                            // the line has no room for the draw
+    if (total > 0) {
+      const draw: PlayerAction = { type: 'draw_credit', amount: total };
+      if (!gateAllows(s, tick, draw)) return [];
+      credit -= total; money += total;
+    }
+    money -= cost;
+    return total > 0 ? [{ type: 'draw_credit', amount: total }, a] : [a];
+  };
 
   // 1. outbound roads, `roads_at_once` live road orders at a time (one by default)
   let roadSlots = (plan.roads_at_once ?? 1) - live.filter((o) => o.kind === 'road').length;
@@ -213,9 +236,9 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
       if (r === 'built' || r === 'blocked') continue;
       pending = true;
       const a: PlayerAction = { type: 'build_road', path: r.cells.map((c) => xy(c, w)) };
-      if (r.cost <= money && gateAllows(s, tick, a)) {
-        out.push(a);
-        money -= r.cost;
+      const acts = gateAllows(s, tick, a) ? spend(r.cost, a) : [];
+      if (acts.length) {
+        out.push(...acts);
         for (const c of r.cells) newRoad.add(c);
         if (--roadSlots > 0) continue;            // the next plan road that touches the network now
       }
@@ -233,10 +256,8 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
       const rate = W.road.yuan_per_cell / W.road.units_per_cell, units = (k: RoadClass) => W.roads!.classes[k].units_per_cell;
       const cost = low.reduce((n, c) => n + rate * (units(u.class) - units(classes.get(c)!)), 0);
       const a: PlayerAction = { type: 'build_road', path: u.path.map((pt) => [pt[0], pt[1]] as [number, number]), class: u.class };
-      if (cost <= money && gateAllows(s, tick, a)) {
-        out.push(a);
-        money -= cost;
-      }
+      const acts = gateAllows(s, tick, a) ? spend(cost, a) : [];
+      if (acts.length) out.push(...acts);
       break;
     }
   }
@@ -254,7 +275,7 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
       return { u, yuan: u * rate * (k.formation_cost / k.formation_work)
         + (tick.landcover && !req.has(c) ? f.compensation * W.service.yuan_per_cell : 0) };
     };
-    if (capUnits >= W.service.units_per_cell && money > 0) {
+    if (capUnits >= W.service.units_per_cell && money + credit > 0) {
       const served = new Set(cellsOfRuns(s.servicedLand, s.grid));
       const works = new Set(s.cellWorks.map((x) => x.cell));
       const roads = plannedRoads(s, tick);
@@ -271,16 +292,15 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
       const pick = candidates[0];
       if (pick) {
         const cells: number[] = [];
-        let units = 0, spend = 0;
+        let units = 0, cost = 0;
         for (const c of pick.todo) {
           const k = cellCost(pick.z, c);
-          if (units + k.u > capUnits || spend + k.yuan > money) break;
-          cells.push(c); units += k.u; spend += k.yuan;
+          if (units + k.u > capUnits || cost + k.yuan > money + credit) break;
+          cells.push(c); units += k.u; cost += k.yuan;
         }
         const a: PlayerAction = { type: 'commit_works', zone: pick.z.id, cells: runsOfCells(cells, w) };
         if (cells.length && gateAllows(s, tick, a)) {
-          out.push(a);
-          money -= spend;
+          out.push(...spend(cost, a));
         }
       }
     }
@@ -309,12 +329,14 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
     const n = placements.filter((x) => (x.kind === 'power_substation' || x.kind === 'power_source') && serves(x.attach)).length;
     const need = kw + U.headroom_jobs * per.power_kw_per_job;
     if (n >= U.max_sources || a.utilities.powerCap + n * sub.capacity >= need) continue;
-    if (sub.yuan > money || (sub.forex_usd ?? 0) > forex) break;
+    if (sub.yuan > money + credit || (sub.forex_usd ?? 0) > forex) break;
     const site = structureSite(s, tick, zoneCells, used);
     if (!site) continue;
+    const place: PlayerAction = { type: 'place_structure', kind: 'power_substation', cell: xy(site[0], w), attach: xy(site[1], w) };
+    const acts = gateAllows(s, tick, place) ? spend(sub.yuan, place) : [];
+    if (!acts.length) continue;
     used.add(site[0]);
-    out.push({ type: 'place_structure', kind: 'power_substation', cell: xy(site[0], w), attach: xy(site[1], w) });
-    money -= sub.yuan; forex -= sub.forex_usd ?? 0;
+    out.push(...acts); forex -= sub.forex_usd ?? 0;
   }
   // purchases: the pool with what is on order, against every sited firm and the headroom; up to the line's limit
   if (per && U.import_kw > 0 && s.turn >= U.import_from_turn) {
@@ -330,13 +352,16 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
   const st = W.structures.power_station;
   if (per && U.station_turn !== undefined && s.turn >= U.station_turn && !placements.some((x) => x.kind === 'power_station')
     && gateAllows(s, tick, { type: 'place_structure', kind: 'power_station', cell: [0, 0], attach: [0, 0] })
-    && money >= (st.yuan * 12) / st.build_months && (st.forex_usd ?? 0) <= forex) {
+    && money + credit >= (st.yuan * 12) / st.build_months && (st.forex_usd ?? 0) <= forex) {
     const z = s.zones.find((x) => x.use === 'industrial');
     const site = z ? structureSite(s, tick, new Set(cellsOfRuns(z.runs, s.grid)), used) : undefined;
     if (site) {
-      used.add(site[0]);
-      out.push({ type: 'place_structure', kind: 'power_station', cell: xy(site[0], w), attach: xy(site[1], w) });
-      money -= (st.yuan * 12) / st.build_months; forex -= st.forex_usd ?? 0;
+      const a: PlayerAction = { type: 'place_structure', kind: 'power_station', cell: xy(site[0], w), attach: xy(site[1], w) };
+      const acts = spend((st.yuan * 12) / st.build_months, a);
+      if (acts.length) {
+        used.add(site[0]);
+        out.push(...acts); forex -= st.forex_usd ?? 0;
+      }
     }
   }
 
@@ -349,12 +374,14 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
     if (!sp || placements.filter((x) => x.kind === 'facility' && x.facility === facility).length >= k) continue;
     if (!gateAllows(s, tick, { type: 'place_structure', kind: 'facility', facility, cell: [0, 0], attach: [0, 0] })) break;
     const z = s.zones.find((x) => x.area === area);
-    if (!z || sp.yuan > money || (sp.forex_usd ?? 0) > forex) break;
+    if (!z || sp.yuan > money + credit || (sp.forex_usd ?? 0) > forex) break;
     const site = structureSite(s, tick, new Set(cellsOfRuns(z.runs, s.grid)), used);
     if (!site) continue;
+    const a: PlayerAction = { type: 'place_structure', kind: 'facility', facility, cell: xy(site[0], w), attach: xy(site[1], w) };
+    const acts = spend(sp.yuan, a);
+    if (!acts.length) continue;
     used.add(site[0]);
-    out.push({ type: 'place_structure', kind: 'facility', facility, cell: xy(site[0], w), attach: xy(site[1], w) });
-    money -= sp.yuan; forex -= sp.forex_usd ?? 0;
+    out.push(...acts); forex -= sp.forex_usd ?? 0;
     break;
   }
 
@@ -363,9 +390,8 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
     const tp = p.teams[team];
     if (!tp || s.fiscal.contracts.some((c) => c.team === team && contractLive(s, c))) continue;
     const a: PlayerAction = { type: 'contract_team', team, mode: 'pool' };
-    if (money >= 12 * tp.cost_per_month && gateAllows(s, tick, a)) {
-      out.push(a);
-      money -= 12 * tp.cost_per_month;
+    if (money + credit >= 12 * tp.cost_per_month && gateAllows(s, tick, a)) {
+      out.push(...spend(12 * tp.cost_per_month, a));
     }
   }
   return out;

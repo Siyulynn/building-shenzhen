@@ -7,7 +7,7 @@ import { quotaParams, type SliceParams } from '../params.js';
 import type { GameState, ReviewRecord } from '../state.js';
 import type { TickContext } from '../step.js';
 import { FAILURE_CARD } from '../events.js';
-import { illegalShare, villageM2 } from './common.js';
+import { illegalShare, totalShedBeds, villageM2 } from './common.js';
 import { modifierFactor } from '../modifiers.js';
 
 export const REVIEW_INDICATORS = ['exports_usd', 'forex_earned_usd', 'foreign_firm_jobs', 'projects_completed', 'order_check'] as const;
@@ -93,6 +93,8 @@ export function climate(p: SliceParams) {
     const s = ctx.state, C = p.climate;
     let gains = s.policy.permitRegime === 'loose' ? C.gain.loose_permit : 0;
     gains += C.gain.illegal_share * realIllegalShare(s);
+    // R11c (§5.14): the province notices the worksite sheds
+    if ((C.gain.shed_per_1000 ?? 0) > 0) gains += (C.gain.shed_per_1000 ?? 0) * totalShedBeds(s, p) / 1000;
     for (const e of ctx.events) {
       if (e.kind === 'land_for_recurring' && e.detail?.status !== 'sanctioned') gains += C.gain.grey_land_per_100k * (e.detail!.amount as number) / 1e5;
       if (e.kind === 'offer_accepted' && e.detail?.shortcut !== undefined) gains += C.gain.shortcut;

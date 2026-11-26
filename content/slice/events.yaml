@@ -335,6 +335,20 @@
   claims:
     - { id: phase1.politics.city_reply_1979, use: encyclopedia }
 
+- id: news.1979q1.wage_growth
+  name: { zh: 职工工资逐年提高, en: Wages rise year by year }
+  family: news
+  trigger: { date: 1979-01 }
+  news: { desk: city, tone: texture }
+  text:
+    zh: "全市职工年平均工资769元。随着建设铺开和物价上涨，工资逐年上调：奖金、津贴和新的工资形式陆续出现。"
+    en: "The city's staff and workers average 769 yuan a year. As the building spreads and prices rise, pay is raised year by year: bonuses, allowances and new wage forms appear."
+  effects:                               # R11b (§5.14): the dated nominal-wage path (a timed modifier, params below)
+    - { kind: modifier, target: wage_drift }
+  claims:
+    - { id: phase1.wage.city.urban_units.1979, use: encyclopedia }
+    - { id: phase1.wage.city.urban_units.1980, use: encyclopedia }
+
 - id: news.1979q1.city_reply
   name: { zh: 国务院批复：宝安县改设深圳市, en: "The State Council's reply: Bao'an becomes Shenzhen City" }
   family: news
@@ -530,6 +544,19 @@
     en: "After five trial issues, the Shenzhen Special Zone Daily is formally launched."
   claims:
     - { id: phase1.local.sztqb_founded_1982, use: encyclopedia }
+
+- id: news.1982q3.wage_reform
+  name: { zh: 特区企业试行新的工资制度, en: The zone pilots a new wage system }
+  family: news
+  trigger: { date: 1982-07 }
+  news: { desk: city, tone: texture }
+  text:
+    zh: "特区在合资、合作和外商独资企业试行新的工资制度：劳务费中七成用于工资，其余用于保险和福利。工资不再只是固定的级别工资。"
+    en: "In joint, cooperative and wholly foreign-owned enterprises the zone pilots a new wage system: seven tenths of the labour service fee goes to wages, the rest to insurance and welfare. Pay is no longer only a fixed grade wage."
+  effects:                               # R11b (§5.14): a dated wage-policy step, a timed drift (params.events.<id>)
+    - { kind: modifier, target: wage_drift }
+  claims:
+    - { id: phase1.wage.sez.foreign_enterprise_labour_fee_share, use: encyclopedia }
 
 - id: news.1982q3.census
   name: { zh: 第三次全国人口普查, en: The third national census }
@@ -828,10 +855,14 @@
 - id: event.investment_programme
   name: { zh: 1982年基建投资, en: The 1982 investment programme }
   description:
-    zh: "省里和市里把1982年定为大建设年:一支基建队伍开进特区,几笔投资同时落地。接住它,工地就能同时铺开;钱和人都要现在定下来。"
-    en: "The province and the city make 1982 a big construction year: an investment corps moves in and several projects are funded at once. Taking it on lets more sites open together, but the money and the crews are committed now."
+    zh: "省里和市里把1982年定为大建设年:一支基建队伍开进特区,几笔投资同时落地。接住它,工地就能同时铺开;银行也开出了基建贷款额度,钱和人都要现在定下来。"
+    en: "The province and the city make 1982 a big construction year: an investment corps moves in and several projects are funded at once. The state bank opens a construction credit line as well. Taking it on lets more sites open together, but the money and the crews are committed now."
   family: scripted                       # the year is remembered; the month within it is a design choice
   trigger: { date: 1982-01 }
+  effects:
+    # R11a (§5.14): the state bank's construction line opens with the programme; the card decides whether to take the
+    # programme (its crews and investor push), not whether the line exists
+    - { kind: unlock, key: finance.credit }
   card:
     interrupting: true
     options:

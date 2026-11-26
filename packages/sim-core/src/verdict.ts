@@ -3,8 +3,10 @@
  * at the end of the slice's last full year, because the visit fires in the events step before that month's finance.
  */
 import {
-  baselineDue, debtServiceAt, grantFactor, isLive, obligationDue, regimeOf, type FiscalContent,
+  baselineDue, constructionFinance, debtServiceAt, grantFactor, isLive, obligationDue, principalOutstanding, regimeOf,
+  type FiscalContent,
 } from './fiscal.js';
+import { totalShedBeds } from './systems/common.js';
 import type { SliceParams } from './params.js';
 import type { GameState, ReviewRecord } from './state.js';
 
@@ -15,9 +17,17 @@ export interface Verdict {
   scrutiny: number;
   illegalShare: number;
   /** §7.2's fiscal test, with the grant at zero: a year of recurring revenue against the next 12 months' dues. */
-  fiscalTest: { grantFactor: number; revenuePerYear: number; dueNext12: number; balance: number };
+  fiscalTest: { grantFactor: number; revenuePerYear: number; dueNext12: number; balance: number; debtService: number };
   /** R10d (§5.13): the forex the run's trade burned (its `import.trade` draws), what retention earned, the quota left. */
   forex: { burnedUsd: number; earnedUsd: number; quotaUsd: number };
+  /** R11a (§5.14): the credit line's share of the trailing two years' construction, and debt ÷ revenue. */
+  bankShare: number; debtToRevenue: number;
+  /** R11a: the briefing loan as its own source: its principal still outstanding at the visit. */
+  briefingLoan: number;
+  /** R11b (§5.14): the factory monthly wage. */
+  wageMonth: number;
+  /** R11c (§5.14): the worksite shed beds the building supports. */
+  shedBeds: number;
 }
 
 const sum = (xs: readonly number[]) => xs.reduce((a, x) => a + x, 0);
@@ -38,6 +48,12 @@ export function dueNextYear(s: GameState, p: SliceParams): number {
   }
   return due;
 }
+/** R11a (§5.14): the next 12 months' debt service, shown apart from the rest of the fiscal test. */
+export function debtServiceNextYear(s: GameState): number {
+  let due = 0;
+  for (let t = s.date; t < s.date + 12; t++) for (const l of s.fiscal.loans) due += debtServiceAt(l, t);
+  return due;
+}
 
 export function verdict(s: GameState, p: SliceParams, fc: FiscalContent): Verdict {
   const h = s.history;
@@ -50,6 +66,10 @@ export function verdict(s: GameState, p: SliceParams, fc: FiscalContent): Verdic
   const revenuePerYear = 12 * (sum(months.map((t) => taxRevenueAt(s, t))) / months.length);
   const dueNext12 = dueNextYear(s, p);
   const lastReview = s.reviews.held[s.reviews.held.length - 1];
+  const lastMonth = last(h.months);
+  // R11a (§5.14): the verdict reports the programme years' bank share (the trailing two years), not one month's
+  const bank = constructionFinance(s, lastMonth - 23, lastMonth);
+  const annualRevenue = h.revenue.slice(-12).reduce((a, b) => a + b, 0);
   return {
     growth: { residents: residents0 > 0 ? last(h.resident) / residents0 : 0, gdp: gdp0 > 0 ? gdp1 / gdp0 : 0 },
     ledger: { reserve: s.fiscal.balances.general, debtOutstanding: last(h.debtOutstanding), arrears },
@@ -57,11 +77,17 @@ export function verdict(s: GameState, p: SliceParams, fc: FiscalContent): Verdic
     scrutiny: s.climate.scrutiny,
     illegalShare: last(h.illegalShare),
     fiscalTest: { grantFactor: grantFactor(regimeOf(s, fc), s.date), revenuePerYear, dueNext12,
-      balance: revenuePerYear - dueNext12 },
+      balance: revenuePerYear - dueNext12, debtService: debtServiceNextYear(s) },
     forex: {
       burnedUsd: -s.fiscal.ledger.reduce((a, e) => a + (e.type === 'import' && e.ref === 'import.trade' ? e.amount : 0), 0),
       earnedUsd: s.fiscal.ledger.reduce((a, e) => a + (e.type === 'retention' ? e.amount : 0), 0),
       quotaUsd: s.fiscal.balances.forex,
     },
+    bankShare: Math.round(bank.share * 1e4) / 1e4,
+    briefingLoan: Math.round(s.fiscal.loans.reduce((a, l) =>
+      a + (l.kind === 'project' && (l.origin ?? 'briefing') === 'briefing' ? principalOutstanding(l, s.date) : 0), 0)),
+    debtToRevenue: annualRevenue > 0 ? Math.round((last(h.debtOutstanding) / annualRevenue) * 1e4) / 1e4 : 0,
+    wageMonth: s.labour.wage.factory,
+    shedBeds: totalShedBeds(s, p),
   };
 }

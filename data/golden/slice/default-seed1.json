@@ -4,53 +4,53 @@
   "quarters": 21,
   "content": {
     "areas_sha256": "fc9003de49cb0d274f25b2b21ac1028c4dd8cb0c51f334af2e4caa9ad70212a6",
-    "params_sha256": "246db781a9cf93de9eb306fd1b6615cefc59305b376c5c07c68db7042422f610",
+    "params_sha256": "5a4ec8f1b70a33afec772c2a75bcfdf7b23fb943be23dd1c331a4f09f571e0c0",
     "precedents_sha256": "d54f17661a4348d98d655754b9e42dea47173e09d8f6d19566de79d2094104f4",
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
     "landcover_sha256": "a8fc4372642be8e1f96c9dee10422e3724c4aee7cdb0a9c20c13570508538253",
-    "fiscal_sha256": "a1643b2855463618276099402733628c7f4ec732bf2c68aefc857d8aabeeed7b",
-    "events_sha256": "028de7dfee985bf3a630c63751009ba7c73154a2e4e24310361bf84f606ad436",
+    "fiscal_sha256": "d011f835ee00c7df0b932b5b61b0af06caf755fe30b5288ae77f7c04716c50d8",
+    "events_sha256": "72d0b15c75983820644f493448c6fb37e4917c4963061ce0058dd42fac5bf7a6",
     "leaders_sha256": "5bf3fe0aa081c85e6f538add149d93852b4fc6f34142656fd5dd599e8c520467",
     "targets_sha256": "0765576245b271083f2ef6ed448e1fe5afb2e03abdc03a5f8cd7a379356e3fd3",
     "network_sha256": "a3601777bfa004572dad4b6fd6ebe296cfc0983d341e3eaaded92313ad5c0cb9",
     "gateways_sha256": "462ba4d7b0b945a8919626912f36acf9e9df17afbc89051169535af233c4326a",
-    "tools_sha256": "90b99a6a600d8ce78e974eae5148989107e9c0d1a1f74570246dc853ace508f6"
+    "tools_sha256": "17061ffbfadb0bd9d712de655915a30a57b96f460a08004eee0cad8affc3f6c0"
   },
   "years": [
     {
       "at": "1979-12",
       "residents": 30340,
       "registered": 30000,
-      "presentNonlocal": 414,
-      "migrants": 414,
+      "presentNonlocal": 434,
+      "migrants": 434,
       "firmJobs": 120,
-      "gdp": 8383261,
+      "gdp": 8383185,
       "exports": 198848,
       "revenue": 3399581,
-      "obligationsPaid": 2009603,
+      "obligationsPaid": 2009626,
       "projectSpend": 0,
-      "electricityKwhYear": 14472984,
+      "electricityKwhYear": 14474904,
       "gdpSector": {
         "primary": 138600,
-        "secondary": 153461,
+        "secondary": 153434,
         "tertiary": 419350,
-        "construction": 47427
+        "construction": 47400
       },
       "gdpSectorYear": {
         "primary": 1663200,
-        "secondary": 1714561,
-        "tertiary": 5005500,
-        "construction": 522982
+        "secondary": 1714535,
+        "tertiary": 5005450,
+        "construction": 522956
       },
       "population": {
         "registered": 30000,
         "temporary": {
-          "migrantConstruction": 147,
-          "migrantFactory": 267,
+          "migrantConstruction": 149,
+          "migrantFactory": 285,
           "other": 20,
-          "total": 434
+          "total": 454
         },
-        "totalPresent": 30434
+        "totalPresent": 30454
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 0,
@@ -62,46 +62,49 @@
       "importsUsdYear": 0,
       "forexEarnedUsdYear": 13257,
       "forexUsd": 63257,
-      "reserve": 1689978,
+      "bankShareYear": 0,
+      "wageMonth": 69.167,
+      "shedBeds": 6,
+      "reserve": 1689955,
       "debt": 0,
       "arrears": 0,
-      "scrutiny": 3.61,
+      "scrutiny": 3.6153,
       "illegalShare": 0
     },
     {
       "at": "1980-12",
-      "residents": 30399,
+      "residents": 30400,
       "registered": 30000,
-      "presentNonlocal": 745,
-      "migrants": 745,
+      "presentNonlocal": 859,
+      "migrants": 859,
       "firmJobs": 277,
-      "gdp": 8522719,
-      "exports": 710112,
-      "revenue": 3407667,
-      "obligationsPaid": 1850490,
+      "gdp": 8524683,
+      "exports": 712192,
+      "revenue": 3407697,
+      "obligationsPaid": 1850586,
       "projectSpend": 0,
-      "electricityKwhYear": 14703726,
+      "electricityKwhYear": 14741055,
       "gdpSector": {
         "primary": 138600,
-        "secondary": 158558,
-        "tertiary": 420450,
-        "construction": 42984
+        "secondary": 159678,
+        "tertiary": 421000,
+        "construction": 42934
       },
       "gdpSectorYear": {
         "primary": 1663200,
-        "secondary": 1826719,
-        "tertiary": 5032800,
-        "construction": 535649
+        "secondary": 1828033,
+        "tertiary": 5033450,
+        "construction": 535626
       },
       "population": {
         "registered": 30000,
         "temporary": {
-          "migrantConstruction": 143,
-          "migrantFactory": 602,
+          "migrantConstruction": 150,
+          "migrantFactory": 709,
           "other": 20,
-          "total": 765
+          "total": 879
         },
-        "totalPresent": 30765
+        "totalPresent": 30879
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 0,
@@ -111,48 +114,51 @@
       "customsYear": 0,
       "customsShare": 0,
       "importsUsdYear": 0,
-      "forexEarnedUsdYear": 47341,
-      "forexUsd": 110598,
-      "reserve": 3247155,
+      "forexEarnedUsdYear": 47480,
+      "forexUsd": 110737,
+      "bankShareYear": 0,
+      "wageMonth": 79.8656,
+      "shedBeds": 2,
+      "reserve": 3247066,
       "debt": 3000000,
       "arrears": 0,
-      "scrutiny": 11.9507,
+      "scrutiny": 11.9569,
       "illegalShare": 0
     },
     {
       "at": "1981-12",
-      "residents": 30721,
+      "residents": 30743,
       "registered": 30000,
-      "presentNonlocal": 701,
-      "migrants": 701,
+      "presentNonlocal": 723,
+      "migrants": 723,
       "firmJobs": 213,
-      "gdp": 8885403,
+      "gdp": 8906906,
       "exports": 1450176,
       "revenue": 3416882,
-      "obligationsPaid": 1998279,
+      "obligationsPaid": 1998828,
       "projectSpend": 0,
-      "electricityKwhYear": 14671905,
+      "electricityKwhYear": 14674737,
       "gdpSector": {
         "primary": 138600,
-        "secondary": 156871,
-        "tertiary": 421500,
-        "construction": 43099
+        "secondary": 157225,
+        "tertiary": 421550,
+        "construction": 43454
       },
       "gdpSectorYear": {
         "primary": 1663200,
-        "secondary": 2136353,
-        "tertiary": 5085850,
-        "construction": 694301
+        "secondary": 2156106,
+        "tertiary": 5087600,
+        "construction": 713866
       },
       "population": {
         "registered": 30000,
         "temporary": {
-          "migrantConstruction": 186,
-          "migrantFactory": 515,
+          "migrantConstruction": 195,
+          "migrantFactory": 528,
           "other": 20,
-          "total": 721
+          "total": 743
         },
-        "totalPresent": 30721
+        "totalPresent": 30743
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 0,
@@ -163,8 +169,11 @@
       "customsShare": 0,
       "importsUsdYear": 0,
       "forexEarnedUsdYear": 96674,
-      "forexUsd": 207272,
-      "reserve": 4665758,
+      "forexUsd": 207411,
+      "bankShareYear": 0,
+      "wageMonth": 92.0429,
+      "shedBeds": 0,
+      "reserve": 4665120,
       "debt": 3000000,
       "arrears": 0,
       "scrutiny": 0,
@@ -172,89 +181,92 @@
     },
     {
       "at": "1982-12",
-      "residents": 31111,
+      "residents": 31234,
       "registered": 30000,
-      "presentNonlocal": 1279,
-      "migrants": 1279,
+      "presentNonlocal": 1288,
+      "migrants": 1288,
       "firmJobs": 406,
-      "gdp": 8964239,
-      "exports": 1772992,
-      "revenue": 3421530,
-      "obligationsPaid": 2643426,
+      "gdp": 9037405,
+      "exports": 1792544,
+      "revenue": 3421812,
+      "obligationsPaid": 2645127,
       "projectSpend": 0,
-      "electricityKwhYear": 15100929,
+      "electricityKwhYear": 15109086,
       "gdpSector": {
         "primary": 138600,
-        "secondary": 195356,
-        "tertiary": 426200,
-        "construction": 65589
+        "secondary": 190503,
+        "tertiary": 426800,
+        "construction": 60674
       },
       "gdpSectorYear": {
         "primary": 1663200,
-        "secondary": 2207539,
-        "tertiary": 5093500,
-        "construction": 707316
+        "secondary": 2272855,
+        "tertiary": 5101350,
+        "construction": 764728
       },
       "population": {
         "registered": 30000,
         "temporary": {
-          "migrantConstruction": 261,
-          "migrantFactory": 1018,
+          "migrantConstruction": 307,
+          "migrantFactory": 981,
           "other": 20,
-          "total": 1299
+          "total": 1308
         },
-        "totalPresent": 31299
+        "totalPresent": 31308
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 0,
       "landRevenueYear": 0,
       "landShare": 0,
-      "debtToRevenue": 0.7307,
+      "debtToRevenue": 0.7306,
       "customsYear": 0,
       "customsShare": 0,
       "importsUsdYear": 0,
-      "forexEarnedUsdYear": 118199,
-      "forexUsd": 325471,
-      "reserve": 5443862,
+      "forexEarnedUsdYear": 119504,
+      "forexUsd": 326915,
+      "bankShareYear": 0,
+      "wageMonth": 109.7867,
+      "shedBeds": 12,
+      "reserve": 5441805,
       "debt": 2500000,
       "arrears": 0,
-      "scrutiny": 10,
+      "scrutiny": 0,
       "illegalShare": 0
     },
     {
       "at": "1983-12",
-      "residents": 30917,
+      "residents": 30915,
       "registered": 30000,
-      "presentNonlocal": 902,
-      "migrants": 902,
+      "presentNonlocal": 895,
+      "migrants": 895,
       "firmJobs": 406,
-      "gdp": 8882690,
+      "gdp": 8868155,
       "exports": 2026752,
       "revenue": 2735184,
-      "obligationsPaid": 2567560,
+      "obligationsPaid": 2567456,
       "projectSpend": 0,
-      "electricityKwhYear": 15054030,
+      "electricityKwhYear": 15054078,
       "gdpSector": {
         "primary": 138600,
-        "secondary": 172797,
-        "tertiary": 426150,
-        "construction": 42968
+        "secondary": 172679,
+        "tertiary": 426200,
+        "construction": 42850
       },
       "gdpSectorYear": {
         "primary": 1663200,
-        "secondary": 2106240,
-        "tertiary": 5113250,
-        "construction": 548321
+        "secondary": 2090105,
+        "tertiary": 5114850,
+        "construction": 532155
       },
       "population": {
         "registered": 30000,
         "temporary": {
-          "migrantConstruction": 206,
-          "migrantFactory": 696,
+          "migrantConstruction": 229,
+          "migrantFactory": 666,
           "other": 20,
-          "total": 922
+          "total": 915
         },
-        "totalPresent": 30922
+        "totalPresent": 30915
       },
       "foreignValueAddedShare": 1,
       "foreignCapitalUsdYear": 0,
@@ -265,11 +277,14 @@
       "customsShare": 0,
       "importsUsdYear": 0,
       "forexEarnedUsdYear": 135120,
-      "forexUsd": 460591,
-      "reserve": 5611486,
+      "forexUsd": 462035,
+      "bankShareYear": 0,
+      "wageMonth": 131.0949,
+      "shedBeds": 0,
+      "reserve": 5609533,
       "debt": 1900000,
       "arrears": 0,
-      "scrutiny": 15.4036,
+      "scrutiny": 10.0014,
       "illegalShare": 0
     }
   ],
@@ -281,18 +296,18 @@
       "population": {
         "registered": 30000,
         "resident": 30340,
-        "present": 30434,
-        "presentNonlocal": 414,
-        "migrants": 414,
+        "present": 30454,
+        "presentNonlocal": 434,
+        "migrants": 434,
         "categories": {
           "registered": 30000,
           "temporary": {
-            "migrantConstruction": 147,
-            "migrantFactory": 267,
+            "migrantConstruction": 149,
+            "migrantFactory": 285,
             "other": 20,
-            "total": 434
+            "total": 454
           },
-          "totalPresent": 30434
+          "totalPresent": 30454
         }
       },
       "land": {
@@ -326,13 +341,13 @@
         "vacancies": 3
       },
       "housing": {
-        "rentalBeds": 411,
-        "rentalOccupants": 414,
-        "crowding": 1.0072992700729928,
+        "rentalBeds": 417,
+        "rentalOccupants": 434,
+        "crowding": 1.040767386091127,
         "turnedAway": 0
       },
       "energy": {
-        "electricityKwhYear": 14472984
+        "electricityKwhYear": 14474904
       },
       "works": {
         "roadCells": 0,
@@ -341,13 +356,13 @@
         "facilities": 0
       },
       "fiscal": {
-        "reserve": 1689978,
-        "moneyForProjects": 1545814,
+        "reserve": 1689955,
+        "moneyForProjects": 1545785,
         "debtOutstanding": 0,
         "arrears": 0,
         "revenueYear": 3399581,
-        "spendingYear": 2009603,
-        "spendingOverRevenue": 0.5911325542765418
+        "spendingYear": 2009626,
+        "spendingOverRevenue": 0.5911393198161774
       }
     },
     {
@@ -356,19 +371,19 @@
       "months": 18,
       "population": {
         "registered": 30000,
-        "resident": 30401,
-        "present": 30401,
-        "presentNonlocal": 381,
-        "migrants": 381,
+        "resident": 30405,
+        "present": 30405,
+        "presentNonlocal": 385,
+        "migrants": 385,
         "categories": {
           "registered": 30000,
           "temporary": {
             "migrantConstruction": 141,
-            "migrantFactory": 240,
+            "migrantFactory": 244,
             "other": 20,
-            "total": 401
+            "total": 405
           },
-          "totalPresent": 30401
+          "totalPresent": 30405
         }
       },
       "land": {
@@ -403,12 +418,12 @@
       },
       "housing": {
         "rentalBeds": 411,
-        "rentalOccupants": 381,
-        "crowding": 0.927007299270073,
+        "rentalOccupants": 385,
+        "crowding": 0.9367396593673966,
         "turnedAway": 0
       },
       "energy": {
-        "electricityKwhYear": 14466216
+        "electricityKwhYear": 14466600
       },
       "works": {
         "roadCells": 0,
@@ -417,13 +432,13 @@
         "facilities": 0
       },
       "fiscal": {
-        "reserve": 2480373,
-        "moneyForProjects": 5324152,
+        "reserve": 2480331,
+        "moneyForProjects": 5324105,
         "debtOutstanding": 3000000,
         "arrears": 0,
         "revenueYear": 3404975,
-        "spendingYear": 2057902,
-        "spendingOverRevenue": 0.6043809425913553
+        "spendingYear": 2057944,
+        "spendingOverRevenue": 0.604393277483682
       }
     },
     {
@@ -432,19 +447,19 @@
       "months": 60,
       "population": {
         "registered": 30000,
-        "resident": 30917,
-        "present": 30922,
-        "presentNonlocal": 902,
-        "migrants": 902,
+        "resident": 30915,
+        "present": 30915,
+        "presentNonlocal": 895,
+        "migrants": 895,
         "categories": {
           "registered": 30000,
           "temporary": {
-            "migrantConstruction": 206,
-            "migrantFactory": 696,
+            "migrantConstruction": 229,
+            "migrantFactory": 666,
             "other": 20,
-            "total": 922
+            "total": 915
           },
-          "totalPresent": 30922
+          "totalPresent": 30915
         }
       },
       "land": {
@@ -470,21 +485,21 @@
         "commercialBuiltM2": 0,
         "commercialOccupiedM2": 0,
         "residentialM2": 0,
-        "villageRentalM2": 9194
+        "villageRentalM2": 10207
       },
       "jobs": {
         "firmPosted": 406,
-        "filled": 16327,
-        "vacancies": 1
+        "filled": 16328,
+        "vacancies": 0
       },
       "housing": {
-        "rentalBeds": 1311,
-        "rentalOccupants": 902,
-        "crowding": 0.6880244088482075,
+        "rentalBeds": 1456,
+        "rentalOccupants": 895,
+        "crowding": 0.6146978021978022,
         "turnedAway": 0
       },
       "energy": {
-        "electricityKwhYear": 15054030
+        "electricityKwhYear": 15054078
       },
       "works": {
         "roadCells": 0,
@@ -493,13 +508,13 @@
         "facilities": 0
       },
       "fiscal": {
-        "reserve": 5611486,
-        "moneyForProjects": 8408714,
+        "reserve": 5609533,
+        "moneyForProjects": 8406754,
         "debtOutstanding": 1900000,
         "arrears": 0,
         "revenueYear": 2735184,
-        "spendingYear": 2567560,
-        "spendingOverRevenue": 0.9387156403371766
+        "spendingYear": 2567456,
+        "spendingOverRevenue": 0.9386776173010664
       }
     }
   ],
@@ -513,7 +528,7 @@
     {
       "index": 1,
       "at": "1980-12",
-      "score": 0.4784,
+      "score": 0.4788,
       "pass": false
     },
     {
@@ -525,8 +540,8 @@
     {
       "index": 3,
       "at": "1982-12",
-      "score": 0.5975,
-      "pass": false
+      "score": 0.6008,
+      "pass": true
     },
     {
       "index": 4,
@@ -543,10 +558,10 @@
   "verdict": {
     "growth": {
       "residents": 1.019,
-      "gdp": 1.0596
+      "gdp": 1.0579
     },
     "ledger": {
-      "reserve": 5611486,
+      "reserve": 5609533,
       "debtOutstanding": 1900000,
       "arrears": 0
     },
@@ -585,25 +600,32 @@
         }
       ]
     },
-    "scrutiny": 15.4036,
+    "scrutiny": 10.0014,
     "illegalShare": 0,
     "fiscalTest": {
       "grantFactor": 0,
       "revenuePerYear": 2045184,
-      "dueNext12": 2417664,
-      "balance": -372480
+      "dueNext12": 2417748,
+      "balance": -372564,
+      "debtService": 678000
     },
     "forex": {
       "burnedUsd": 0,
-      "earnedUsd": 410591,
-      "quotaUsd": 460591
-    }
+      "earnedUsd": 412035,
+      "quotaUsd": 462035
+    },
+    "bankShare": 0,
+    "briefingLoan": 1900000,
+    "debtToRevenue": 0.6947,
+    "wageMonth": 131,
+    "shedBeds": 0
   },
   "fired": [
     "event.first_project@1979-01",
     "news.1979q1.assignment@1979-01",
     "news.1979q1.office_note@1979-01",
     "event.budget@1979-01",
+    "news.1979q1.wage_growth@1979-01",
     "event.shenzhen_city@1979-03",
     "news.1979q1.city_reply@1979-03",
     "event.first_processing_contract@1979-04",
@@ -647,6 +669,7 @@
     "news.1982q2.economic_crime@1982-04",
     "news.1982q2.newspaper_launch@1982-05",
     "event.second_line@1982-06",
+    "news.1982q3.wage_reform@1982-07",
     "news.1982q3.census@1982-07",
     "event.typhoon@1982-09",
     "event.corps_deployment@1982-09",

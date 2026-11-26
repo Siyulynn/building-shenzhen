@@ -723,7 +723,7 @@ defensible. Its **composition and drivers** are not:
 | **R10a** | **Reporting and save.** Construction VA as its own line under secondary in `gdpBySector` and the summary (municipal works, firm builds, housing builds). Population reported as `registered` (常住 with local hukou), `temporary` (暂住, split `migrant_construction` / `migrant_factory` / other) and `total_present`, non-overlapping, beside the existing `resident`. Save bump with the unlock re-application (4b.2 item 7). | none (reporting only; the save test proves it) |
 | **R10b** | **Start composition and firms.** Base service jobs and `gdp.base_va_per_job_month.services` set so the 1979–80 tertiary share starts near the evidence. A `local_collective` archetype (small, domestic sales, low export share). Organic firms of 100–150 jobs with `floor_m2_per_month` and `max_backlog_m2` rescaled, and industrial demand lowered so the level holds. | move |
 | **R10c** | **Trade and customs.** Commercial firms grow on commercial zones with gateway reach (parallel to organic industry in `growth.ts`), at tertiary VA per job. Trade volume runs through R8d's inbound flows, so gateway capacity limits it. Customs is collected on firm inputs (`freight.by_archetype.*.input_ratio`) and on commercial imports, credited to `general` at `customs_local_share`. Commercial imports spend forex; processing exports earn it at `retention_share`. `priority.trade` and `priority.commerce` (`params/slice.yaml` `sez.priorities`) steer commercial growth, closing the gap the comment there names. | move |
-| **R10d** | **Import quota setting.** `set_import_quota: strict / balanced / open`, a standing setting like enforcement, gated by a dated card after the SEZ (cites claims). Open raises customs revenue and tertiary GDP and drains forex, and raises scrutiny gain while forex is falling. The verdict reports forex burned. | move |
+| **R10d** | **Import approval setting.** `set_import_quota: strict / balanced / open`, a standing setting like enforcement, gated by a dated card after the SEZ (cites claims). Lenient approval raises customs revenue and tertiary GDP and drains forex, and raises scrutiny gain while forex is falling. The verdict reports forex burned. R11 reframes it as **how strictly the rules are applied** (审批松紧), keeping the mechanics and the date (§5.14). | move |
 
 **Done when:** `npm run check` green; goldens regenerated and explained per commit; the tuning log records the
 historical run against the 4b.2 item 6 targets (sector split 1981–83, customs share, level within ±15% of today's).
@@ -739,6 +739,16 @@ report if tuning can't restore it.
 | **R11c** | **Worksite sheds.** Low-cost sheds for `migrant_construction` near active works (low `m2_per_bed`, no land fee, scrutiny when crowded), reusing the corps card's sheds-and-tents theme; construction crew waves draw temporary workers into them. | move |
 
 **Done when:** as R10, plus the tuning log's bank-share and wage-path targets.
+
+**Status 2026-11-25: done.** Historical end-1983: ¥43.46M, split 4 / 51 / 45, customs 35%, factory wage
+¥130 a month, debt ¥2.01M, bank share 37% over 1982–83 (the credit line's draws only; the 1980 briefing loan is reported
+apart and reads 0% in 1979–81), 1,201 shed beds, fiscal test −¥374,658 (mostly the briefing loan's principal; customs is
+excluded by R10d's decision, so the tax-line test is negative while the city is in surplus with customs); aggressive
+¥39.31M, bank share 39%, debt ÷ revenue 0.54. Both keep all 20 §9 bands; no save bump. The line's first work of the
+programme is committed from cash before it funds the next (draws count against the share cap); the wage drift is a dated
+`wage_drift` modifier, not a params knob, so a fixture without events keeps its fixed point; the import setting is framed
+as approval strictness, the historical plan loosens it from 1983-Q1, and the gate's date is re-examined in §5.14. The
+tuning log's R11 section has the attempts and the inside/outside decisions.
 
 ### 4b.5 Not in R10–R11
 

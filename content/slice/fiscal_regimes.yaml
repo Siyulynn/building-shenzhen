@@ -15,6 +15,7 @@
          local_share: 1 }
   land_fee: []                           # no land-use fees before the land rules
   land_for_recurring: grey
+  construction_credit: []                # R11a (§5.14): no bank line for city works before the 1982 programme
   grant_schedule:                        # factor × params.fiscal.provincial_base_grant_per_year
     - { from: 1979-01, factor: 1 }       # funded on the 1978 base from the start (contracting_retain)
     - { from: 1983-01, factor: 0.5 }     # halved in 1983; unchanged in 1982
@@ -36,6 +37,10 @@
   land_fee:                              # yuan per m² of land per year, from the rules' in-force date
     - { from: 1982-01, per_m2_year: 15 } # placeholder; the 1981 ranges are a lead (land.regulations_1981)
   land_for_recurring: grey
+  # R11a (§5.14): the state bank's construction line. The 1982 investment programme is the dated opening (design_note:
+  # the 1979-85 financing table shows bank loans going 0 → 32% (1982) → 41% (1984) of capital construction).
+  construction_credit:
+    - { from: 1982-01, limit_revenue_multiple: 1.5, bank_loan_share_max: 0.4, rate_month: 0.005, grace_months: 18, term_months: 60 }
   grant_schedule:                        # the grant runs on its own schedule through both regimes (fiscal §4.2)
     - { from: 1979-01, factor: 1 }
     - { from: 1983-01, factor: 0.5 }

@@ -106,8 +106,8 @@ ${body}`), params, slice.tick.investors!, slice.tick.fiscal);
   text: { zh: 甲, en: X }
   claims: [ { id: phase1.local.shekou_slogan_1981, use: encyclopedia } ]`;
 
-  it('has the 25 records, each with text in both languages and no card', () => {
-    expect(news).toHaveLength(25);
+  it('has the 27 records, each with text in both languages and no card', () => {
+    expect(news).toHaveLength(27);
     for (const d of news) {
       expect(d.text?.zh && d.text?.en, d.id).toBeTruthy();
       expect(d.card, d.id).toBeUndefined();

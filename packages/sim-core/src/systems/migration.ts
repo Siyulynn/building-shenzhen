@@ -66,7 +66,9 @@ export function migration(p: SliceParams, network?: StartNetwork) {
       const vacAll = vacanciesBy(s, M.pull_sectors[k], playable).map((v, i) => (open.has(playable[i]!) ? v : 0));
       const V = vacAll.reduce((a, b) => a + b, 0);
       const wage = s.labour.wage[sector];
-      const gap = Math.max(0, (wage - M.inland_wage) / M.inland_wage);
+      // R11b (§5.14): the outside benchmark grows more slowly, so the seam's wage gap widens in the boom
+      const inland = M.inland_wage * Math.pow(1 + (M.inland_wage_growth_month ?? 0), s.date - s.scenario.start);
+      const gap = Math.max(0, (wage - inland) / inland);
       const pull = V / (V + M.K_vac);
       const lagged = s.migration.stockLag[k][0] ?? 0;
       const network = 1 + M.network_alpha * Math.log1p(lagged / M.K_net);

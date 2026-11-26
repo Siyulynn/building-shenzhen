@@ -184,7 +184,9 @@ function shrink(s: GameState, o: WorksOrder, w: WorksParams, units: number): voi
   settle(s, o, w);
 }
 function afterCommit(s: GameState, p: SliceParams): void {
-  if (moneyForProjects(s, p) < 0 && s.fiscal.projectLoan !== 'taken') s.fiscal.loanWanted = true;
+  // R11a (§5.14): a commit that overruns is covered by the regime's construction line when it is open, else by the
+  // state bank's project loan (finance step 5 decides between them)
+  if (moneyForProjects(s, p) < 0) s.fiscal.loanWanted = true;
 }
 function afterCancel(s: GameState, p: SliceParams): void {
   if (s.fiscal.loanWanted && moneyForProjects(s, p) >= 0) s.fiscal.loanWanted = false;

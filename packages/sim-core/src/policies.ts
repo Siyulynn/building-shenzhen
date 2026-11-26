@@ -92,6 +92,7 @@ export const AGGRESSIVE_CHOICES: Readonly<Record<string, string>> = Object.freez
   'event.permit_choice': 'loose', 'event.temporary_residence': 'standard', 'event.typhoon': 'defer',
   'event.corps_advance': 'tents', 'event.fire': 'noted', 'event.escapes': 'noted', 'event.petition': 'noted',
   'event.readiness_check': 'rush', 'event.sweep': 'sweep', 'event.corps_deployment': 'accept',
+  'event.investment_programme': 'decline',        // R11a: it never borrows on the construction line
   [COFINANCING_CARD]: 'accept', [LOAN_CARD]: 'take', [DEFICIT_CARD]: 'borrow_short',
   // R9 (§5.8): it backs the slogan, answers the storm in public and only transmits the rectification
   'event.1981q1.slogan': 'endorse', 'event.1982q1.concession_storm': 'public', 'event.1983q4.rectification': 'transmit',
@@ -138,6 +139,7 @@ export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
   roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]], LUOHU_STREET, LUOHU_LANE],
   upgrades: CORRIDOR_UPGRADES.map((u) => ({ ...u, from_turn: 12 })),   // R8d: from turn 12, once it has met the limit
   crew_share: 0.5, room_ahead_m2: 40_000,
+  credit_share: 0.4,                                     // R11a: the push leans on the bank harder
   utilities: { headroom_jobs: 300, max_sources: 8, import_kw: 1000, import_from_turn: 8, station_turn: 9 }, facilities: [['school', 1]],
   teams: ['team.outside_soe'], reserve: 0,               // R9 (§5.6): the corps is an event's arrival, never a contract
   borrow_until_turn: 3, roads_at_once: 3,
@@ -152,6 +154,8 @@ export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
   roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]], LUOHU_STREET],
   upgrades: CORRIDOR_UPGRADES,
   crew_share: 0.34, room_ahead_m2: 30_000, small_zones_first: true,   // R10c: Luohu's trading street before Shangbu's rest
+  credit_share: 0.4,                                                      // R11a: the bank funds about two fifths of the works
+  import_quota: { level: 'open', from_turn: 16 },                         // R11: loosen import approval from its turn 16
   utilities: { headroom_jobs: 200, max_sources: 8, import_kw: 1000, import_from_turn: 2, station_turn: 6 }, facilities: [['school', 1]],
   teams: ['team.outside_soe'], reserve: 0,               // R9 (§5.6): the corps is an event's arrival, never a contract
   borrow_until_turn: 3, roads_at_once: 2,
@@ -175,9 +179,16 @@ export function mapPolicy(answers: DecisionPolicy, plan: MapPlan, p: SliceParams
     // import quota likewise
     const held = firsts.filter((a) => (a.type === 'set_enforcement' && a.level !== s.policy.enforcement)
       || (a.type === 'set_import_quota' && a.level !== (s.policy.importQuota ?? 'balanced')));
+    // R11 (§5.14): a plan may loosen or tighten import approval at a named turn, once its gate is open
+    const quota: PlayerAction[] = [];
+    const q = plan.import_quota;
+    if (q && s.turn >= q.from_turn && (s.policy.importQuota ?? 'balanced') !== q.level) {
+      const a: PlayerAction = { type: 'set_import_quota', level: q.level };
+      if (gateAllows(s, tick, a)) quota.push(a);
+    }
     // R10c (§5.13): a turn that zones new land leaves servicing to the next turn, so the new zones are weighed with the rest
     const zones = planZones(s, tick, plan, true);
-    return [...out, ...held, ...zones, ...planWorks(s, tick, p, plan, zones.length > 0)];
+    return [...out, ...held, ...quota, ...zones, ...planWorks(s, tick, p, plan, zones.length > 0)];
   };
 }
 

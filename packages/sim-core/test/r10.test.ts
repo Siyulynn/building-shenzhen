@@ -284,7 +284,8 @@ describe('R10d the import quota (§5.13)', () => {
   it('the aggressive player opens it once the beat fires; the verdict reports the forex burned', () => {
     const agg = playQuarters(initial(), new Rng(1), STEPS, aggressive(params, slice.tick), slice.init.scenario.turns).final;
     expect(agg.policy.importQuota).toBe('open');
-    expect(full.rec.final.policy.importQuota).toBeUndefined();          // the historical player keeps the default
+    // R11 (§5.14): the historical plan loosens it from its 1983 turn, so the historical run is open too
+    expect(full.rec.final.policy.importQuota).toBe('open');
     const v = verdict(full.rec.final, params, slice.tick.fiscal!);
     const burned = -full.rec.final.fiscal.ledger.filter((e) => e.ref === 'import.trade').reduce((a, e) => a + e.amount, 0);
     expect(v.forex.burnedUsd).toBeCloseTo(burned, 6);

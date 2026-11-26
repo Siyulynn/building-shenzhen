@@ -14,11 +14,13 @@ export function m2ByArchetype(b: BlockStock, stages: readonly Stage[]): Record<B
   return out;
 }
 
-/** Beds by pool from completed floor (buildings §7): per archetype, floor(m² ÷ m² per bed). */
+/** Beds by pool from completed floor (buildings §7): per archetype, floor(m² ÷ m² per bed); R11c: plus the worksite
+ *  sheds derived from the block's own under-construction floor. */
 export function bedsByPool(b: BlockStock, p: SliceParams): { local: number; rental: number } {
   const m2 = m2ByArchetype(b, ['completed']);
   const beds = { local: 0, rental: 0 };
   for (const a of HOUSING_ARCHETYPES) beds[POOL[a]] += Math.floor(m2[a] / p.housing.m2_per_bed[a]);
+  beds.rental += shedBedsOf(b, p);
   return beds;
 }
 
@@ -42,6 +44,25 @@ export function illegalShare(b: BlockStock): number {
 
 export const underConstructionM2 = (b: BlockStock) =>
   b.cohorts.reduce((s, c) => s + (c.stage === 'under_construction' ? c.m2 : 0), 0);
+
+/**
+ * R11c (§5.14): the worksite sheds a block's active building supports, derived from its construction jobs. Only the
+ * block's own under-construction floor feeds them; a crew wave elsewhere does not. Absent params = none.
+ */
+export function shedBedsOf(b: BlockStock, p: SliceParams): number {
+  const sh = p.housing.sheds;
+  if (!sh || sh.beds_per_construction_job <= 0) return 0;
+  return Math.floor(Math.floor(underConstructionM2(b) * p.labour.construction_jobs_per_m2) * sh.beds_per_construction_job);
+}
+export function shedBeds(s: GameState, area: number, p: SliceParams): number {
+  const b = s.blocks.find((x) => x.area === area);
+  return b ? shedBedsOf(b, p) : 0;
+}
+
+/** Σ worksite shed beds over every block (R11c). */
+export function totalShedBeds(s: GameState, p: SliceParams): number {
+  return s.blocks.reduce((a, b) => a + shedBedsOf(b, p), 0);
+}
 
 export const groupsIn = (s: GameState, area: number) => s.pops.filter((g) => g.area === area);
 

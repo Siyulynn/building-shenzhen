@@ -282,7 +282,7 @@ describe('M4: projects', () => {
     const kinds = r.state.fiscal.obligations.map((o) => o.kind).sort();
     expect(kinds).toEqual(['maintenance', 'payroll', 'service']);
     const pay = r.state.fiscal.obligations.find((o) => o.kind === 'payroll')!;
-    expect(pay).toMatchObject({ index: 'wages', perMonth: pp.staff! * params.labour.wage_start.state });
+    expect(pay).toMatchObject({ index: 'wages', perMonth: Math.round(pp.staff! * pay.baseWage!) });
   });
 
   it('services a zone: its share rises, and an investor can then site in it', () => {

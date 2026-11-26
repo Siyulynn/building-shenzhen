@@ -162,6 +162,7 @@ export type PlayerAction =
   | { type: 'cancel_project'; project: number }
   | { type: 'contract_team'; team: string; mode: TeamMode; project?: number }
   | { type: 'buy_power'; kw: number; area?: number }   // R8c: city-level; an old action's area is ignored
+  | { type: 'draw_credit'; amount: number }            // R11a (§5.14): draw on the regime's construction line
   // R2 (buildings-and-construction §13.2): owned by the construction step, with works params, fiscal and network
   | { type: 'commit_works'; zone: number; cells?: CellRuns; priority?: Priority; pace?: WorksPace }
   | { type: 'build_road'; path: [number, number][]; class?: RoadClass; priority?: Priority; pace?: WorksPace }   // R8d: class defaults to street

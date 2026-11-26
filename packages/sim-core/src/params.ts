@@ -9,13 +9,16 @@ export interface SliceParams {
     fill_order: Record<Sector, PopKind[]>;
     wage_start: Record<Sector, number>;
     wage_floor: Record<Sector, number>;
-    wage_speed: number;
+    wage_speed: number;              // fallback speed for both directions when the split speeds are absent
+    wage_speed_up?: number;          // R11b (§5.14): the market's upward response, faster than its downward one
+    wage_speed_down?: number;
     construction_jobs_per_m2: number;
     turnover_month: number;          // R4 (§5.11): share of each job row's migrant holders who quit to idle each month
     jobs_per_crew_unit: number;      // R4 (§5.11): construction jobs per crew unit a project or works order uses
   };
   migration: {
     inland_wage: number;
+    inland_wage_growth_month?: number;   // R11b (§5.14): the outside benchmark's slower growth, so the gap widens
     base: Record<MigrantKind, number>;
     sector: Record<MigrantKind, Sector>;
     pull_sectors: Record<MigrantKind, Sector[]>;   // R4 (§5.11)
@@ -27,6 +30,8 @@ export interface SliceParams {
   housing: {
     m2_per_bed: Record<HousingArchetype, number>;
     base_rent: number; rent_elasticity: number; crowding_floor: number; rent_speed: number; crowding_max: number;
+    /** R11c (§5.14): worksite sheds, derived from construction jobs; absent = none. */
+    sheds?: { beds_per_construction_job: number; scrutiny_per_1000: number };
   };
   village_build: {
     build_cost_per_m2: number; horizon_months: number; hurdle: number;
@@ -68,7 +73,8 @@ export interface SliceParams {
   climate: {
     reform_wind: number; scrutiny_decay: number; failure_threshold: number; failure_quarters: number;
     permit_factor: Record<PermitRegime, number>;
-    gain: { loose_permit: number; illegal_share: number; grey_land_per_100k: number; shortcut: number };
+    gain: { loose_permit: number; illegal_share: number; grey_land_per_100k: number; shortcut: number;
+      shed_per_1000?: number };   // R11c (§5.14): the province notices crowded worksite sheds
   };
   sweep: { cash_cost: number; mood_penalty: number; campaign_months: number; visible_cut: number; base_p: number };
   review: { pass_mark: number; standing_pass: number; standing_fail: number; scrutiny_relief: number; scrutiny_fail: number };
@@ -351,6 +357,18 @@ export function validateParams(raw: unknown): SliceParams {
     if (!(POP_KINDS as readonly string[]).includes(k)) throw new Error(`params: labour.fill_order.${s} names ${k}`);
   }
   if (!(p.labour.turnover_month >= 0 && p.labour.turnover_month <= 1)) throw new Error('params: labour.turnover_month must be in [0, 1]');
+  if (!(p.labour.wage_speed >= 0)) throw new Error('params: labour.wage_speed must be >= 0');
+  // R11b (§5.14): the split speeds and the nominal drift are optional, but each must be a number >= 0 when present
+  for (const k of ['wage_speed_up', 'wage_speed_down'] as const) {
+    if (p.labour[k] !== undefined && !(p.labour[k]! >= 0)) throw new Error(`params: labour.${k} must be >= 0`);
+  }
+  if (p.migration.inland_wage_growth_month !== undefined && !(p.migration.inland_wage_growth_month >= 0)) {
+    throw new Error('params: migration.inland_wage_growth_month must be >= 0');
+  }
+  if (p.housing.sheds !== undefined && (!(p.housing.sheds.beds_per_construction_job >= 0)
+    || !(p.housing.sheds.scrutiny_per_1000 >= 0))) {
+    throw new Error('params: housing.sheds needs beds_per_construction_job and scrutiny_per_1000 >= 0');
+  }
   if (!(p.labour.jobs_per_crew_unit >= 0)) throw new Error('params: labour.jobs_per_crew_unit must be >= 0');
   need(p.migration.base, MIGRANT_KINDS, 'migration.base');
   need(p.migration.sector, MIGRANT_KINDS, 'migration.sector');

@@ -7,7 +7,8 @@ import {
   type TradeoffYear,
 } from './calibration.js';
 import type { EventContent } from './events.js';
-import { isLive, moneyForProjects, obligationDue, type FiscalContent } from './fiscal.js';
+import { constructionFinance, isLive, moneyForProjects, obligationDue, type FiscalContent } from './fiscal.js';
+import { totalShedBeds } from './systems/common.js';
 import { commercialTargetM2, developableCells, inducedServiceJobs, shopOccupancy } from './growth.js';
 import type { SliceParams } from './params.js';
 import { stateAfter, type PlayRecord } from './play.js';
@@ -70,6 +71,9 @@ export interface YearPoint {
   landRevenueYear: number; landShare: number; debtToRevenue: number;   // R9.3 (§5.6): land finance and leverage
   customsYear: number; customsShare: number;   // R10c (§5.13): the trailing year's customs and its share of revenue
   importsUsdYear: number; forexEarnedUsdYear: number; forexUsd: number;   // R10c: forex spent on trade imports, retained, held
+  bankShareYear: number;                  // R11a (§5.14): the bank's share of the year's capital-construction spending
+  wageMonth: number;                      // R11b: the factory (urban-unit) monthly wage the wage claims measure
+  shedBeds: number;                       // R11c: the worksite shed beds the year's building supports
   reserve: number; debt: number; arrears: number; scrutiny: number; illegalShare: number;
 }
 export function yearPoint(s: GameState, p: SliceParams): YearPoint {
@@ -98,6 +102,7 @@ export function yearPoint(s: GameState, p: SliceParams): YearPoint {
   const sumLedger = (type: string, ref?: string) => s.fiscal.ledger.reduce((a, e) =>
     a + (e.type === type && e.date >= from && (ref === undefined || e.ref === ref) ? e.amount : 0), 0);
   const customs = sumLedger('customs');
+  const finance = constructionFinance(s, from, lastMonth);
   return {
     at: formatYM(last(h.months)),
     residents: last(h.resident), registered: last(h.registered),
@@ -118,6 +123,9 @@ export function yearPoint(s: GameState, p: SliceParams): YearPoint {
     customsYear: Math.round(customs), customsShare: r4(revenue > 0 ? customs / revenue : 0),
     importsUsdYear: Math.round(-sumLedger('import', 'import.trade')), forexEarnedUsdYear: Math.round(sumLedger('retention')),
     forexUsd: Math.round(s.fiscal.balances.forex),
+    bankShareYear: r4(finance.share),
+    wageMonth: r4(s.labour.wage.factory),
+    shedBeds: totalShedBeds(s, p),
     reserve: Math.round(s.fiscal.balances.general), debt: Math.round(last(h.debtOutstanding)), arrears: Math.round(arrears),
     scrutiny: r4(s.climate.scrutiny), illegalShare: r4(realIllegalShare(s)),
   };

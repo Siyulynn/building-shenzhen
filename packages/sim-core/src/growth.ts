@@ -112,8 +112,12 @@ export function inducedServiceJobs(s: GameState, p: SliceParams): Map<number, nu
     spend.set(g.area, (spend.get(g.area) ?? 0) + w * G.spend_share);
     total += w * G.spend_share;
   }
-  for (const j of s.labour.baseJobs) if (j.sector !== 'services') ref += j.jobs * p.labour.wage_start[j.sector] * G.spend_share;
-  const jobs = Math.floor(Math.max(0, total - ref) / G.services.spend_per_job_month + 1e-9);
+  // the base economy's own spending at today's wages: it creates no service jobs, only real growth above it does
+  for (const j of s.labour.baseJobs) if (j.sector !== 'services') ref += j.jobs * s.labour.wage[j.sector] * G.spend_share;
+  // R11b (§5.14): the service job's threshold follows the wage level (Phase 1 has no price level), so nominal drift
+  // alone does not invent service jobs; real spending above the start's reference still does
+  const scale = p.labour.wage_start.services > 0 ? Math.max(0.01, s.labour.wage.services / p.labour.wage_start.services) : 1;
+  const jobs = Math.floor(Math.max(0, total - ref) / (G.services.spend_per_job_month * scale) + 1e-9);
   const areas = s.areas.filter((a) => a.access === 'playable').map((a) => a.id);
   const split = largestRemainder(jobs, areas.map((a) => Math.max(0, spend.get(a) ?? 0)));
   return new Map(areas.map((a, i) => [a, split[i]!]));

@@ -613,3 +613,116 @@ The split is read from `gdpSectorYear` (the trailing 12 months of `history.gdpSe
 - **Not done: customs in the fiscal test.** Counting customs as recurring revenue turns the aggressive run's 1984
   balance from −¥107,748 to +¥176,388 (historical −¥1,548 → +¥2.03M), against `band.1983q4.grant_test`'s note that
   aggressive should end negative. It was reverted; the note needs a decision first.
+
+## R11 (Pass 5: the buildup the verdict judges, 2026-11-25)
+
+**Targets, not bands** (R10's rule still holds). New targets from the same `lead` statistics:
+
+| Target | Evidence (lead) | Tolerance |
+|---|---|---|
+| Bank share of capital construction, 1982–83 | 32% (1982), 38% (1983), 41% (1984) of capital construction; 44% in the 2013 article | 20–50% over the two programme years |
+| Factory monthly wage, end-1983 | SEZ 1,610 a year (134), city 1,545 (129) | 110–145 |
+| Debt ÷ revenue at the visit | no direct lead; a construction-led buildup is expected | 0.20–0.80 |
+| Worksite sheds | only the population claim (temporary growth) | reported, no target |
+
+The annual bank share is a **flow** and is lumpy: the share cap fills as works are committed and drawn, so 1982 reads
+low (21%) and 1983 high (68%). The verdict reports the trailing two years (37%).
+
+### R11a: the construction credit line
+
+| Attempt | Change | Historical 1983: GDP · bank share (year / two years) · debt/rev | Aggressive: GDP · bank share | Bands |
+|---|---|---|---|---|
+| 0 | R10d | ¥41.25M · — · 0.24 | ¥38.39M · — | 20 + 20 |
+| 1 | line, plan draws only a shortfall | ¥42.6M · 0% / — (the plan was never short) | ¥39.3M · — | 20 + 20 |
+| 2 | plan `credit_share` 0.4 | ¥43.5M · 21% / 37% · 0.31 | ¥39.3M · 50% / 39% | 20 + 20 |
+| 3 | flow cap on the trailing 12 months | 1983 bank share 0%: the briefing loan's spending ate the room and the window was lumpy | — | — |
+| 4 | flow cap on the programme (paid + committed since opening, draws counted) | as row 2 | as row 2 | 20 + 20 |
+
+- **Kept: attempt 2 with attempt 4's cap.** The two-year bank share is 37% against the lead's 32–41%; the verdict also
+  reports debt ÷ revenue 0.31. **The briefing loan is not in it.** `Loan.origin` tags the 1980 briefing `'briefing'` and
+  the line's draws `'line'`; `bankShareYear` is the line's draws ÷ the year's project payments, so 1979–81 read 0% — the
+  line's years are 1982 onward, while the statistics' bank loans are 14% (1979), 25% (1980) and 32% (1982). The verdict
+  reports the briefing's outstanding principal as its own source (`briefingLoan`), so the two are not confused.
+- **Why a share, not a shortfall.** The plan is never short of cash (land revenue pays), so drawing only shortfalls left
+  the line unused (attempt 1: 8% then 0%). A city that borrows for part of what it builds needs `MapPlan.credit_share`.
+  Cautious sets none.
+- **Why draws count against the cap.** With payments alone in the denominator, a draw did not lower the room and the
+  line could be drawn to its ceiling at once. Counting the draws against "paid + committed since the line opened" keeps
+  the share honest and needs the first work of the programme to be committed from cash before the line funds the next.
+- **The line's terms.** `limit_revenue_multiple` 1.5, `bank_loan_share_max` 0.4, 0.5% a month, 18 months' grace, 60
+  months. Placeholders; the article's 44% is the only figure near them.
+- **The gate is an `effects` unlock** (`finance.credit`, set by `event.investment_programme` on its date), so the save
+  migration re-applies it. The card itself takes or declines the crews and the investor push; a fixed tranche on the
+  card would have been capped at about ¥230,000 by the room, and its badge would have promised ¥1.5M.
+
+### R11b: wages
+
+| Attempt | Change | Historical factory wage 1983 · GDP · tertiary | Aggressive wage · GDP | Bands |
+|---|---|---|---|---|
+| 0 | R10d | 60 · ¥41.25M · 45% | 60 · ¥38.39M · 24% | 20 + 20 |
+| 1 | drift 1.2% a month + split speeds + inland growth | 130 · ¥43.5M · 45% | 133 · ¥39.3M · 25% | 20 + 20 |
+| 2 | + `news.1982q3.wage_reform` 0.6% for 12 months | unchanged at the rounding | unchanged | 20 + 20 |
+| 3 | service threshold follows the wage, reference does not | invented service jobs at the idle start (`jobs.test`, `growth.test`: 19,402 m² of shops with no jobs shock) | — | fails tests |
+| 4 | threshold **and** reference at today's wages (kept) | 130 · ¥43.5M · 45% | 133 · ¥39.3M · 25% | 20 + 20 |
+
+- **Kept: attempt 4.** The factory wage ends at ¥130 against the lead's 128.75. Attempt 3 is the trap: with the
+  threshold scaled and the reference fixed in start wages, nominal drift alone manufactures service jobs. The reference
+  is now the base jobs at today's wages, so only real growth (more jobs, a wider factory–service gap) lifts services.
+- **The drift is content, not a params knob.** `news.1979q1.wage_growth` (1979-01, citing the urban-unit wage claims)
+  sets a sixty-month `wage_drift` modifier at 1.2% a month. A unit fixture without events has no drift and keeps its
+  fixed point; the slice's runs drift.
+- **The migration gap widens.** `inland_wage_growth_month` 0.4% against 1.2% local drift plus the market step: the gap
+  nearly triples by 1983, which lifts the temporary stock to 47,001 (the SEZ's 1983 temporary count is 12.0万; the slice
+  is about 43% of the SEZ, so about 5.2万) and residents to 65,814 (about 71,000 scaled).
+- **The year point reports the factory wage**, not the employment-weighted average: the claims measure urban-unit
+  wages, and the weighted average drags in services and farming (¥116 at the visit).
+
+### R11c: worksite sheds
+
+- The historical run supports 1,201 shed beds at the visit (1,863 at the end of 1981), derived from each area's own
+  under-construction floor. They are rental beds with no floor and no land fee; the village-build test and the work-unit
+  dormitory stream count them, so fewer village rooms are built for construction crews (`m2.test`'s bed-ordering check
+  now allows beds from the month building starts).
+- Scrutiny gains 0.5 a point a month per 1,000 beds (about 0.6 at the peak, before the permit factor and modifiers).
+  The historical run's scrutiny stays 0.
+- **Not a card.** The corps card's sheds-and-tents choice stays what it was; the derived sheds are the ongoing housing
+  of the crews, not a prologue decision.
+
+### The import-approval gate, re-read
+
+- **Reframed.** The setting is now "how strictly the zone applies the import rules" (`从严审批` / `按常规审批` / `从宽审批`),
+  not a quota. That is the R11 reading of the sources: the city controlled enforcement, not the ceiling. The gate date
+  (February 1982) and the mechanics are unchanged.
+- **In the plans.** The historical plan loosens to `open` from 1983-Q1 (`MapPlan.import_quota`), so it is no longer
+  latent content for the banded run: customs ends at 35%, tertiary at 45%, GDP +3.1% against R10a. The aggressive plan
+  sets `open` as soon as the gate opens and zones commercial blocks in the market town and Luohu; its Luohu block is
+  serviced last, so its customs stays 5% — a plan-order choice, not a model gap. Making the aggressive plan service the
+  smallest zone first (`small_zones_first`) raises its customs to 21% and its tertiary to 36%, but it stops the R8d
+  freight limit binding by 1982 (`freight.test`; R10c found the same), so it is not kept. The cautious plan keeps `balanced`.
+- **Reality vs game.** The January 1982 notice was a restriction and quotas were central/provincial; gating an
+  approval setting on the beat is an abstraction of when the question became live. The gate works (an `effects` unlock,
+  so the save migration re-applies it). One weakness remains: one beat carries a warning, a modifier and a power, so the
+  unlock's badge is the only announcement.
+
+### The fiscal test's reading
+
+- **The historical deficit is intended, and it is not the line.** The tax-line test ends at −¥374,658. Most of the
+  debt service in its window is the **1980 briefing loan** (about ¥654k of ¥754k due in the next twelve months); the
+  line is about ¥100k. The verdict now reports `briefingLoan` and `fiscalTest.debtService` so the composition is
+  visible.
+- **Customs is excluded by R10d's decision.** Counting it would turn the aggressive balance positive, against
+  `band.1983q4.grant_test`'s note; with it, the historical city is in surplus. That decision, not R11, is what makes the
+  historical test read negative.
+- **The experiment that was not kept.** Lengthening the briefing loan to 120 months (a more plausible infrastructure
+  term) lifts the historical test to about −¥120k but does not change the sign, so it was reverted: the prologue loan's
+  terms are a separate calibration, and the honest reading is the one stated in §5.14.
+
+**Goldens.** Historical 58,792 → 65,814 residents, ¥41.25M → ¥43.46M, split 4/51/45 → 4/51/45 (tertiary 45%),
+customs 28% → 35%, factory wage ¥60 → ¥130, debt ¥1.4M → ¥2.01M, bank share 37% (two years), fiscal test
+−¥1,548 → −¥374,658; aggressive 57,266 → 60,571, ¥38.39M → ¥39.31M, bank share 39%, fiscal −¥334,246; cautious
+39,904 → 40,411, ¥17.16M → ¥17.23M (debt 0, fiscal +¥182,076); default 30,917 → 30,915, ¥8.88M → ¥8.87M; decline_all
+30,340, ¥8.33M. Both banded policies pass all 20 §9 bands. The aggressive GDP is +10.9% against R10a's ¥35.42M and
++2.4% against R10's ¥38.39M, inside ±15% either way; its lower tertiary share (25%) is its industry-first plan, a
+policy outcome as in R10c.
+
+**Invariants.** `npm run check` green; no save version change; determinism holds; money and people conserved.

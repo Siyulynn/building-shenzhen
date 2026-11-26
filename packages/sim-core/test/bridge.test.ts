@@ -102,7 +102,7 @@ describe('R4.5 a placed school feeds its area as an M4 school does', () => {
     const mine = s.fiscal.obligations.filter((x) => x.createdBy === `works.${o.id}`);
     expect(mine.map((x) => x.kind).sort()).toEqual(['maintenance', 'payroll', 'service']);
     const pay = mine.find((x) => x.kind === 'payroll')!;
-    expect(pay).toMatchObject({ index: 'wages', from: o.completed! + 1, perMonth: F.staff! * pay.baseWage! });
+    expect(pay).toMatchObject({ index: 'wages', from: o.completed! + 1, perMonth: Math.round(F.staff! * pay.baseWage!) });
     expect(mine.find((x) => x.kind === 'service')!.perMonth).toBe(F.capacity * F.service_per_place_month!);
   });
 

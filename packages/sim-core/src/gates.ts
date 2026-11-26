@@ -14,7 +14,7 @@ import { OFFERED_STRUCTURES, liveOrder } from './works.js';
 export const GATE_IDS: readonly string[] = Object.freeze([
   ...LAND_USES.map((u) => `zone.${u}`), ...INTENSITIES.map((k) => `zone.intensity.${k}`),
   ...ROAD_CLASSES.map((c) => `road.${c}`), ...OFFERED_STRUCTURES.map((k) => `structure.${k}`),
-  'formation.bulk', 'works.priority', 'policy.enforcement', 'policy.import_quota', 'team.contract', 'power.buy',
+  'formation.bulk', 'works.priority', 'policy.enforcement', 'policy.import_quota', 'finance.credit', 'team.contract', 'power.buy',
 ]);
 
 /** One compiled gate: what it is called, the key it requires, and the event that sets that key (for the rail). */
@@ -79,6 +79,7 @@ export function gatesOf(s: GameState, a: PlayerAction): string[] {
     case 'set_import_quota': out.push('policy.import_quota'); break;   // R10d (§5.13)
     case 'contract_team': out.push('team.contract'); break;
     case 'buy_power': out.push('power.buy'); break;
+    case 'draw_credit': out.push('finance.credit'); break;   // R11a (§5.14)
     default: break;
   }
   return out;

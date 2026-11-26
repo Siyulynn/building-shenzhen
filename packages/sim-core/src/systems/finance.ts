@@ -4,9 +4,9 @@
  * The month always closes with a balanced ledger before any card is answered.
  */
 import {
-  DEFICIT_CARD, DEFICIT_OPTIONS, LOAN_CARD, addObligation, baselineDue, borrowingCapacity, debtServiceAt, grantFactor, isLive,
-  landFeeRate, loanSchedule, obligationDue, post, regimeOf, type AccountId, type DeficitOption, type FiscalContent,
-  type ObligationKind,
+  DEFICIT_CARD, DEFICIT_OPTIONS, LOAN_CARD, addObligation, baselineDue, borrowingCapacity, debtServiceAt,
+  drawConstructionCredit, grantFactor, isLive, landFeeRate, loanSchedule, moneyForProjects, obligationDue, post,
+  regimeOf, takeConstructionLoan, type AccountId, type DeficitOption, type FiscalContent, type ObligationKind,
 } from '../fiscal.js';
 import type { SliceParams } from '../params.js';
 import { largestRemainder } from '../round.js';
@@ -22,12 +22,18 @@ const ORDER: readonly LineKind[] = ['debt_service', 'arrears', 'payroll', 'basel
 const CUTTABLE: readonly LineKind[] = ['baseline', 'payroll', 'service'];
 
 function takeLoan(s: GameState, kind: 'project' | 'short', principal: number, p: SliceParams): void {
+  if (kind === 'project') {
+    // R11a (§5.14): the briefing's project loan is its own financing source, not a draw on the later line
+    takeConstructionLoan(s, principal, { rateMonth: p.fiscal.loan.rate_month, graceMonths: p.fiscal.loan.grace_months,
+      termMonths: p.fiscal.loan.term_months }, 'briefing');
+    return;
+  }
   const F = s.fiscal;
-  const L = kind === 'project' ? p.fiscal.loan : { ...p.fiscal.short_loan, grace_months: 0 };
+  const L = { ...p.fiscal.short_loan, grace_months: 0 };
   const id = F.nextId.loan++;
   F.loans.push({ id, kind, principal, rate: L.rate_month, taken: s.date,
     schedule: loanSchedule(principal, L.rate_month, s.date + 1, L.grace_months, L.term_months) });
-  post(s, 'loan', kind === 'project' ? 'debt' : 'general', principal, `loan.${id}`);
+  post(s, 'loan', 'general', principal, `loan.${id}`);
 }
 
 /** Raise the project loan's card unless it is taken or already pending (§5.6; M5b's briefing, §5.8). */
@@ -180,10 +186,14 @@ export function finance(p: SliceParams, fc: FiscalContent) {
     }
     F.austerity = cuttableSum > 0 ? cut / cuttableSum : 0;
 
-    // 5. the project loan's card, when a commit left money for projects below zero
+    // 5. borrowing when a commit left money for projects below zero: the regime's line if it is open (R11a), else the
+    //    state bank's project-loan card (§5.6)
     if (F.loanWanted) {
       F.loanWanted = false;
-      offerProjectLoan(ctx, p);
+      const short = Math.max(0, -moneyForProjects(s, p));
+      const drawn = short > 0 ? drawConstructionCredit(s, p, fc, short) : 0;
+      if (drawn > 0) ev('credit_drawn', { amount: drawn });
+      else offerProjectLoan(ctx, p);
     }
     ev('month', { revenue, due, baseline, paid, austerity: F.austerity });
   };
