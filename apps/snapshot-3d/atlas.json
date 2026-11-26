@@ -1,0 +1,225 @@
+{
+  "epochs": {
+    "opening": {
+      "name": ["1979 opening", "1979 年初"],
+      "claims": ["phase1.event.shenzhen_city_approval"]
+    },
+    "visit": {
+      "name": ["January 1984", "1984 年 1 月"],
+      "claims": ["phase1.event.deng_first_visit"]
+    }
+  },
+  "focus": {
+    "market": {
+      "name": ["Shenzhen market town", "深圳墟"],
+      "anchor": "market",
+      "range": 320,
+      "epochs": {
+        "opening": ["market"],
+        "visit": ["market", "market_add"]
+      },
+      "notes": ["Trading streets around the Jiefang–Renmin crossroads. The 1984 addition represents Friendship Department Store at district scale.", "以解放路与人民路交会处为中心的商业街。1984 年的新增体量示意片区内的友谊商店。"]
+    },
+    "yumin": {
+      "name": ["Yumin village", "渔民村"],
+      "anchor": "river_edge",
+      "range": 330,
+      "epochs": {
+        "opening": ["river_edge", "fishing"],
+        "visit": ["river_edge", "villas"]
+      },
+      "notes": ["Fishing settlement and field edge. The later two-storey houses and workshops are illustrative samples. The early villa count is disputed.", "渔村与田边。后期的两层住宅和作坊仅为示例，早期别墅总数尚有争议。"]
+    },
+    "luohu": {
+      "name": ["Luohu & Guomao", "罗湖与国贸"],
+      "anchor": "tower",
+      "range": 730,
+      "epochs": {
+        "opening": ["station", "crossing"],
+        "visit": ["station", "crossing", "tower"]
+      },
+      "notes": ["Railway and crossing approach. The January view shows an unfinished slipform tower. Its height, position and floor count are illustrative.", "铁路与口岸。1 月场景中的国贸仍在滑模施工，位置、高度和楼层数均为示意。"]
+    },
+    "shangbu": {
+      "name": ["Shangbu", "上步"],
+      "anchor": "shangbu",
+      "range": 345,
+      "epochs": {
+        "opening": ["shangbu", "shangbu_fields"],
+        "visit": ["shangbu", "industry"]
+      },
+      "notes": ["Field plots give way to a standard factory and a road under development. The site plan and road alignment are inferred.", "部分田块在后期场景中变为标准厂房与施工道路，厂区布局与道路线位为推测。"]
+    },
+    "shekou": {
+      "name": ["Shekou harbour", "蛇口渔港"],
+      "anchor": "harbour",
+      "range": 355,
+      "epochs": {
+        "opening": ["harbour"],
+        "visit": ["harbour", "port"]
+      },
+      "notes": ["The opening scene precedes the July 1979 works. The later ensemble includes industrial sheds and worker housing.", "开场早于 1979 年 7 月开工，后期组景包含厂房与职工宿舍。"]
+    },
+    "nantou": {
+      "name": ["Nantou old town", "南头古城"],
+      "anchor": "walled_town",
+      "range": 325,
+      "epochs": {
+        "opening": ["walled_town"],
+        "visit": ["walled_town", "campus_note"]
+      },
+      "notes": ["Old-town streets are carried forward as a working assumption. By January the university had opened in temporary premises. Its permanent campus broke ground in February.", "老城街巷暂按延续处理。至 1 月深大已在临时校舍办学，永久校区于 2 月动工。"]
+    }
+  },
+  "layouts": {
+    "market": {
+      "anchor": "site.shenzhen_market_town",
+      "offset": [0, 0],
+      "claims": ["site.shenzhen_market_town.exists_1979", "phase1.map.dongmen.crossroads_early_reform", "phase1.map.dongmen.nantang_market_early_reform"],
+      "parts": [
+        ["laneEW", 0, 0, 3, 1, 72, 0, 0],
+        ["laneNS", 0, 0, 1, 3, 0, 64, 0],
+        ["shop", -47, -14, 5, 1, 16, 0, 0],
+        ["shop", 48, -14, 5, 1, 16, 0, 0],
+        ["shop", -47, 14, 5, 1, 16, 0, 180],
+        ["shop", 48, 14, 5, 1, 16, 0, 180],
+        ["market", 33, 46, 2, 2, 20, 18, 90],
+        ["cottage", -48, -40, 4, 2, 19, 16, 0],
+        ["cottage", -47, 43, 4, 2, 17, 20, 0]
+      ]
+    },
+    "market_add": {
+      "anchor": "site.shenzhen_market_town",
+      "offset": [0, 0],
+      "claims": ["phase1.zoning.friendship_store.formed", "phase1.zoning.friendship_store.opening_photo"],
+      "parts": [
+        ["store", 76, -50, 1, 1, 0, 0, 0]
+      ]
+    },
+    "river_edge": {
+      "anchor": "site.yumin",
+      "offset": [175,-55],
+      "claims": ["site.yumin.exists_1979", "phase1.map.yumin_river_location"],
+      "parts": [
+        ["pond", -98, 15, 1, 2, 0, 44, 0],
+        ["field", -99, -58, 2, 2, 40, 21, 0],
+        ["field", 74, 57, 2, 2, 40, 21, 0],
+        ["laneEW", 0, 0, 2, 1, 72, 0, 0]
+      ]
+    },
+    "fishing": {
+      "anchor": "site.yumin",
+      "offset": [175,-55],
+      "claims": ["site.yumin.exists_1979"],
+      "parts": [
+        ["cottage", -12, -18, 4, 1, 21, 0, 0],
+        ["cottage", 13, 16, 4, 1, 22, 0, 180],
+        ["field", 69, -43, 2, 2, 40, 21, 0]
+      ]
+    },
+    "villas": {
+      "anchor": "site.yumin",
+      "offset": [175,-55],
+      "claims": ["phase1.housing.yumin.houses.1983_02", "phase1.industry.yumin.plastics_jobs.1983_02", "phase1.industry.yumin.gems_jobs.1983_02"],
+      "parts": [
+        ["villa", -12, -18, 5, 1, 18, 0, 0],
+        ["villa", 13, 16, 5, 1, 18, 0, 180],
+        ["shed", 60, -58, 2, 1, 34, 0, 0]
+      ]
+    },
+    "station": {
+      "anchor": "site.shenzhen_station",
+      "offset": [0, 0],
+      "claims": ["site.shenzhen_station.exists_1979", "site.shenzhen_station.location"],
+      "parts": [
+        ["station", -18, 0, 1, 1, 0, 0, 0],
+        ["rail", 12, 0, 2, 3, 6, 64, 0]
+      ]
+    },
+    "crossing": {
+      "anchor": "site.luohu_crossing",
+      "offset": [0, 0],
+      "claims": ["site.luohu_crossing.exists_1979"],
+      "parts": [
+        ["crossing", 0, 0, 1, 1, 0, 0, 0]
+      ]
+    },
+    "tower": {
+      "anchor": "site.shenzhen_market_town",
+      "offset": [350, 590],
+      "claims": ["phase1.guomao.standard_floors_started", "phase1.guomao.construction_visible_january_visit", "phase1.guomao.main_tower_topped"],
+      "parts": [
+        ["guomao", 0, 0, 1, 1, 0, 0, 0],
+        ["shed", -54, 18, 1, 2, 0, 18, 0],
+        ["siteyard", 0, 0, 1, 1, 0, 0, 0]
+      ]
+    },
+    "shangbu": {
+      "anchor": "site.shangbu_land",
+      "offset": [0, 0],
+      "claims": ["site.shangbu_land.exists_1979", "site.shangbu_land.location"],
+      "parts": [
+        ["field", -74, 0, 3, 5, 40, 21, 0],
+        ["cottage", -18, -74, 5, 1, 18, 0, 0]
+      ]
+    },
+    "shangbu_fields": {
+      "anchor": "site.shangbu_land",
+      "offset": [0, 0],
+      "claims": ["site.shangbu_land.exists_1979"],
+      "parts": [
+        ["field", 66, 0, 3, 4, 40, 21, 0]
+      ]
+    },
+    "industry": {
+      "anchor": "site.shangbu_land",
+      "offset": [0, 0],
+      "claims": ["phase1.zoning.shangbu.factory_1_completed", "phase1.shennan.photos.widening.1982"],
+      "parts": [
+        ["factory", 52, -25, 1, 1, 0, 0, 0],
+        ["road", 29, 24, 3, 1, 72, 0, 0],
+        ["siteyard", 65, 68, 1, 1, 0, 0, 0]
+      ]
+    },
+    "harbour": {
+      "anchor": "site.shekou_fishing_harbour",
+      "offset": [-40,-305],
+      "claims": ["site.shekou_fishing_harbour.exists_1979"],
+      "parts": [
+        ["cottage", -39, -17, 4, 2, 18, 18, 0],
+        ["laneEW", -37, 7, 2, 1, 72, 0, 0],
+        ["shed", -40, 22, 2, 1, 32, 0, 180]
+      ]
+    },
+    "port": {
+      "anchor": "site.shekou_fishing_harbour",
+      "offset": [-40,-305],
+      "claims": ["phase1.event.shekou_works", "phase1.shekou.completed_operating_industrial_projects.1983", "phase1.shekou.worker_housing_floor.1983"],
+      "parts": [
+        ["factory", 76, -35, 1, 1, 0, 0, 0],
+        ["shed", 76, 4, 2, 1, 35, 0, 0],
+        ["dorm", 0, -73, 2, 1, 55, 0, 0],
+        ["road", 39, 46, 3, 1, 72, 0, 0]
+      ]
+    },
+    "walled_town": {
+      "anchor": "site.nantou_old_town",
+      "offset": [0, 0],
+      "claims": ["site.nantou_old_town.exists_1979", "site.nantou_old_town.location"],
+      "parts": [
+        ["laneNS", 0, 0, 1, 3, 0, 64, 0],
+        ["laneEW", 0, 0, 3, 1, 72, 0, 0],
+        ["cottage", -44, -35, 4, 3, 17, 19, 90],
+        ["shop", 34, 15, 3, 1, 16, 0, 180],
+        ["cottage", 46, -35, 4, 3, 18, 18, 0],
+        ["cottage", -45, 34, 4, 2, 18, 17, 0]
+      ]
+    },
+    "campus_note": {
+      "anchor": "site.nantou_old_town",
+      "offset": [0, 0],
+      "claims": ["phase1.szu.site_and_temporary_premises", "phase1.szu.first_opening_ceremony", "phase1.szu.permanent_campus.ground_break"],
+      "parts": []
+    }
+  }
+}

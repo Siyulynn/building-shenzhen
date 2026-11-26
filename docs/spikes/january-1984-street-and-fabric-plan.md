@@ -72,7 +72,7 @@ The local preview is `build/3d-snapshots/jan84-stage-b/dist/Shenzhen_January_198
 
 Facilities and railway are separate map symbols; there is no `public` zone in the game. Floodplain, ponds, hills and land outside playable areas are base layers. New zoning excludes wet cover, steep terrain, inherited built-up land and the route cells drawn for each date. The January high-intensity example is cell `(393,378)` beside the eastern avenue cell `(393,377)`; it is a design example, independent of the named Guomao worksite. Dated evidence supports Shennan's staged development (`phase1.shennan.first_paved_segment_west`, `phase1.shennan.east_reach_1983`). The May 1984 preview supplies relative layout for dashed streets (`phase1.map.1984.preview_edition`, `phase1.map.1984.overview_comparison`); it does not establish a January opening date or a road crossing. Both plates use the same opening land-cover comparison. The cell counts and boundaries are planning choices.
 
-Regenerate from the repository root with `pipeline\.venv\Scripts\python.exe build\3d-snapshots\jan84-stage-b\make-zoning-maps.py`.
+Regenerate from the repository root with `pipeline\.venv\Scripts\python -I pipeline\make-zoning-maps.py` (or `npm run design:maps`). The script lives in `pipeline/` because the game's `pipeline/m3d_historical_zones.py` consumes the grid it writes.
 
 ## Pass 3 — Generate from road frontage and zone intensity
 
@@ -130,3 +130,25 @@ Guoshang reads as the separate, completed slab with a clearer podium entrance (`
 Combined preview: `build/3d-snapshots/jan84-stage-b/dist/Shenzhen_January_1984_Frontage_and_Anchors.html`. The Road, Fabric, Shangbu and Luohu previews remain available.
 
 Completion means the same streets and block relationships read correctly from several cameras, including approaches not used to tune the layout. Revisit the full selector after each pass; record whether each mismatch is a camera, date, coverage, road, fabric or landmark issue.
+
+### Phase 2 — January design map in the atlas
+
+[Open the Phase 2 preview](../../build/3d-snapshots/jan84-stage-b/dist/Shenzhen_January_1984_Design_Map.html). Try **Guomao / Renmin Road**, **Luohu street**, **Huaqiang / Shennan Middle**, and **Government block**. The prior exports remain separate captures.
+
+The overview and streamed January tiles share the [resolved design grid](scene-review/zoning/core-basin-design-grid.json). On dry land, built blocks, graded works, civic grounds and transport yards override inherited field colour and crop plots. Avenue reservations between two converted blocks read as worked verges. Roads, ponds, rail and rivers retain their finer placement constraints. Unassigned areas keep the baseline interpretation; the Hubei pond and field cell `(393, 378)` remain open. The opening and September scenes still use their existing cover.
+
+Guomao has graded working ground and a short gate apron, Guoshang has a separate finished forecourt, and Electronics Building stands in the Shangbu industrial fabric with access to the existing Shennan shoulder. Luohu gains a row of anonymous street-facing blocks, separate works compounds, and a low anonymous shed on the dry edge of the station yard. The road alignments and site pads are illustrative; `atlas.photo.szlzp.966` supplies service-edge form, not a January station plan. The government forecourt meets the existing road and the adjacent Lizhi grounds use clustered orchard cover (`phase1.site.municipal_government.site_choice`) with the lake and later paths unresolved.
+
+The 100 m source leaves visible coarse edges and some unassigned pockets, including near the Luohu foreground. The 1985 frames still show later density and skyline that the January map cannot establish. Caiwuwei and Heping still need camera registration before their silhouettes or streets are adjusted; no additional crossing is inferred.
+
+#### Step 1 + Step 2 update — design-grid-driven 3D fabric and Luohu closure
+
+- **Design map (`core-basin-proposals.json` → regenerated SVGs and `core-basin-design-grid.json`):** Extended `luohu-works` (`[[388, 378, 391, 382]]`, 7 → 10 cells) and `luohu-high` (`[[391, 378, 393, 382]]`, 13 → 14 cells) north by one row to close the 3-cell unzoned crack (`(388..390, 378)`) directly between Shennan East and Guomao. Cell `(393, 378)` (`hubei-field-south/1`) remains open, and no `village`/`town` cells were added to proposal or works zones.
+- **Ground cover (`src/procgen/january-ground.ts`, `src/procgen/mesh.ts`):** Mapped `inherited_urban` to `'settlement'` (preventing isolated `slice_landcover.json` village pixels at `(389, 380..381)` inside Luohu from reverting to 1980 KH-9 paddyfields), expanded `avenue_verge` to any avenue cell bordering a converted 1984 block, and added a 4-tap spatial blend across 100 m ground-state edges.
+- **Design-grid-driven districts (`src/procgen/january-ground.ts`, `src/procgen/districts.ts`, `src/stage-b.ts`):** Synthesized 3D districts directly from `core-basin-design-grid.json` for `luohu-housing` (southeast of Railway Primary School), `luohu-high`, `luohu-support`, `luohu-works`, `shangbu-factories`, `shangbu-housing`, `shangbu-works`, `bagualing`, `hubei-housing`, `huangbeiling-works`, `municipal-civic`, and the three rail/port yards, while yielding to the hand-tuned street frontage pilots and never overwriting inherited 1980 settlement fabric. Updated preview: `build/3d-snapshots/jan84-stage-b/dist/Shenzhen_January_1984_Design_Map.html`.
+
+#### Step 3 update — Lizhi Park, Sungang/rail yards, and varied worksites
+
+- **Lizhi Park (`lizhi-orchard/0`, `src/procgen/fabric.ts:parkGrounds`, `src/stage-b.ts`):** Upgraded from plain trees to a park landscape with a shallow hollow lake (`荔枝湖`, backed by `phase1.site.municipal_government.site_choice`), grassy banks, stone lakeside promenade and feeder walks, two small pavilions, dense lychee/banyan/bamboo canopy, and a `Lizhi Park · 荔枝公园（示意）` map callout. Trimmed the May-map `m84.road.shangbu-north` trace north of Lizhi Park (`northing >= 2496800`) to match the design map so it no longer cuts through the park.
+- **Sungang & rail/port yards (`src/procgen/fabric.ts:railYard`, `src/procgen/tile-source.ts`, `src/procgen/municipal-lod0.ts`):** Replaced walled orange construction boxes on `sungang-yard`, `luohu-station-yard`, and `wenjindu-port` with compacted grey gravel aprons and rail-aligned freight sheds. Broke up the coarse 750×900 m `south-sungang-envelope` polygon west of Sungang Railway Station into looser rural village clusters framed by orchard trees in both overview and detailed tiles.
+- **Worksite variation (`src/procgen/fabric.ts:worksite`):** Varied `works-compound` yards across open cut-and-fill earthwork pads, long low workshop/shed rows, and active walled foundation compounds so Huangbeiling, Shangbu, and Luohu works avoid a stamped-grid look.

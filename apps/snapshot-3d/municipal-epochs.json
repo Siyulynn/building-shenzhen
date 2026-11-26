@@ -1,0 +1,250 @@
+{
+  "baseline": "1980-09-11",
+  "dates": {
+    "opening": {
+      "cutoff": "1979-01-01",
+      "name": {"en": "1979 opening", "zh": "1979 年初"},
+      "note": {"en": "As of the start of January, before city approval and the Shekou works. December 1977 KH-9 calibrates the older land pattern where it overlaps; it is not an image of 1979.", "zh": "取一月初、设市批复和蛇口工程之前的状态。重叠区参照 1977 年 12 月 KH-9 判读较早的地表格局，并非 1979 年影像。"},
+      "claims": ["phase1.event.shenzhen_city_approval", "phase1.event.shekou_works", "phase1.map.kh9_1977"]
+    },
+    "visit": {
+      "cutoff": "1984-01-24",
+      "name": {"en": "January 1984", "zh": "1984 年 1 月"},
+      "note": {"en": "As of the start of the January visit. District growth and named massings show documented uses and stages in illustrative positions, not surveyed parcels or a build-out of the 1982 plan. November 1984 imagery supplies no January geometry.", "zh": "取一月视察开始时的状态。片区增长与具名体量按文献所载用途和阶段示意表现，并非实测地块，也不按 1982 年规划补全。1984 年 11 月影像不作为一月几何依据。"},
+      "claims": ["phase1.event.deng_first_visit"]
+    }
+  },
+  "context": {
+    "note": {"en": "Unlisted September features are carried as undated visual context, not as demonstrated continuity. Modern relief and October 1979 water (with modern fallback) are shared comparators, not re-dated shorelines or grades. The 1977 county-town sheet supplies names and topology, not surveyed alignment.", "zh": "未列出的九月底图要素仅作不定年代的视觉背景，不视为已证实延续。现代地形与 1979 年 10 月水体（缺测区用现代参考）为共用对照，不代表各时点的岸线或标高。1977 年县城图仅约束地名和拓扑关系，不提供实测线位。"},
+    "claims": ["phase1.map.landsat_1979", "phase1.map.shenzhenxu_refs"]
+  },
+  "features": [
+    {
+      "id": "shenzhenxu-crossroads", "name": {"en": "Shenzhenxu crossroads", "zh": "深圳墟十字街口"},
+      "claims": ["site.shenzhen_market_town.exists_1979", "phase1.map.dongmen.crossroads_early_reform", "phase1.map.kh9_1977"],
+      "states": {
+        "opening": {"status": "continuity", "note": {"en": "1977 and 1980 support the old-town envelope and street grain, not exact corner bays. Carry the two candidate street axes and use unnamed low-rise frontages. R01 is not assigned to 1979.", "zh": "1977 与 1980 年影像支持老城范围和街巷走向，不支持具体转角开间。暂沿用两条候选街轴与无名低层街屋，不将 R01 定年为 1979。"}},
+        "visit": {"status": "continuity", "claims": ["core_basin.photo.dongmen.1983", "core_basin.photo.dongmen.li_1985"], "note": {"en": "The 1983 Dongmen caption is district context; the 1985 series identifies the junction but postdates January. Carry the same generic street-edge form, not specific R01 facades, signs or shops. No corner-level change is established.", "zh": "1983 年东门图注仅作片区参考；1985 年组照辨认了路口，但晚于目标一月。沿用同样的通用街沿形态，不复制 R01 的具体立面、招牌或店铺。尚未证实路口层面的变化。"}}
+      }
+    },
+    {
+      "id": "rail-main", "name": {"en": "KCR, station and approach", "zh": "广九铁路、车站与引道"},
+      "claims": ["site.kcr_line.exists_1979", "site.shenzhen_station.exists_1979", "site.luohu_crossing.exists_1979"],
+      "states": {
+        "opening": {"status": "continuity", "claims": ["phase1.map.kh9_1977"], "note": {"en": "Rail, station and crossing existed. Carry the main approach where supported by 1977 overlap, not the September sidings or western parallel trace. The bridge falls outside the usable overlap; any retained railway crossing geometry is a proxy.", "zh": "铁路、车站和口岸均已存在。1977 年重叠区支持主线引道延续，不回推九月站场侧线或西侧平行线。桥位不在可用重叠区内；保留的铁路过河几何仅为示意。"},
+          "omitCore": ["rail-west-corridor", "yard-track-west", "yard-track-east", "pilot-rail-apron/1", "yard-envelope/1"]},
+        "visit": {"status": "continuity", "note": {"en": "Carry the main line and September yard context. Later track count, station buildings and platform layout are not reconstructed.", "zh": "沿用主线和九月站场背景，不复原后期股道数、站房和站台布局。"}}
+      }
+    },
+    {
+      "id": "kcr-northern-review", "name": {"en": "Buji–Pinghu and northern continuation", "zh": "布吉—平湖及北段延伸"},
+      "claims": ["site.kcr_line.exists_1979"],
+      "states": {
+        "opening": {"status": "review", "note": {"en": "Railway existence does not fix its alignment here. Both dashed search bands stay as review overlays, not track.", "zh": "铁路存在不等于该段线位已知。两条虚线搜索带保持待核，不建轨道。"}},
+        "visit": {"status": "review", "note": {"en": "Retain both search bands. No new January evidence supports narrowing them or laying track.", "zh": "保留两条搜索带；无新的一月证据支持缩窄或铺轨。"}}
+      }
+    },
+    {
+      "id": "guangshen-road", "name": {"en": "Guangzhou–Shenzhen road", "zh": "广深公路"},
+      "claims": ["site.guangshen_road.exists_1979"],
+      "states": {
+        "opening": {"status": "continuity", "note": {"en": "Carry the topology via Nantou and the existing estimated ribbons. Road existence is sourced; detailed routing, width and grade remain estimated.", "zh": "沿用经南头的拓扑关系和现有估计线带。道路确有记载，详细线位、宽度和标高仍为估计。"}},
+        "visit": {"status": "continuity", "note": {"en": "Retain the same selectable estimate, not a modern bypass.", "zh": "保留同一可切换的估计线位，不采用现代绕行线。"}}
+      }
+    },
+    {
+      "id": "shangbu-east-west-corridor", "name": {"en": "Shangbu fields and Shennan works", "zh": "上步田地与深南路工程"},
+      "claims": ["site.shangbu_land.exists_1979", "phase1.map.kh9_1977", "phase1.shennan.first_paved_segment_west"],
+      "states": {
+        "opening": {"status": "sourced-delta", "note": {"en": "Withhold the September graded corridor and its westward candidate at the opening cutoff. Restore field-like cover only in the three interpreted lowland envelopes screened against A010/c. Those edges come from September, not traced 1977 fields. Other edited worksite envelopes remain neutral, not confirmed absent.", "zh": "开场不显示九月的清理走廊及其西延候选线。在 A010/c 对照下仅将三处低地范围恢复为田地类示意，边缘来自九月底图，并非 1977 年田块描边。其他调整的工地范围保留中性地表，不表示已证实当时不存在。"},
+          "omitCore": ["shangbu-east-west-corridor", "west-hill-terrace/1", "caiwuwei-north-worksite/1", "east-worksite-terraces/1"],
+          "omitMunicipal": ["shangbu-clearance-west"],
+          "cover": {"shangbu-clearing-west/1": "field", "shangbu-clearing-east/1": "field", "shangbu-clearing-middle-edge/1": "field"}},
+        "visit": {"status": "sourced-stage", "claims": ["phase1.shennan.photos.widening.1982","atlas.photo.huafu_section.caption_1982","atlas.photo.dachong_section.caption_1983","phase1.shennan.east_reach_1983"], "note": {"en": "The separate Shennan reaches read as paved arteries with worked verges. Use the September traces as proxies and skirt the retained Hubei pond on dry ground. The local bend, pavement widths and shoulder details are illustrative. The railway gap remains open.", "zh": "以铺装干道和施工路肩表现分段深南路。沿用九月描线作示意中心线，局部绕开保留的湖贝水塘。绕行线、路宽及路肩细部均为示意；铁路处仍保留间断。"},
+          "roadProfiles":{"shangbu-east-west-corridor":{"width":33,"class":"arterial","carriageway":23},"market-south-road":{"width":33,"class":"arterial","carriageway":23}},
+          "roadAlignments":{"market-south-road":[[202970,2496042],[203082,2496056],[203214,2496096],[203336,2496120],[203466,2496150],[203584,2496166],[203695,2496165],[203799,2496157],[203892,2496158],[203970,2496191],[204067,2496230],[204176,2496270],[204440,2496312],[204708,2496352],[204992,2496400],[205336,2496450],[205475,2496474],[205600,2496500]]},
+          "zones":[{"rect":[199940,2495824,200000,2495851],"surface":"graded_ground"},{"rect":[200250,2495888,200408,2495908],"surface":"worksite"}]}
+      }
+    },
+    {
+      "id": "opening-kh9-edge-review", "name": {"en":"Early field and settlement edges","zh":"早期田地及聚落边缘"},
+      "claims":["phase1.map.kh9_1977"],
+      "states":{
+        "opening":{"status":"review","note":{"en":"A010/c supports a less built-up reading on the Shangbu compound/apron and part of western Caiwuwei. Prefer a field-like compound and neutral apron; suppress only the selected western fringe of Caiwuwei. Withhold the September oval near the rail approach. September edges are reference envelopes; the two images do not date the interval of change to January.","zh":"A010/c 支持对上步排屋组团、南侧场地及蔡屋围局部西缘采用较少建成的解读。组团采用田地示意，南侧采用中性地表；仅抑制选定的蔡屋围西缘。暂不显示铁路引道附近九月影像所见的椭圆场地。九月边缘仅为参考范围，两期影像不能将变化定年到一月。"},
+          "cover":{"shangbu-row-compound/1":"field","shangbu-south-apron/1":"unknown","practice-ground-oval/1":"unknown"},
+          "zones":[{"rect":[201780,2495992,201910,2496520],"trim":"caiwuwei-urban-envelope/1"}]}
+      }
+    },
+    {
+      "id": "shangbu-industry", "name": {"en": "Shangbu factory district", "zh": "上步厂区"},
+      "claims": ["phase1.zoning.shangbu.factory_1_completed","phase1.housing.shangbu_bagualing.completed_industrial_floor.1984","atlas.photo.electronics_section.caption_1983","atlas.photo.huaqiang_section.caption_1985","atlas.photo.yannan_section.caption_1985"],
+      "states": {
+        "visit": {"status":"proxy","note":{"en":"Factory slabs, low industrial halls and rows of walk-ups flank the road. Service sheds, paved courts and planted margins share the blocks with a few enclosed works. The 1985 photos inform these reusable forms, not the January occupancy of named buildings.","zh":"道路两侧示意多层厂房、低矮厂房与成排多层住宅。服务工棚、铺装内院、植树边缘与少量围挡工地相邻。1985 年照片只参考可复用的形态，不确定具名楼宇的一月状态。"},
+            "zones":[{"rect":[199570,2495912,199834,2496226],"surface":"settlement","mix":{"standard_factory":4,"worker_dorm":1,"factory_hall":3},"parcel":68,"compound":true,
+                      "frontage":{"rect":[199615,2495912,199815,2496100],"road":"shangbu-east-west-corridor","side":"right","use":"industrial","intensity":"standard","setback":32}},
+                    {"rect":[199884,2495896,200239,2496130],"surface":"settlement","mix":{"standard_factory":3,"worker_dorm":2,"factory_hall":2},"parcel":65,"compound":true},
+                    {"rect":[199864,2496130,200270,2496300],"surface":"settlement","mix":{"standard_factory":2,"worker_dorm":2,"factory_hall":1,"estate_slab":3},"parcel":68,"compound":true},
+                     {"rect":[200276,2495910,200666,2496222],"surface":"settlement","mix":{"standard_factory":2,"worker_dorm":2,"danwei_slab":2,"tower_works":1,"factory_hall":3},"parcel":67,"compound":true,
+                      "frontage":{"rect":[200327,2495910,200496,2496152],"road":"m84.road.yannan-lane/1","side":"right","use":"industrial","intensity":"standard"}},
+                    {"rect":[200690,2495976,200940,2496246],"surface":"settlement","mix":{"standard_factory":2,"worker_dorm":1,"estate_slab":3},"parcel":71,"compound":true},
+                   {"rect":[199640,2495670,199825,2495840],"surface":"settlement","mix":{"danwei_slab":2,"lingnan_block":1},"parcel":61,"compound":true},
+                   {"rect":[199895,2495670,200130,2495824],"surface":"settlement","mix":{"worker_dorm":2,"danwei_slab":2},"parcel":67,"compound":true},
+                    {"rect":[200368,2495670,200632,2495838],"surface":"settlement","mix":{"danwei_slab":2,"worker_dorm":1,"estate_slab":4},"parcel":69,"compound":true},
+                   {"rect":[201087,2495735,201385,2495842],"surface":"settlement","mix":{"standard_factory":2,"worker_dorm":1},"parcel":66,"compound":true},
+                   {"rect":[199892,2495814,200028,2495851],"surface":"graded_ground","form":"graded-yard"},
+                    {"rect":[200138,2495700,200314,2495845],"surface":"worksite","form":"works-compound"}]}
+      }
+    },
+    {
+      "id":"electronics-building","name":{"en":"Electronics Building — junction proxy","zh":"电子大厦（路口示意）"},
+      "claims":["phase1.zoning.electronics_building.completed","atlas.photo.electronics_section.caption_1983","core_basin.photo.electronics.shennan","atlas.photo.huaqiang_section.caption_1985"],
+      "states":{
+        "visit":{"status":"proxy","note":{"en":"Completed before the cutoff. The register's site point puts the model east of Huaqiang North and north of Shennan, as supported by the two Shennan photos. Strip windows and the solid end wall are photo-informed; footprint and parcel geometry remain illustrative.","zh":"目标日期前已经竣工。按地点登记，模型在华强北路东侧、深南路北侧，符合两幅深南路照片的地物关系。横向带窗及实墙端部参照照片，楼宇及地块轮廓仍为示意。"},
+           "model":{"at":[199976,2495932],"clear":[199939,2495900,200013,2495964],"surface":"settlement","parts":[{"kit":"electronics-proxy","offset":[0,0],"yaw":0}],"coarse":[56,25,38]}}
+      }
+    },
+    {
+      "id":"municipal-government","name":{"en":"Municipal government block — documented locality, illustrative footprint","zh":"市政府大楼（院落位置有据，楼体轮廓示意）"},
+      "claims":["site.county_offices.exists_1979","phase1.map.1982.municipal_government_compound","phase1.site.municipal_government.1981_location","phase1.site.municipal_government.1981_move","phase1.site.municipal_government.1981_form","phase1.site.municipal_government.gate_coords_2010","phase1.photo.1984.municipal_government_form","phase1.site.municipal_government.occupation_early_1981","phase1.observation.kh9_1980.municipal_site_unbuilt"],
+      "states":{
+        "visit":{"status":"sourced-stage","note":{"en":"The schematic 1982 map places the compound north of Shennan Road. The memoir describes one six-storey office block. Its identification with the 1984 film is inferred; the later gate photo is only a comparator. The footprint, orientation, wing, freestanding portal, forecourt and viewpoint are illustrative. Early-1981 housing and office wording differs from the late-1981 office move account; the exact occupation date is open. The September image reading does not establish a vacant site.","zh":"1982 年示意地图将院落标在深南路北侧。回忆录记载一座六层办公楼；与 1984 年影片中楼体为同一建筑尚属推断，后期大门照片仅供对照。楼体轮廓、朝向、侧翼、独立门廊、前院及视点均为示意。1981 年初关于住宿与办公的记述与年底迁入办公楼的说法有别，确切启用日期待核。九月影像判读不足以认定该地为空地。"},
+           "model":{"at":[201000,2495951],"clear":[200948,2495893,201061,2495966],"surface":"graded_ground","parts":[{"kit":"civic-slab","offset":[0,0],"yaw":0},{"kit":"civic-wing","offset":[45,1],"yaw":0},{"kit":"civic-portal","offset":[19,44],"yaw":0},{"kit":"civic-forecourt","offset":[19,44],"yaw":0}],"coarse":[79,20,20]}}
+      }
+    },
+    {
+      "id":"lizhi-orchard","name":{"en":"Lizhi Park & orchard","zh":"荔枝公园及荔枝林"},
+      "claims":["phase1.site.municipal_government.site_choice","phase1.site.municipal_government.1981_location","atlas.photo.szlzp.1557"],
+      "states":{"visit":{"status":"proxy","note":{"en":"Render the lychee orchard, hollow park lake and winding walkways beside the municipal compound on dry civic land. The memoir records the lychee orchard and low-lying hollow turned into a lake; the January shoreline, paths and canopy density are illustrative.","zh":"在市政府院落旁的干燥机关绿地示意荔枝林、由低洼地改造的公园湖及步道。回忆录记载市政大楼建于荔枝园与湖畔；一月的湖岸线、步道与树冠密度为示意。"},
+        "zones":[{"rect":[201300,2495930,201800,2496500],"designSurface":"civic_park","form":"park"}]}}
+    },
+    {
+      "id":"bagualing-earthworks","name":{"en":"Bagualing earthworks — district proxy","zh":"八卦岭土方工程（片区示意）"},
+      "claims":["phase1.zoning.bagualing.first_works","phase1.zoning.bagualing.road_envelope_gazetteer"],
+      "states":{
+        "visit":{"status":"proxy","note":{"en":"Show open cut-and-fill benches and spoil, not completed industrial buildings. The gazetteer locates the locality and dates the start of work, not the January area graded or the form of individual cuts.","zh":"仅示意裸露的土方平台和堆土，不放置已完工厂房。地名志支持片区位置与开工阶段，并不确定一月平整范围或单处开挖形态。"},
+          "zones":[{"rect":[201360,2497542,201774,2497834],"surface":"worksite"},{"rect":[201796,2497682,202012,2497884],"surface":"worksite"}]}
+      }
+    },
+    {
+      "id": "shekou-frontage-envelope", "name": {"en": "Shekou harbour and industrial works", "zh": "蛇口渔港与工业建设"},
+      "claims": ["site.shekou_fishing_harbour.exists_1979", "phase1.event.shekou_works"],
+      "states": {
+        "opening": {"status": "continuity", "note": {"en": "Keep the fishing harbour locality as interpreted fabric before the July works. Its visual envelope is not a pre-works shoreline or building survey.", "zh": "七月开工前仅以判读街区表现渔港。示意范围不是开工前岸线或建筑测绘。"}},
+        "visit": {"status":"proxy","claims":["phase1.shekou.completed_operating_industrial_projects.1983","phase1.shekou.worker_housing_floor.1983"],"note":{"en":"Add separate factory courts and inland worker housing on dry land. End-1983 operating projects and completed housing support the uses, not the shown counts or footprints. Keep the low-rise harbour context and existing water comparator; no berth or fill is added.","zh":"在干燥陆地示意独立厂区和内侧职工住宅。1983 年底已投产项目和已建住宅只支持用途，不支持模型数量或轮廓。保留低层渔港背景及既有水体对照；不增加码头或填海。"},
+          "zones":[{"rect":[182570,2490132,183020,2490392],"surface":"graded_ground","mix":{"standard_factory":1},"parcel":88},
+                   {"rect":[183050,2490424,183465,2490632],"surface":"graded_ground","mix":{"standard_factory":1},"parcel":88},
+                    {"rect":[183260,2490660,183550,2490945],"surface":"graded_ground","mix":{"worker_dorm":1},"parcel":90},
+                    {"rect":[183580,2490737,183826,2491026],"surface":"graded_ground","mix":{"worker_dorm":1,"danwei_slab":1},"parcel":104}]}
+      }
+    },
+    {
+      "id":"shekou-inland-works","name":{"en":"Shekou inland earthworks — study proxy","zh":"蛇口内陆土方（研究示意）"},
+      "claims":["phase1.event.shekou_works","phase1.video.1983.shekou_earthworks","phase1.shekou.worker_housing_floor.1983"],
+      "states":{"visit":{"status":"proxy","note":{"en":"Break up the inland factory and housing edge with interrupted bare pads at the foot of the hills. The 1983-labelled Shekou/Chiwan film insert informs that worksite character, not this placement or the January shoreline. No DEM excavation, port geometry, fill or berths.","zh":"在丘脚用间断的裸地平台衔接厂房、住宅与山体。标注为 1983 年的蛇口／赤湾影片插图只作施工特征参考，不能确定位置或一月岸线。不挖改地形，不增添港口几何、填海或泊位。"},
+        "zones":[{"rect":[182210,2491015,182570,2491205],"surface":"graded_ground","form":"graded-yard"},
+                 {"rect":[182920,2491030,183221,2491200],"surface":"graded_ground","form":"graded-yard"}]}}
+    },
+    {
+      "id":"hubei-huangbeiling-edge","name":{"en":"Hubei–Huangbeiling works edge — district proxy","zh":"湖贝—黄贝岭建设边缘（片区示意）"},
+      "claims":["atlas.photo.hubei_section.caption_1983","atlas.photo.huangbeiling_section.caption_1983"],
+      "states":{"visit":{"status":"proxy","note":{"en":"The publisher's 1983 views show low roofs, concrete blocks and works together near the eastern road. Show separated dry roadside clusters and bare works at the foothill approach. Photographed road dimensions, project parcels and January field conversion limits are unresolved. Keep village cover and ponds.","zh":"出版方标注为 1983 年的照片在东段道路附近同时显示低层屋顶、混凝土楼及施工地。仅在干燥路侧表现分散街块及山脚裸地。不复画照片中的路宽、项目地块或一月农田转用边界，保留村落范围与塘区。"},
+         "zones":[{"rect":[203760,2496054,204004,2496170],"surface":"settlement","mix":{"danwei_slab":2,"worker_dorm":1},"parcel":59,"compound":true,"heading":-9},
+                  {"rect":[204102,2496158,204326,2496262],"surface":"graded_ground","form":"graded-yard"},
+                    {"rect":[204830,2496408,205090,2496570],"surface":"settlement","mix":{"danwei_slab":2,"lingnan_block":2},"parcel":62,"compound":true,
+                     "frontage":{"rect":[204950,2496408,205090,2496515],"road":"market-south-road","side":"right","use":"residential","intensity":"standard"}},
+                   {"rect":[205105,2496370,205314,2496510],"surface":"settlement","mix":{"standard_factory":2,"worker_dorm":1,"factory_hall":2},"parcel":63,"compound":true},
+                  {"rect":[205355,2496375,205525,2496452],"surface":"graded_ground","form":"graded-yard"},
+                  {"rect":[205498,2496552,205733,2496740],"surface":"settlement","mix":{"village_row":2,"danwei_slab":1},"parcel":61,"compound":true},
+                  {"rect":[205651,2496312,205892,2496495],"surface":"settlement","mix":{"standard_factory":2,"worker_dorm":2},"parcel":63,"compound":true},
+                   {"rect":[205899,2496385,206048,2496508],"surface":"worksite","form":"works-compound"}]}}
+    },
+    {
+      "id":"dachong-valley","name":{"en":"Dachong valley — rural study proxy","zh":"大冲河谷（乡村示意）"},
+      "claims":["atlas.photo.dachong_section.caption_1983"],
+      "states":{"visit":{"status":"proxy","note":{"en":"A cluster of low roofs and separate dry field plots suggest the rural valley from the 1983-captioned image. The study is a broad locality proxy; no historical river channel, pond boundary, or bridge is placed on this grid.","zh":"以成组低层屋顶和分散的干地田块表现标注为1983年的乡村河谷。仅为大致地点示意，不在此网格上复原历史河道、鱼塘边界或桥梁。"},
+        "zones":[{"rect":[186622,2496255,186935,2496486],"surface":"settlement","mix":{"village_row":1},"parcel":55,"compound":true,"heading":-11},
+                 {"rect":[186645,2495855,187142,2496190],"surface":"field","form":"field-study","heading":-14},
+                 {"rect":[187475,2496270,187879,2496634],"surface":"field","form":"field-study","heading":14}]}}
+    },
+    {
+      "id":"nantou-approach","name":{"en":"Nantou roadside transition — study proxy","zh":"南头公路边缘（研究示意）"},
+      "claims":["site.nantou_old_town.exists_1979","site.guangshen_road.exists_1979","atlas.photo.nantou_section.caption_1984","atlas.photo.dachong_section.caption_1983"],
+      "states":{"visit":{"status":"proxy","note":{"en":"Use a small rough roadside margin by the inherited low-rise envelope; the estimated road is not identified with the photographed carriageway. The 1984 caption gives no month, so no concrete skyline or signs are carried into January. The Dachong view supports contrasting roadside cuts with retained field and pond patterns, not their boundaries or the photographed bridge.","zh":"在既有低层范围边缘保留一小段粗整路肩；估计线路不认定为照片中的车道。南头照片仅标注 1984 年，不将混凝土楼群或路牌回推至一月。大冲照片仅参考路侧切坡与田塘的反差，不确定地界或复建桥梁。"},
+        "zones":[{"rect":[183115,2496384,183309,2496508],"surface":"graded_ground"}]}}
+    },
+    {
+      "id":"luohu-development","name":{"en":"Luohu growth and works — district proxy","zh":"罗湖建设与增长（片区示意）"},
+      "claims":["phase1.fiscal.luohu.site_servicing_estimate.1980","phase1.fiscal.luohu.ccb_project_loan","core_basin.guomao.site","atlas.photo.luohu_worksite.caption_1982","atlas.photo.hubei_section.caption_1983","phase1.video.1984.aerial_urban_fabric","atlas.photo.guomao_renmin.caption_1985"],
+      "states":{
+        "visit":{"status":"proxy","note":{"en":"Older low roofs and serviced slab courts frame the commercial corridor. Break up the construction ground into separate Guomao, adjacent yard and service strips. The 1984–85 images guide frontage and scale; Guomao remains unfinished and the surrounding anonymous blocks are illustrative.","zh":"保留旧屋屋顶及有道路的板楼院落，衬托商业走廊。将施工地分为国贸本体、邻近工场及服务地带。1984–85 年图像仅指导街面尺度；国贸保持施工状态，周边无名楼群为示意。"},
+           "zones":[{"rect":[202950,2495522,203383,2495699],"surface":"settlement","mix":{"danwei_slab":1,"worker_dorm":2,"lingnan_block":1,"estate_slab":3},"parcel":58,"compound":true,"heading":-9},
+                   {"rect":[202952,2495744,203167,2496072],"surface":"settlement","mix":{"lingnan_block":2,"danwei_slab":3,"worker_dorm":2},"parcel":57,"compound":true,"heading":-9},
+                   {"rect":[203171,2495842,203360,2496086],"surface":"settlement","mix":{"danwei_slab":3,"worker_dorm":3,"tower_works":2},"parcel":64,"compound":true,"heading":-10},
+                   {"rect":[203330,2495767,203583,2496075],"surface":"settlement","mix":{"early_highrise":1,"danwei_slab":3,"worker_dorm":2},"parcel":65,"compound":true,"heading":-10},
+                    {"rect":[203342,2495560,203570,2495735],"surface":"settlement","mix":{"worker_dorm":3,"standard_factory":1,"estate_slab":3},"parcel":66,"compound":true,"heading":-9},
+                     {"rect":[203280,2495752,203330,2495838],"surface":"worksite","form":"works-compound"},
+                     {"rect":[203291,2496237,203397,2496284],"within":"shenzhenxu-fabric/1",
+                      "frontage":{"rect":[203291,2496237,203397,2496284],"road":"town-south-frontage","side":"right","use":"commercial","intensity":"standard","form":"lane"}},
+                      {"rect":[203032,2496040,203101,2496125],"within":"rail-market-edge/1",
+                       "frontage":{"rect":[203032,2496040,203101,2496125],"road":"market-south-road","side":"right","use":"commercial","intensity":"standard","form":"avenue"}},
+                      {"rect":[203325,2496315,203484,2496370],"within":"shenzhenxu-fabric/1",
+                       "frontage":{"rect":[203325,2496315,203484,2496370],"road":"town-cross-east-west","side":"left","use":"commercial","intensity":"standard","form":"lane"}},
+                      {"rect":[203323,2495530,203505,2495698],"designSurface":"settlement",
+                       "frontage":{"rect":[203323,2495530,203505,2495698],"road":"m84.road.south-east-grid/1","side":"left","use":"commercial","intensity":"standard","form":"block"}},
+                      {"rect":[203400,2495730,203775,2496000],"surface":"worksite","heading":-11,"designSurface":"graded_ground","form":"works-compound"}]}
+      }
+    },
+    {
+      "id": "guomao", "name": {"en": "Guomao construction", "zh": "国贸大厦施工"},
+      "claims": ["core_basin.guomao.site", "phase1.guomao.ground_break", "phase1.guomao.construction_visible_january_visit", "phase1.guomao.standard_floors_started", "phase1.guomao.main_tower_topped", "atlas.photo.szlzp.1534", "atlas.photo.szlzp.1535"],
+      "states": {
+         "visit": {"status": "sourced-stage", "note": {"en": "Keep the January frame visibly unfinished in both views, with open decks, a temporary working platform and an offset crane. The undated works photographs inform construction detail; they do not fix January's height or floor count. The address-based placement, work pad and equipment are illustrative.", "zh": "近景和远景均以敞开的楼板、临时作业平台及偏置塔吊表示一月尚在施工。未注明日期的施工照片仅作细节参考，不确定一月高度或层数。基于地址的选址、工地与设备均为示意。"},
+            "model": {"at": [203231,2495802], "clear": [203188,2495766,203274,2495838], "surface":"worksite", "parts": [{"kit":"guomao","offset":[0,0],"yaw":0}], "coarse":[33,29,69], "overviewKit":"guomao-overview"}}
+      }
+    },
+    {
+      "id": "guoshang", "name": {"en": "Guoshang — junction proxy", "zh": "国际商业大厦（国商，路口示意）"},
+      "claims": ["core_basin.guoshang.site", "phase1.guoshang.commercial_building_completed", "phase1.guomao.construction_visible_january_visit"],
+      "states": {
+        "visit": {"status":"proxy","note":{"en":"Completed building and January viewpoint, separate from Guomao. Offset the illustrative finished slab and base from the September road rather than asserting the footprint at the Jiabin Road address. The podium and elevations are not surveyed.","zh":"独立于国贸的已竣工建筑及一月观景点。将示意楼体与基座避开九月道路描线，不在嘉宾路地址上宣称具体轮廓。裙房及立面未经测绘。"},
+          "model":{"at":[203280,2495682],"clear":[203248,2495649,203312,2495715],"parts":[{"kit":"guoshang-proxy","offset":[0,0],"yaw":0}],"coarse":[46,32,58]}}
+      }
+    },
+    {
+      "id": "yumin-candidate-land", "name": {"en": "Yumin housing and pond locality", "zh": "渔民村住宅及塘区"},
+      "claims": ["site.yumin.exists_1979", "phase1.map.yumin_river_location"],
+      "states": {
+        "opening": {"status": "continuity", "claims": ["phase1.map.kh9_1977"], "note": {"en": "Keep low-rise village context and broad pond/meander relationships. The A010/c mask covers about 90% of the September candidate land envelope, not the whole southern bank; individual pond edges are not backdated.", "zh": "保留低层村落背景与鱼塘、河湾的大致关系。A010/c 掩膜覆盖九月候选陆地区约九成，未覆盖整个南岸；不将单个塘岸回推。"}},
+        "visit":{"status":"proxy","claims":["phase1.housing.yumin.houses.1983_02","phase1.housing.yumin.villas.1984_02","phase1.housing.yumin.site_layout.1984_02","core_basin.photo.yumin.1981","core_basin.photo.yumin.1984"],"note":{"en":"One compact dry-land demonstration compound replaces overlapping generic huts. Tight rows of flat-roofed two-storey houses share concrete lanes, drains and planted courtyard strips; the low ancillary mass is anonymous. The aerials are not registered or confirmed as independent exposures. The February report is near-date context, not a plot plan or resolution of the 33 versus 35 count. Ponds and channels are unchanged.","zh":"在干地示意一处紧凑住宅组团，仅替换重叠的通用旧屋。采用平屋顶两层排布、水泥巷、边沟与庭院绿带；低层附属体量不具名。航片未配准，也未证实是独立曝光。二月报道仅作近时点参考，不能定位地块或解决 33 与 35 栋之争。不改变水塘及水道。"},
+           "zones":[{"rect":[202575,2495122,202704,2495179],"surface":"settlement","form":"villa-court","within":"yumin-candidate-land/1"}]}
+      }
+    },
+    {
+      "id": "friendship-store", "name": {"en": "Friendship Department Store", "zh": "友谊商场"},
+      "claims": ["phase1.zoning.friendship_store.opening_photo"],
+      "states": {
+        "visit": {"status": "unplaced", "note": {"en": "The opening photograph supports existence, not a parcel at the crossroads. Do not carry the old focus-kit offset into the atlas.", "zh": "开业照片支持商场存在，但不能将其定位到十字街口地块。旧示意组景的偏移量不用于市域复原。"}}
+      }
+    },
+    {
+      "id":"luohu-yard-edge","name":{"en":"Luohu rail-side service strip","zh":"罗湖铁路服务带"},
+      "claims":["site.jianshe_road.town_to_station","phase1.map.1982.luohu_station_crossing","atlas.photo.szlzp.966"],
+      "states":{"visit":{"status":"proxy","note":{"en":"Use a low anonymous service shed between the station approach and railway where the January design yard has clearance. The 1984 bridge view informs the low service-edge form, not the January position or station layout.","zh":"在一月设计站场内、引道与铁路之间的空地示意低矮服务棚。1984 年罗湖桥照片仅参考低层服务建筑形态，不确定一月位置或车站布局。"},
+        "zones":[{"rect":[202996,2494870,203012,2494900],"designSurface":"transport_land","infill":{"arch":"worksite_shed","w":7,"d":20,"floors":1}}]}}
+    },
+    {
+      "id": "luohu-parallel-footbridge", "name": {"en": "Luohu pedestrian bridge", "zh": "罗湖人行桥"},
+      "claims": ["core_basin.luohu.bridge_parallel_deck"],
+      "states": {
+        "visit": {"status": "unplaced", "note": {"en": "A parallel pedestrian deck is documented after September. Its offset and approaches are unresolved; do not borrow the later double-deck crossing.", "zh": "九月基准之后另有人行桥的记载，但侧向位置和引道未定；不借用后来的双层通道。"}}
+      }
+    },
+    {
+      "id": "szu-campus", "name": {"en": "Shenzhen University temporary and permanent sites", "zh": "深圳大学临时校舍与永久校区"},
+      "claims": ["phase1.szu.first_opening_ceremony", "phase1.szu.permanent_campus.ground_break"],
+      "states": {
+        "visit": {"status": "unplaced", "note": {"en": "The university had opened in temporary premises. No temporary parcel reconstruction and no permanent campus buildings at this cutoff.", "zh": "深圳大学已在临时校舍开学；不重建未定位的临时地块，不在此时点放置永久校区建筑。"}}
+      }
+    }
+  ]
+}

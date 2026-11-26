@@ -1,0 +1,16 @@
+{
+  "name": "@sz/snapshot-3d",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepareData": "node prepare.mjs",
+    "dev": "vite --port 5186",
+    "build": "vite build --base ./ --target es2022"
+  },
+  "dependencies": {
+    "three": "0.174.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.174.0"
+  }
+}

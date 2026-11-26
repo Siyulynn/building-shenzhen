@@ -1,0 +1,71 @@
+{
+  "cutoff": "1984-01-24",
+  "controls": [
+    ["Luohu rail bridge", 524, 533, 203010, 2494318],
+    ["Old west approach at the railway", 493, 328, 202758, 2496316],
+    ["Theatre neighbourhood", 505, 319, 202954, 2496380],
+    ["County-seat neighbourhood", 424, 349, 202202, 2496206],
+    ["Municipal office compound", 319, 342, 201000, 2495951],
+    ["Wenjindu crossing locality", 637, 425, 204300, 2495390],
+    ["Sungang rail yard locality", 485, 148, 202860, 2498340]
+  ],
+  "details": {
+    "dongmen": { "origin": [499, 293], "scale": 0.103, "anchor": [[60, 250], [202954, 2496380]], "claim": "phase1.map.1984.dongmen_other_labels" },
+    "caiwuwei": { "origin": [414, 317], "scale": 0.102, "anchor": [[100, 315], [202202, 2496206]], "claim": "phase1.map.1984.caiwuwei_other_labels" }
+  },
+  "previewBuildings": [
+    ["dongmen", "xinhua", "新华通讯社特区分社", "Xinhua SEZ branch", "office", 134, 114],
+    ["dongmen", "snake_restaurant", "蛇餐馆", "Snake restaurant", "restaurant", 447, 160],
+    ["dongmen", "dongmen_inn", "东门旅店", "Dongmen Inn", "hotel", 542, 162],
+    ["dongmen", "shanzhen", "山珍楼海味酒家", "Shanzhenlou seafood restaurant", "restaurant", 173, 292, "phase1.map.1984.dongmen_frontage"],
+    ["dongmen", "friendship", "友谊商店", "Dongmen Friendship Store", "retail", 276, 338, "phase1.map.1984.dongmen_frontage"],
+    ["dongmen", "peoples_inn", "人民旅店", "People’s Inn", "hotel", 59, 441],
+    ["dongmen", "hospital_outpatient", "市人民医院门诊部", "People’s Hospital outpatient department", "hospital", 47, 526],
+    ["dongmen", "post_office", "邮局", "Dongmen Post Office", "utility", 126, 522],
+    ["dongmen", "telecom", "电信局", "Dongmen Telecommunications Bureau", "utility", 239, 517],
+    ["dongmen", "xincheng", "新城酒家", "Xincheng Restaurant", "restaurant", 116, 617],
+    ["dongmen", "jiali", "佳丽影场", "Jiali Cinema", "theatre", 202, 584],
+    ["dongmen", "xingye", "兴业大厦", "Xingye Building", "commercial", 396, 568],
+    ["dongmen", "telephone_building", "市话大楼", "Municipal Telephone Building", "office", 584, 444],
+    ["dongmen", "jincheng", "金城大厦", "Jincheng Building", "commercial", 592, 541],
+    ["caiwuwei", "guangzhou_em", "广州机电产品公司", "Guangzhou Electrical and Mechanical Products Company", "commercial", 372, 153],
+    ["caiwuwei", "hubei_exhibition", "湖北展销大楼", "Hubei Exhibition and Sales Building", "commercial", 511, 91],
+    ["caiwuwei", "north_industries", "北方工业公司", "North Industries Company", "office", 582, 72],
+    ["caiwuwei", "xixiangfeng", "喜相逢酒家", "Xixiangfeng Restaurant", "restaurant", 709, 67],
+    ["caiwuwei", "nanyue_store", "南粤糖烟酒商店", "Nanyue grocery and liquor store", "retail", 566, 207],
+    ["caiwuwei", "meixin", "美新酒家", "Meixin Restaurant", "restaurant", 663, 245],
+    ["caiwuwei", "xijiang_inn", "西江旅店", "Xijiang Inn", "hotel", 585, 354],
+    ["caiwuwei", "feipeng", "飞鹏商场", "Feipeng Department Store", "retail", 721, 410],
+    ["caiwuwei", "huadeng", "华登宾馆", "Huadeng Hotel", "hotel", 655, 553],
+    ["caiwuwei", "county_committee", "县委", "County committee locality", "government", 100, 315, "phase1.map.1984.caiwuwei_county_label"]
+  ],
+  "detailRoads": [
+    ["caiwuwei", "jiefang-caiwuwei", "解放路蔡屋围段（示意）", "Jiefang Road at Caiwuwei", [[0, 437], [103, 375], [212, 313], [300, 263], [410, 220], [514, 178], [634, 139], [738, 103], [799, 86]], "phase1.map.1984.caiwuwei_other_labels"],
+    ["caiwuwei", "heping", "和平路北段（示意）", "Heping Road north", [[687, 121], [705, 225], [722, 355], [746, 503], [778, 674]], "phase1.map.1984.caiwuwei_other_labels"],
+    ["dongmen", "jiefang-bend", "解放路东门段（示意）", "Jiefang Road at Dongmen", [[0, 310], [72, 290], [172, 239], [269, 204], [365, 184], [447, 198], [532, 210], [609, 201], [616, 158], [605, 90], [609, 53], [630, 0]], "phase1.map.1984.dongmen_frontage"],
+    ["dongmen", "market-lane", "东门南侧市场街巷（示意）", "South Dongmen market lane", [[0, 330], [100, 327], [240, 330], [348, 327], [370, 224], [386, 140], [395, 80]], "phase1.map.1984.dongmen_other_labels"]
+  ],
+  "roads": [
+    ["huaqiang-north", "华强路北段", "Huaqiang Road north", [[188, 369], [188, 322], [188, 272], [188, 203]], "phase1.map.1982.shangbu_industrial"],
+    ["shangbu-north", "上步路北段", "Shangbu Road north", [[382, 368], [382, 272], [382, 203], [382, 85]], "phase1.map.1982.shangbu_industrial"],
+    ["shangbu-grid-middle", "上步厂区横路（示意）", "Shangbu industrial cross street", [[147, 301], [188, 301], [221, 301], [261, 301], [293, 301]], "phase1.map.1982.shangbu_industrial"],
+    ["shangbu-grid-north", "上步北侧横路（示意）", "North Shangbu cross street", [[146, 273], [188, 273], [221, 273], [261, 273], [293, 273], [315, 273], [382, 273]], "phase1.map.1982.shangbu_industrial"],
+    ["shangbu-grid-south", "上步厂区南侧横路（示意）", "South Shangbu industrial cross street", [[147, 327], [188, 327], [221, 327], [261, 327], [291, 327]], "phase1.map.1982.shangbu_industrial"],
+    ["sungang-west", "笋岗路西段（示意）", "West reach of Sungang Road", [[188, 203], [292, 203], [382, 203], [468, 203]], "phase1.map.1982.nigang_bagualing_hongling"],
+    ["sungang-east", "笋岗路东段（示意）", "East reach of Sungang Road", [[507, 203], [548, 203], [603, 203]], "phase1.map.1982.sungang_shuibei_tianbei"],
+    ["hongling-link", "红岭路（示意）", "Hongling Road", [[431, 127], [431, 203], [430, 264], [436, 314]], "phase1.map.1982.nigang_bagualing_hongling"],
+    ["jianshe", "建设路（示意）", "Jianshe Road", [[506, 340], [512, 382], [515, 415], [520, 455], [522, 480]], "site.jianshe_road.town_to_station"],
+    ["dongmen-northeast", "东门东北进路（示意）", "Northeast Dongmen approach", [[565, 304], [583, 267], [609, 228], [626, 211], [661, 190], [717, 162]], "phase1.map.1982.dongmen_old_town"],
+    ["renmin-south", "人民南路（示意）", "Renmin South Road", [[543, 336], [550, 360], [555, 389], [567, 425], [580, 445]], "phase1.map.1982.luohu_station_crossing"],
+    ["hubei-link", "湖贝横路（示意）", "Hubei cross street", [[577, 274], [622, 265], [658, 265]], "phase1.map.1982.dongmen_old_town"],
+    ["wenjin-link", "文锦渡北侧道路（示意）", "Wenjindu north approach", [[658, 265], [661, 315], [666, 362], [661, 397]], "site.wenjindu_crossing.exists_1979"],
+    ["south-east-grid", "罗湖东南横路（示意）", "Southeast Luohu cross street", [[534, 400], [570, 394], [601, 385], [630, 378], [665, 372]], "phase1.map.1982.luohu_station_crossing"]
+  ],
+  "extent": [
+    ["shangbu", "上步沿深南路厂区", "Shangbu industrial frontage", "industrial", [[147, 273], [311, 273], [314, 328], [292, 328], [292, 405], [147, 404]], "phase1.map.1982.shangbu_industrial"],
+    ["caiwuwei", "蔡屋围城市边缘", "Caiwuwei urban edge", "civic", [[390, 287], [446, 281], [463, 308], [474, 348], [459, 383], [418, 382], [397, 348]], "phase1.map.1984.caiwuwei_other_labels"],
+    ["dongmen", "东门商业街区", "Dongmen commercial blocks", "market", [[494, 331], [531, 306], [563, 276], [589, 269], [578, 314], [600, 337], [591, 375], [514, 382]], "phase1.map.1984.dongmen_frontage"],
+    ["luohu", "罗湖东侧开发街区", "Eastern Luohu development blocks", "market", [[519, 378], [591, 363], [633, 339], [669, 342], [667, 386], [639, 414], [579, 462], [527, 477]], "phase1.map.1982.luohu_station_crossing"],
+    ["tianbei", "田贝公用设施与聚落带", "Tianbei service and settlement belt", "civic", [[550, 227], [570, 211], [603, 217], [624, 218], [603, 245], [580, 269], [556, 275]], "phase1.map.1982.sungang_shuibei_tianbei"]
+  ]
+}

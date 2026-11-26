@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building Shenzhen · 3D scene review</title>
+<style>
+  :root { color-scheme: light; font:16px system-ui,sans-serif; color:#282d27; background:#ece8db; }
+  * { box-sizing:border-box; }
+  body { margin:0; }
+  main { max-width:1450px; margin:auto; padding:clamp(18px, 3vw, 44px); }
+  header { border-bottom:1px solid #aaae9d; padding-bottom:16px; margin-bottom:20px; }
+  h1 { margin:0 0 6px; font-size:clamp(25px,5vw,44px); }
+  p { margin:8px 0; line-height:1.45; }
+  a { color:#254f49; }
+  button { background:#f6f2e9; border:1px solid #a9ab9a; padding:8px 12px; color:inherit; font:inherit; cursor:pointer; }
+  button[aria-pressed=true] { background:#38564e; color:#fff; border-color:#38564e; }
+  button:disabled { opacity:.56; cursor:default; }
+  :focus-visible { outline:3px solid #874827; outline-offset:2px; }
+  .controls { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:10px; }
+  .note { margin:12px 0 18px; color:#46574f; }
+  #cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%, 350px),1fr)); gap:12px; }
+  figure { margin:0; border:1px solid #a9ab9a; background:#f7f4eb; min-width:0; }
+  figure a { display:block; min-height:110px; background:#dcded0; }
+  figure img { display:block; width:100%; height:auto; }
+  figcaption { padding:12px; }
+  figcaption p { margin:5px 0 0; font-size:.94rem; }
+  small { display:block; color:#47574b; margin-bottom:4px; }
+  .missing { display:block; padding:16px; }
+</style>
+<main>
+  <header>
+    <h1>Shenzhen 3D scene review / 深圳三维场景评审</h1>
+    <p>Compare the existing prototypes. Layouts, building massing and weather are illustrative unless stated otherwise.</p>
+    <p lang="zh-Hans">对比已有原型。除另有说明外，布局、建筑体量和天气均为示意。</p>
+    <p><a href="./snapshots/Shenzhen_1979_1984.html">Interactive 1979–1984 atlas / 1979–1984 互动图集</a> ·
+      <a href="./zoning/index.html">1979 and January 1984 zoning maps / 1979 与 1984 年 1 月用地建议图</a> ·
+      <a href="../../research/szbaike/">SZBAIKE research index / 深圳百科索引</a> ·
+      <a href="../3d-scene-review.md">Build handoff / 制作交接</a> ·
+      <a href="http://localhost:5179/" target="_blank" rel="noopener">Live Yumin prototype (separate server) / 渔民村互动原型（独立服务）</a></p>
+  </header>
+  <nav id="groups" class="controls" aria-label="Scene groups / 场景分组"></nav>
+  <div id="views" class="controls" role="group" aria-label="Choose a view / 选择视图"></div>
+  <div class="controls">
+    <button type="button" id="pin">Pin current view / 固定当前画面</button>
+    <button type="button" id="unpin">Clear comparison / 清除对比</button>
+  </div>
+  <p class="note" id="selection" aria-live="polite"></p>
+  <section id="cards" aria-label="Scene previews / 场景预览"></section>
+</main>
+<script type="module">
+  const y = 'yumin-timed-splits/';
+  const groups = [
+    ['Snapshots / 分期', [
+      ['1979-Q1 overview / 1979年一季度鸟瞰', y+'yumin-1979q1-overview.png', 'Illustrative opening village, field plots and ponds. / 开局的村落、农田与鱼塘示意。'],
+      ['1980-Q3 overview / 1980年三季度鸟瞰', y+'yumin-1980q3-overview.png', 'Tentative materials staging and construction beat. / 备料及建设阶段暂定。'],
+      ['1982-Q2 overview / 1982年二季度鸟瞰', y+'yumin-1982q2-overview.png', 'Tentative collective housing rows; not a dated construction survey. / 集体住宅组团示意，并非该期施工测绘。'],
+      ['1984-Q1 overview / 1984年一季度鸟瞰', y+'yumin-1984q1-overview.png', 'Closing-slice composition; workshop and field locations are provisional. / 切片收尾构图，工场与农田位置暂定。'],
+      ['1979 field edge / 1979年田边', y+'yumin-1979q1-fields.png', 'Low camera for planted plots and banks. / 低机位观察田块及田埂。'],
+      ['1984 field edge / 1984年田边', y+'yumin-1984q1-fields.png', 'Matched field-edge view from the closing composition. / 收尾构图的同机位田边视角。'],
+      ['1984 lane / 1984年村巷', y+'yumin-1984q1-lane.png', 'Closing-slice lane and illustrative distant skyline. / 切片收尾村巷及远处天际线示意。'],
+      ['Later dense lane / 后期密集村巷', y+'yumin-2001ref-lane.png', 'Out-of-slice contrast only; not an exact 2001 reconstruction. / 仅供切片之外对比，并非2001年精确复原。'],
+    ]],
+    ['Core basin · M3 / 核心区', [
+      ['Core basin fabric / 核心区肌理', '3d-snapshots/M3-core-basin.png', 'Shenzhenxu, Luohu/Guomao and Yumin in one draft basin: river, rail, road, field and settlement surfaces. / 同一草稿盆地中的深圳墟、罗湖国贸与渔民村，含河流、铁路、道路、田块与聚落面。'],
+      ['Core basin, closer / 核心区近景', '3d-snapshots/M3-core-zoom.png', 'Paddy blocks and the settlement roofscape at 200 m. Patterns are generic. / 200 米尺度下的田块与聚落屋顶肌理，均为通用图案。'],
+      ['Draft trace on the 1980 image / 1980 年影像上的草稿描绘', '3d-snapshots/M3-kh9-trace.png', 'River, rail, road, town envelope and lowland picks over the 11 Sep 1980 KH-9 crop. / 在 1980 年 9 月 KH-9 裁切影像上叠加的河流、铁路、道路、城镇范围与低地判读。'],
+    ]],
+    ['Weather / 天气', [
+      ['Humid sun / 湿润晴间', y+'weather-previews/humid-sun.png', 'The fixed 1984 lane in the default lighting. / 同一1984年村巷，默认光照。'],
+      ['Bright overcast / 明亮阴天', y+'weather-previews/overcast.png', 'Cooler diffuse light, no hard directional shadow. / 冷色漫射光，无明显方向性硬阴影。'],
+      ['Heavy shower / 强阵雨', y+'weather-previews/shower.png', 'Rain streaks, haze and darker wet surfaces on the same lane. / 同一村巷中的雨丝、雾霭与湿润表面。'],
+      ['Late-afternoon sun / 午后斜阳', y+'weather-previews/late-sun.png', 'Warm low-angle light, not a dated weather record. / 暖色低角度光照，非历史天气记录。'],
+      ['Field-edge shower / 田边阵雨', y+'weather-previews/field-shower.png', 'Near fields stay visible as the horizon fades. / 远景隐入雨雾，近处田块仍可辨认。'],
+    ]],
+    ['Municipality / 全市', [
+      ['Citywide LOD0 / 全市低细节', 'municipality-scale-test/city-lod0.png', 'Real DEM with synthetic masses; not a historical snapshot. / 实测高程配合合成体量，非历史快照。'],
+      ['Neighborhood LOD1 / 片区中细节', 'municipality-scale-test/hood-lod1.png', 'Frustum-culled terrain and massing chunks. / 按视锥裁剪的地形和建筑体块。'],
+      ['Close-up LOD2 / 近景高细节', 'municipality-scale-test/close-lod2.png', 'Kit pieces and Hybrid shadows on a synthetic Luohu scene. / 合成罗湖场景中的套件及混合风格阴影。'],
+      ['Terrain round trip / 地形导入导出', 'terrain-test/luohu-dem-overview.png', 'Meter-scale Blender to Three.js test from the 100 m grid. / 从百米网格测试 Blender 至 Three.js 的米制流程。'],
+    ]],
+    ['Kits & tests / 套件与测试', [
+      ['Four Phase B kits / B阶段四件套', 'phase-b-assets/asset-gallery.png', 'Guomao slipform, tiled roof, scaffold and bicycle. / 国贸滑模、瓦屋顶、脚手架和自行车。'],
+      ['Rental block before / 出租楼加层前', 'building-test/side-by-side-two.png', 'Native geometry compared with a Blender kit under matched lighting. / 同光照下对比原生几何和 Blender 套件。'],
+      ['Rental block after / 出租楼加层后', 'building-test/side-by-side-four.png', 'Two floors added without replacing the shopfront. / 加建两层，保留底层店面。'],
+      ['First Yumin blockout / 渔民村初版', 'yumin-street-test/yumin-early-overview.png', 'Original editable Blender composition before the Hybrid rebuild. / 混合风格重建前的 Blender 初版。'],
+    ]],
+  ];
+  const groupNav = document.querySelector('#groups');
+  const views = document.querySelector('#views');
+  const cards = document.querySelector('#cards');
+  const pin = document.querySelector('#pin');
+  const unpin = document.querySelector('#unpin');
+  let group = 0;
+  let selected = groups[0][1][3];
+  let pinned = groups[0][1][0];
+
+  function button(text, pressed, onClick) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = text;
+    btn.setAttribute('aria-pressed', pressed);
+    btn.addEventListener('click', onClick);
+    return btn;
+  }
+  const groupButtons = groups.map(([label, frames], i) => button(label, i===group, () => {
+    group = i;
+    selected = frames[0];
+    updateViews();
+    render();
+  }));
+  groupNav.append(...groupButtons);
+  let viewButtons = [];
+  function updateViews() {
+    viewButtons = groups[group][1].map(frame => button(frame[0], frame===selected, () => {
+      selected = frame;
+      render();
+    }));
+    views.replaceChildren(...viewButtons);
+  }
+  function card([title, file, note], kind) {
+    const figure = document.createElement('figure');
+    const link = document.createElement('a');
+    link.href = new URL('../../../build/'+file, location.href);
+    link.target = '_blank';
+    link.rel = 'noopener';
+    const image = document.createElement('img');
+    image.alt = title;
+    image.addEventListener('error', () => {
+      const missing = document.createElement('span');
+      missing.className = 'missing';
+      missing.textContent = `Local capture missing / 本地截图缺失: ${file}`;
+      link.replaceWith(missing);
+    }, {once:true});
+    image.src = link.href;
+    link.append(image);
+    const caption = document.createElement('figcaption');
+    const badge = document.createElement('small');
+    badge.textContent = kind;
+    const name = document.createElement('strong');
+    name.textContent = title;
+    const description = document.createElement('p');
+    description.textContent = note;
+    caption.append(badge, name, description);
+    figure.append(link, caption);
+    return figure;
+  }
+  function render() {
+    groupButtons.forEach((btn,i) => btn.setAttribute('aria-pressed', i===group));
+    viewButtons.forEach((btn,i) => btn.setAttribute('aria-pressed', groups[group][1][i]===selected));
+    pin.disabled = pinned===selected;
+    unpin.disabled = !pinned;
+    const compare = pinned && pinned!==selected;
+    document.querySelector('#selection').textContent = compare
+      ? `${pinned[0]} ↔ ${selected[0]}` : selected[0];
+    cards.replaceChildren(...(compare ? [card(pinned,'Pinned / 对比基准')] : []),
+      card(selected,'Current / 当前画面'));
+  }
+  pin.onclick = () => { pinned = selected; render(); };
+  unpin.onclick = () => { pinned = null; render(); };
+  updateViews();
+  render();
+</script>
+</html>

@@ -1,0 +1,4555 @@
+{
+  "cutoff": "1984-01-24",
+  "context": [
+    "phase1.map.1984.preview_edition",
+    "phase1.map.1984.caiwuwei_grade_separation_unbuilt"
+  ],
+  "sites": [
+    {
+      "id": "b1984.guomao",
+      "name": {
+        "zh": "国贸大厦",
+        "en": "Guomao (International Trade Centre)"
+      },
+      "kind": "office_tower",
+      "at": [
+        203231.2,
+        2495821.1
+      ],
+      "mode": "existing",
+      "note": {
+        "zh": "沿用已制作地标或工地",
+        "en": "Covered by the existing landmark or works study"
+      },
+      "claims": [
+        "phase1.guomao.ground_break",
+        "phase1.guomao.main_tower_topped",
+        "phase1.guomao.construction_visible_january_visit"
+      ],
+      "existing": "guomao"
+    },
+    {
+      "id": "b1984.guoshang",
+      "name": {
+        "zh": "国际商业大厦",
+        "en": "International Commercial Building (Guoshang)"
+      },
+      "kind": "office_tower",
+      "at": [
+        203040.0,
+        2495679.6
+      ],
+      "mode": "existing",
+      "note": {
+        "zh": "沿用已制作地标或工地",
+        "en": "Covered by the existing landmark or works study"
+      },
+      "claims": [
+        "phase1.guoshang.commercial_building_completed",
+        "phase1.photo.1984.guoshang"
+      ],
+      "existing": "guoshang"
+    },
+    {
+      "id": "b1984.electronics",
+      "name": {
+        "zh": "电子大厦",
+        "en": "Electronics Building"
+      },
+      "kind": "office_tower",
+      "at": [
+        199975.8,
+        2495932.0
+      ],
+      "mode": "existing",
+      "note": {
+        "zh": "沿用已制作地标或工地",
+        "en": "Covered by the existing landmark or works study"
+      },
+      "claims": [
+        "phase1.zoning.electronics_building.completed",
+        "phase1.photo.1984.shangbu_electronics_building"
+      ],
+      "existing": "electronics-building"
+    },
+    {
+      "id": "b1984.shanghai_hotel",
+      "name": {
+        "zh": "上海宾馆",
+        "en": "Shanghai Hotel"
+      },
+      "kind": "hotel",
+      "at": [
+        199339.2,
+        2495968.9
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "名录载1983年始建；一月工程阶段及开业时间待核",
+        "en": "The register gives a 1983 build year; January stage and opening are unconfirmed"
+      },
+      "claims": [
+        "phase1.historic.shanghai_hotel.built_1983"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.municipal_government",
+      "name": {
+        "zh": "市委/市政府大楼",
+        "en": "Party and government office block"
+      },
+      "kind": "government",
+      "at": [
+        201033.5,
+        2495895.9
+      ],
+      "mode": "existing",
+      "note": {
+        "zh": "沿用已制作地标或工地",
+        "en": "Covered by the existing landmark or works study"
+      },
+      "claims": [
+        "phase1.site.municipal_government.1981_move",
+        "phase1.map.1982.municipal_government_compound"
+      ],
+      "existing": "municipal-government"
+    },
+    {
+      "id": "b1984.museum_old",
+      "name": {
+        "zh": "深圳博物馆旧馆",
+        "en": "Old Shenzhen Museum"
+      },
+      "kind": "museum",
+      "at": [
+        201334.8,
+        2496037.5
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "1984年始建记录未给出一月工程阶段。",
+        "en": "The 1984 build-year entry does not give a January stage."
+      },
+      "claims": [
+        "phase1.historic.museum_old.built_1984",
+        "phase1.culture.roster.tan_1982"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.grand_theatre",
+      "name": {
+        "zh": "深圳大剧院",
+        "en": "Shenzhen Grand Theatre"
+      },
+      "kind": "theatre",
+      "at": [
+        201760.9,
+        2496084.6
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "1983年设计及1984年平地记录未给出一月阶段。",
+        "en": "The 1983 design and year-only site levelling do not give a January stage."
+      },
+      "claims": [
+        "phase1.culture.theatre.design"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.library_hongli",
+      "name": {
+        "zh": "红荔路图书馆（今深圳少年儿童图书馆）",
+        "en": "Hongli Road Library (now Children's Library)"
+      },
+      "kind": "library",
+      "at": [
+        201151.6,
+        2496724.9
+      ],
+      "mode": "works",
+      "note": {
+        "zh": "有早期工程依据；工棚及场坪为示意",
+        "en": "Early works supported; yard and temporary structures illustrative"
+      },
+      "claims": [
+        "phase1.culture.hongli_library.ground_break"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.szu",
+      "name": {
+        "zh": "深圳大学（粤海校区）",
+        "en": "Shenzhen University (Yuehai campus)"
+      },
+      "kind": "university",
+      "at": [
+        184360.3,
+        2495387.1
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "永久校区二月奠基，晚于截点。",
+        "en": "Date after cutoff: permanent campus ground break in February."
+      },
+      "claims": [
+        "phase1.szu.permanent_campus.ground_break",
+        "phase1.szu.first_opening_ceremony"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.luohu_terminal",
+      "name": {
+        "zh": "罗湖口岸联检大楼",
+        "en": "Luohu passenger terminal"
+      },
+      "kind": "border_terminal",
+      "at": [
+        203066.3,
+        2494479.9
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "1985年启用未能确定1984年一月的工地状态。",
+        "en": "The 1985 opening does not establish the January 1984 worksite."
+      },
+      "claims": [
+        "core_basin.luohu.terminal_opened_1985"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.shenzhen_station",
+      "name": {
+        "zh": "深圳火车站",
+        "en": "Shenzhen railway station"
+      },
+      "kind": "railway",
+      "at": [
+        202950.1,
+        2494860.1
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "保留车站及站场。后期站房中心点及旧图站点不足以确定一月站房在轨道旁的位置。",
+        "en": "The station and yard are retained. The later building centroid and historical station dot do not locate the January station house away from the tracks."
+      },
+      "claims": [
+        "site.shenzhen_station.exists_1979"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.sea_world",
+      "name": {
+        "zh": "海上世界（明华轮）",
+        "en": "Sea World (Minghua)"
+      },
+      "kind": "leisure",
+      "at": [
+        182057.3,
+        2490139.0
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "登记点位在水上，不添加普通建筑或推造填海。",
+        "en": "Register proxy is offshore; show no generic building or invented fill."
+      },
+      "claims": [
+        "phase1.video.1984.sea_world_minghua"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.shekou_office",
+      "name": {
+        "zh": "蛇口工业区办公大厦",
+        "en": "Shekou Industrial Zone office building"
+      },
+      "kind": "office",
+      "at": [
+        181937.9,
+        2489242.4
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "仅有1984年照片，保留为后续对照点。",
+        "en": "Year-only 1984 photograph; retain as a later comparison point."
+      },
+      "claims": [
+        "phase1.photo.1984.shekou_office_building",
+        "phase1.photo.1985.shekou_office_slogan_sign"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.shenzhen_bay_hotel",
+      "name": {
+        "zh": "深圳湾大酒店",
+        "en": "Shenzhen Bay Hotel"
+      },
+      "kind": "hotel",
+      "at": [
+        189338.5,
+        2495206.9
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "七月照片不能确定一月建筑；仅为后期地点示意。",
+        "en": "July photo cannot establish the January structure; later-site proxy only."
+      },
+      "claims": [
+        "phase1.video.1984.shenzhen_bay_hotel_amusement",
+        "phase1.photo.1984.shenzhen_bay_hotel_park"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.xiangmihu",
+      "name": {
+        "zh": "香蜜湖度假村",
+        "en": "Xiangmihu Resort"
+      },
+      "kind": "resort",
+      "at": [
+        194942.4,
+        2496098.8
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "后期影片与度假区示意点不能确定一月建筑。",
+        "en": "Later film and a resort-area proxy do not fix January structures."
+      },
+      "claims": [
+        "phase1.video.1984.xiangmihu_resort"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.shenzhen_theatre",
+      "name": {
+        "zh": "深圳戏院",
+        "en": "Shenzhen Theatre"
+      },
+      "kind": "theatre",
+      "at": [
+        202953.7,
+        2496379.6
+      ],
+      "mode": "dated",
+      "note": {
+        "zh": "有早期记载；轮廓、层数、位置均为示意",
+        "en": "Early existence supported; footprint, floors and placement illustrative"
+      },
+      "claims": [
+        "site.shenzhen_theatre.exists_1979",
+        "phase1.photo.1984.shenzhen_theatre_boya",
+        "phase1.map.1982.dongmen_old_town",
+        "phase1.map.1984.dongmen_frontage",
+        "phase1.observation.kh9_1980.core_anchor_review"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.boya",
+      "name": {
+        "zh": "博雅画廊",
+        "en": "Boya Gallery"
+      },
+      "kind": "retail",
+      "at": [
+        202955.6,
+        2496334.7
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.photo.1984.shenzhen_theatre_boya",
+        "phase1.map.1984.dongmen_frontage",
+        "phase1.boya.dongmen_history"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.xinan_restaurant",
+      "name": {
+        "zh": "新安酒家",
+        "en": "Xin'an Restaurant"
+      },
+      "kind": "restaurant",
+      "at": [
+        202979.6,
+        2496334.7
+      ],
+      "mode": "dated",
+      "note": {
+        "zh": "有早期记载；轮廓、层数、位置均为示意",
+        "en": "Early existence supported; footprint, floors and placement illustrative"
+      },
+      "claims": [
+        "phase1.photo.1984.shenzhen_theatre_boya",
+        "phase1.map.1984.dongmen_frontage",
+        "phase1.xinan.early_operation_and_rebuild"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.shekou_shopping",
+      "name": {
+        "zh": "蛇口购物中心",
+        "en": "Shekou Shopping Centre"
+      },
+      "kind": "retail",
+      "at": null,
+      "mode": "reference",
+      "note": {
+        "zh": "尚无可用位置",
+        "en": "No usable location yet"
+      },
+      "claims": [
+        "phase1.photo.1984.shekou_shopping_centre"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.nanshan_hotel",
+      "name": {
+        "zh": "蛇口南山宾馆",
+        "en": "Nanshan Hotel",
+        "Shekou": null
+      },
+      "kind": "hotel",
+      "at": null,
+      "mode": "reference",
+      "note": {
+        "zh": "尚无可用位置",
+        "en": "No usable location yet"
+      },
+      "claims": [
+        "phase1.photo.1984.shekou_nanshan_hotel"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.bitao",
+      "name": {
+        "zh": "碧涛中心",
+        "en": "Bitao Centre"
+      },
+      "kind": "commercial",
+      "at": null,
+      "mode": "reference",
+      "note": {
+        "zh": "尚无可用位置",
+        "en": "No usable location yet"
+      },
+      "claims": [
+        "phase1.photo.1984.shekou_bitao_centre"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.shenfang",
+      "name": {
+        "zh": "深纺大厦",
+        "en": "Shenzhen Textile Building"
+      },
+      "kind": "industrial",
+      "at": [
+        199709.1,
+        2496348.5
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "计划或状态未明，不建成楼体",
+        "en": "Planned or unresolved; no finished building"
+      },
+      "claims": [
+        "phase1.landcover.1980.huaqiangbei_textile_building"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.shangbu_factory_1",
+      "name": {
+        "zh": "上步工业区1#厂房",
+        "en": "Shangbu Industrial Zone No. 1 factory"
+      },
+      "kind": "industrial",
+      "at": null,
+      "mode": "reference",
+      "note": {
+        "zh": "尚无可用位置",
+        "en": "No usable location yet"
+      },
+      "claims": [
+        "phase1.zoning.shangbu.factory_1_completed"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.bagualing",
+      "name": {
+        "zh": "八卦岭工业区",
+        "en": "Bagualing Industrial Zone"
+      },
+      "kind": "industrial_zone",
+      "at": [
+        200848.7,
+        2498192.7
+      ],
+      "mode": "existing",
+      "note": {
+        "zh": "沿用已制作地标或工地",
+        "en": "Covered by the existing landmark or works study"
+      },
+      "claims": [
+        "phase1.zoning.bagualing.first_works",
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": "bagualing-earthworks"
+    },
+    {
+      "id": "b1984.m82_luohu_quarantine",
+      "name": {
+        "zh": "卫生检疫所",
+        "en": "Health Quarantine Station (Luohu)"
+      },
+      "kind": "government",
+      "at": [
+        203208.9,
+        2494615.7
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_customs_building",
+      "name": {
+        "zh": "海关大楼",
+        "en": "Customs Building"
+      },
+      "kind": "government",
+      "at": [
+        202827.3,
+        2494689.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_train_crew_quarters",
+      "name": {
+        "zh": "深圳行车公宇",
+        "en": "Shenzhen Train Crew Quarters"
+      },
+      "kind": "railway",
+      "at": [
+        203195.9,
+        2494849.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_taxi_stand",
+      "name": {
+        "zh": "小汽车出租点",
+        "en": "Car Rental / Taxi Stand"
+      },
+      "kind": "transport",
+      "at": [
+        203073.0,
+        2495042.8
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图标场区，不作楼体",
+        "en": "Map labels an area; no individual building assumed"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_luohu_building",
+      "name": {
+        "zh": "罗湖大厦",
+        "en": "Luohu Building"
+      },
+      "kind": "commercial",
+      "at": [
+        203027.1,
+        2495438.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_friendship_building",
+      "name": {
+        "zh": "友谊大厦",
+        "en": "Friendship Building"
+      },
+      "kind": "commercial",
+      "at": [
+        203034.1,
+        2495745.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_railway_primary_school",
+      "name": {
+        "zh": "铁路小学",
+        "en": "Railway Primary School"
+      },
+      "kind": "school",
+      "at": [
+        203284.8,
+        2495557.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_tourism_bureau",
+      "name": {
+        "zh": "旅游局",
+        "en": "Tourism Bureau"
+      },
+      "kind": "government",
+      "at": [
+        203056.5,
+        2495889.9
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_foreign_trade_exhibition",
+      "name": {
+        "zh": "中国外贸局展销大楼",
+        "en": "China Foreign Trade Bureau Exhibition Building"
+      },
+      "kind": "commercial",
+      "at": [
+        203348.1,
+        2495903.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_food_export_plant",
+      "name": {
+        "zh": "市食出加工场",
+        "en": "Municipal Food Export Processing Plant"
+      },
+      "kind": "industrial",
+      "at": [
+        203815.8,
+        2495652.5
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_wenjindu_customs",
+      "name": {
+        "zh": "文锦渡分关",
+        "en": "Wenjindu Sub-Customs"
+      },
+      "kind": "border_crossing",
+      "at": [
+        204327.6,
+        2495711.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_chuanbu_wharf",
+      "name": {
+        "zh": "深圳船步码头",
+        "en": "Shenzhen Chuanbu Wharf"
+      },
+      "kind": "transport",
+      "at": [
+        202620.7,
+        2495185.7
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图标场区，不作楼体",
+        "en": "Map labels an area; no individual building assumed"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_general_transport_co",
+      "name": {
+        "zh": "运输总公司",
+        "en": "General Transport Company"
+      },
+      "kind": "transport",
+      "at": [
+        202590.9,
+        2495508.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_workers_cultural_palace",
+      "name": {
+        "zh": "工人文化宫",
+        "en": "Workers' Cultural Palace"
+      },
+      "kind": "civic",
+      "at": [
+        202927.9,
+        2496641.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_xinyuan_guesthouse",
+      "name": {
+        "zh": "新园招待所",
+        "en": "Xinyuan Guesthouse"
+      },
+      "kind": "hotel",
+      "at": [
+        202968.8,
+        2496842.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_shenzhen_middle_school",
+      "name": {
+        "zh": "深圳中学",
+        "en": "Shenzhen Middle School"
+      },
+      "kind": "school",
+      "at": [
+        203509.7,
+        2497180.1
+      ],
+      "mode": "dated",
+      "note": {
+        "zh": "开局前地点已见记载，楼体未辨",
+        "en": "Pre-opening locality supported; individual building unresolved"
+      },
+      "claims": [
+        "phase1.map.1977.school_hospital",
+        "phase1.observation.kh9_1980.core_anchor_review",
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_shenzhen_bus_station",
+      "name": {
+        "zh": "深圳汽车站",
+        "en": "Shenzhen Bus Station"
+      },
+      "kind": "transport",
+      "at": [
+        203571.9,
+        2496886.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_post_telecom_bureau",
+      "name": {
+        "zh": "邮电局",
+        "en": "Post & Telecommunications Bureau"
+      },
+      "kind": "utility",
+      "at": [
+        202788.6,
+        2496148.9
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_tcm_hospital",
+      "name": {
+        "zh": "市中医院",
+        "en": "Municipal TCM Hospital"
+      },
+      "kind": "hospital",
+      "at": [
+        202641.8,
+        2496341.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town",
+        "phase1.map.1984.caiwuwei_other_labels"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_quarantine_central",
+      "name": {
+        "zh": "检疫所",
+        "en": "Quarantine Station (Jiefang Rd)"
+      },
+      "kind": "government",
+      "at": [
+        202599.6,
+        2495852.2
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_peoples_stadium",
+      "name": {
+        "zh": "人民体育场",
+        "en": "People's Stadium"
+      },
+      "kind": "civic",
+      "at": [
+        202394.9,
+        2495698.8
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图标场区，不作楼体",
+        "en": "Map labels an area; no individual building assumed"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_old_library",
+      "name": {
+        "zh": "图书馆",
+        "en": "Municipal Library (old town)"
+      },
+      "kind": "library",
+      "at": [
+        202392.7,
+        2496383.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_no6_primary_school",
+      "name": {
+        "zh": "市六小",
+        "en": "Municipal No. 6 Primary School"
+      },
+      "kind": "school",
+      "at": [
+        202358.7,
+        2496490.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_railway_school",
+      "name": {
+        "zh": "铁路学校",
+        "en": "Railway School"
+      },
+      "kind": "school",
+      "at": [
+        202580.7,
+        2496627.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_epidemic_prevention",
+      "name": {
+        "zh": "市卫生防疫站",
+        "en": "Municipal Epidemic Prevention Station"
+      },
+      "kind": "hospital",
+      "at": [
+        203101.8,
+        2497065.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_housing_bureau_north",
+      "name": {
+        "zh": "房管局（蛟湖）",
+        "en": "Housing Administration Bureau (Jiaohu)"
+      },
+      "kind": "government",
+      "at": [
+        203106.7,
+        2497263.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_housing_bureau_south",
+      "name": {
+        "zh": "房管局（解放路）",
+        "en": "Housing Administration Bureau (Jiefang Rd)"
+      },
+      "kind": "government",
+      "at": [
+        203563.3,
+        2496544.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_may7_middle_school",
+      "name": {
+        "zh": "五七中学",
+        "en": "May 7th Middle School"
+      },
+      "kind": "school",
+      "at": [
+        203073.4,
+        2497405.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_petroleum_company",
+      "name": {
+        "zh": "石油公司",
+        "en": "Petroleum Company"
+      },
+      "kind": "commercial",
+      "at": [
+        203427.0,
+        2496952.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_motor_transport_co",
+      "name": {
+        "zh": "汽车公司",
+        "en": "Motor Transport Company"
+      },
+      "kind": "transport",
+      "at": [
+        203706.4,
+        2496441.5
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_foodstuffs_company",
+      "name": {
+        "zh": "食品公司",
+        "en": "Foodstuffs Company"
+      },
+      "kind": "commercial",
+      "at": [
+        203389.7,
+        2496139.5
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_luohu_crafts_factory",
+      "name": {
+        "zh": "罗湖区工艺厂",
+        "en": "Luohu District Arts & Crafts Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        203718.0,
+        2496135.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_sauce_factory",
+      "name": {
+        "zh": "酱料厂",
+        "en": "Sauce & Condiment Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        203997.2,
+        2497157.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_radio_factory",
+      "name": {
+        "zh": "无线电厂",
+        "en": "Radio Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        203848.8,
+        2497042.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_plastics_factory",
+      "name": {
+        "zh": "塑料厂",
+        "en": "Plastics Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        203808.9,
+        2496897.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_ag_machinery_school",
+      "name": {
+        "zh": "农机学校",
+        "en": "Agricultural Machinery School"
+      },
+      "kind": "school",
+      "at": [
+        204673.1,
+        2497241.9
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_party_committee_dorm",
+      "name": {
+        "zh": "市委宿舍",
+        "en": "Municipal Party Committee Dormitory"
+      },
+      "kind": "residential",
+      "at": [
+        201028.2,
+        2496469.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_science_museum",
+      "name": {
+        "zh": "科学馆",
+        "en": "Science Museum"
+      },
+      "kind": "civic",
+      "at": [
+        200903.9,
+        2495849.7
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "计划或状态未明，不建成楼体",
+        "en": "Planned or unresolved; no finished building"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_huali_furniture",
+      "name": {
+        "zh": "华丽装修家私公司",
+        "en": "Huali Decoration & Furniture Co."
+      },
+      "kind": "industrial",
+      "at": [
+        199328.6,
+        2496321.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_sz_printing_factory",
+      "name": {
+        "zh": "深圳印刷制品厂",
+        "en": "Shenzhen Printing Products Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        199584.5,
+        2496350.9
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_aviation_company",
+      "name": {
+        "zh": "航空公司",
+        "en": "Aviation Company (CATIC)"
+      },
+      "kind": "industrial",
+      "at": [
+        199322.7,
+        2496069.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_huaqiang_electronics_n",
+      "name": {
+        "zh": "华强电子工业公司（北）",
+        "en": "Huaqiang Electronics Industry Co. (North)"
+      },
+      "kind": "industrial",
+      "at": [
+        199577.2,
+        2496026.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_huaqiang_electronics_s",
+      "name": {
+        "zh": "华强电子工业公司（南）",
+        "en": "Huaqiang Electronics Industry Co. (South)"
+      },
+      "kind": "industrial",
+      "at": [
+        199589.3,
+        2494963.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_jinghua_electronics",
+      "name": {
+        "zh": "京华电子公司",
+        "en": "Jinghua Electronics Co."
+      },
+      "kind": "industrial",
+      "at": [
+        199922.7,
+        2496005.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_jiale_bedding",
+      "name": {
+        "zh": "家乐床具厂",
+        "en": "Jiale Bedding Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        200254.9,
+        2496146.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_electronics_assembly_n",
+      "name": {
+        "zh": "电子装配厂",
+        "en": "Electronics Assembly Plant (North)"
+      },
+      "kind": "industrial",
+      "at": [
+        200251.1,
+        2496002.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_garment_factory",
+      "name": {
+        "zh": "服装厂",
+        "en": "Garment Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        200303.5,
+        2495895.7
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_chicken_farm",
+      "name": {
+        "zh": "养鸡场",
+        "en": "Chicken Farm"
+      },
+      "kind": "agriculture",
+      "at": [
+        199864.3,
+        2496598.1
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图标场区，不作楼体",
+        "en": "Map labels an area; no individual building assumed"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_construction_training",
+      "name": {
+        "zh": "建筑技术培训中心",
+        "en": "Construction Technology Training Centre"
+      },
+      "kind": "school",
+      "at": [
+        200627.0,
+        2496486.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_peoples_hospital_shangbu",
+      "name": {
+        "zh": "人民医院（上步）",
+        "en": "People's Hospital (Shangbu)"
+      },
+      "kind": "hospital",
+      "at": [
+        200641.7,
+        2496343.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_auto_assembly_plant",
+      "name": {
+        "zh": "汽车装配厂",
+        "en": "Auto Assembly Plant"
+      },
+      "kind": "industrial",
+      "at": [
+        200596.2,
+        2495963.2
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_friendship_store",
+      "name": {
+        "zh": "友谊商店",
+        "en": "Friendship Store (Shangbu)"
+      },
+      "kind": "retail",
+      "at": [
+        200627.0,
+        2495693.2
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_sz_electronics_assembly_s",
+      "name": {
+        "zh": "深圳电子装配厂",
+        "en": "Shenzhen Electronics Assembly Plant (South)"
+      },
+      "kind": "industrial",
+      "at": [
+        200115.5,
+        2495653.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_party_organ_dorm",
+      "name": {
+        "zh": "市委机关宿舍",
+        "en": "Municipal Party Committee Organ Dormitory"
+      },
+      "kind": "residential",
+      "at": [
+        200352.5,
+        2495663.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_construction_industry_co",
+      "name": {
+        "zh": "建筑工业公司",
+        "en": "Construction Industry Company"
+      },
+      "kind": "industrial",
+      "at": [
+        200364.8,
+        2495393.5
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_building_materials_transport",
+      "name": {
+        "zh": "建材运输公司",
+        "en": "Building Materials Transport Company"
+      },
+      "kind": "transport",
+      "at": [
+        199842.8,
+        2494919.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_road_company",
+      "name": {
+        "zh": "道路公司",
+        "en": "Road Construction Company"
+      },
+      "kind": "industrial",
+      "at": [
+        201537.9,
+        2495678.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_futian_ag_machinery",
+      "name": {
+        "zh": "农机厂（福田）",
+        "en": "Agricultural Machinery Factory (Futian)"
+      },
+      "kind": "industrial",
+      "at": [
+        198670.4,
+        2495463.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.futian_villages"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_futian_clinic",
+      "name": {
+        "zh": "卫生院（福田）",
+        "en": "Health Clinic (Futian)"
+      },
+      "kind": "hospital",
+      "at": [
+        198981.9,
+        2495494.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.futian_villages"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_futian_middle_school",
+      "name": {
+        "zh": "福田中学",
+        "en": "Futian Middle School"
+      },
+      "kind": "school",
+      "at": [
+        198831.8,
+        2495344.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.futian_villages"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_futian_primary_school",
+      "name": {
+        "zh": "福田小学",
+        "en": "Futian Primary School"
+      },
+      "kind": "school",
+      "at": [
+        199121.3,
+        2495248.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.futian_villages"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_glove_factory",
+      "name": {
+        "zh": "手套厂",
+        "en": "Glove Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        198880.0,
+        2495075.7
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.futian_villages"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_municipal_substation",
+      "name": {
+        "zh": "市变电站",
+        "en": "Municipal Substation"
+      },
+      "kind": "utility",
+      "at": [
+        204626.1,
+        2499133.7
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_shuibei_primary_school",
+      "name": {
+        "zh": "水贝小学",
+        "en": "Shuibei Primary School"
+      },
+      "kind": "school",
+      "at": [
+        203910.4,
+        2498903.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_sungang_primary_school",
+      "name": {
+        "zh": "笋岗小学",
+        "en": "Sungang Primary School"
+      },
+      "kind": "school",
+      "at": [
+        202320.8,
+        2498780.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_sungang_station",
+      "name": {
+        "zh": "笋岗车站",
+        "en": "Sungang Railway Station"
+      },
+      "kind": "railway",
+      "at": [
+        202859.9,
+        2498339.8
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "既有笋岗货场地点；股道与站房未确定",
+        "en": "Known freight-yard locality; track and shed layout unresolved"
+      },
+      "claims": [
+        "phase1.rail.sungang.renamed_1977",
+        "phase1.observation.kh9_1977.northern_settlement_anchors",
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_phosphate_fertilizer",
+      "name": {
+        "zh": "磷肥厂",
+        "en": "Phosphate Fertilizer Plant"
+      },
+      "kind": "industrial",
+      "at": [
+        202562.0,
+        2498159.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_leather_shoe_factory",
+      "name": {
+        "zh": "皮鞋厂",
+        "en": "Leather Shoe Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        203239.6,
+        2498279.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_sugar_tobacco_liquor",
+      "name": {
+        "zh": "糖烟酒公司",
+        "en": "Sugar"
+      },
+      "kind": "commercial",
+      "at": [
+        203659.9,
+        2498352.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_municipal_cannery",
+      "name": {
+        "zh": "市罐头厂",
+        "en": "Municipal Cannery"
+      },
+      "kind": "industrial",
+      "at": [
+        203859.8,
+        2498306.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_petroleum_supply_station",
+      "name": {
+        "zh": "市石油公司供应站",
+        "en": "Municipal Petroleum Co. Supply Station"
+      },
+      "kind": "utility",
+      "at": [
+        203874.5,
+        2498162.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_cold_storage_plant",
+      "name": {
+        "zh": "冷冻厂",
+        "en": "Cold Storage Plant"
+      },
+      "kind": "industrial",
+      "at": [
+        203454.9,
+        2498126.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_ag_machinery_company",
+      "name": {
+        "zh": "农机公司",
+        "en": "Agricultural Machinery Company"
+      },
+      "kind": "commercial",
+      "at": [
+        203636.5,
+        2498097.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_soap_factory",
+      "name": {
+        "zh": "肥皂厂",
+        "en": "Soap Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        203466.8,
+        2497892.5
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_telecom_bureau",
+      "name": {
+        "zh": "电信局",
+        "en": "Telecommunications Bureau"
+      },
+      "kind": "utility",
+      "at": [
+        203704.4,
+        2497884.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_sz_brickworks",
+      "name": {
+        "zh": "深圳市砖厂",
+        "en": "Shenzhen Brickworks"
+      },
+      "kind": "industrial",
+      "at": [
+        203962.0,
+        2498003.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_peoples_hospital_inpatient",
+      "name": {
+        "zh": "市人民医院留医部",
+        "en": "Municipal People's Hospital Inpatient Dept."
+      },
+      "kind": "hospital",
+      "at": [
+        204120.2,
+        2497879.9
+      ],
+      "mode": "dated",
+      "note": {
+        "zh": "开局前地点已见记载，楼体未辨",
+        "en": "Pre-opening locality supported; individual building unresolved"
+      },
+      "claims": [
+        "phase1.map.1977.school_hospital",
+        "phase1.observation.kh9_1980.core_anchor_review",
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_water_electricity_bureau",
+      "name": {
+        "zh": "水电局",
+        "en": "Water & Electricity Bureau"
+      },
+      "kind": "utility",
+      "at": [
+        203553.6,
+        2497698.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_forestry_institute",
+      "name": {
+        "zh": "林业研究所",
+        "en": "Forestry Research Institute"
+      },
+      "kind": "research",
+      "at": [
+        204780.4,
+        2497896.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_loading_repair_works",
+      "name": {
+        "zh": "装卸修配厂",
+        "en": "Loading/Unloading Repair Works"
+      },
+      "kind": "industrial",
+      "at": [
+        204612.8,
+        2497744.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_landscaping_station",
+      "name": {
+        "zh": "市园林站",
+        "en": "Municipal Landscaping Station"
+      },
+      "kind": "government",
+      "at": [
+        204081.8,
+        2497649.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_fish_fry_farm",
+      "name": {
+        "zh": "市鱼苗场",
+        "en": "Municipal Fish Fry Farm"
+      },
+      "kind": "agriculture",
+      "at": [
+        204354.5,
+        2497642.6
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图标场区，不作楼体",
+        "en": "Map labels an area; no individual building assumed"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_highway_bureau",
+      "name": {
+        "zh": "市公路局",
+        "en": "Municipal Highway Bureau"
+      },
+      "kind": "government",
+      "at": [
+        204205.4,
+        2497491.5
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_preserved_fruit_factory",
+      "name": {
+        "zh": "凉果厂",
+        "en": "Preserved Fruit Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        203277.5,
+        2497577.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_ag_auto_repair",
+      "name": {
+        "zh": "农机汽车修理厂",
+        "en": "Agricultural Machinery & Auto Repair Works"
+      },
+      "kind": "industrial",
+      "at": [
+        203732.2,
+        2497507.2
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_normal_school",
+      "name": {
+        "zh": "市师范学校",
+        "en": "Municipal Normal School"
+      },
+      "kind": "school",
+      "at": [
+        204386.4,
+        2497427.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_meigang_forest_farm",
+      "name": {
+        "zh": "梅岗林场",
+        "en": "Meigang Forest Farm"
+      },
+      "kind": "agriculture",
+      "at": [
+        199600.8,
+        2497812.5
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图标场区，不作楼体",
+        "en": "Map labels an area; no individual building assumed"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_shooting_range",
+      "name": {
+        "zh": "打靶场",
+        "en": "Shooting Range"
+      },
+      "kind": "military",
+      "at": [
+        199916.2,
+        2498043.6
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图标场区，不作楼体",
+        "en": "Map labels an area; no individual building assumed"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_may7_farm",
+      "name": {
+        "zh": "五七农场",
+        "en": "May 7th Farm"
+      },
+      "kind": "agriculture",
+      "at": [
+        201416.0,
+        2498253.7
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图标场区，不作楼体",
+        "en": "Map labels an area; no individual building assumed"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_weishi_factory",
+      "name": {
+        "zh": "威士厂",
+        "en": "Weishi Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        201815.8,
+        2497423.5
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_sz_shirt_factory",
+      "name": {
+        "zh": "深圳恤衫厂",
+        "en": "Shenzhen Shirt Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        201808.1,
+        2497080.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_livestock_institute",
+      "name": {
+        "zh": "宝安畜牧研究所",
+        "en": "Bao'an Livestock Research Institute"
+      },
+      "kind": "research",
+      "at": [
+        202108.1,
+        2496678.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_coal_company",
+      "name": {
+        "zh": "煤炭公司",
+        "en": "Coal Company"
+      },
+      "kind": "commercial",
+      "at": [
+        202441.7,
+        2496891.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_coal_yard",
+      "name": {
+        "zh": "贮煤场",
+        "en": "Coal Yard"
+      },
+      "kind": "industrial",
+      "at": [
+        202401.8,
+        2496744.9
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图标场区，不作楼体",
+        "en": "Map labels an area; no individual building assumed"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_timber_company",
+      "name": {
+        "zh": "木材公司",
+        "en": "Timber Company"
+      },
+      "kind": "commercial",
+      "at": [
+        202584.5,
+        2496771.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_weather_station",
+      "name": {
+        "zh": "市气象站",
+        "en": "Municipal Weather Station"
+      },
+      "kind": "government",
+      "at": [
+        202220.3,
+        2496472.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling",
+        "phase1.map.1984.caiwuwei_other_labels"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_yixing_factory",
+      "name": {
+        "zh": "怡兴工厂",
+        "en": "Yixing Factory"
+      },
+      "kind": "industrial",
+      "at": [
+        201787.8,
+        2496249.2
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_public_security_bureau",
+      "name": {
+        "zh": "公安局",
+        "en": "Public Security Bureau"
+      },
+      "kind": "government",
+      "at": [
+        202079.1,
+        2496190.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_hongxing_auto_repair",
+      "name": {
+        "zh": "红星汽车修配厂",
+        "en": "Hongxing Auto Repair Plant"
+      },
+      "kind": "industrial",
+      "at": [
+        201781.9,
+        2495996.6
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "地图地名示意；一月建筑形态和使用状态待核",
+        "en": "Map-label proxy; January fabric and use not established"
+      },
+      "claims": [
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "existing": null
+    },
+    {
+      "id": "b1984.m82_tourism_supply_co",
+      "name": {
+        "zh": "市旅游供应公司",
+        "en": "Municipal Tourism Supply Company"
+      },
+      "kind": "commercial",
+      "at": [
+        202098.4,
+        2495487.3
+      ],
+      "mode": "reference",
+      "note": {
+        "zh": "地图位置与水体冲突，暂不移动或填塘",
+        "en": "Schematic point conflicts with water; do not relocate or fill the pond"
+      },
+      "claims": [
+        "phase1.map.1982.river_villages_planned_channel"
+      ],
+      "existing": null
+    },
+    {
+      "id": "m84.dongmen.xinhua",
+      "name": {
+        "zh": "新华通讯社特区分社",
+        "en": "Xinhua SEZ branch"
+      },
+      "kind": "office",
+      "at": [
+        203041.6,
+        2496535.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.snake_restaurant",
+      "name": {
+        "zh": "蛇餐馆",
+        "en": "Snake restaurant"
+      },
+      "kind": "restaurant",
+      "at": [
+        203373.4,
+        2496513.9
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.dongmen_inn",
+      "name": {
+        "zh": "东门旅店",
+        "en": "Dongmen Inn"
+      },
+      "kind": "hotel",
+      "at": [
+        203474.9,
+        2496520.5
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.shanzhen",
+      "name": {
+        "zh": "山珍楼海味酒家",
+        "en": "Shanzhenlou seafood restaurant"
+      },
+      "kind": "restaurant",
+      "at": [
+        203072.2,
+        2496344.7
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_frontage"
+      ]
+    },
+    {
+      "id": "m84.dongmen.friendship",
+      "name": {
+        "zh": "友谊商店",
+        "en": "Dongmen Friendship Store"
+      },
+      "kind": "retail",
+      "at": [
+        203179.5,
+        2496304.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_frontage"
+      ]
+    },
+    {
+      "id": "m84.dongmen.peoples_inn",
+      "name": {
+        "zh": "人民旅店",
+        "en": "People’s Inn"
+      },
+      "kind": "hotel",
+      "at": [
+        202941.1,
+        2496171.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.hospital_outpatient",
+      "name": {
+        "zh": "市人民医院门诊部",
+        "en": "People’s Hospital outpatient department"
+      },
+      "kind": "hospital",
+      "at": [
+        202923.0,
+        2496078.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.post_office",
+      "name": {
+        "zh": "邮局",
+        "en": "Dongmen Post Office"
+      },
+      "kind": "utility",
+      "at": [
+        203007.7,
+        2496089.8
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.telecom",
+      "name": {
+        "zh": "电信局",
+        "en": "Dongmen Telecommunications Bureau"
+      },
+      "kind": "utility",
+      "at": [
+        203128.9,
+        2496105.7
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.xincheng",
+      "name": {
+        "zh": "新城酒家",
+        "en": "Xincheng Restaurant"
+      },
+      "kind": "restaurant",
+      "at": [
+        202991.1,
+        2495985.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.jiali",
+      "name": {
+        "zh": "佳丽影场",
+        "en": "Jiali Cinema"
+      },
+      "kind": "theatre",
+      "at": [
+        203085.1,
+        2496029.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.xingye",
+      "name": {
+        "zh": "兴业大厦",
+        "en": "Xingye Building"
+      },
+      "kind": "commercial",
+      "at": [
+        203293.6,
+        2496064.7
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.telephone_building",
+      "name": {
+        "zh": "市话大楼",
+        "en": "Municipal Telephone Building"
+      },
+      "kind": "office",
+      "at": [
+        203502.3,
+        2496217.2
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.dongmen.jincheng",
+      "name": {
+        "zh": "金城大厦",
+        "en": "Jincheng Building"
+      },
+      "kind": "commercial",
+      "at": [
+        203504.9,
+        2496112.2
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.dongmen_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.guangzhou_em",
+      "name": {
+        "zh": "广州机电产品公司",
+        "en": "Guangzhou Electrical and Mechanical Products Company"
+      },
+      "kind": "commercial",
+      "at": [
+        202500.0,
+        2496405.7
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.hubei_exhibition",
+      "name": {
+        "zh": "湖北展销大楼",
+        "en": "Hubei Exhibition and Sales Building"
+      },
+      "kind": "commercial",
+      "at": [
+        202651.0,
+        2496485.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.north_industries",
+      "name": {
+        "zh": "北方工业公司",
+        "en": "North Industries Company"
+      },
+      "kind": "office",
+      "at": [
+        202727.4,
+        2496512.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.xixiangfeng",
+      "name": {
+        "zh": "喜相逢酒家",
+        "en": "Xixiangfeng Restaurant"
+      },
+      "kind": "restaurant",
+      "at": [
+        202862.2,
+        2496529.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.nanyue_store",
+      "name": {
+        "zh": "南粤糖烟酒商店",
+        "en": "Nanyue grocery and liquor store"
+      },
+      "kind": "retail",
+      "at": [
+        202702.1,
+        2496365.3
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.meixin",
+      "name": {
+        "zh": "美新酒家",
+        "en": "Meixin Restaurant"
+      },
+      "kind": "restaurant",
+      "at": [
+        202802.5,
+        2496333.2
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.xijiang_inn",
+      "name": {
+        "zh": "西江旅店",
+        "en": "Xijiang Inn"
+      },
+      "kind": "hotel",
+      "at": [
+        202713.2,
+        2496208.4
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.feipeng",
+      "name": {
+        "zh": "飞鹏商场",
+        "en": "Feipeng Department Store"
+      },
+      "kind": "retail",
+      "at": [
+        202853.8,
+        2496160.5
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.huadeng",
+      "name": {
+        "zh": "华登宾馆",
+        "en": "Huadeng Hotel"
+      },
+      "kind": "hotel",
+      "at": [
+        202775.1,
+        2496000.1
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_other_labels"
+      ]
+    },
+    {
+      "id": "m84.caiwuwei.county_committee",
+      "name": {
+        "zh": "县委",
+        "en": "County committee locality"
+      },
+      "kind": "government",
+      "at": [
+        202202.0,
+        2496206.0
+      ],
+      "mode": "inferred",
+      "note": {
+        "zh": "春季版面标签；一月状态待核，楼体为片区示意",
+        "en": "Spring-edition label; provisional infill in the January view"
+      },
+      "claims": [
+        "phase1.map.1984.caiwuwei_county_label"
+      ]
+    }
+  ],
+  "roads": [
+    {
+      "id": "m84.road.huaqiang-north",
+      "name": [
+        "Huaqiang Road north",
+        "华强路北段"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "pixels": [
+        [
+          188,
+          369
+        ],
+        [
+          188,
+          322
+        ],
+        [
+          188,
+          272
+        ],
+        [
+          188,
+          203
+        ]
+      ],
+      "geometry": [
+        [
+          199642.5,
+          2495652.7
+        ],
+        [
+          199670.8,
+          2496149.8
+        ],
+        [
+          199700.9,
+          2496678.6
+        ],
+        [
+          199742.5,
+          2497408.4
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.shangbu-north",
+      "name": [
+        "Shangbu Road north",
+        "上步路北段"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "pixels": [
+        [
+          382,
+          368
+        ],
+        [
+          382,
+          272
+        ],
+        [
+          382,
+          203
+        ],
+        [
+          382,
+          85
+        ]
+      ],
+      "geometry": [
+        [
+          201657.4,
+          2495837.7
+        ],
+        [
+          201715.2,
+          2496853.1
+        ],
+        [
+          201756.7,
+          2497582.9
+        ],
+        [
+          201827.8,
+          2498831.0
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.shangbu-grid-middle",
+      "name": [
+        "Shangbu industrial cross street",
+        "上步厂区横路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "pixels": [
+        [
+          147,
+          301
+        ],
+        [
+          188,
+          301
+        ],
+        [
+          221,
+          301
+        ],
+        [
+          261,
+          301
+        ],
+        [
+          293,
+          301
+        ]
+      ],
+      "geometry": [
+        [
+          199257.8,
+          2496335.0
+        ],
+        [
+          199683.5,
+          2496371.9
+        ],
+        [
+          200026.1,
+          2496401.6
+        ],
+        [
+          200441.4,
+          2496437.5
+        ],
+        [
+          200773.7,
+          2496466.3
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.shangbu-grid-north",
+      "name": [
+        "North Shangbu cross street",
+        "上步北侧横路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "pixels": [
+        [
+          146,
+          273
+        ],
+        [
+          188,
+          273
+        ],
+        [
+          221,
+          273
+        ],
+        [
+          261,
+          273
+        ],
+        [
+          293,
+          273
+        ],
+        [
+          315,
+          273
+        ],
+        [
+          382,
+          273
+        ]
+      ],
+      "geometry": [
+        [
+          199264.3,
+          2496630.3
+        ],
+        [
+          199700.3,
+          2496668.1
+        ],
+        [
+          200043.0,
+          2496697.7
+        ],
+        [
+          200458.3,
+          2496733.7
+        ],
+        [
+          200790.5,
+          2496762.5
+        ],
+        [
+          201018.9,
+          2496782.2
+        ],
+        [
+          201714.6,
+          2496842.5
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.shangbu-grid-south",
+      "name": [
+        "South Shangbu industrial cross street",
+        "上步厂区南侧横路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "pixels": [
+        [
+          147,
+          327
+        ],
+        [
+          188,
+          327
+        ],
+        [
+          221,
+          327
+        ],
+        [
+          261,
+          327
+        ],
+        [
+          291,
+          327
+        ]
+      ],
+      "geometry": [
+        [
+          199242.1,
+          2496060.0
+        ],
+        [
+          199667.8,
+          2496096.9
+        ],
+        [
+          200010.4,
+          2496126.6
+        ],
+        [
+          200425.8,
+          2496162.5
+        ],
+        [
+          200737.2,
+          2496189.5
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.sungang-west",
+      "name": [
+        "West reach of Sungang Road",
+        "笋岗路西段（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "pixels": [
+        [
+          188,
+          203
+        ],
+        [
+          292,
+          203
+        ],
+        [
+          382,
+          203
+        ],
+        [
+          468,
+          203
+        ]
+      ],
+      "geometry": [
+        [
+          199742.5,
+          2497408.4
+        ],
+        [
+          200822.3,
+          2497502.0
+        ],
+        [
+          201756.7,
+          2497582.9
+        ],
+        [
+          202649.7,
+          2497660.2
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.sungang-east",
+      "name": [
+        "East reach of Sungang Road",
+        "笋岗路东段（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "pixels": [
+        [
+          507,
+          203
+        ],
+        [
+          548,
+          203
+        ],
+        [
+          603,
+          203
+        ]
+      ],
+      "geometry": [
+        [
+          203054.6,
+          2497695.3
+        ],
+        [
+          203480.3,
+          2497732.1
+        ],
+        [
+          204051.3,
+          2497781.6
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.hongling-link",
+      "name": [
+        "Hongling Road",
+        "红岭路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.nigang_bagualing_hongling"
+      ],
+      "pixels": [
+        [
+          431,
+          127
+        ],
+        [
+          431,
+          203
+        ],
+        [
+          430,
+          264
+        ],
+        [
+          436,
+          314
+        ]
+      ],
+      "geometry": [
+        [
+          202311.3,
+          2498430.8
+        ],
+        [
+          202265.5,
+          2497626.9
+        ],
+        [
+          202218.4,
+          2496980.8
+        ],
+        [
+          202250.6,
+          2496457.4
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.jianshe",
+      "name": [
+        "Jianshe Road",
+        "建设路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "site.jianshe_road.town_to_station"
+      ],
+      "pixels": [
+        [
+          506,
+          340
+        ],
+        [
+          512,
+          382
+        ],
+        [
+          515,
+          415
+        ],
+        [
+          520,
+          455
+        ],
+        [
+          522,
+          480
+        ]
+      ],
+      "geometry": [
+        [
+          202961.7,
+          2496245.3
+        ],
+        [
+          202998.7,
+          2495806.5
+        ],
+        [
+          203010.0,
+          2495460.1
+        ],
+        [
+          203037.8,
+          2495041.6
+        ],
+        [
+          203043.5,
+          2494778.9
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.dongmen-northeast",
+      "name": [
+        "Northeast Dongmen approach",
+        "东门东北进路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "pixels": [
+        [
+          565,
+          304
+        ],
+        [
+          583,
+          267
+        ],
+        [
+          609,
+          228
+        ],
+        [
+          626,
+          211
+        ],
+        [
+          661,
+          190
+        ],
+        [
+          717,
+          162
+        ]
+      ],
+      "geometry": [
+        [
+          203596.0,
+          2496679.1
+        ],
+        [
+          203805.1,
+          2497086.7
+        ],
+        [
+          204098.6,
+          2497522.6
+        ],
+        [
+          204285.3,
+          2497717.6
+        ],
+        [
+          204661.4,
+          2497971.2
+        ],
+        [
+          205259.7,
+          2498317.7
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.renmin-south",
+      "name": [
+        "Renmin South Road",
+        "人民南路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "pixels": [
+        [
+          543,
+          336
+        ],
+        [
+          550,
+          360
+        ],
+        [
+          555,
+          389
+        ],
+        [
+          567,
+          425
+        ],
+        [
+          580,
+          445
+        ]
+      ],
+      "geometry": [
+        [
+          203348.3,
+          2496320.9
+        ],
+        [
+          203406.5,
+          2496073.3
+        ],
+        [
+          203440.9,
+          2495771.1
+        ],
+        [
+          203543.9,
+          2495401.1
+        ],
+        [
+          203666.8,
+          2495201.3
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.hubei-link",
+      "name": [
+        "Hubei cross street",
+        "湖贝横路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.dongmen_old_town"
+      ],
+      "pixels": [
+        [
+          577,
+          274
+        ],
+        [
+          622,
+          265
+        ],
+        [
+          658,
+          265
+        ]
+      ],
+      "geometry": [
+        [
+          203738.6,
+          2497007.2
+        ],
+        [
+          204211.3,
+          2497142.9
+        ],
+        [
+          204585.0,
+          2497175.3
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.wenjin-link",
+      "name": [
+        "Wenjindu north approach",
+        "文锦渡北侧道路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "site.wenjindu_crossing.exists_1979"
+      ],
+      "pixels": [
+        [
+          658,
+          265
+        ],
+        [
+          661,
+          315
+        ],
+        [
+          666,
+          362
+        ],
+        [
+          661,
+          397
+        ]
+      ],
+      "geometry": [
+        [
+          204585.0,
+          2497175.3
+        ],
+        [
+          204586.1,
+          2496649.1
+        ],
+        [
+          204609.7,
+          2496156.5
+        ],
+        [
+          204536.7,
+          2495781.8
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.south-east-grid",
+      "name": [
+        "Southeast Luohu cross street",
+        "罗湖东南横路（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "pixels": [
+        [
+          534,
+          400
+        ],
+        [
+          570,
+          394
+        ],
+        [
+          601,
+          385
+        ],
+        [
+          630,
+          378
+        ],
+        [
+          665,
+          372
+        ]
+      ],
+      "geometry": [
+        [
+          203216.3,
+          2495635.9
+        ],
+        [
+          203593.7,
+          2495731.7
+        ],
+        [
+          203921.0,
+          2495854.8
+        ],
+        [
+          204226.3,
+          2495954.9
+        ],
+        [
+          204593.3,
+          2496049.8
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.jiefang-caiwuwei",
+      "name": [
+        "Jiefang Road at Caiwuwei",
+        "解放路蔡屋围段（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1984.caiwuwei_other_labels"
+      ],
+      "pixels": [
+        [
+          0,
+          437
+        ],
+        [
+          103,
+          375
+        ],
+        [
+          212,
+          313
+        ],
+        [
+          300,
+          263
+        ],
+        [
+          410,
+          220
+        ],
+        [
+          514,
+          178
+        ],
+        [
+          634,
+          139
+        ],
+        [
+          738,
+          103
+        ],
+        [
+          799,
+          86
+        ]
+      ],
+      "detail": "caiwuwei",
+      "geometry": [
+        [
+          202088.6,
+          2496065.2
+        ],
+        [
+          202201.5,
+          2496141.5
+        ],
+        [
+          202320.7,
+          2496218.4
+        ],
+        [
+          202417.0,
+          2496280.4
+        ],
+        [
+          202536.1,
+          2496336.9
+        ],
+        [
+          202648.9,
+          2496391.8
+        ],
+        [
+          202778.3,
+          2496444.9
+        ],
+        [
+          202890.7,
+          2496493.2
+        ],
+        [
+          202956.3,
+          2496517.2
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.heping",
+      "name": [
+        "Heping Road north",
+        "和平路北段（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1984.caiwuwei_other_labels"
+      ],
+      "pixels": [
+        [
+          687,
+          121
+        ],
+        [
+          705,
+          225
+        ],
+        [
+          722,
+          355
+        ],
+        [
+          746,
+          503
+        ],
+        [
+          778,
+          674
+        ]
+      ],
+      "detail": "caiwuwei",
+      "geometry": [
+        [
+          202835.6,
+          2496469.1
+        ],
+        [
+          202848.2,
+          2496358.6
+        ],
+        [
+          202858.3,
+          2496219.9
+        ],
+        [
+          202874.6,
+          2496062.4
+        ],
+        [
+          202898.0,
+          2495880.9
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.jiefang-bend",
+      "name": [
+        "Jiefang Road at Dongmen",
+        "解放路东门段（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1984.dongmen_frontage"
+      ],
+      "pixels": [
+        [
+          0,
+          310
+        ],
+        [
+          72,
+          290
+        ],
+        [
+          172,
+          239
+        ],
+        [
+          269,
+          204
+        ],
+        [
+          365,
+          184
+        ],
+        [
+          447,
+          198
+        ],
+        [
+          532,
+          210
+        ],
+        [
+          609,
+          201
+        ],
+        [
+          616,
+          158
+        ],
+        [
+          605,
+          90
+        ],
+        [
+          609,
+          53
+        ],
+        [
+          630,
+          0
+        ]
+      ],
+      "detail": "dongmen",
+      "geometry": [
+        [
+          202886.1,
+          2496309.1
+        ],
+        [
+          202964.4,
+          2496337.5
+        ],
+        [
+          203074.5,
+          2496402.4
+        ],
+        [
+          203180.4,
+          2496449.5
+        ],
+        [
+          203284.3,
+          2496480.1
+        ],
+        [
+          203371.1,
+          2496472.5
+        ],
+        [
+          203461.2,
+          2496467.3
+        ],
+        [
+          203544.2,
+          2496484.2
+        ],
+        [
+          203554.3,
+          2496531.7
+        ],
+        [
+          203546.8,
+          2496604.8
+        ],
+        [
+          203553.3,
+          2496645.5
+        ],
+        [
+          203579.1,
+          2496705.1
+        ]
+      ]
+    },
+    {
+      "id": "m84.road.market-lane",
+      "name": [
+        "South Dongmen market lane",
+        "东门南侧市场街巷（示意）"
+      ],
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1984.dongmen_other_labels"
+      ],
+      "pixels": [
+        [
+          0,
+          330
+        ],
+        [
+          100,
+          327
+        ],
+        [
+          240,
+          330
+        ],
+        [
+          348,
+          327
+        ],
+        [
+          370,
+          224
+        ],
+        [
+          386,
+          140
+        ],
+        [
+          395,
+          80
+        ]
+      ],
+      "detail": "dongmen",
+      "geometry": [
+        [
+          202884.9,
+          2496287.3
+        ],
+        [
+          202992.0,
+          2496299.8
+        ],
+        [
+          203141.5,
+          2496309.5
+        ],
+        [
+          203257.2,
+          2496322.8
+        ],
+        [
+          203287.1,
+          2496437.0
+        ],
+        [
+          203309.5,
+          2496530.0
+        ],
+        [
+          203322.8,
+          2496596.2
+        ]
+      ]
+    }
+  ],
+  "extent": [
+    {
+      "id": "m84.extent.shangbu",
+      "name": [
+        "Shangbu industrial frontage",
+        "上步沿深南路厂区"
+      ],
+      "kind": "industrial",
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.shangbu_industrial"
+      ],
+      "pixels": [
+        [
+          147,
+          273
+        ],
+        [
+          311,
+          273
+        ],
+        [
+          314,
+          328
+        ],
+        [
+          292,
+          328
+        ],
+        [
+          292,
+          405
+        ],
+        [
+          147,
+          404
+        ]
+      ],
+      "geometry": [
+        [
+          199274.6,
+          2496631.2
+        ],
+        [
+          200977.4,
+          2496778.7
+        ],
+        [
+          200975.4,
+          2496199.6
+        ],
+        [
+          200747.0,
+          2496179.8
+        ],
+        [
+          200700.6,
+          2495365.4
+        ],
+        [
+          199195.7,
+          2495245.6
+        ],
+        [
+          199274.6,
+          2496631.2
+        ]
+      ]
+    },
+    {
+      "id": "m84.extent.caiwuwei",
+      "name": [
+        "Caiwuwei urban edge",
+        "蔡屋围城市边缘"
+      ],
+      "kind": "civic",
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1984.caiwuwei_other_labels"
+      ],
+      "pixels": [
+        [
+          390,
+          287
+        ],
+        [
+          446,
+          281
+        ],
+        [
+          463,
+          308
+        ],
+        [
+          474,
+          348
+        ],
+        [
+          459,
+          383
+        ],
+        [
+          418,
+          382
+        ],
+        [
+          397,
+          348
+        ]
+      ],
+      "geometry": [
+        [
+          201789.2,
+          2496701.6
+        ],
+        [
+          202374.3,
+          2496815.4
+        ],
+        [
+          202534.5,
+          2496545.1
+        ],
+        [
+          202624.6,
+          2496131.9
+        ],
+        [
+          202447.8,
+          2495748.3
+        ],
+        [
+          202022.7,
+          2495722.0
+        ],
+        [
+          201825.2,
+          2496062.7
+        ],
+        [
+          201789.2,
+          2496701.6
+        ]
+      ]
+    },
+    {
+      "id": "m84.extent.dongmen",
+      "name": [
+        "Dongmen commercial blocks",
+        "东门商业街区"
+      ],
+      "kind": "market",
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1984.dongmen_frontage"
+      ],
+      "pixels": [
+        [
+          494,
+          331
+        ],
+        [
+          531,
+          306
+        ],
+        [
+          563,
+          276
+        ],
+        [
+          589,
+          269
+        ],
+        [
+          578,
+          314
+        ],
+        [
+          600,
+          337
+        ],
+        [
+          591,
+          375
+        ],
+        [
+          514,
+          382
+        ]
+      ],
+      "geometry": [
+        [
+          202842.5,
+          2496329.7
+        ],
+        [
+          203241.7,
+          2496627.4
+        ],
+        [
+          203592.1,
+          2496973.5
+        ],
+        [
+          203866.2,
+          2497070.9
+        ],
+        [
+          203724.9,
+          2496585.1
+        ],
+        [
+          203939.5,
+          2496361.6
+        ],
+        [
+          203823.2,
+          2495951.6
+        ],
+        [
+          203019.5,
+          2495808.3
+        ],
+        [
+          202842.5,
+          2496329.7
+        ]
+      ]
+    },
+    {
+      "id": "m84.extent.luohu",
+      "name": [
+        "Eastern Luohu development blocks",
+        "罗湖东侧开发街区"
+      ],
+      "kind": "market",
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.luohu_station_crossing"
+      ],
+      "pixels": [
+        [
+          519,
+          378
+        ],
+        [
+          591,
+          363
+        ],
+        [
+          633,
+          339
+        ],
+        [
+          669,
+          342
+        ],
+        [
+          667,
+          386
+        ],
+        [
+          639,
+          414
+        ],
+        [
+          579,
+          462
+        ],
+        [
+          527,
+          477
+        ]
+      ],
+      "geometry": [
+        [
+          203073.8,
+          2495855.1
+        ],
+        [
+          203830.4,
+          2496078.5
+        ],
+        [
+          204280.9,
+          2496370.1
+        ],
+        [
+          204652.9,
+          2496370.7
+        ],
+        [
+          204605.6,
+          2495903.5
+        ],
+        [
+          204298.0,
+          2495582.2
+        ],
+        [
+          203646.2,
+          2495020.6
+        ],
+        [
+          203097.2,
+          2494815.2
+        ],
+        [
+          203073.8,
+          2495855.1
+        ]
+      ]
+    },
+    {
+      "id": "m84.extent.tianbei",
+      "name": [
+        "Tianbei service and settlement belt",
+        "田贝公用设施与聚落带"
+      ],
+      "kind": "civic",
+      "claims": [
+        "phase1.map.1984.overview_comparison",
+        "phase1.map.1982.sungang_shuibei_tianbei"
+      ],
+      "pixels": [
+        [
+          550,
+          227
+        ],
+        [
+          570,
+          211
+        ],
+        [
+          603,
+          217
+        ],
+        [
+          624,
+          218
+        ],
+        [
+          603,
+          245
+        ],
+        [
+          580,
+          269
+        ],
+        [
+          556,
+          275
+        ]
+      ],
+      "geometry": [
+        [
+          203486.6,
+          2497480.1
+        ],
+        [
+          203703.9,
+          2497667.3
+        ],
+        [
+          204042.9,
+          2497633.5
+        ],
+        [
+          204260.3,
+          2497641.8
+        ],
+        [
+          204026.0,
+          2497337.4
+        ],
+        [
+          203772.8,
+          2497062.8
+        ],
+        [
+          203520.0,
+          2496977.8
+        ],
+        [
+          203486.6,
+          2497480.1
+        ]
+      ]
+    }
+  ],
+  "overviewFit": {
+    "points": 7,
+    "residualRmsM": 104.4,
+    "leaveOneOutRmsM": 212.2
+  }
+}

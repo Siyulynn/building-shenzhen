@@ -1,0 +1,83 @@
+{
+  "_note": "Art parameters for the procedural September 1980 basin. Every value here is illustrative and editable; none is a measured width, height, use or crop. Feature ids refer to core-basin-gis.json parent ids (cover fragments '/1', '/2' share their parent's entry).",
+  "seed": "sz-basin-1980-09-11",
+  "lattice_m": 20,
+  "smooth_radius_cells": 3,
+  "edge_blend_m": 300,
+  "settlement": {
+    "default": {"village_row": 1},
+    "mix": {
+      "shenzhenxu-fabric": {"lingnan_block": 0.8, "danwei_slab": 0.2},
+      "town-north-fabric": {"lingnan_block": 0.6, "danwei_slab": 0.25, "village_row": 0.15},
+      "rail-market-edge": {"lingnan_block": 0.45, "danwei_slab": 0.3, "village_row": 0.25},
+      "caiwuwei-urban-envelope": {"danwei_slab": 0.5, "lingnan_block": 0.3, "village_row": 0.2},
+      "luohu-approach-land": {"danwei_slab": 0.5, "village_row": 0.5},
+      "shangbu-row-compound": {"danwei_slab": 1},
+      "hubei-candidate-fabric": {"village_row": 0.6, "lingnan_block": 0.4},
+      "xiangxi-fabric": {"village_row": 0.7, "lingnan_block": 0.3},
+      "northeast-fabric": {"village_row": 0.7, "lingnan_block": 0.3}
+    },
+    "parcel_m": 64,
+    "lane_m": 4,
+    "street_setback_m": 2.5
+  },
+  "roads": {
+    "town-west-approach": {"width": 10, "class": "main"},
+    "south-transverse-road": {"width": 9, "class": "main"},
+    "market-south-road": {"width": 8, "class": "main"},
+    "east-crossing-approach": {"width": 8, "class": "main"},
+    "east-lowland-link": {"width": 7, "class": "minor"},
+    "shangbu-southern-link": {"width": 7, "class": "minor"},
+    "shangbu-north-link": {"width": 6, "class": "minor"},
+    "hubei-north-link": {"width": 6, "class": "minor"},
+    "town-cross-east-west": {"width": 7, "class": "street"},
+    "town-cross-north-south": {"width": 7, "class": "street"},
+    "town-north-frontage": {"width": 5, "class": "street"},
+    "town-south-frontage": {"width": 5, "class": "street"},
+    "town-west-link": {"width": 5, "class": "street"},
+    "west-riverbank-lane": {"width": 4, "class": "lane"},
+    "shangbu-east-west-corridor": {"width": 30, "class": "works", "carriageway": 9, "_note": "Cleared corridor; a Shennan works context is a candidate only (place 'shennan'). No carriageway width or completion is claimed."}
+  },
+  "rail": {
+    "rail-main": {"bed": 9, "tracks": [0]},
+    "rail-west-corridor": {"bed": 8, "tracks": [0]},
+    "yard-track-west": {"bed": 16, "tracks": [-4.6, 0, 4.6], "clip": "yard-envelope", "_note": "Representative bundle: illustrative parallel tracks inside the yard envelope, no turnouts."},
+    "yard-track-east": {"bed": 16, "tracks": [-4.6, 0, 4.6], "clip": "yard-envelope", "_note": "Representative bundle; no inferred turnout connection."},
+    "track_clearance_m": 4.2
+  },
+  "rivers": {
+    "river-main-west": {"width": 82, "downstream": "start", "_note": "Illustrative width guided by 78–100 m bank-span checks, not a surveyed cross-section."},
+    "river-main-east": {"width": 62, "downstream": "start", "_note": "Illustrative compromise; the 74 m shoulder pick need not represent the whole reach."},
+    "buji-lower": {"width": 48, "downstream": "end", "_note": "Illustrative low-flow ribbon; the 84 m bank-span hint may include banks or floodplain."},
+    "dyke_m": 4,
+    "dyke_height_m": 1.4,
+    "bank_setback_m": 6
+  },
+  "bridges": {
+    "luohu-rail-bridge": {"carries": "rail-main", "over": "river-main-west", "deck_width": 7, "clearance_m": 3.2, "pier_spacing_m": 22},
+    "east-bridge-candidate": {"carries": "east-crossing-approach", "over": "river-main-east", "deck_width": 8, "clearance_m": 2.8, "pier_spacing_m": 18, "_note": "Visible span at the eastern meander. Identification with Wenjindu stays a candidate (place 'wenjindu', gap 'wenjindu-id-unresolved')."}
+  },
+  "estimatedCrossings": {
+    "west-approach-main-rail": {"type":"level","reason":"Traced approaches and main railway intersect; grade is a reversible aerial estimate."},
+    "west-approach-west-rail": {"type":"level","reason":"West approach crosses the interpreted western corridor; no surveyed junction or grade."},
+    "south-transverse-main-rail": {"type":"level","reason":"Traced southern approach crosses the main railway; grade is a reversible aerial estimate."},
+    "south-transverse-west-rail": {"type":"level","reason":"Southern approach crosses the interpreted western corridor; no surveyed junction or grade."},
+    "south-transverse-buji": {"type":"span","reason":"Visible paired approaches cross the mapped lower channel; bridge type and dimensions are illustrative."}
+  },
+  "reservoir": {
+    "site": "site.shenzhen_reservoir",
+    "cell": [428, 335],
+    "search_cells": [400, 290, 460, 365],
+    "_note": "Outside the KH-9 window. Outline from the 19 Oct 1979 MSS water mask (lead-level automated observation); level from the modern DSM water surface. No dam or spillway is modelled."
+  },
+  "masks": [
+    {"id": "shenzhenxu", "name": ["Shenzhenxu detail area", "深圳墟精模区"], "from": ["pilot-extent"], "margin_m": 25,
+      "clears": ["buildings", "trees", "fields", "ponds", "streets"]},
+    {"id": "luohu", "name": ["Luohu station, yard and bridge detail area", "罗湖车站、站场与桥梁精模区"], "from": ["yard-envelope", "luohu-rail-bridge", "station"], "margin_m": 30,
+      "clears": ["buildings", "trees", "fields", "ponds"]},
+    {"id": "yumin", "name": ["Yumin village detail area", "渔民村精模区"], "from": ["yumin-candidate-land", "yumin-pond-north", "yumin-pond-middle", "yumin-pond-south"], "margin_m": 25,
+      "clears": ["buildings", "trees", "fields", "ponds"]},
+    {"id": "caiwuwei", "name": ["Caiwuwei county compound detail area", "蔡屋围县府精模区"], "from": ["county-offices"], "radius_m": 170, "margin_m": 25,
+      "clears": ["buildings", "trees", "fields", "ponds", "streets"]}
+  ]
+}
