@@ -78,7 +78,7 @@
   name: { zh: 先把情况摸清, en: "The city's own survey" }
   description:
     zh: "市革委会的班子刚搭起来，第一件事是自己摸清情况：罗湖、上步和墟镇的地是谁的，路通到哪里。第一块地和第一条路，就画在地图上。"
-    en: "The committee's team has just been assembled, and its first job is its own survey: who holds the land in Luohu, Shangbu and the market town, and where the roads go. The first zone and the first road are drawn on the map."
+    en: "The committee's team has just been assembled, and its first job is its own survey: who holds the land in Luohu, Shangbu and the market town, and where the roads go. Draw the first zone and the first road on the map."
   family: scripted
   trigger: { prologue_turn: 0 }          # 1979-Q1 (§2.1, R9): the decision is made on the map; the card only reports
   card:
@@ -201,8 +201,8 @@
 - id: event.budget
   name: { zh: 年度预算, en: "The year's budget" }
   description:
-    zh: "省里确定今年的补助，简报列出补助之后的经常性收支。安排今年的工程，要想到补助减少以后城市还撑不撑得住。"
-    en: "The province sets this year's grant, and the briefing shows the recurring balance it leaves. Plan the year's works against what the city can carry once the grant shrinks."
+    zh: "省里确定今年的补助，预算抽屉列出补助之后的经常性收支。安排今年的工程，要想到补助减少以后城市还撑不撑得住。"
+    en: "The province sets this year's grant, and the Budget drawer lists the recurring balance it leaves. Plan the year's works against what the city can carry once the grant shrinks."
   family: recurring
   trigger: { month_of_year: 0, recurring: true }
   effects:

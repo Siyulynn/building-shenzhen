@@ -6,6 +6,7 @@
 import {
   FAILURE_CARD, LOAN_CARD, buildableCells, DEFICIT_CARD, REVIEW_CARD, SHORTCUT_CARD, contractLive, fiscalViews, formatYM, indicatorValue,
   gdpNow, liveProject, moneyForProjects, obligationDue, unspentCommitments, previewOffer, runsOfCells, scoreReview, tripChance, verdict,
+  readiness, firstWaveCards, zoneFrontage,
   zoneCellsAllowed, zoneLabel, cellsOfRuns, playableAreaOf, liveOrder, spatialViews, developableCells, placedSupply,
   prospectiveShare, utilityShare, sizeOffer, orderFactor, inducedServiceJobs, zoneBuiltM2, zoneRoomM2, largestRemainder,
   VILLAGE_ARCHETYPES, SOURCE_KINDS, areaTakes, poolFactor, powerPool, importedKw, utilityShares,
@@ -69,7 +70,7 @@ export function optionLabel(s: GameState, slice: Slice, card: string, option: st
 
 export interface Line { label: L; value: L }
 export interface CardView {
-  id: string; card: string; title: L; interrupting: boolean; expires?: string;
+  id: string; card: string; title: L; interrupting: boolean; raised?: string; expires?: string;
   description?: L;                                    // R7: an event card's content description
   options: { id: string; label: L; badges: L[] }[];   // badges: R7's derived effect badges, event cards only
   lines: Line[];
@@ -199,6 +200,7 @@ export function cardView(s: GameState, slice: Slice, c: CardInstance): CardView 
   const badges = ev ? effectBadges(ev, slice, s) : {};
   return {
     id: c.id, card: c.card, title: cardTitle(slice, c.card) ?? raw(c.card), interrupting: c.interrupting,
+    ...(c.raisedAt !== undefined ? { raised: formatYM(c.raisedAt) } : {}),
     ...(c.expires !== undefined ? { expires: formatYM(c.expires) } : {}),
     ...(ev?.description ? { description: ev.description } : {}),
     options: c.options.map((o) => ({ id: o, label: optionLabel(s, slice, c.card, o) ?? raw(o), badges: badges[o] ?? [] })),
@@ -558,7 +560,7 @@ export function areaAt(s: GameState, cell: number): number {
   return 0;
 }
 
-/** The slice's bounding box in cells [x0, y0, x1, y1], over every area: the map fits to it. */
+/** The slice's bounding box in cells [x0, y0, x1, y1], over every area: the whole-territory fit. */
 export function sliceBox(s: GameState): [number, number, number, number] {
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const a of s.areas) for (const c of a.cells) {
@@ -566,6 +568,45 @@ export function sliceBox(s: GameState): [number, number, number, number] {
     if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
   }
   return [x0, y0, x1, y1];
+}
+
+/** The seven playable areas' bounding box, padded: the default build view (R11.1). */
+export function playableBox(s: GameState, pad = 10): [number, number, number, number] {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const a of s.areas) {
+    if (a.access !== 'playable') continue;
+    for (const c of a.cells) {
+      const x = c % s.grid.width, y = Math.floor(c / s.grid.width);
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    }
+  }
+  return Number.isFinite(x0) ? [x0 - pad, y0 - pad, x1 + pad, y1 + pad] : sliceBox(s);
+}
+
+/** One area's bounding box, padded, for the legend's "focus" controls. */
+export function areaBox(s: GameState, id: number, pad = 6): [number, number, number, number] | undefined {
+  const a = s.areas.find((x) => x.id === id);
+  if (!a || !a.cells.length) return undefined;
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const c of a.cells) {
+    const x = c % s.grid.width, y = Math.floor(c / s.grid.width);
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+  }
+  return [x0 - pad, y0 - pad, x1 + pad, y1 + pad];
+}
+
+/** The prologue's readiness panel (R11.1): the bar, its three parts and a first-wave target. */
+export function readinessView(s: GameState, slice: Slice) {
+  const r = readiness(s, slice.params, slice.tick.buildable);
+  const wave = slice.params.readiness.first_wave;
+  const targetCards = Math.min(wave.max_cards, Math.max(wave.min_cards, 3));
+  // The first-wave card count rounds, so find the smallest bar that actually yields the target.
+  let targetBar = 0;
+  for (let b = 0; b <= 1; b += 0.01) if (firstWaveCards(b, slice.params) >= targetCards) { targetBar = b; break; }
+  return {
+    bar: r.bar, roads: r.roads, servicedLand: r.servicedLand, waterPower: r.waterPower, weakest: r.weakest,
+    forecast: firstWaveCards(r.bar, slice.params), targetCards, targetBar,
+  };
 }
 
 // ---- R5 (§11.2): the planning map's derived views. Pure, never saved; they add no sim fields ----
@@ -853,6 +894,8 @@ export interface InspectorView {
   x: number; y: number; area?: L; zone?: L; use?: L; stage: L;
   progress?: { done: number; total: number };
   frontage?: { depth: number; max: number };
+  /** R11.1: an unzoned cell's frontage if it were zoned now, so scouting does not read "no access" beside a road. */
+  prospectiveFrontage?: { depth: number; max: number };
   share?: CellShare; areaShare?: number;
   zoneFloorM2?: number; villageFloorM2?: number;
   jobs: { filled: number; posted: number }; beds: { occupants: number; beds: number };
@@ -882,6 +925,11 @@ export function inspectorView(s: GameState, slice: Slice, x: number, y: number):
   if (z) { v.zone = zoneName(s, slice, z.id); v.use = S.LAND_USE[z.use] ?? raw(z.use); v.zoneFloorM2 = zoneBuiltM2(s, z.id); }
   if (w) v.progress = { done: w.workDone, total: w.workTotal };
   if (f) v.frontage = { depth: f.depth, max: slice.startNetwork.maxFrontageDepth };
+  else if (!z) {
+    // R11.1: the same road network, read as if this one cell were zoned. Unzoned cells otherwise always read "no road".
+    const p = zoneFrontage(k.spatial.roads, [cell], slice.startNetwork.maxFrontageDepth).get(cell);
+    if (p) v.prospectiveFrontage = { depth: p.depth, max: slice.startNetwork.maxFrontageDepth };
+  }
   if (share) { v.share = share; v.areaShare = utilityShare(s, z?.area ?? areaId); }
   if (areaId && village > 0) v.villageFloorM2 = village;
   if (site) v.site = place(site.name);

@@ -1,0 +1,127 @@
+/**
+ * R11.1 playtest revision: the playable-first camera, the map key, the guide, the readiness target,
+ * the reference-only historical plan and the fixed modal/panel wording.
+ */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { createInitialState, playableAreaOf, type Slice } from '@sz/sim-core';
+import { loadSlice } from '../src/load.js';
+import { choose, enqueue, newSession } from '../src/controller.js';
+import {
+  initialUi, renderBriefing, renderDecisions, renderFlyout, renderInspector, renderOverlaySelect, renderReadiness, renderStack, type View,
+} from '../src/render.js';
+import { inspectorView, playableBox, readinessView } from '../src/views.js';
+import { STARTER_CELLS, STARTER_FROM, STARTER_TO, tutorialView } from '../src/tutorial.js';
+import { applyPlan, planGesture, queuedBudget } from '../src/tools.js';
+import { T } from '../src/strings.js';
+
+const slice: Slice = loadSlice();
+const start = createInitialState(slice.init);
+const W = start.grid.width;
+const idx = (x: number, y: number) => y * W + x;
+
+function surveyAnswered() {
+  let x = newSession(slice);
+  for (const c of x.state.pendingCards) if (c.card === 'event.first_project') x = choose(x, c.id, 'noted');
+  return x;
+}
+
+const view = (over: Partial<Parameters<typeof renderBriefing>[0]['ui']> = {}, x = newSession(slice)): View =>
+  ({ slice, x, lang: 'en', ui: { ...initialUi(slice), ...over } });
+
+describe('R11.1 the playable-first map', () => {
+  it('fits the seven playable areas, not all nine', () => {
+    const [x0, y0, x1] = playableBox(start);
+    expect(x0).toBeLessThan(334);
+    expect(x1).toBeGreaterThan(492);
+    expect(y0).toBeLessThan(299);
+  });
+
+  it('lists all nine areas in the key, and marks Shekou and Nantou as card-only', () => {
+    const html = renderOverlaySelect(view());
+    expect(html).toContain('Shekou');
+    expect(html).toContain('Nantou');
+    expect(html).toContain(T.cardsOnly.en);
+    expect(html).toContain(T.cityBorder.en);
+  });
+});
+
+describe('R11.1 the guided opening', () => {
+  it('starts at the welcome and advances only from the state', () => {
+    const x = newSession(slice);
+    expect(tutorialView(x, initialUi(slice))?.step).toBe(0);
+    const opened = surveyAnswered();
+    expect(tutorialView(opened, { ...initialUi(slice), tutorialStep: 1 })?.step).toBe(2);
+    expect(tutorialView(opened, { ...initialUi(slice), tutorialStep: 2, tool: 'zone' })?.step).toBe(3);
+    const zoned = enqueue(opened, { type: 'create_zone', use: 'industrial', runs: [[375, 387, 388]] });
+    expect(tutorialView(zoned, { ...initialUi(slice), tutorialStep: 3 })?.step).toBe(4);
+    const nextTurn = { ...zoned, state: { ...zoned.state, turn: 1 } };
+    expect(tutorialView(nextTurn, { ...initialUi(slice), tutorialStep: 4 })?.step).toBe(5);
+  });
+
+  it('suggests a buildable, in-area starter block beside the start road', () => {
+    const buildable = new Set(slice.tick.buildable!.cells);
+    for (const [x, y] of STARTER_CELLS) {
+      expect(playableAreaOf(start, idx(x, y))).toBe(1);
+      expect(buildable.has(idx(x, y))).toBe(true);
+    }
+  });
+
+  it('turns the first-wave formula into a 50% / three-card target', () => {
+    const r = readinessView(start, slice);
+    expect(r.targetCards).toBe(3);
+    expect(r.targetBar).toBeCloseTo(0.5, 2);
+    expect(renderReadiness(view())).toContain('50.0%');
+  });
+
+  it('counts queued land compensation in the budget chip committed figure', () => {
+    const x = surveyAnswered();
+    const p = planGesture(x, initialUi(slice).opts, { tool: 'zone', from: STARTER_FROM, to: STARTER_TO });
+    expect(p.kind).toBe('actions');
+    if (p.kind !== 'actions') return;
+    const queued = applyPlan(x, p);
+    expect(queuedBudget(queued)).toBe(p.preview.budget + p.preview.compensation);
+  });
+});
+
+describe('R11.1 the reference-only historical plan and the wording', () => {
+  it('no longer offers a zone-the-guide action', () => {
+    const html = renderFlyout(view({ tool: 'zone' }));
+    expect(html).not.toContain('data-act="zoneGuide"');
+    expect(html).toContain(T.guideReference.en);
+  });
+
+  it('counts the cards and says how many must still be answered', () => {
+    const x = surveyAnswered();
+    expect(renderStack({ ...view({}, x) })).toContain(`0 ${T.toAnswer.en}`);
+  });
+
+  it('reads frontage prospectively for an unzoned cell beside the start road', () => {
+    const c = inspectorView(start, slice, 387, 376);
+    expect(c.frontage).toBeUndefined();
+    expect(c.prospectiveFrontage?.depth).toBeGreaterThan(0);
+    expect(renderInspector(view({ selected: { x: 387, y: 376 } }))).toContain(T.frontageIfZoned.en);
+  });
+
+  it('gives the briefing and decisions a scrolling body and a fixed footer', () => {
+    expect(renderBriefing(view())).toContain('modal-body');
+    expect(renderBriefing(view())).toContain('modal-foot');
+    expect(renderDecisions(view({ decisions: true }))).toContain('modal-body');
+  });
+});
+
+describe('R11.1 the present-day city limit data', () => {
+  it('is a labelled reference layer inside the grid', () => {
+    const border = JSON.parse(readFileSync(join(process.cwd(), 'data/starts/slice_city_border.json'), 'utf8')) as {
+      reference: string; source: string; rings: [number, number][][];
+    };
+    expect(border.rings.length).toBeGreaterThan(0);
+    expect(border.source).toBe('osm_shenzhen_admin');
+    expect(border.reference).toContain('not a historical');
+    for (const [x, y] of border.rings.flat()) {
+      expect(x).toBeGreaterThanOrEqual(0); expect(x).toBeLessThanOrEqual(start.grid.width);
+      expect(y).toBeGreaterThanOrEqual(0); expect(y).toBeLessThanOrEqual(start.grid.height);
+    }
+  });
+});

@@ -62,7 +62,11 @@ function previewOrders(x: Session, actions: readonly PlayerAction[]): { ok: true
   return p.ok ? { ok: true, orders: p.orders.slice(base.n) } : p;
 }
 
-/** The budgets of the orders this turn's queue would create (§11.2, R7): what the chips count as queued. */
+/**
+ * What the queued orders commit (§11.2, R7): their budgets plus the land compensation they owe.
+ * Compensation is a one-off obligation created when the order is applied; counting it here keeps the
+ * budget chip honest before End quarter (R11.1).
+ */
 const QUEUED = new WeakMap<readonly PlayerAction[], { state: GameState; budget: number }>();
 export function queuedBudget(x: Session): number {
   const works = x.slice.params.works;
@@ -70,7 +74,7 @@ export function queuedBudget(x: Session): number {
   const hit = QUEUED.get(x.queue);
   if (hit && hit.state === x.state) return hit.budget;
   const p = previewWorks(x.state, works, x.queue, (st, a) => applyTurnAction(st, a, x.steps));
-  const budget = p.ok ? p.orders.reduce((n, o) => n + o.budget, 0) : 0;
+  const budget = p.ok ? p.orders.reduce((n, o) => n + o.budget + o.compensation, 0) : 0;
   QUEUED.set(x.queue, { state: x.state, budget });
   return budget;
 }
@@ -207,6 +211,11 @@ function planGestureAt(x: Session, o: ToolOptions, g: Gesture): Plan {
   if (g.tool === 'select') return { kind: 'none' };
   if (x.mode !== 'turn') return refused(S.T.turnStartOnly);
   if (!onGrid(s, g.from) || !onGrid(s, g.to)) return refused(S.T.refused, 'off the map');
+  // R11.1: name the common refusal in the UI's words instead of sim-core's raw cell index.
+  const fromArea = playableAreaOf(s, idx(s, g.from)), toArea = playableAreaOf(s, idx(s, g.to));
+  if (g.tool === 'zone' && !fromArea && !toArea) return refused(S.T.outsidePlayable);
+  if (g.tool === 'road' && !fromArea && !toArea) return refused(S.T.outsidePlayable);
+  if ((g.tool === 'power' || g.tool === 'station' || g.tool === 'facility') && !toArea) return refused(S.T.outsidePlayable);
   switch (g.tool) {
     case 'zone':
       return zonePlan(x, o, { type: 'create_zone', use: o.use, runs: previewZone(s, x.queue, g.from[0], g.from[1], g.to[0], g.to[1]),
@@ -241,7 +250,10 @@ function planGestureAt(x: Session, o: ToolOptions, g: Gesture): Plan {
   }
 }
 
-/** Zone the historical template's footprint (§11.2's "zone the guide"), clipped as §11.1's, serviced unless Plan only. */
+/**
+ * Zone the historical template's footprint, clipped as §11.1's, serviced unless Plan only. R11.1 keeps this
+ * pure tool for tests and a later revision that can price a whole historical plan; the flyout no longer offers it.
+ */
 export function guidePlan(x: Session, o: ToolOptions, p: Precedent): Plan {
   if (x.mode !== 'turn') return refused(S.T.turnStartOnly);
   let a: PlayerAction & { type: 'create_zone' };

@@ -15,8 +15,8 @@ import { choose, enqueue, newSession, simError, submit, type Session } from '../
 import { LANGS, LANG_NAME, STORAGE_KEY, readStoredLang, resolveLang, storeLang, withLang, type Lang } from '../src/lang.js';
 import {
   DRAWERS, errorText, hoverText, initialUi, pageTitle, renderBriefing, renderChips, renderCue, renderDecisions, renderDrawer,
-  renderFlyout, renderInspector, renderOverlaySelect, renderPreview, renderQuarter, renderRail, renderStack, renderVerdict,
-  type UiState, type View,
+  renderFlyout, renderInspector, renderOverlaySelect, renderPreview, renderQuarter, renderRail, renderReadiness, renderStack,
+  renderTutorial, renderVerdict, type UiState, type View,
 } from '../src/render.js';
 import { TOOLS, planGesture } from '../src/tools.js';
 import { ENFORCEMENT, TABLES, T, bi, place } from '../src/strings.js';
@@ -121,9 +121,10 @@ function checkLang(where: string, html: string, lang: Lang): void {
 function screens(x: Session, lang: Lang): [string, string][] {
   const ui: UiState = { ...initialUi(slice), area: 7 };
   const v: View = { slice, x, ui, lang };
-  const out: [string, string][] = [['quarter', renderQuarter(v)], ['cue', renderCue(v)], ['overlays', renderOverlaySelect(v)],
-    ['rail', renderRail(v)], ['chips', renderChips(v)], ['stack', renderStack(v)], ['briefing', renderBriefing(v)],
-    ['decisions', renderDecisions(v)], ['verdict', renderVerdict(v) ?? '']];
+  const out: [string, string][] = [['quarter', renderQuarter(v)], ['cue', renderCue(v)], ['readiness', renderReadiness(v)],
+    ['overlays', renderOverlaySelect(v)], ['rail', renderRail(v)], ['chips', renderChips(v)], ['stack', renderStack(v)],
+    ['briefing', renderBriefing(v)], ['decisions', renderDecisions(v)], ['tutorial', renderTutorial({ ...v, ui: { ...ui, tutorialStep: 3 } })],
+    ['verdict', renderVerdict(v) ?? '']];
   for (const tool of TOOLS) out.push([`flyout ${tool}`, renderFlyout({ ...v, ui: { ...ui, tool } })]);
   for (const drawer of DRAWERS) out.push([`drawer ${drawer}`, renderDrawer({ ...v, ui: { ...ui, drawer } })]);
   for (const area of x.state.areas.filter((a) => a.access === 'playable')) {

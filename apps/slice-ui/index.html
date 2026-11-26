@@ -66,8 +66,35 @@
     .off .opens { display: block; font-size: 10px; color: var(--ink-2); max-width: 12em; white-space: normal; }
     .tool.locked { opacity: .5; } .tool.locked small { display: block; font-size: 9px; }
     .news p { margin: 2px 0 6px; white-space: normal; } .news.letter { border-left: 3px solid var(--ink-2); padding-left: 6px; } .desk h4 { margin: 6px 0 2px; }
-    #overlay { top: 8px; right: 8px; width: 300px; }
-    #inspector { top: 70px; right: 8px; width: 300px; max-height: calc(100vh - 226px); overflow: auto; }
+    /* R11.1: the map controls and the key */
+    .mapctl { display: flex; gap: 4px; align-items: center; margin: 5px 0 2px; }
+    .mapctl button { padding: 1px 6px; font: 11px var(--type); box-shadow: none; }
+    .mapctl .zoom { margin-left: auto; display: flex; gap: 2px; }
+    .key { margin-top: 5px; border-top: 1px dotted var(--rule); padding-top: 3px; }
+    .key > div { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-2); }
+    .key .sw { display: inline-block; width: 18px; height: 11px; border: 1px solid var(--ink-2); flex: none; }
+    .key .sw.playable { background: rgba(255,236,120,.55); border-color: var(--red-ink); }
+    .key .sw.card { background: rgba(200,150,80,.45); border-style: dashed; }
+    .key .sw.border { border: 0; border-top: 2px dashed var(--blue); background: transparent; }
+    .key .sw.road { border: 0; border-top: 3px dashed #eab977; background: #312e31; }
+    .arearow { display: flex; align-items: baseline; gap: 5px; }
+    .arearow button { padding: 0 5px; font: 10px var(--type); box-shadow: none; }
+    .arearow span { white-space: normal; }
+    #overlay { top: 8px; right: 8px; width: 300px; max-height: calc(100vh - 86px); overflow: auto; }
+    #inspector { top: var(--inspector-top, 70px); right: 8px; width: 300px; max-height: calc(100vh - var(--inspector-top, 70px) - 170px); overflow: auto; }
+    /* R11.1: the prologue target, visible under the demand cue from turn 1 */
+    #readiness { top: 54px; left: 50%; transform: translateX(-50%); width: 340px; font-family: var(--type); z-index: 4; }
+    .readihead { display: flex; gap: 8px; align-items: baseline; }
+    .readihead b { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--maroon); }
+    .readihead > span:nth-child(2) { font-size: 17px; font-weight: bold; font-variant-numeric: tabular-nums; }
+    .readibar { margin: 4px 0 3px; height: 9px; position: relative; overflow: visible; }
+    .readibar .mark { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--blue); border-left: 1px solid #f3ecd8; }
+    .readitarget { font-size: 11px; color: var(--ink-2); margin-bottom: 4px; }
+    .readiparts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .readiparts > div { display: grid; grid-template-columns: auto 1fr auto; gap: 4px; align-items: center; font-size: 10.5px; }
+    .readiparts b { font-variant-numeric: tabular-nums; font-size: 10px; }
+    .readiparts .weak span { color: var(--red-ink); font-weight: bold; }
+    .readiparts .weak .bar > i { background: var(--red-ink); }
 
     /* the tool rail: boxed buttons on a maroon spine */
     #rail { top: 100px; left: 8px; display: flex; flex-direction: column; gap: 4px; padding: 7px; background: var(--maroon); border-color: #3d1216;
@@ -75,13 +102,17 @@
     .tool { display: flex; align-items: center; gap: 6px; text-align: left; min-width: 114px; font: bold 11.5px/1.3 var(--type); text-transform: uppercase; letter-spacing: .01em; }
     .tool i { font-style: normal; width: 16px; text-align: center; color: var(--red-ink); } .tool.sel i { color: var(--maroon); }
     .tool:lang(zh), :lang(zh) .tool { font-size: 13px; letter-spacing: .06em; font-weight: normal; }
-    #flyout { top: 100px; left: 172px; width: 272px; }
-    #drawer { top: 70px; left: 172px; width: 400px; max-height: calc(100vh - 156px); overflow: auto; z-index: 3; }
+    /* R11.1: the flyout scrolls; the old fixed box ran past the bottom of a 980x664 window */
+    #flyout { top: 100px; left: 172px; width: 286px; max-height: calc(100vh - 220px); overflow: auto; z-index: 3; }
+    /* keep the prologue readiness bar clear of the tool flyout */
+    body.prologue #flyout { top: 218px; max-height: calc(100vh - 338px); }
+    #drawer { top: 70px; left: 172px; width: 400px; max-height: calc(100vh - 200px); overflow: auto; z-index: 3; }
 
     /* the stat strip: a maroon band of cream chits */
     #chips { bottom: 8px; left: 8px; max-width: calc(100vw - 306px); display: flex; flex-wrap: wrap; gap: 6px; padding: 7px; background: var(--maroon); border-color: #3d1216;
       box-shadow: inset 0 0 0 2px var(--maroon), inset 0 0 0 3px rgba(226,192,122,.45), 2px 3px 0 rgba(43,29,23,.4); }
-    .chip { display: flex; flex-direction: column; align-items: flex-start; min-width: 108px; font: bold 14px/1.25 var(--type); font-variant-numeric: tabular-nums; background: var(--guilloche), var(--paper); padding: 3px 8px 4px; }
+    .chip { display: flex; flex-direction: column; align-items: flex-start; min-width: 96px; max-width: 154px; font: bold 13px/1.2 var(--type);
+      font-variant-numeric: tabular-nums; background: var(--guilloche), var(--paper); padding: 3px 7px 4px; overflow-wrap: anywhere; }
     .chip small { display: block; font: normal 10px/1.3 var(--type); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); white-space: nowrap; }
     .chip small:lang(zh), :lang(zh) .chip small { font-size: 11px; letter-spacing: .02em; }
     .chip span { position: relative; } .chip .tip { position: absolute; bottom: 100%; top: auto; }
@@ -95,13 +126,26 @@
     #dim { position: fixed; inset: 0; background: rgba(43,29,23,.5); display: none; z-index: 4; pointer-events: none; }
 
     /* the briefing and the decisions: a filed memorandum in a double frame */
-    #briefing, #decisions { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; max-height: 80vh; overflow: auto; z-index: 6; padding: 12px 16px;
-      border: 4px double var(--maroon); box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px rgba(168,50,45,.5), 4px 6px 0 rgba(43,29,23,.45); }
-    #briefing > h2:first-child, #decisions > h2 { font-size: 15px; color: var(--maroon); border-bottom: 3px double var(--maroon); padding-bottom: 3px; margin-top: 0; }
-    #briefing .go, #verdict .go { display: block; margin: 12px auto 0; }
+    #briefing, #decisions { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; max-height: 80vh; overflow: hidden; z-index: 6; padding: 12px 16px;
+      display: flex; flex-direction: column; border: 4px double var(--maroon); box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px rgba(168,50,45,.5), 4px 6px 0 rgba(43,29,23,.45); }
+    #briefing > .x, #decisions > .x { position: absolute; top: 8px; right: 10px; z-index: 2; }
+    #briefing > h2:first-child, #decisions > h2 { font-size: 15px; color: var(--maroon); border-bottom: 3px double var(--maroon); padding-bottom: 3px; margin-top: 0; flex: none; }
+    #briefing .modal-body, #decisions .modal-body { flex: 1 1 auto; min-height: 0; overflow-y: scroll; padding-right: 4px; }
+    #briefing .modal-foot, #decisions .modal-foot { flex: none; border-top: 1px solid var(--rule); margin-top: 8px; padding-top: 8px; text-align: center; }
+    #briefing .go, #verdict .go { display: block; margin: 0 auto; }
     #preview { display: none; z-index: 7; width: 240px; font-size: 12px; pointer-events: none; border: 1px solid var(--ink); box-shadow: 2px 2px 0 rgba(43,29,23,.35); padding: 5px 8px; }
     #hover { bottom: 120px; left: 50%; transform: translateX(-50%); font: 12px/1.3 var(--type); padding: 3px 9px; border-width: 1px; box-shadow: 1px 2px 0 rgba(43,29,23,.35); }
     #hover:empty { display: none; }
+    /* R11.1: the guided opening card and the outline it puts on the real control */
+    #tutorial { bottom: 96px; left: 46%; transform: translateX(-50%); width: 420px; z-index: 5; }
+    #tutorial.tut-top { top: 218px; bottom: auto; }
+    #tutorial h3 { margin: 2px 0 3px; }
+    #tutorial p { margin: 2px 0 6px; white-space: normal; }
+    #tutorial .opts { margin: 4px 0 0; }
+    .tuthead { display: flex; justify-content: space-between; align-items: baseline; font: 11px var(--type); color: var(--maroon);
+      text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--rule); margin-bottom: 4px; padding-bottom: 2px; }
+    .tut-focus { outline: 3px solid var(--gold); outline-offset: 2px; animation: tutpulse 1.1s ease-in-out infinite alternate; }
+    @keyframes tutpulse { from { outline-color: rgba(226,192,122,.35); } to { outline-color: var(--gold); } }
 
     h1 { font: bold 16px/1.3 var(--type); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 6px; color: var(--maroon); }
     h2 { font: bold 12.5px/1.3 var(--type); text-transform: uppercase; letter-spacing: .07em; margin: 12px 0 5px; color: var(--maroon); border-bottom: 1px solid var(--maroon); padding-bottom: 2px; }
@@ -135,6 +179,8 @@
     button.go:hover { background: var(--maroon-2); }
     button.go:lang(zh), :lang(zh) button.go { letter-spacing: .15em; font-size: 14px; }
     button.must { border: 3px double var(--red); font-weight: bold; }
+    button.answered { border-color: var(--blue); color: var(--blue); }
+    .gesture { font-family: var(--type); color: var(--blue); }
     button.x { float: right; padding: 0 6px; font-family: var(--type); }
     /* disabled: dashed and greyed paper, not a faded opacity that would fail contrast on cream */
     button:disabled, button.go:disabled, #rail .tool:disabled { background: var(--paper-2); color: #6e5c4c; border: 1.5px dashed #7d6a58; outline: none; box-shadow: none; cursor: default; transform: none; }
@@ -156,6 +202,8 @@
       border-top: 2px dashed #eab977; background: #312e31; box-shadow: 0 0 0 1px #312e31; }
     .key .railway { border-top: 2px dashed #c6d9ef; }
     #verdict { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(43,29,23,.6); z-index: 9; }
+    .verdict-summary { border-left: 4px solid var(--blue); background: var(--paper-2); padding: 4px 8px; margin: 4px 0 8px; }
+    .verdict-summary p { margin: 2px 0; }
     #verdict > div { background: var(--guilloche), var(--paper); color: var(--ink); border: 4px double var(--maroon); padding: 16px 20px; width: 520px; max-height: 80vh; overflow: auto;
       box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px rgba(168,50,45,.5), 4px 6px 0 rgba(43,29,23,.45); }
     .portrait { float: right; width: 34px; height: 40px; border: 1px dashed var(--ink-2); background: var(--paper-2); display: flex; align-items: center; justify-content: center; font: 18px var(--type); color: var(--ink-2); }
@@ -167,6 +215,7 @@
   <canvas id="map"></canvas>
   <div id="quarter" class="float"></div>
   <div id="cue" class="float"></div>
+  <div id="readiness" class="float"></div>
   <div id="overlay" class="float"></div>
   <div id="inspector" class="float"></div>
   <div id="rail" class="float"></div>
@@ -175,6 +224,7 @@
   <div id="chips" class="float"></div>
   <div id="stack" class="float"></div>
   <div id="hover" class="float"></div>
+  <div id="tutorial" class="float"></div>
   <div id="dim"></div>
   <div id="briefing" class="float"></div>
   <div id="decisions" class="float"></div>

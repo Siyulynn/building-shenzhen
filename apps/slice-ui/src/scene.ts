@@ -54,6 +54,7 @@ export function actionCells(s: GameState, queue: readonly PlayerAction[], action
 
 export interface SceneInputs {
   layer: OverlayLayer; guide: boolean; selected: { x: number; y: number } | null; plan: Plan | null; previewCells?: readonly number[];
+  tutorial?: { cells: readonly number[]; label: string } | null;
 }
 
 /** Everything map.ts draws, from the session and the UI's choices. */
@@ -86,6 +87,7 @@ export function sceneOf(x: Session, slice: Slice, ui: SceneInputs) {
     preview: plan && plan.kind !== 'none' ? { cells: previewCells, ok: plan.kind !== 'refused' } : null,
     guide,
     selected: ui.selected,
+    tutorial: ui.tutorial ?? null,
     floor, floorUse,
     villages: villageFloors(s),
   };

@@ -6,7 +6,14 @@
  */
 import type { GameState, Slice, StartSite } from '@sz/sim-core';
 import { bi } from './strings.js';
-import { areaAt, sliceBox } from './views.js';
+import { areaAt, areaBox, playableBox, sliceBox } from './views.js';
+
+/** The present-day Shenzhen limit, loaded from data/starts/slice_city_border.json (reference only). */
+export interface CityBorder {
+  readonly source: string;
+  readonly reference: string;
+  readonly rings: readonly (readonly (readonly [number, number])[])[];
+}
 
 export interface Cell { x: number; y: number; area: number }
 export interface MapHandlers {
@@ -29,6 +36,7 @@ export interface Scene {
   preview: { cells: readonly number[]; ok: boolean } | null;
   guide: readonly number[] | null;         // the historical plan's footprint; commits nothing
   selected: { x: number; y: number } | null;
+  tutorial: { cells: readonly number[]; label: string } | null;   // R11.1: the suggested first block
   floor: ReadonlyMap<number, number>;      // core zoom: each developable cell's share of its zone's floor
   floorUse: ReadonlyMap<number, string>;
   villages: ReadonlyMap<number, number>;   // core zoom: village floor over footprint, by area
@@ -77,6 +85,42 @@ function outlines(s: GameState): HTMLCanvasElement {
   return layerOf(W, H, px);
 }
 
+/**
+ * R11.1: the cover over everything that is not playable. Card-only Shekou and Nantou and the wider
+ * city stay legible but recede, so the first view cannot be mistaken for nine equal areas.
+ */
+function shadowLayer(s: GameState): HTMLCanvasElement {
+  const { width: W, height: H } = s.grid;
+  const playable = new Set<number>();
+  for (const a of s.areas) if (a.access === 'playable') for (const c of a.cells) playable.add(c);
+  const edge = new Set<number>();
+  for (const c of playable) for (const n of [c - 1, c + 1, c - W, c + W]) {
+    if (n >= 0 && n < W * H && !playable.has(n)) edge.add(n);
+  }
+  const px = new Uint8ClampedArray(W * H * 4);
+  for (let i = 0; i < W * H; i++) {
+    if (playable.has(i)) continue;
+    const alpha = edge.has(i) ? 78 : 132;
+    px.set([31, 26, 21, alpha], i * 4);
+  }
+  return layerOf(W, H, px);
+}
+
+/** The outer edge of the playable union, drawn as the gold planning edge over the shadow. */
+function playableEdgeLayer(s: GameState): HTMLCanvasElement {
+  const { width: W, height: H } = s.grid;
+  const playable = new Set<number>();
+  for (const a of s.areas) if (a.access === 'playable') for (const c of a.cells) playable.add(c);
+  const px = new Uint8ClampedArray(W * H * 4);
+  for (const c of playable) {
+    const x = c % W, y = Math.floor(c / W);
+    const out = (n: number) => n < 0 || n >= W * H || !playable.has(n);
+    const left = x > 0 ? c - 1 : -1, right = x < W - 1 ? c + 1 : -1;
+    if (out(c - W) || out(c + W) || out(left) || out(right)) px.set([92, 31, 36, 235], c * 4);
+  }
+  return layerOf(W, H, px);
+}
+
 /** A cell's fixed pseudo-random numbers for roof layouts: a hash of the index, never the sim's RNG (§11.2). */
 function hash(c: number, k: number): number {
   let h = (c * 374761393 + k * 668265263) | 0;
@@ -94,19 +138,24 @@ export class SliceMap {
   private moved = false;
   private ground: HTMLCanvasElement | null = null;
   private lines: HTMLCanvasElement;
+  private shadow: HTMLCanvasElement;
+  private playableEdge: HTMLCanvasElement;
   private overlay: HTMLCanvasElement | null = null;
   private zones: HTMLCanvasElement | null = null;
   private scene: Scene | null = null;
   private pending = false;
-  /** Left drags draw with a build tool; otherwise they pan. */
+  /** Left drags draw with a build tool; otherwise they pan. Right-drag always pans, even while building (R11.1). */
   drawMode = false;
 
-  constructor(private canvas: HTMLCanvasElement, private slice: Slice, s: GameState, private h: MapHandlers) {
+  constructor(private canvas: HTMLCanvasElement, private slice: Slice, s: GameState, private border: CityBorder,
+    private h: MapHandlers) {
     this.ctx = canvas.getContext('2d')!;
     this.lines = outlines(s);
+    this.shadow = shadowLayer(s);
+    this.playableEdge = playableEdgeLayer(s);
     void terrain(s.grid.width, s.grid.height).then((t) => { this.ground = t; this.request(); });
-    this.resize(); this.fit(s);
-    addEventListener('resize', () => { this.resize(); if (!this.moved || !(this.view.scale > 0)) this.fit(s); this.request(); });
+    this.resize(); this.fitPlayable(s);
+    addEventListener('resize', () => { this.resize(); if (!this.moved || !(this.view.scale > 0)) this.fitPlayable(s); this.request(); });
     this.bind();
   }
 
@@ -122,13 +171,68 @@ export class SliceMap {
   get cellPx() { return this.view.scale / devicePixelRatio; }
 
   private resize() { this.canvas.width = innerWidth * devicePixelRatio; this.canvas.height = innerHeight * devicePixelRatio; }
-  /** Fit the slice to the whole window: the HUD floats over the map, so nothing is reserved for panels. */
-  private fit(s: GameState) {
-    const [x0, y0, x1, y1] = sliceBox(s);
+
+  /** Fit a cell box into the window at `fill` of the available width or height. */
+  private fitBox([x0, y0, x1, y1]: readonly [number, number, number, number], fill = 0.9) {
     const w = this.canvas.width, hgt = this.canvas.height;
-    this.view.scale = Math.max(1e-3, Math.min(w / (x1 - x0 + 1), hgt / (y1 - y0 + 1)) * 0.9);
+    this.view.scale = Math.max(1e-3, Math.min(w / (x1 - x0 + 1), hgt / (y1 - y0 + 1)) * fill);
     this.view.ox = (w - (x1 - x0 + 1) * this.view.scale) / 2 - x0 * this.view.scale;
     this.view.oy = (hgt - (y1 - y0 + 1) * this.view.scale) / 2 - y0 * this.view.scale;
+    this.moved = false;
+    this.request();
+  }
+
+  /** R11.1: the opening and "Fit playable" view is the seven playable areas, not the whole territory. */
+  fitPlayable(s = this.scene?.state) {
+    if (!s) return;
+    this.fitBox(playableBox(s));
+  }
+  /** The whole territory, including card-only Shekou and Nantou and the present-day city limit. */
+  fitAll(s = this.scene?.state) {
+    if (!s) return;
+    this.fitBox(sliceBox(s));
+  }
+  /** Focus one area from the map key. Card-only areas open at a comfortable scale too. */
+  focusArea(id: number) {
+    const s = this.scene?.state;
+    const box = s ? areaBox(s, id) : undefined;
+    if (!box) return;
+    this.fitBox(box, 0.78);
+  }
+  /** Zoom about the canvas centre, for the + / − controls. */
+  zoomBy(factor: number) {
+    const mx = this.canvas.width / 2, my = this.canvas.height / 2;
+    const ns = Math.min(90 * devicePixelRatio, Math.max(0.5, this.view.scale * factor));
+    this.view.ox = mx - ((mx - this.view.ox) * ns) / this.view.scale;
+    this.view.oy = my - ((my - this.view.oy) * ns) / this.view.scale;
+    this.view.scale = ns; this.moved = true; this.request();
+  }
+  /** A build tool opens on a readable cell size; panned-away or zoomed-out views are brought back. */
+  ensureBuildView() {
+    const s = this.scene?.state;
+    if (!s) return;
+    if (this.cellPx < 9) {
+      this.fitPlayable(s);
+      // put the core to the right of the open tool flyout instead of under it
+      this.panBy(Math.min(140, innerWidth * 0.14), 0);
+    }
+  }
+  panBy(dx: number, dy: number) {
+    this.view.ox += dx * devicePixelRatio;
+    this.view.oy += dy * devicePixelRatio;
+    this.moved = true;
+    this.request();
+  }
+  /** R11.1: put a few cells in the clear part of the map, right of the tool flyout. */
+  centerOn(cells: readonly (readonly [number, number])[], screenX = innerWidth * 0.66, screenY = innerHeight * 0.58, minCellPx = 10) {
+    if (!cells.length) return;
+    const cx = cells.reduce((n, c) => n + c[0], 0) / cells.length;
+    const cy = cells.reduce((n, c) => n + c[1], 0) / cells.length;
+    if (this.cellPx < minCellPx) this.view.scale = minCellPx * devicePixelRatio;
+    this.view.ox = screenX * devicePixelRatio - cx * this.view.scale;
+    this.view.oy = screenY * devicePixelRatio - cy * this.view.scale;
+    this.moved = true;
+    this.request();
   }
   private request() { if (!this.pending) { this.pending = true; requestAnimationFrame(() => { this.pending = false; this.draw(); }); } }
 
@@ -145,6 +249,12 @@ export class SliceMap {
     ctx.drawImage(this.lines, 0, 0);
     if (this.zones) ctx.drawImage(this.zones, 0, 0);
     if (this.overlay) ctx.drawImage(this.overlay, 0, 0);
+    // R11.1: the city exists around the seven playable areas; only the playable land stays lit.
+    ctx.drawImage(this.shadow, 0, 0);
+    ctx.drawImage(this.playableEdge, 0, 0);
+    this.drawCityBorder();
+    this.drawAreaLabels(sc);
+    if (this.drawMode) this.drawBuildGrid(sc);
     const at = (c: number): [number, number] => [c % W, Math.floor(c / W)];
     if (this.cellPx >= 5) {                                    // planned cells hatched
       ctx.strokeStyle = 'rgba(20,30,60,.7)'; ctx.lineWidth = Math.max(px, 0.06);
@@ -178,6 +288,106 @@ export class SliceMap {
       ctx.strokeStyle = '#f3ecd8'; ctx.lineWidth = Math.max(4 * px, 0.18); ctx.strokeRect(sc.selected.x, sc.selected.y, 1, 1);
       ctx.strokeStyle = '#5c1f24'; ctx.lineWidth = Math.max(2 * px, 0.08); ctx.strokeRect(sc.selected.x, sc.selected.y, 1, 1);
     }
+    if (sc.tutorial) {
+      // R11.1: the suggested first block, drawn as a gold surveyed outline with its label.
+      ctx.save();
+      ctx.setLineDash([4 * px, 2.5 * px]);
+      ctx.strokeStyle = '#e2c07a'; ctx.lineWidth = Math.max(4 * px, 0.2);
+      for (const c of sc.tutorial.cells) { const [x, y] = at(c); ctx.strokeRect(x + .06, y + .06, .88, .88); }
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(226,192,122,.18)';
+      for (const c of sc.tutorial.cells) { const [x, y] = at(c); ctx.fillRect(x, y, 1, 1); }
+      const first = sc.tutorial.cells[0];
+      if (first !== undefined) {
+        const [x, y] = at(first);
+        ctx.font = `bold ${11 * px}px "Courier New", Courier, ui-monospace, SimHei, "Heiti SC", "Microsoft YaHei", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.lineWidth = 3.5 * px; ctx.strokeStyle = 'rgba(243,236,216,.95)'; ctx.lineJoin = 'round';
+        ctx.strokeText(sc.tutorial.label, x + 1, y + 1.5);
+        ctx.fillStyle = '#5c1f24'; ctx.fillText(sc.tutorial.label, x + 1, y + 1.5);
+      }
+      ctx.restore();
+    }
+  }
+
+  /** R11.1: the present-day city limit, a blue dashed reference line over the shadow. */
+  private drawCityBorder() {
+    if (!this.border.rings.length) return;
+    const { ctx } = this, px = devicePixelRatio / this.view.scale;
+    ctx.save();
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    for (const ring of this.border.rings) {
+      if (ring.length < 4) continue;
+      ctx.beginPath();
+      ring.forEach(([x, y], i) => { if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+      ctx.closePath();
+      ctx.setLineDash([]);
+      ctx.lineWidth = Math.max(3.4 * px, 0.18); ctx.strokeStyle = 'rgba(243,236,216,.72)'; ctx.stroke();
+      ctx.setLineDash([7 * px, 4 * px]);
+      ctx.lineWidth = Math.max(1.7 * px, 0.09); ctx.strokeStyle = 'rgba(36,71,107,.9)'; ctx.stroke();
+    }
+    // one bilingual reference label at the northernmost point of the largest ring
+    const main = this.border.rings[0];
+    if (main && this.cellPx >= 3) {
+      const top = main.reduce((a, b) => (b[1] < a[1] ? b : a), main[0]!);
+      const label = '深圳市界（今） Shenzhen city limit (present-day)';
+      ctx.setLineDash([]);
+      ctx.font = `italic ${10 * px}px "Courier New", Courier, ui-monospace, SimHei, "Heiti SC", "Microsoft YaHei", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 3 * px; ctx.strokeStyle = 'rgba(243,236,216,.9)'; ctx.lineJoin = 'round';
+      ctx.strokeText(label, top[0], top[1] - 0.8);
+      ctx.fillStyle = 'rgba(36,71,107,.9)'; ctx.fillText(label, top[0], top[1] - 0.8);
+    }
+    ctx.restore();
+  }
+
+  /** R11.1: every area named on the map, so the player never has to guess what the red lines enclose. */
+  private drawAreaLabels(sc: Scene) {
+    const { ctx } = this, px = devicePixelRatio / this.view.scale;
+    if (this.cellPx < 2.2) return;
+    const offset: Record<number, [number, number]> = {
+      1: [2, -1], 2: [0, 2], 3: [-3, -1], 4: [3, 0], 5: [-2, -2], 6: [4, -1], 7: [-2, 2], 8: [0, 0], 9: [0, 0],
+    };
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (const a of sc.state.areas) {
+      if (!a.cells.length) continue;
+      let sx = 0, sy = 0;
+      for (const c of a.cells) { sx += c % sc.state.grid.width; sy += Math.floor(c / sc.state.grid.width); }
+      const x = sx / a.cells.length + (offset[a.id]?.[0] ?? 0);
+      const y = sy / a.cells.length + (offset[a.id]?.[1] ?? 0);
+      const playable = a.access === 'playable';
+      ctx.font = `${playable ? 'bold ' : ''}${(playable ? 11 : 9.5) * px}px "Courier New", Courier, ui-monospace, SimHei, "Heiti SC", "Microsoft YaHei", sans-serif`;
+      ctx.globalAlpha = playable ? 1 : 0.72;
+      ctx.lineWidth = 3.5 * px; ctx.strokeStyle = playable ? 'rgba(243,236,216,.92)' : 'rgba(31,26,21,.85)'; ctx.lineJoin = 'round';
+      const label = bi(a.name);
+      ctx.strokeText(label, x, y);
+      ctx.fillStyle = playable ? '#2b1d17' : '#f0e3c4';
+      ctx.fillText(label, x, y);
+    }
+    ctx.restore();
+  }
+
+  /** R11.1: a faint 100 m grid while a build tool is open, so a drag can be aimed at cells. */
+  private drawBuildGrid(sc: Scene) {
+    if (this.cellPx < 4) return;
+    const { ctx } = this, px = devicePixelRatio / this.view.scale;
+    ctx.save();
+    ctx.beginPath();
+    for (const a of sc.state.areas) {
+      if (a.access !== 'playable') continue;
+      for (const c of a.cells) {
+        const x = c % sc.state.grid.width, y = Math.floor(c / sc.state.grid.width);
+        ctx.moveTo(x, y); ctx.lineTo(x + 1, y);
+        ctx.moveTo(x, y); ctx.lineTo(x, y + 1);
+      }
+    }
+    ctx.lineWidth = Math.max(px, 0.03);
+    ctx.strokeStyle = 'rgba(243,236,216,.26)';
+    ctx.stroke();
+    ctx.restore();
   }
 
   /** The start routes, in their temporary styles (keyed in the overlay switcher). */
@@ -309,11 +519,12 @@ export class SliceMap {
       this.view.scale = ns; this.moved = true; this.request();
     }, { passive: false });
     c.addEventListener('contextmenu', (e) => e.preventDefault());
-    let down: { x: number; y: number } | null = null, from: Cell | null = null, pan: { x: number; y: number } | null = null, last: Cell | null = null;
+    let down: { x: number; y: number; button: number } | null = null, from: Cell | null = null, pan: { x: number; y: number } | null = null, last: Cell | null = null;
     c.addEventListener('pointerdown', (e) => {
-      down = { x: e.clientX, y: e.clientY };
+      down = { x: e.clientX, y: e.clientY, button: e.button };
       c.setPointerCapture(e.pointerId);
       const cell = this.cellAt(e);
+      // R11.1: left draws, any other button pans, even while a build tool is open.
       if (this.drawMode && e.button === 0 && cell) { from = cell; last = cell; this.h.drag(cell, cell, false); return; }
       pan = { x: e.clientX, y: e.clientY }; c.classList.add('dragging');
     });
@@ -330,7 +541,7 @@ export class SliceMap {
       const f = from, cell = this.cellAt(e) ?? last;
       from = null; pan = null; last = null; c.classList.remove('dragging');
       if (f && cell) { this.h.drag(f, cell, true); return; }
-      if (down && cell && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 4) this.h.click(cell);
+      if (down?.button === 0 && cell && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 4) this.h.click(cell);
     });
     c.addEventListener('pointerleave', () => this.h.hover(null, { x: 0, y: 0 }));
   }
