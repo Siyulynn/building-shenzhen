@@ -382,8 +382,9 @@ export function planWorks(s: GameState, tick: TickContent, p: SliceParams, plan:
   if (per && U.station_turn !== undefined && s.turn >= U.station_turn && !placements.some((x) => x.kind === 'power_station')
     && gateAllows(s, tick, { type: 'place_structure', kind: 'power_station', cell: [0, 0], attach: [0, 0] })
     && money + credit >= (st.yuan * 12) / st.build_months && (st.forex_usd ?? 0) <= forex) {
-    const z = s.zones.find((x) => x.use === 'industrial');
-    const site = z ? structureSite(s, tick, new Set(cellsOfRuns(z.runs, s.grid)), used) : undefined;
+    // R12: beside the first industrial zone that has a free site (a design zone's roads may be flanked by zones)
+    let site: [number, number] | undefined;
+    for (const z of s.zones) if (!site && z.use === 'industrial') site = structureSite(s, tick, new Set(cellsOfRuns(z.runs, s.grid)), used);
     if (site) {
       const a: PlayerAction = { type: 'place_structure', kind: 'power_station', cell: xy(site[0], w), attach: xy(site[1], w) };
       const acts = spend((st.yuan * 12) / st.build_months, a);

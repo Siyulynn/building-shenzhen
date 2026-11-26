@@ -726,3 +726,25 @@ customs 28% → 35%, factory wage ¥60 → ¥130, debt ¥1.4M → ¥2.01M, bank 
 policy outcome as in R10c.
 
 **Invariants.** `npm run check` green; no save version change; determinism holds; money and people conserved.
+
+## R12 (the historical run on the 1984 design map, 2026-11-26)
+
+`HISTORICAL_PLAN` draws the January 1984 design map's zones on their own cells and lays six roads that touch them
+(§5.9, `docs/design/r12-core-basin.md`). Only `historical_prologue` moves; the other four golden runs are unchanged.
+
+| End 1983 | Before R12 | First switch | With the Luohu strip, school and station |
+|---|---|---|---|
+| GDP | ¥43.46M | ¥32.05M | ¥40.74M |
+| Revenue | ¥6.50M | ¥4.38M | ¥6.08M |
+| Residents | 65,814 | 56,677 | 62,144 |
+| Firm jobs | 17,457 | 11,368 | 12,773 |
+| Debt ÷ revenue | 0.31 | 0.49 | 0.39 |
+| Bank share (1982–83) | 0.37 | 0.36 | 0.34 |
+
+Why the first switch fell: the Luohu commercial strip was clipped by Jianshe Road (customs depends on trading
+premises), and the school and station had no site.
+
+What did not help: crew share, room ahead, staging and road slots each moved GDP by less than ¥1M.
+
+All 20 bands pass at every step. Firm jobs stay 27% below the old path, because the servicing goes to the many newly
+drawn zones rather than to the factories.

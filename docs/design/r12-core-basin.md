@@ -14,7 +14,8 @@ their outlines cite claims for the sites, not for the extents.
 | 1979 map reconciliation | Done | See below. |
 | Main menu, save and load | Done | Title screen (New game, Continue, Load), a Game menu in play (three slots, an autosave at each turn start, export and import as a file). Saves only at a turn start; a save keeps the unsent answers and queued actions, so End turn after a load gives what it would have given. `apps/slice-ui/src/saves.ts`. |
 | 1984 overlay: reference areas | Done | Lizhi Park, the municipal compound and the three yards are drawn on the 1984 plan (`context` in the overlay file), with their own key entry. No game effect. |
-| Historical run follows the 1984 map | In progress | Explicit-cell zone plans (`DesignZonePlan`, §5.9) and the switch are done. All 20 bands pass, but the path fell (see below). Recalibration next. |
+| Historical run follows the 1984 map | Done | Explicit-cell zone plans (`DesignZonePlan`, §5.9), the switch, the Luohu strip fix and the plan recalibration. All 20 bands pass; end-1983 GDP is 6% below the old path (see below). |
+| 1984 save state | Next | |
 
 ## 1979 reconciliation
 
@@ -47,9 +48,11 @@ reference areas, with the yards, when the overlay and the historical run are ext
 
 ## Generator
 
-`build/3d-snapshots/jan84-stage-b/make-zoning-maps.py` writes the maps and the resolved grid. It sits in the ignored
-`build/` folder with its atlas inputs, so the maps cannot yet be rebuilt from a clean checkout. R12 changes to it:
-the `transport_yard` shade, and an optional `land_classes` on an inherited zone (which built classes it takes).
+`pipeline/make-zoning-maps.py` writes the two plates and the resolved grid. It reads the tracked Stage B app at
+`apps/snapshot-3d/` (and falls back to a working `build/3d-snapshots/jan84-stage-b/` snapshot for the prepared
+`public/grid/` inputs), so the maps can be rebuilt from a clean checkout once `npm run prepareData -w @sz/snapshot-3d`
+has run. R12 changes to it: the `transport_yard` shade, and an optional `land_classes` on an inherited zone (which
+built classes it takes).
 
 ## The historical run on the design map
 
@@ -99,3 +102,33 @@ no power station; the old plan had one of each, and 9 substations against 7. Fre
 Neither change is committed: the branch keeps the first switch, which passes every band. Both belong to the
 recalibration, together with the Luohu strip: with the strip, customs lifts revenue, which should make room for the
 school and the station under the spending ÷ revenue band.
+
+## The Luohu strip fix and the recalibration
+
+**The design map.** In the game, the railway (column 385) and Jianshe Road (386) are temporary paths, and column 387
+is free farmland. The design map put the Luohu commercial strip at 386 and Renmin Road, a photo-traced avenue whose
+cells stay unzoned, at 387. Two changes fix it:
+- `core-basin-proposals.json`: the strip box is `[387, 379, 388, 387]`. Boxes use corner coordinates, so this is
+  column 387, rows 379–386.
+- The generator lays Renmin Road one cell east of its photo trace (column 388).
+
+So the order is now Jianshe Road (386), the strip (387), Renmin Road (388), and the Luohu core. Luohu commercial grows
+11 → 12 cells (8 along Jianshe Road plus the 4 east cells) and Luohu housing 23 → 24. Luohu works falls 10 → 6 and the
+core 14 → 12, because Renmin Road takes column 388. The 1979 opening and the reference areas are unchanged.
+
+**The plan.** The school goes in Luohu (area 2). The station goes beside the first industrial zone with a free site,
+which is Bagualing from 1982: Shangbu's roads are flanked by zones.
+
+**Result** (end 1983; old plan → design plan): GDP ¥43.5M → ¥40.7M, revenue ¥6.50M → ¥6.08M, residents
+65.8k → 62.1k, firm jobs 17.5k → 12.8k, exports ¥67.8M → ¥58.3M. Debt ÷ revenue 0.31 → 0.39, bank share
+0.37 → 0.34, and the fiscal test −¥375k → −¥757k. All 20 bands pass.
+
+**Left open.**
+- **The servicing split doesn't match the map.** Least-room servicing gives each newly drawn zone the crews: Shangbu
+  housing stays unserviced, and the factories stop at 12 of 56 cells while the graded Shangbu works get 18.
+- **The footprint is a quarter of the map's.** The run services about 50 cells by 1984, against the map's ~190 built
+  and ~110 graded. Matching it needs sim parameters (crew capacity, servicing cost per cell), which would also move the
+  cautious and aggressive runs.
+- **The station arrives late.** It is still building at the visit.
+- **The generator is untracked.** It lives in `build/`, so these design-map changes cannot be rebuilt from a clean
+  checkout.

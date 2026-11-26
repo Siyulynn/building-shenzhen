@@ -184,7 +184,7 @@ const DESIGN_ROADS: MapPlan['roads'] = [
 const DESIGN_AVENUES: NonNullable<MapPlan['upgrades']> = [{ path: DESIGN_ROADS[0]!, class: 'avenue' }, { path: DESIGN_ROADS[1]!, class: 'avenue' }];
 /**
  * The historical plan: R12 (§5.9) the visit's design map, its zones (HISTORICAL_DESIGN) and its roads (DESIGN_ROADS);
- * a third of the crews; a school in the town.
+ * a third of the crews; a school in Luohu.
  */
 export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
   zones: designZones(HISTORICAL_DESIGN),
@@ -193,7 +193,7 @@ export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
   crew_share: 0.34, room_ahead_m2: 30_000, small_zones_first: true,
   credit_share: 0.4,                                                      // R11a: the bank funds about two fifths of the works
   import_quota: { level: 'open', from_turn: 16 },                         // R11: loosen import approval from its turn 16
-  utilities: { headroom_jobs: 200, max_sources: 8, import_kw: 1000, import_from_turn: 2, station_turn: 6 }, facilities: [['school', 1]],
+  utilities: { headroom_jobs: 200, max_sources: 8, import_kw: 1000, import_from_turn: 2, station_turn: 6 }, facilities: [['school', 2]],   // R12: in Luohu; the design plan zones nothing in the town
   teams: ['team.outside_soe'], reserve: 0,               // R9 (§5.6): the corps is an event's arrival, never a contract
   borrow_until_turn: 3, roads_at_once: 2,
 });

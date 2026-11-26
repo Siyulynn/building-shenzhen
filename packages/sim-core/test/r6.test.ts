@@ -69,7 +69,11 @@ describe('R6: the map-first policies', () => {
     expect(z).toBeDefined();
     const roads = plannedRoads(s, UNGATED), w = s.grid.width;
     expect(cellsOfRuns(z.runs, s.grid).some((c) => [c - 1, c + 1, c - w, c + w].some((n) => roads.has(n)))).toBe(true);
-    expect(s.firms.some((f) => f.zone === z.id && f.origin === 'organic')).toBe(true);
+    // R12: with every tool open from the start, every zone is drawn at once and least-room servicing may leave the
+    // factories to later; Shangbu's design industrial land (factories or works) still gets its firms
+    const shangbu = new Set(['shangbu-factories', 'shangbu-works'].flatMap((id) => cellsOfRuns(DESIGN_PLAN_ZONES.find((x) => x.id === id)!.runs, s.grid)));
+    const zones = s.zones.filter((x) => x.use === 'industrial' && cellsOfRuns(x.runs, s.grid).some((c) => shangbu.has(c))).map((x) => x.id);
+    expect(s.firms.some((f) => f.zone !== undefined && zones.includes(f.zone))).toBe(true);
   });
 
   it('zones take the cells nearest a road, and no zone takes a plan road cell', () => {

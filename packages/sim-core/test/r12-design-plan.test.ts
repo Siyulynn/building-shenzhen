@@ -30,10 +30,11 @@ describe('R12 design-map zones', () => {
 
   it('draws a design zone on its own cells, minus the road cells', () => {
     const s = fresh(), z = zoneOf('luohu-support');
+    const own = cellsOfRuns(z.runs, s.grid);
+    s.roads = [own[0]!, own[1]!].sort((p, q) => p - q);                      // two built road cells inside the zone
     const roads = plannedRoads(s, UNGATED);
     const [a] = created(planZones(s, UNGATED, plan([{ id: z.id, use: z.use, runs: z.runs }])));
-    const own = cellsOfRuns(z.runs, s.grid);
-    expect(own.filter((c) => roads.has(c))).toHaveLength(7);
+    expect(own.filter((c) => roads.has(c))).toHaveLength(2);
     expect(cellsOfRuns(a!.runs, s.grid)).toEqual(own.filter((c) => !roads.has(c)));
     expect(a!.use).toBe('commercial');
   });

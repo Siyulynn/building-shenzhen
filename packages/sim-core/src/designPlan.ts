@@ -13,13 +13,13 @@ export interface DesignZone {
 /** The visit's design map: its proposal and works zones, as [y, x0, x1] runs on the slice grid. */
 export const DESIGN_PLAN_ZONES: readonly DesignZone[] = Object.freeze([
   { id: 'luohu-works', use: 'commercial', intensity: 'high', ground: 'graded',
-    runs: [[378, 388, 390], [379, 388, 390], [380, 388, 388], [380, 390, 390], [381, 388, 388], [381, 390, 390]] },
+    runs: [[378, 389, 390], [379, 389, 390], [380, 390, 390], [381, 390, 390]] },
   { id: 'luohu-high', use: 'commercial', intensity: 'high', ground: 'built',
-    runs: [[378, 392, 392], [379, 391, 392], [380, 391, 392], [382, 388, 392], [383, 388, 390], [383, 392, 392]] },
+    runs: [[378, 392, 392], [379, 391, 392], [380, 391, 392], [382, 389, 392], [383, 389, 390], [383, 392, 392]] },
   { id: 'luohu-support', use: 'commercial', intensity: 'standard', ground: 'built',
-    runs: [[379, 386, 386], [380, 386, 386], [380, 393, 394], [381, 386, 386], [381, 394, 394], [382, 386, 386], [382, 393, 393], [383, 386, 386], [384, 386, 386], [385, 386, 386]] },
+    runs: [[379, 387, 387], [380, 387, 387], [380, 393, 394], [381, 387, 387], [381, 394, 394], [382, 387, 387], [382, 393, 393], [383, 387, 387], [384, 387, 387], [385, 387, 387], [386, 387, 387]] },
   { id: 'luohu-housing', use: 'residential', intensity: 'standard', ground: 'built',
-    runs: [[384, 389, 394], [385, 390, 394], [386, 388, 388], [386, 390, 394], [387, 388, 388], [387, 390, 394]] },
+    runs: [[384, 388, 388], [384, 390, 394], [385, 388, 388], [385, 390, 394], [386, 388, 388], [386, 390, 394], [387, 388, 388], [387, 390, 394]] },
   { id: 'shangbu-factories', use: 'industrial', intensity: 'standard', ground: 'built',
     runs: [[375, 349, 353], [375, 355, 363], [376, 349, 353], [376, 355, 363], [377, 349, 353], [377, 355, 363], [378, 349, 353], [378, 355, 363], [379, 349, 353], [379, 355, 363]] },
   { id: 'shangbu-housing', use: 'residential', intensity: 'standard', ground: 'built',
