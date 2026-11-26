@@ -1,0 +1,95 @@
+{
+ "tag": "kh9_1980",
+ "segments": [
+  {
+   "source": "kh9_1980_09_11_a048",
+   "segment": "c",
+   "heldout": {
+    "rmse_m": 27.8,
+    "median_m": 21.0,
+    "p90_m": 42.4,
+    "points": 3408,
+    "folds": 5
+   },
+   "status": "lead"
+  },
+  {
+   "source": "kh9_1980_09_11_f048",
+   "segment": "b",
+   "heldout": {
+    "rmse_m": 30.6,
+    "median_m": 24.1,
+    "p90_m": 48.2,
+    "points": 653,
+    "folds": 5
+   },
+   "status": "lead"
+  }
+ ],
+ "overview": {
+  "file": "kh9_1980.png",
+  "px_m": 25.0
+ },
+ "slice": {
+  "file": "kh9_1980_slice.png",
+  "px_m": 6.25,
+  "cell_box": [
+   332,
+   297,
+   495,
+   398
+  ]
+ },
+ "coverage": [
+  {
+   "area": 1,
+   "key": "market_town",
+   "covered_share": 1.0
+  },
+  {
+   "area": 2,
+   "key": "luohu_crossing",
+   "covered_share": 1.0
+  },
+  {
+   "area": 3,
+   "key": "caiwuwei",
+   "covered_share": 1.0
+  },
+  {
+   "area": 4,
+   "key": "huangbeiling",
+   "covered_share": 1.0
+  },
+  {
+   "area": 5,
+   "key": "sungang",
+   "covered_share": 1.0
+  },
+  {
+   "area": 6,
+   "key": "donghu_liantang",
+   "covered_share": 0.84
+  },
+  {
+   "area": 7,
+   "key": "shangbu",
+   "covered_share": 1.0
+  },
+  {
+   "area": 8,
+   "key": "shekou",
+   "covered_share": 0.8
+  },
+  {
+   "area": 9,
+   "key": "nantou",
+   "covered_share": 1.0
+  }
+ ],
+ "caveats": [
+  "KH-9 Hexagon panoramic scans, registered to Landsat 1979 (60 m, ~27 m RMSE): absolute error is a few tens of metres. Good for 100 m cells and for spotting features; not for tracing footprints.",
+  "Hills shift with relief displacement in a panoramic camera; control points are on low, flat land.",
+  "Dated to the acquisition: evidence for that date, not for 1979."
+ ]
+}

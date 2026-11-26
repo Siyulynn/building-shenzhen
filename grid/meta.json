@@ -1,0 +1,785 @@
+{
+ "cell_m": 100.0,
+ "crs": "EPSG:32650",
+ "origin_top_left": [
+  164400.0,
+  2533900.0
+ ],
+ "width": 931,
+ "height": 686,
+ "layout": "int16 elevation_m | uint8 water | uint8 district | uint16 subdistrict; row-major, row 0 = north",
+ "districts": [
+  {
+   "id": 1,
+   "name": "罗湖区",
+   "en": "Luohu",
+   "label": [
+    418,
+    343
+   ],
+   "land_km2": 79.0
+  },
+  {
+   "id": 2,
+   "name": "福田区",
+   "en": "Futian",
+   "label": [
+    315,
+    373
+   ],
+   "land_km2": 73.2
+  },
+  {
+   "id": 3,
+   "name": "南山区",
+   "en": "Nanshan",
+   "label": [
+    204,
+    366
+   ],
+   "land_km2": 176.7
+  },
+  {
+   "id": 4,
+   "name": "宝安区",
+   "en": "Bao'an",
+   "label": [
+    126,
+    220
+   ],
+   "land_km2": 368.8
+  },
+  {
+   "id": 5,
+   "name": "龙岗区",
+   "en": "Longgang",
+   "label": [
+    621,
+    284
+   ],
+   "land_km2": 679.9
+  },
+  {
+   "id": 6,
+   "name": "盐田区",
+   "en": "Yantian",
+   "label": [
+    546,
+    321
+   ],
+   "land_km2": 77.0
+  },
+  {
+   "id": 7,
+   "name": "龙华区",
+   "en": "Longhua",
+   "label": [
+    304,
+    220
+   ],
+   "land_km2": 176.3
+  },
+  {
+   "id": 8,
+   "name": "坪山区",
+   "en": "Pingshan",
+   "label": [
+    641,
+    220
+   ],
+   "land_km2": 165.7
+  },
+  {
+   "id": 9,
+   "name": "光明区",
+   "en": "Guangming",
+   "label": [
+    198,
+    130
+   ],
+   "land_km2": 161.3
+  }
+ ],
+ "subdistricts": [
+  {
+   "id": 1,
+   "name": "石岩街道",
+   "en": "Shiyan Sub-District",
+   "label": [
+    197,
+    229
+   ]
+  },
+  {
+   "id": 2,
+   "name": "桂园街道",
+   "en": "Guiyuan Sub-district",
+   "label": [
+    377,
+    375
+   ]
+  },
+  {
+   "id": 3,
+   "name": "东门街道",
+   "en": "Dongmen Sub-district",
+   "label": [
+    391,
+    370
+   ]
+  },
+  {
+   "id": 4,
+   "name": "黄贝街道",
+   "en": "Huangbei Sub-district",
+   "label": [
+    414,
+    367
+   ]
+  },
+  {
+   "id": 5,
+   "name": "翠竹街道",
+   "en": "Cuizhu Sub-district",
+   "label": [
+    400,
+    354
+   ]
+  },
+  {
+   "id": 6,
+   "name": "南湖街道",
+   "en": "Nanhu Sub-district",
+   "label": [
+    389,
+    384
+   ]
+  },
+  {
+   "id": 7,
+   "name": "笋岗街道",
+   "en": "Sungang Sub-district",
+   "label": [
+    383,
+    354
+   ]
+  },
+  {
+   "id": 8,
+   "name": "东湖街道",
+   "en": "Donghu Sub-district",
+   "label": [
+    450,
+    326
+   ]
+  },
+  {
+   "id": 9,
+   "name": "莲塘街道",
+   "en": "Liantang Sub-district",
+   "label": [
+    450,
+    352
+   ]
+  },
+  {
+   "id": 10,
+   "name": "东晓街道",
+   "en": "Dongxiao Sub-district",
+   "label": [
+    394,
+    335
+   ]
+  },
+  {
+   "id": 11,
+   "name": "清水河街道",
+   "en": "Qingshuihe Sub-district",
+   "label": [
+    360,
+    333
+   ]
+  },
+  {
+   "id": 12,
+   "name": "横岗街道",
+   "en": "Henggang Sub-district",
+   "label": [
+    465,
+    273
+   ]
+  },
+  {
+   "id": 13,
+   "name": "布吉街道",
+   "en": "Buji Sub-district",
+   "label": [
+    393,
+    310
+   ]
+  },
+  {
+   "id": 14,
+   "name": "葵涌街道",
+   "en": "Kuichong Sub-district",
+   "label": [
+    732,
+    283
+   ]
+  },
+  {
+   "id": 15,
+   "name": "大鹏街道",
+   "en": "Dapeng Sub-district",
+   "label": [
+    789,
+    322
+   ]
+  },
+  {
+   "id": 16,
+   "name": "南澳街道",
+   "en": "Nan'ao Sub-district",
+   "label": [
+    823,
+    420
+   ]
+  },
+  {
+   "id": 17,
+   "name": "平湖街道",
+   "en": "Pinghu Sub-district",
+   "label": [
+    404,
+    225
+   ]
+  },
+  {
+   "id": 18,
+   "name": "坪地街道",
+   "en": "Pingde Sub-district",
+   "label": [
+    588,
+    123
+   ]
+  },
+  {
+   "id": 19,
+   "name": "龙岗街道",
+   "en": "Longgang Sub-district",
+   "label": [
+    516,
+    143
+   ]
+  },
+  {
+   "id": 20,
+   "name": "龙城街道",
+   "en": "Longcheng Sub-district",
+   "label": [
+    502,
+    198
+   ]
+  },
+  {
+   "id": 21,
+   "name": "坂田街道",
+   "en": "Bantian Sub-District",
+   "label": [
+    342,
+    275
+   ]
+  },
+  {
+   "id": 22,
+   "name": "南湾街道",
+   "en": "Nanwan Sub-district",
+   "label": [
+    416,
+    283
+   ]
+  },
+  {
+   "id": 23,
+   "name": "吉华街道",
+   "en": "Jihua Sub-district",
+   "label": [
+    373,
+    279
+   ]
+  },
+  {
+   "id": 24,
+   "name": "园山街道",
+   "en": "Yuanshan Sub-district",
+   "label": [
+    507,
+    269
+   ]
+  },
+  {
+   "id": 25,
+   "name": "宝龙街道",
+   "en": "Baolong Sub-district",
+   "label": [
+    575,
+    198
+   ]
+  },
+  {
+   "id": 26,
+   "name": "梅沙街道",
+   "en": "Meisha Sub-district",
+   "label": [
+    592,
+    309
+   ]
+  },
+  {
+   "id": 27,
+   "name": "盐田街道",
+   "en": "Yantian Sub-district",
+   "label": [
+    541,
+    315
+   ]
+  },
+  {
+   "id": 28,
+   "name": "海山街道",
+   "en": "Haishan Sub-district",
+   "label": [
+    509,
+    356
+   ]
+  },
+  {
+   "id": 29,
+   "name": "沙头角街道",
+   "en": "Shatoujiao Sub-district",
+   "label": [
+    490,
+    358
+   ]
+  },
+  {
+   "id": 30,
+   "name": "南头街道",
+   "en": "Nantou Sub-district",
+   "label": [
+    184,
+    369
+   ]
+  },
+  {
+   "id": 31,
+   "name": "南山街道",
+   "en": "Nanshan Sub-district",
+   "label": [
+    157,
+    408
+   ]
+  },
+  {
+   "id": 32,
+   "name": "沙河街道",
+   "en": "Shahe",
+   "label": [
+    241,
+    381
+   ]
+  },
+  {
+   "id": 33,
+   "name": "蛇口街道",
+   "en": "Shekou Sub-district",
+   "label": [
+    107,
+    427
+   ]
+  },
+  {
+   "id": 34,
+   "name": "招商街道",
+   "en": "Zhaoshang Sub-district",
+   "label": [
+    165,
+    442
+   ]
+  },
+  {
+   "id": 35,
+   "name": "粤海街道",
+   "en": "Yuehai Sub-district",
+   "label": [
+    206,
+    390
+   ]
+  },
+  {
+   "id": 36,
+   "name": "桃源街道",
+   "en": "Taoyuan Sub-District",
+   "label": [
+    255,
+    328
+   ]
+  },
+  {
+   "id": 37,
+   "name": "西丽街道",
+   "en": "Xili Sub-District",
+   "label": [
+    217,
+    304
+   ]
+  },
+  {
+   "id": 38,
+   "name": "光明街道",
+   "en": "Guangming Sub-district",
+   "label": [
+    236,
+    146
+   ]
+  },
+  {
+   "id": 39,
+   "name": "公明街道",
+   "en": "Gongming Sub-district",
+   "label": [
+    173,
+    85
+   ]
+  },
+  {
+   "id": 40,
+   "name": "新湖街道",
+   "en": "Xinhu Sub-district",
+   "label": [
+    224,
+    99
+   ]
+  },
+  {
+   "id": 41,
+   "name": "凤凰街道",
+   "en": "Fenghuang Sub-District",
+   "label": [
+    203,
+    162
+   ]
+  },
+  {
+   "id": 42,
+   "name": "玉塘街道",
+   "en": "Yutang Sub-District",
+   "label": [
+    165,
+    183
+   ]
+  },
+  {
+   "id": 43,
+   "name": "马田街道",
+   "en": "Matian Sub-district",
+   "label": [
+    152,
+    126
+   ]
+  },
+  {
+   "id": 44,
+   "name": "新安街道",
+   "en": "Xin'an Sub-District",
+   "label": [
+    162,
+    343
+   ]
+  },
+  {
+   "id": 45,
+   "name": "西乡街道",
+   "en": "Xixiang Sub-District",
+   "label": [
+    139,
+    314
+   ]
+  },
+  {
+   "id": 46,
+   "name": "航城街道",
+   "en": "Hangcheng Sub-District",
+   "label": [
+    117,
+    264
+   ]
+  },
+  {
+   "id": 47,
+   "name": "福永街道",
+   "en": "Fuyong Sub-district",
+   "label": [
+    89,
+    239
+   ]
+  },
+  {
+   "id": 48,
+   "name": "福海街道",
+   "en": "Fuhai Sub-district",
+   "label": [
+    58,
+    212
+   ]
+  },
+  {
+   "id": 49,
+   "name": "沙井街道",
+   "en": "Shajing Sub-district",
+   "label": [
+    60,
+    159
+   ]
+  },
+  {
+   "id": 50,
+   "name": "新桥街道",
+   "en": "Xinqiao Sub-District",
+   "label": [
+    111,
+    176
+   ]
+  },
+  {
+   "id": 51,
+   "name": "松岗街道",
+   "en": "Songgang Sub-District",
+   "label": [
+    105,
+    127
+   ]
+  },
+  {
+   "id": 52,
+   "name": "燕罗街道",
+   "en": "Yanluo Sub-District",
+   "label": [
+    133,
+    70
+   ]
+  },
+  {
+   "id": 53,
+   "name": "坪山街道",
+   "en": "Pingshan Sub-district",
+   "label": [
+    615,
+    213
+   ]
+  },
+  {
+   "id": 54,
+   "name": "马峦街道",
+   "en": "Maluan Sub-district",
+   "label": [
+    627,
+    258
+   ]
+  },
+  {
+   "id": 55,
+   "name": "碧岭街道",
+   "en": "Biling Sub-district",
+   "label": [
+    577,
+    250
+   ]
+  },
+  {
+   "id": 56,
+   "name": "石井街道",
+   "en": "Shijing Sub-district",
+   "label": [
+    685,
+    232
+   ]
+  },
+  {
+   "id": 57,
+   "name": "坑梓街道",
+   "en": "Kengzi Sub-district",
+   "label": [
+    676,
+    156
+   ]
+  },
+  {
+   "id": 58,
+   "name": "龙田街道",
+   "en": "Longtian Sub-district",
+   "label": [
+    642,
+    177
+   ]
+  },
+  {
+   "id": 59,
+   "name": "观湖街道",
+   "en": "Guanhu Sub-District",
+   "label": [
+    343,
+    211
+   ]
+  },
+  {
+   "id": 60,
+   "name": "观澜街道",
+   "en": "Guanlan Sub-District",
+   "label": [
+    334,
+    163
+   ]
+  },
+  {
+   "id": 61,
+   "name": "福城街道",
+   "en": "Fucheng Sub-District",
+   "label": [
+    290,
+    185
+   ]
+  },
+  {
+   "id": 62,
+   "name": "大浪街道",
+   "en": "Dalang Sub-District",
+   "label": [
+    261,
+    232
+   ]
+  },
+  {
+   "id": 63,
+   "name": "龙华街道",
+   "en": "Longhua Sub-District",
+   "label": [
+    306,
+    248
+   ]
+  },
+  {
+   "id": 64,
+   "name": "民治街道",
+   "en": "Minzhi Sub-district",
+   "label": [
+    302,
+    299
+   ]
+  },
+  {
+   "id": 65,
+   "name": "沙头街道",
+   "en": "Shatou Sub-district",
+   "label": [
+    293,
+    395
+   ]
+  },
+  {
+   "id": 66,
+   "name": "园岭街道",
+   "en": "Yuanling Sub-district",
+   "label": [
+    364,
+    362
+   ]
+  },
+  {
+   "id": 67,
+   "name": "香蜜湖街道",
+   "en": "Xiangmihu Sub-district",
+   "label": [
+    283,
+    373
+   ]
+  },
+  {
+   "id": 68,
+   "name": "南园街道",
+   "en": "Nanyuan Sub-district",
+   "label": [
+    361,
+    386
+   ]
+  },
+  {
+   "id": 69,
+   "name": "梅林街道",
+   "en": "Meilin Sub-district",
+   "label": [
+    304,
+    345
+   ]
+  },
+  {
+   "id": 70,
+   "name": "莲花街道",
+   "en": "Lianhua Sub-district",
+   "label": [
+    319,
+    367
+   ]
+  },
+  {
+   "id": 71,
+   "name": "华强北街道",
+   "en": "Huaqiangbei Sub-district",
+   "label": [
+    360,
+    374
+   ]
+  },
+  {
+   "id": 72,
+   "name": "华富街道",
+   "en": "Huafu Sub-district",
+   "label": [
+    345,
+    362
+   ]
+  },
+  {
+   "id": 73,
+   "name": "福田街道",
+   "en": "Futian Sub-district",
+   "label": [
+    334,
+    392
+   ]
+  },
+  {
+   "id": 74,
+   "name": "福保街道",
+   "en": "Fubao Sub-district",
+   "label": [
+    319,
+    410
+   ]
+  }
+ ],
+ "stats": {
+  "cells_inside": 292694,
+  "land_cells_inside": 195799,
+  "city_km2_polygon": 4009.0
+ },
+ "sources": [
+  "copernicus_dem_glo30",
+  "osm_shenzhen_admin"
+ ],
+ "caveats": [
+  "Boundaries are present-day (OSM), not 1979.",
+  "Water = DEM <= 0.5 m: the present-day coastline, including reclamation after 1979.",
+  "OSM district polygons include sea areas; land area comes from cells that are inside and not water."
+ ]
+}

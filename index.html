@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shenzhen · 深圳 | January 1984 Shennan review · 一月深南路对照</title>  <script type="module" crossorigin src="./assets/index-BOavEZWl.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CszBO6Ix.css">
+</head><body>
+<header><div class="mast"><span class="seal" aria-hidden="true">深</span><div><h1>Shenzhen <span>深圳</span></h1><p>Historical terrain atlas · 历史地形图集</p></div></div>
+<div class="dates" role="group" aria-label="Built snapshot / 建成状态"><button data-date="opening" aria-keyshortcuts="1" title="1979 opening · 1979 年初 [1]">1979 <small>年初</small></button><button data-date="baseline" aria-keyshortcuts="2" title="September 1980 baseline · 1980 年 9 月基准 [2]">1980 <small>9 月</small></button><button data-date="visit" aria-keyshortcuts="3" title="January 1984 · 1984 年 1 月 [3]">1984 <small>一月</small></button></div></header>
+<main><section id="map" aria-label="Interactive 3D terrain / 三维地形"><div id="pins"></div>
+<div id="map-actions">
+<button id="epoch-flip" aria-keyshortcuts="F" disabled><span id="flip-label">Flip date · 切换时点</span> <kbd>F</kbd></button>
+<button id="luohu-street" hidden>Luohu street · 罗湖街景</button>
+<button id="shangbu-street" hidden>Shangbu roadworks · 上步路工</button>
+<button id="yumin-street" hidden>Yumin lane · 渔民村街巷</button>
+<button id="civic-street" hidden>Government block · 市政府大楼</button>
+<button id="street-exit" aria-keyshortcuts="Escape" hidden>Return to map · 返回地图 <kbd>Esc</kbd></button>
+<button id="photo-review-exit" aria-keyshortcuts="Escape" hidden>Return to map · 返回地图 <kbd>Esc</kbd></button>
+</div>
+<div id="map-tools"><button id="home" title="Frame view / 复位">↺ <span>Reset · 复位</span></button><button id="zoom-in" aria-label="Zoom in / 放大">+</button><button id="zoom-out" aria-label="Zoom out / 缩小">−</button></div>
+<div id="locator"><span id="view-name" role="status"></span><span id="scale"></span></div>
+<details id="map-legend" hidden><summary>Map key · 图例</summary><div class="legend-sheet"><strong id="legend-title"></strong><ul id="legend"></ul><p id="legend-note"></p></div></details>
+<div id="street-status" role="status" hidden></div><div id="loading" role="status">Loading terrain · 正在加载地形…</div></section>
+<aside><div class="field"><label for="focus">View <span>视区</span></label><select id="focus"><option value="city">Municipality · 全市</option></select></div>
+<div class="field"><label for="layer">Surface layer <span>地表图层</span></label><select id="layer"><option value="base">Relief reference · 地形底图</option><option value="oct79">Oct 1979 water · 1979 年 10 月水体</option><option value="nov84">Nov 1984 change · 1984 年 11 月变化</option></select><p id="layer-note"></p></div>
+<div class="field" id="photo-review-option" hidden><label for="photo-review">Shennan photo viewpoints · 深南路照片视角</label>
+<select id="photo-review"><option value="">Free map · 自由地图</option></select>
+<p id="photo-review-note" class="hint" hidden>Approximate comparison camera · 对照视角仅为示意。 <a id="photo-review-source"></a></p>
+<p id="photo-review-meta" class="hint" hidden></p></div>
+<div class="field" id="building-names-option" hidden>
+<label><input type="checkbox" id="building-names"> Building names · 建筑名称</label>
+<details id="building-name-details" hidden>
+<summary id="building-name-summary">Located sites · 已定位地点</summary>
+<label><input type="checkbox" id="overlapping-names"> Show overlapping names · 显示重叠名称</label>
+<p id="building-name-count"></p>
+<p>Dashed labels mark locations without a model. Select any name to zoom in. 虚线标注为未建模地点。点击名称放大查看。</p>
+<div id="building-name-index"></div>
+</details></div>
+<div id="photo-observations" hidden>
+<div class="field"><label><input type="checkbox" id="core-trace"> September 1980 traces · 1980 年 9 月影像描绘</label>
+</div>
+<div class="field"><label><input type="checkbox" id="show-photo-places"> Named places · 地名定位</label>
+<div id="photo-place-info" class="photo-info" aria-live="polite"></div>
+<details id="photo-place-details"><summary>Find a place · 查找地点</summary><div id="photo-place-index"></div></details></div></div>
+<div class="field" id="basin-option">
+<div id="clear-focus-option" hidden><label><input type="checkbox" id="clear-focus"> Clear detail areas for hand-built models · 清空精模区</label>
+<p class="hint">Shenzhenxu, Luohu, Yumin and Caiwuwei masks (dashed). Ground and water stay; generated buildings, trees, fields and pond cells inside are removed. 深圳墟、罗湖、渔民村、蔡屋围精模区（虚线）：保留地面与水体，移除区内生成的建筑、树木、田块与塘格。</p></div></div>
+<div class="field" id="municipal-option" hidden>
+<label><input type="checkbox" id="municipal-estimates" checked> Estimated routes &amp; review bands · 估计线路及待核带</label></div>
+<section class="field" id="shenzhenxu-option" hidden aria-label="Shenzhenxu detail study / 深圳墟精模研究">
+<label>Shenzhenxu crossroads · 深圳墟十字街口</label>
+<div class="places"><button id="shenzhenxu-street">Street view · 街景</button>
+<button id="shenzhenxu-aerial" hidden>Aerial detail · 俯视精模</button>
+<button id="shenzhenxu-exit" hidden>Return to map · 返回地图</button></div>
+<p class="hint">September: photo-informed study, not a dated match. Bookends: unnamed frontage continuity. 九月为照片参考示意，并非定年匹配；前后时点采用无名街屋延续假设。</p></section>
+<section class="inspector"><h2 id="heading"></h2><div id="description"></div><div id="detail"></div></section>
+<details id="citations"><summary>Evidence &amp; placement · 依据与定位</summary><div id="evidence"></div></details>
+<details><summary>Map sources · 底图来源</summary><p>Copernicus DEM GLO-30 · 地形。© DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018, provided under COPERNICUS by the European Union and ESA.</p><p>USGS Landsat MSS · 水体与变化。19 Oct 1979 / 22 Nov 1984.</p><p>USGS KH-9 Declass 3 · 11 Sep 1980 · A048/F048 mosaic. User-supplied 《深圳市成立前之宝安县城（深圳）》 is a reference lead only; its scan is not embedded. 用户提供的县城图仅供参考，不附原图。</p><p>© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors · ODbL</a>. Present-day reference boundaries and site proxies · 现状行政界线及参考点位。</p></details>
+</aside></main><footer><span id="nav-hint"></span><span class="keyboard-hint"><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> Dates · 时点　 <kbd>F</kbd> Flip · 切换</span><span id="metrics"></span></footer></body></html>

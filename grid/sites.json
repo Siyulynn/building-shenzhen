@@ -1,0 +1,944 @@
+{
+ "source": "content/slice/sites_1979.yaml",
+ "sites": [
+  {
+   "id": "site.shenzhen_market_town",
+   "name": {
+    "zh": "深圳墟",
+    "en": "Shenzhen market town"
+   },
+   "kind": "town",
+   "area": 1,
+   "in_start_state": "block_stock",
+   "research": [
+    "Landsat 1979-10-19 built-up texture",
+    "USGS 1977 aerial (V15)",
+    "Bao'an county gazetteer",
+    "period street maps"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.shenzhen_market_town.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_sham_chun_historical_geography"
+    },
+    {
+     "id": "site.shenzhen_market_town.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    },
+    {
+     "id": "phase1.map.shennan_1980",
+     "use": "design_note",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_archive_road"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1136,
+     22.5466
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.2
+   },
+   "cell": [
+    387,
+    377
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.county_offices",
+   "name": {
+    "zh": "县属机关与国营单位",
+    "en": "County offices and state units"
+   },
+   "kind": "state_unit",
+   "area": 1,
+   "in_start_state": "block_stock",
+   "research": [
+    "Bao'an county gazetteer",
+    "1985 yearbook unit lists"
+   ],
+   "placeholder": true,
+   "evidence_status": "sourced",
+   "claims": [
+    {
+     "id": "site.county_offices.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_sham_chun_historical_geography"
+    }
+   ],
+   "geometry": {
+    "kind": "unplaced"
+   },
+   "cell": null,
+   "landsat_check": null
+  },
+  {
+   "id": "site.luohu_crossing",
+   "name": {
+    "zh": "罗湖桥与口岸",
+    "en": "Luohu bridge and crossing"
+   },
+   "kind": "crossing",
+   "area": 2,
+   "in_start_state": "tracked_building",
+   "research": [
+    "Daily crossings in 1979",
+    "checkpoint facilities"
+   ],
+   "placeholder": false,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.luohu_crossing.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_sz_first_protected_names"
+    },
+    {
+     "id": "site.luohu_crossing.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    },
+    {
+     "id": "phase1.map.luohu_gate_roles",
+     "use": "design_note",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_1985_luohu"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1135,
+     22.5301
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.4
+   },
+   "cell": [
+    386,
+    395
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.shenzhen_station",
+   "name": {
+    "zh": "深圳火车站",
+    "en": "Shenzhen station"
+   },
+   "kind": "railway",
+   "area": 2,
+   "in_start_state": "tracked_building",
+   "research": [
+    "Station site in 1979",
+    "freight sidings"
+   ],
+   "placeholder": false,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.shenzhen_station.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_luohu_rail_station"
+    },
+    {
+     "id": "site.shenzhen_station.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1121,
+     22.5345
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.3
+   },
+   "cell": [
+    385,
+    390
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.kcr_line",
+   "name": {
+    "zh": "广九铁路",
+    "en": "Kowloon–Canton railway"
+   },
+   "kind": "railway",
+   "area": 2,
+   "in_start_state": "road",
+   "research": [
+    "Trace on Landsat 1979 and USGS 1977 aerial"
+   ],
+   "placeholder": false,
+   "evidence_status": "sourced",
+   "claims": [
+    {
+     "id": "site.kcr_line.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_kcrc_history"
+    }
+   ],
+   "geometry": {
+    "kind": "unplaced"
+   },
+   "cell": null,
+   "landsat_check": null
+  },
+  {
+   "id": "site.guangshen_road",
+   "name": {
+    "zh": "广深公路",
+    "en": "Guangzhou–Shenzhen road"
+   },
+   "kind": "road",
+   "area": 5,
+   "in_start_state": "road",
+   "research": [
+    "Route and condition in 1979"
+   ],
+   "placeholder": false,
+   "evidence_status": "sourced",
+   "claims": [
+    {
+     "id": "site.guangshen_road.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_shennan_road_construction"
+    }
+   ],
+   "geometry": {
+    "kind": "unplaced"
+   },
+   "cell": null,
+   "landsat_check": null
+  },
+  {
+   "id": "site.wenjindu_crossing",
+   "name": {
+    "zh": "文锦渡",
+    "en": "Wenjindu crossing"
+   },
+   "kind": "crossing",
+   "area": 4,
+   "in_start_state": "tracked_building",
+   "research": [
+    "Freight role and volume in 1979"
+   ],
+   "placeholder": false,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.wenjindu_crossing.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_wenjindu_port_history"
+    },
+    {
+     "id": "site.wenjindu_crossing.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    },
+    {
+     "id": "phase1.map.luohu_gate_roles",
+     "use": "design_note",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_1985_luohu"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1269,
+     22.543
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.3
+   },
+   "cell": [
+    400,
+    381
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.caiwuwei",
+   "name": {
+    "zh": "蔡屋围",
+    "en": "Caiwuwei village"
+   },
+   "kind": "village",
+   "area": 3,
+   "in_start_state": "block_stock",
+   "research": [
+    "Houses",
+    "fields",
+    "population",
+    "lineage"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.caiwuwei.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_sz_first_protected_names"
+    },
+    {
+     "id": "site.caiwuwei.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1027,
+     22.5409
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.3
+   },
+   "cell": [
+    375,
+    383
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.yumin",
+   "name": {
+    "zh": "渔民村",
+    "en": "Yumin village"
+   },
+   "kind": "village",
+   "area": 2,
+   "in_start_state": "block_stock",
+   "research": [
+    "Houses",
+    "fishponds",
+    "boats",
+    "population (V18)"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.yumin.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_sz_first_protected_names"
+    },
+    {
+     "id": "site.yumin.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    },
+    {
+     "id": "phase1.map.yumin_river_location",
+     "use": "geometry",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_yumin_water_bureau"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1071,
+     22.5358
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.4
+   },
+   "cell": [
+    380,
+    388
+   ],
+   "landsat_check": {
+    "water_1979": "water",
+    "change": "inland water in 1979"
+   }
+  },
+  {
+   "id": "site.huangbeiling",
+   "name": {
+    "zh": "黄贝岭",
+    "en": "Huangbeiling village"
+   },
+   "kind": "village",
+   "area": 4,
+   "in_start_state": "block_stock",
+   "research": [
+    "Houses",
+    "fields",
+    "population"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.huangbeiling.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_huangbeiling_cnr"
+    },
+    {
+     "id": "site.huangbeiling.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1332,
+     22.5501
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.3
+   },
+   "cell": [
+    407,
+    373
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.hubei",
+   "name": {
+    "zh": "湖贝",
+    "en": "Hubei village"
+   },
+   "kind": "village",
+   "area": 1,
+   "in_start_state": "block_stock",
+   "research": [
+    "Old village core versus the present-day new village"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.hubei.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_sz_first_protected_names"
+    },
+    {
+     "id": "site.hubei.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1238,
+     22.551
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.2
+   },
+   "cell": [
+    397,
+    372
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.xiangxi",
+   "name": {
+    "zh": "向西",
+    "en": "Xiangxi village"
+   },
+   "kind": "village",
+   "area": 2,
+   "in_start_state": "block_stock",
+   "research": [
+    "Houses",
+    "fields",
+    "population"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.xiangxi.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_xiangxi_village_history"
+    },
+    {
+     "id": "site.xiangxi.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1207,
+     22.5454
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.2
+   },
+   "cell": [
+    394,
+    378
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.sungang",
+   "name": {
+    "zh": "笋岗",
+    "en": "Sungang village and farmland"
+   },
+   "kind": "village",
+   "area": 5,
+   "in_start_state": "land_use",
+   "research": [
+    "Extent of fields and ponds"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.sungang.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_sungang_village_history"
+    },
+    {
+     "id": "site.sungang.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1093,
+     22.5701
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.2
+   },
+   "cell": [
+    383,
+    350
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.shenzhen_reservoir",
+   "name": {
+    "zh": "深圳水库",
+    "en": "Shenzhen Reservoir"
+   },
+   "kind": "reservoir",
+   "area": 6,
+   "in_start_state": "land_use",
+   "research": [
+    "Capacity",
+    "supply commitments",
+    "outline on Landsat 1979"
+   ],
+   "placeholder": false,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.shenzhen_reservoir.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_archive_reservoir"
+    },
+    {
+     "id": "site.shenzhen_reservoir.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.1526,
+     22.5852
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.5
+   },
+   "cell": [
+    428,
+    335
+   ],
+   "landsat_check": {
+    "water_1979": "water",
+    "change": "inland water in 1979"
+   }
+  },
+  {
+   "id": "site.border_fence",
+   "name": {
+    "zh": "深圳河边境线",
+    "en": "Shenzhen River border fence"
+   },
+   "kind": "border",
+   "area": 2,
+   "in_start_state": "land_use",
+   "research": [
+    "Fence line",
+    "patrol roads",
+    "restricted strip"
+   ],
+   "placeholder": false,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.border_fence.exists_1979",
+     "use": "encyclopedia",
+     "status": "lead",
+     "summary": null,
+     "source": null
+    }
+   ],
+   "geometry": {
+    "kind": "unplaced"
+   },
+   "cell": null,
+   "landsat_check": null
+  },
+  {
+   "id": "site.shangbu_land",
+   "name": {
+    "zh": "上步",
+    "en": "Shangbu farmland and villages"
+   },
+   "kind": "farmland",
+   "area": 7,
+   "in_start_state": "land_use",
+   "research": [
+    "Land use in 1979",
+    "which villages"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.shangbu_land.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_shangbu_huaqiang_history"
+    },
+    {
+     "id": "site.shangbu_land.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    },
+    {
+     "id": "phase1.shangbu.reported_pop",
+     "use": "design_note",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_1985_shangbu"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     114.0789,
+     22.5504
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.2
+   },
+   "cell": [
+    351,
+    372
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.nantou_old_town",
+   "name": {
+    "zh": "南头古城",
+    "en": "Nantou old town"
+   },
+   "kind": "town",
+   "area": 9,
+   "in_start_state": "card_only",
+   "research": [
+    "Walls",
+    "streets",
+    "population in 1979"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.nantou_old_town.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_sz_first_protected_names"
+    },
+    {
+     "id": "site.nantou_old_town.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    },
+    {
+     "id": "phase1.nantou.pop_1984",
+     "use": "design_note",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_1985_nantou"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     113.916,
+     22.5463
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.4
+   },
+   "cell": [
+    183,
+    373
+   ],
+   "landsat_check": {
+    "water_1979": "land",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.shekou_fishing_harbour",
+   "name": {
+    "zh": "蛇口渔村与渔港",
+    "en": "Shekou fishing villages and harbour"
+   },
+   "kind": "village",
+   "area": 8,
+   "in_start_state": "card_only",
+   "research": [
+    "Villages",
+    "harbour",
+    "oyster beds; card only in the slice"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.shekou_fishing_harbour.exists_1979",
+     "use": "encyclopedia",
+     "status": "lead",
+     "summary": null,
+     "source": null
+    },
+    {
+     "id": "site.shekou_fishing_harbour.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    },
+    {
+     "id": "phase1.shekou.initial_area",
+     "use": "design_note",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_china_merchants_museum"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     113.9251,
+     22.4864
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.2
+   },
+   "cell": [
+    191,
+    439
+   ],
+   "landsat_check": {
+    "water_1979": "water",
+    "change": "sea in 1979 (land now)"
+   }
+  },
+  {
+   "id": "site.chiwan",
+   "name": {
+    "zh": "赤湾",
+    "en": "Chiwan village"
+   },
+   "kind": "village",
+   "area": 8,
+   "in_start_state": "card_only",
+   "research": [
+    "Village and shore in 1979; card only in the slice"
+   ],
+   "placeholder": true,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.chiwan.exists_1979",
+     "use": "encyclopedia",
+     "status": "sourced",
+     "summary": null,
+     "source": "phase1_sz_first_protected_names"
+    },
+    {
+     "id": "site.chiwan.location",
+     "use": "geometry",
+     "status": "lead",
+     "summary": null,
+     "source": "osm_shenzhen_places"
+    }
+   ],
+   "geometry": {
+    "kind": "point",
+    "lonlat": [
+     113.8814,
+     22.4759
+    ],
+    "proxy": "osm_shenzhen_places",
+    "confidence": 0.2
+   },
+   "cell": [
+    146,
+    450
+   ],
+   "landsat_check": {
+    "water_1979": "water",
+    "change": "same as now"
+   }
+  },
+  {
+   "id": "site.military_land",
+   "name": {
+    "zh": "军事与限制用地",
+    "en": "Military and restricted land"
+   },
+   "kind": "military",
+   "area": null,
+   "in_start_state": "land_use",
+   "research": [
+    "Where building was not allowed"
+   ],
+   "placeholder": false,
+   "evidence_status": "lead",
+   "claims": [
+    {
+     "id": "site.military_land.exists_1979",
+     "use": "encyclopedia",
+     "status": "lead",
+     "summary": null,
+     "source": null
+    }
+   ],
+   "geometry": {
+    "kind": "unplaced"
+   },
+   "cell": null,
+   "landsat_check": null
+  }
+ ]
+}
