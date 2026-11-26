@@ -10,7 +10,7 @@ import { loadSlice, readBundled } from './load.js';
 import { SliceMap, type Cell, type CityBorder } from './map.js';
 import {
   hoverText, htmlLang, initialUi, pageTitle, renderBriefing, renderChips, renderCue, renderDecisions, renderDrawer,
-  renderFlyout, renderInspector, renderOverlaySelect, renderPreview, renderQuarter, renderRail, renderReadiness,
+  renderFlyout, renderInspector, renderOverlaySelect, renderPreview, renderQuarter, renderRail,
   renderStack, renderTutorial, renderVerdict, type UiState, type View,
 } from './render.js';
 import { sceneOf } from './scene.js';
@@ -74,6 +74,30 @@ const map = new SliceMap($('map') as HTMLCanvasElement, slice, x.state, cityBord
   },
 });
 
+/** R11.1: the guide is a movable card; drag its header. The rest of the panel stays clickable. */
+function bindTutorialDrag(): void {
+  const el = $('tutorial');
+  el.addEventListener('pointerdown', (e) => {
+    if (!(e.target as HTMLElement).closest('.tuthead')) return;
+    e.preventDefault();
+    const r = el.getBoundingClientRect(), sx = e.clientX, sy = e.clientY;
+    el.classList.add('dragged');
+    el.style.left = `${r.left}px`; el.style.top = `${r.top}px`; el.style.transform = 'none';
+    el.setPointerCapture(e.pointerId);
+    const move = (ev: PointerEvent) => {
+      const left = Math.max(8, Math.min(innerWidth - r.width - 8, r.left + ev.clientX - sx));
+      const top = Math.max(8, Math.min(innerHeight - r.height - 8, r.top + ev.clientY - sy));
+      el.style.left = `${left}px`; el.style.top = `${top}px`;
+    };
+    const up = (ev: PointerEvent) => {
+      el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up);
+      try { el.releasePointerCapture(ev.pointerId); } catch { /* ignore */ }
+    };
+    el.addEventListener('pointermove', move); el.addEventListener('pointerup', up);
+  });
+}
+bindTutorialDrag();
+
 function placePreview(): void {
   const el = $('preview');
   if (!plan || plan.kind === 'none') { el.style.display = 'none'; return; }
@@ -103,15 +127,12 @@ function render(): void {
   if (x.mode !== 'turn' && isBuildTool(ui.tool)) ui.tool = 'select';   // tools are off mid-quarter and after the end
   if (x.mode === 'paused' && unanswered(x).length) ui.decisions = true;
   const v = view();
-  const tut = x.mode === 'turn' && !ui.briefing && !ui.decisions ? tutorialView(x, ui) : undefined;
+  const tut = x.mode === 'turn' && !ui.briefing && !ui.decisions && !ui.drawer ? tutorialView(x, ui) : undefined;
   if (tut) ui.tutorialStep = tut.step;                                  // action steps advance from the state
   document.documentElement.lang = htmlLang(lang);
   document.title = pageTitle(lang);
   show('quarter', renderQuarter(v));
   show('cue', renderCue(v));
-  const readiness = renderReadiness(v);
-  show('readiness', readiness);
-  document.body.classList.toggle('prologue', Boolean(readiness));
   show('overlay', renderOverlaySelect(v));
   const overlayTop = Math.min($('overlay').getBoundingClientRect().bottom + 8, innerHeight - 200);
   document.documentElement.style.setProperty('--inspector-top', `${Math.max(70, Math.round(overlayTop))}px`);
@@ -123,7 +144,6 @@ function render(): void {
   show('stack', renderStack(v));
   show('drawer', renderDrawer(v));
   show('tutorial', tut ? renderTutorial(v) : '');
-  $('tutorial').classList.toggle('tut-top', tut?.step === 3 || tut?.step === 4);
   applyTutorialFocus(tut?.target);
   show('decisions', ui.decisions ? renderDecisions(v) : '');
   const briefingOn = ui.briefing && x.mode === 'turn' && !ui.decisions;

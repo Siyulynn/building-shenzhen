@@ -65,7 +65,13 @@
     /* R9 (§11.2): a locked choice shows its opener; a locked tool is greyed with "Locked" under its name */
     .off .opens { display: block; font-size: 10px; color: var(--ink-2); max-width: 12em; white-space: normal; }
     .tool.locked { opacity: .5; } .tool.locked small { display: block; font-size: 9px; }
-    .news p { margin: 2px 0 6px; white-space: normal; } .news.letter { border-left: 3px solid var(--ink-2); padding-left: 6px; } .desk h4 { margin: 6px 0 2px; }
+    .news p { margin: 2px 0 6px; white-space: normal; } .desk h4 { margin: 6px 0 2px; }
+    /* R11.1: an opening letter reads as a letter, not a card with a disclaimer */
+    .news.letter { background: rgba(250,245,230,.72); border: 1px solid var(--rule); border-top: 3px double var(--maroon);
+      padding: 9px 12px 7px; margin: 7px 0; box-shadow: inset 0 0 0 1px rgba(243,236,216,.6); }
+    .news.letter .letterhead { text-align: center; font: bold 12px/1.35 var(--type); letter-spacing: .06em; color: var(--maroon);
+      border-bottom: 1px solid var(--rule); padding-bottom: 5px; margin-bottom: 7px; }
+    .news.letter p { font-family: var(--prose); font-size: 13.5px; line-height: 1.65; text-align: justify; text-indent: 2em; white-space: pre-line; }
     /* R11.1: the map controls and the key */
     .mapctl { display: flex; gap: 4px; align-items: center; margin: 5px 0 2px; }
     .mapctl button { padding: 1px 6px; font: 11px var(--type); box-shadow: none; }
@@ -76,17 +82,29 @@
     .key .sw.playable { background: rgba(255,236,120,.55); border-color: var(--red-ink); }
     .key .sw.card { background: rgba(200,150,80,.45); border-style: dashed; }
     .key .sw.border { border: 0; border-top: 2px dashed var(--blue); background: transparent; }
+    .key .sw.farm { background: rgba(232,190,80,.55); border-color: #8a6d1f; }
     .key .sw.road { border: 0; border-top: 3px dashed #eab977; background: #312e31; }
     .arearow { display: flex; align-items: baseline; gap: 5px; }
     .arearow button { padding: 0 5px; font: 10px var(--type); box-shadow: none; }
     .arearow span { white-space: normal; }
     #overlay { top: 8px; right: 8px; width: 300px; max-height: calc(100vh - 86px); overflow: auto; }
     #inspector { top: var(--inspector-top, 70px); right: 8px; width: 300px; max-height: calc(100vh - var(--inspector-top, 70px) - 170px); overflow: auto; }
-    /* R11.1: the prologue target, visible under the demand cue from turn 1 */
-    #readiness { top: 54px; left: 50%; transform: translateX(-50%); width: 340px; font-family: var(--type); z-index: 4; }
+    #inspector table { table-layout: fixed; }
+    #inspector td:first-child { width: 58%; }
+    #inspector td.n { width: 42%; white-space: normal; }
+    /* R11.1: the prologue target as a small lower-right strip, with details in a drawer */
+    .readystrip { display: block; width: 100%; text-align: left; padding: 3px 7px 4px; background: var(--guilloche), var(--paper);
+      font-family: var(--type); box-shadow: 1px 1px 0 var(--maroon); }
+    .readystrip.sel { background: var(--gold); }
+    .readystrip .readyrow { display: flex; gap: 6px; align-items: baseline; }
+    .readystrip .readyrow b { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--maroon); }
+    .readystrip .readyrow > span { font-size: 14px; font-weight: bold; font-variant-numeric: tabular-nums; }
+    .readystrip .readyrow small { margin-left: auto; font-size: 10px; color: var(--ink-2); }
+    .readystrip .bar { display: block; position: relative; margin-top: 2px; height: 7px; }
+    .readystrip .bar > i { height: 5px; }
+    .readystrip .mark { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--blue); }
     .readihead { display: flex; gap: 8px; align-items: baseline; }
-    .readihead b { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--maroon); }
-    .readihead > span:nth-child(2) { font-size: 17px; font-weight: bold; font-variant-numeric: tabular-nums; }
+    .readihead .readipct { font-size: 17px; font-weight: bold; font-variant-numeric: tabular-nums; }
     .readibar { margin: 4px 0 3px; height: 9px; position: relative; overflow: visible; }
     .readibar .mark { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--blue); border-left: 1px solid #f3ecd8; }
     .readitarget { font-size: 11px; color: var(--ink-2); margin-bottom: 4px; }
@@ -104,8 +122,6 @@
     .tool:lang(zh), :lang(zh) .tool { font-size: 13px; letter-spacing: .06em; font-weight: normal; }
     /* R11.1: the flyout scrolls; the old fixed box ran past the bottom of a 980x664 window */
     #flyout { top: 100px; left: 172px; width: 286px; max-height: calc(100vh - 220px); overflow: auto; z-index: 3; }
-    /* keep the prologue readiness bar clear of the tool flyout */
-    body.prologue #flyout { top: 218px; max-height: calc(100vh - 338px); }
     #drawer { top: 70px; left: 172px; width: 400px; max-height: calc(100vh - 200px); overflow: auto; z-index: 3; }
 
     /* the stat strip: a maroon band of cream chits */
@@ -137,13 +153,19 @@
     #hover { bottom: 120px; left: 50%; transform: translateX(-50%); font: 12px/1.3 var(--type); padding: 3px 9px; border-width: 1px; box-shadow: 1px 2px 0 rgba(43,29,23,.35); }
     #hover:empty { display: none; }
     /* R11.1: the guided opening card and the outline it puts on the real control */
-    #tutorial { bottom: 96px; left: 46%; transform: translateX(-50%); width: 420px; z-index: 5; }
-    #tutorial.tut-top { top: 218px; bottom: auto; }
-    #tutorial h3 { margin: 2px 0 3px; }
-    #tutorial p { margin: 2px 0 6px; white-space: normal; }
-    #tutorial .opts { margin: 4px 0 0; }
-    .tuthead { display: flex; justify-content: space-between; align-items: baseline; font: 11px var(--type); color: var(--maroon);
-      text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--rule); margin-bottom: 4px; padding-bottom: 2px; }
+    #tutorial { top: 54px; left: 42%; transform: translateX(-50%); width: 450px; z-index: 5; }
+    #tutorial.dragged { transform: none; }
+    #tutorial h3 { margin: 1px 0 2px; }
+    #tutorial p { margin: 0 0 6px; white-space: normal; }
+    #tutorial .opts { margin: 3px 0 0; }
+    .tuthead { display: flex; align-items: baseline; gap: 5px; font: 11px var(--type); color: var(--maroon);
+      text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--rule); margin-bottom: 4px; padding-bottom: 2px; cursor: move; user-select: none; }
+    .tuthead .grip { color: var(--ink-2); letter-spacing: 0; cursor: move; }
+    .tuthead b { font-size: 12.5px; } .tuthead small { font-size: 10px; color: var(--ink-2); text-transform: none; letter-spacing: 0; }
+    .tuthead .tutstep { margin-left: auto; }
+    .tutbody { display: flex; gap: 9px; align-items: flex-start; }
+    .tutportrait { width: 76px; height: 96px; object-fit: cover; border: 2px solid var(--maroon); box-shadow: 2px 2px 0 rgba(43,29,23,.35); flex: none; background: var(--paper-2); }
+    .tutsay { flex: 1; min-width: 0; }
     .tut-focus { outline: 3px solid var(--gold); outline-offset: 2px; animation: tutpulse 1.1s ease-in-out infinite alternate; }
     @keyframes tutpulse { from { outline-color: rgba(226,192,122,.35); } to { outline-color: var(--gold); } }
 
@@ -215,7 +237,6 @@
   <canvas id="map"></canvas>
   <div id="quarter" class="float"></div>
   <div id="cue" class="float"></div>
-  <div id="readiness" class="float"></div>
   <div id="overlay" class="float"></div>
   <div id="inspector" class="float"></div>
   <div id="rail" class="float"></div>

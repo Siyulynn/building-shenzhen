@@ -4,7 +4,7 @@
  * page. The chrome shows one language; place labels (marked by place() in the views) read zh and en in both.
  */
 import {
-  ENFORCEMENT_LEVELS, IMPORT_QUOTAS, HIGH_INTENSITY_KEY, INTENSITIES, LAND_USES, PERMIT_REGIMES, formatYM,
+  ENFORCEMENT_LEVELS, IMPORT_QUOTAS, HIGH_INTENSITY_KEY, INTENSITIES, LAND_USES, PERMIT_REGIMES, formatYM, landCoverAt,
   type Slice, type StartSite,
 } from '@sz/sim-core';
 import { unanswered, type Session, type UiError } from './controller.js';
@@ -48,6 +48,9 @@ export interface View {
 const ESC: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 export const esc = (t: string) => t.replace(/[&<>"']/g, (c) => ESC[c]!);
 
+/** The guide's portrait (R11.1). Bundled by Vite; tests only read the surrounding HTML. */
+const LAOLIANG = new URL('./assets/laoliang.webp', import.meta.url).href;
+
 /** The language's text of a string, escaped. */
 const tx = (lang: Lang) => (l: L) => esc(pick(l, lang));
 
@@ -86,22 +89,6 @@ export function renderQuarter(v: View): string {
     <div class="muted">${t(S.T.turn)} ${turn} / ${s.scenario.turns}${x.mode === 'paused' ? ` · ${t(S.T.paused)}` : ''}</div>`;
 }
 
-/** R11.1: the prologue's readiness target, visible from turn 1 instead of only on the 1980-Q2 report card. */
-export function renderReadiness(v: View): string {
-  const { x, slice } = v, s = x.state, t = tx(v.lang);
-  if (s.sez.opened || x.mode === 'over') return '';
-  const r = readinessView(s, slice);
-  const parts: [string, number][] = [['roads', r.roads], ['land', r.servicedLand], ['power', r.waterPower]];
-  const labels: Record<string, L> = { roads: S.T.readyRoads, land: S.T.readyLand, power: S.T.readyWaterPower };
-  const weakest = r.weakest === 'servicedLand' ? 'land' : r.weakest === 'waterPower' ? 'power' : 'roads';
-  const target = `${t(S.T.readinessTarget)}: ${pct(r.targetBar)} · ${r.targetCards} ${t(S.T.readinessCards)}`;
-  return `<div class="readihead"><b>${t(S.T.bar)}</b><span>${pct(r.bar)}</span><span class="muted">· ${t(S.T.readinessForecast)} ${r.forecast}</span></div>
-    <div class="bar readibar"><i style="width:${Math.round(100 * Math.max(0, Math.min(1, r.bar)))}%"></i><b class="mark" style="left:${Math.round(100 * r.targetBar)}%" title="${esc(target)}"></b></div>
-    <div class="readitarget">${target}</div>
-    <div class="readiparts">${parts.map(([k, n]) => `<div class="${k === weakest ? 'weak' : ''}"><span>${t(labels[k]!)}</span>${bar(n)}<b>${pct(n)}</b></div>`).join('')}</div>
-    <div class="muted">${t(S.T.weakestPart)}: ${t(labels[weakest]!)}</div>`;
-}
-
 /** The I/C/R cue (top centre): three bars and no numbers; hovering a bar names its two inputs. */
 export function renderCue(v: View): string {
   const t = tx(v.lang), cue = icrCue(v.x.state, v.slice);
@@ -117,7 +104,7 @@ export function renderOverlaySelect(v: View): string {
   const t = tx(v.lang), s = v.x.state;
   const areas = s.areas.map((a) => `<div class="arearow"><button data-act="focusArea" data-id="${a.id}"
     title="${esc(t(S.T.focusArea))}" aria-label="${esc(`${t(areaName(s, a.id))} · ${t(S.T.focusArea)}`)}">${a.id}</button>
-    <span class="${a.access === 'playable' ? '' : 'muted'}">${esc(bi(a.name))}${a.access === 'playable' ? '' : ` · ${t(S.T.cardsOnly)}`}</span></div>`).join('');
+    <span class="${a.access === 'playable' ? '' : 'muted'}">${esc(t(areaName(s, a.id)))}${a.access === 'playable' ? '' : ` · ${t(S.T.cardsOnly)}`}</span></div>`).join('');
   return `<label class="muted">${t(S.T.overlay)} <select data-ui="layer">${OVERLAY_LAYERS.map((k) =>
     `<option value="${k}" ${v.ui.layer === k ? 'selected' : ''}>${t(S.OVERLAYS[k]!)}</option>`).join('')}</select></label>
     <div class="mapctl"><button data-act="mapFitPlayable">${t(S.T.fitPlayable)}</button><button data-act="mapFitAll">${t(S.T.fitAll)}</button>
@@ -127,6 +114,7 @@ export function renderOverlaySelect(v: View): string {
       <div><i class="sw playable"></i>${t(S.T.playableArea)}</div>
       <div><i class="sw card"></i>${t(S.T.cardOnlyArea)}</div>
       <div><i class="sw border"></i>${t(S.T.cityBorder)}</div>
+      <div><i class="sw farm"></i>${t(S.T.farmlandBuildable)}</div>
       <div><i class="sw road"></i>${t(S.T.startRoutes)}</div>
     </details>
     <details class="key"><summary>${t(S.T.areasLegend)} (${s.areas.length})</summary>${areas}</details>
@@ -145,7 +133,18 @@ export function renderChips(v: View): string {
     <b>${t(c.label)}</b>${stat(c, 0)}${stat(c, 1)}</button>`).join('');
 }
 
-/** The bottom-right stack: the queue, Briefing, Pending decisions, End quarter or Continue; errors as a toast. */
+/** R11.1: the readiness strip in the lower-right stack; the details open as a drawer. */
+export function renderReadinessStrip(v: View): string {
+  const { x, slice } = v, t = tx(v.lang);
+  if (x.state.sez.opened || x.mode === 'over') return '';
+  const r = readinessView(x.state, slice);
+  return `<button class="readystrip${v.ui.drawer === 'readiness' ? ' sel' : ''}" data-act="drawer" data-drawer="readiness">
+    <span class="readyrow"><b>${t(S.T.bar)}</b><span>${pct(r.bar)}</span><small>${t(S.T.readinessTarget)} ${pct(r.targetBar)}</small></span>
+    <span class="bar readibar"><i style="width:${Math.round(100 * Math.max(0, Math.min(1, r.bar)))}%"></i><b class="mark" style="left:${Math.round(100 * r.targetBar)}%"></b></span>
+  </button>`;
+}
+
+/** The bottom-right stack: readiness, the queue, Briefing, Pending decisions, End quarter or Continue; errors as a toast. */
 export function renderStack(v: View): string {
   const { x, slice } = v, s = x.state, t = tx(v.lang);
   const queue = x.mode === 'turn' && x.queue.length ? `<div class="queue"><div class="muted">${t(S.T.queue)}</div>${x.queue.map((_, k) =>
@@ -153,13 +152,13 @@ export function renderStack(v: View): string {
   const cards = s.pendingCards.length, must = unanswered(x).length;
   const error = x.error ? `<div class="err" role="alert">${x.error.what === S.T.error ? '' : `${t(S.T.error)}: `}${t(x.error.what)}${x.error.detail !== undefined ? `: ${diag(x.error.detail)}` : ''}</div>` : '';
   const go = x.mode === 'over' ? '' : `<button class="go" data-act="submit" ${must ? 'disabled' : ''}>${t(x.mode === 'paused' ? S.T.continue : S.T.endQuarter)}</button>`;
-  return `${error}${queue}
+  return `${error}${renderReadinessStrip(v)}${queue}
     <button data-act="briefing" ${x.mode !== 'turn' ? 'disabled' : ''}>${t(S.T.briefing)}</button>
     <button data-act="decisions" class="${must ? 'must' : cards ? 'answered' : ''}">${t(S.T.pendingDecisions)} ${cards} · ${must} ${t(S.T.toAnswer)}</button>
     ${go}`;
 }
 
-/** R11.1: the guided opening. It points at the real control; main.ts applies the highlight. */
+/** R11.1: the guided opening as a movable dialogue with old Liang. main.ts applies the highlight. */
 export function renderTutorial(v: View): string {
   const tut = tutorialView(v.x, v.ui);
   if (!tut) return '';
@@ -167,10 +166,12 @@ export function renderTutorial(v: View): string {
   const action = tut.action === 'start' ? `<button class="go" data-act="tutorialNext">${t(S.T.tutorialStart)}</button>`
     : tut.action === 'block' ? `<button data-act="tutorialBlock">${t(S.T.tutorialUseBlock)}</button>`
     : tut.action === 'done' ? `<button class="go" data-act="tutorialDone">${t(S.T.tutorialDone)}</button>` : '';
-  return `<div class="tuthead"><b>${t(S.T.tutorialTitle)}</b><span>${tut.step + 1} / 6</span></div>
-    <h3>${t(tut.title)}</h3><p>${t(tut.body)}</p>
-    <div class="opts">${action}<button data-act="tutorialSkip">${t(S.T.tutorialSkip)}</button></div>
-    ${tut.waiting ? `<div class="muted">${t(S.T.tutorialWait)}</div>` : ''}`;
+  return `<div class="tuthead"><span class="grip" aria-hidden="true">⠿</span><b>${t(S.T.tutorialSpeaker)}</b>
+      <small>${t(S.T.tutorialRole)}</small><span class="tutstep">${tut.step + 1} / 6</span></div>
+    <div class="tutbody"><img class="tutportrait" src="${esc(LAOLIANG)}" alt="" width="76" height="96">
+      <div class="tutsay"><h3>${t(tut.title)}</h3><p>“${t(tut.body)}”</p>
+      <div class="opts">${action}<button data-act="tutorialSkip">${t(S.T.tutorialSkip)}</button></div>
+      ${tut.waiting ? `<div class="muted">${t(S.T.tutorialWait)}</div>` : ''}</div></div>`;
 }
 
 // ---- the tool rail and its flyout ----
@@ -262,7 +263,7 @@ export function renderPreview(plan: Plan, v: Pick<View, 'x' | 'lang'>): string {
     ${tr(S.T.cells, num(p.cells))}${p.bridges ? tr(S.T.bridges, num(p.bridges)) : ''}
     ${tr(S.T.cost, `${yuan(p.budget)}${p.forexUsd ? ` + $${num(p.forexUsd)}` : ''}`)}
     ${p.compensation ? tr(S.OBLIGATION.compensation!, yuan(p.compensation)) : ''}
-    ${Object.keys(p.byClass).length > 1 ? tr(S.T.landCover, Object.entries(p.byClass).map(([k, n]) => `${t(S.LAND_COVER[k]!)} ${num(n!)}`).join(', ')) : ''}
+    ${Object.keys(p.byClass).length > 0 ? tr(S.T.landCover, Object.entries(p.byClass).map(([k, n]) => `${t(S.LAND_COVER[k]!)} ${num(n!)}`).join(', ')) : ''}
     ${p.orders ? `${tr(S.T.units, num(p.units))}${tr(S.T.crewPerMonth, num(p.crewPerMonth))}${tr(S.T.months, num(p.months))}` : ''}
     ${p.pace ? `${tr(S.T.monthsSaved, num(p.pace.monthsSaved))}${tr(S.T.extraYuan, yuan(p.pace.extraYuan))}` : ''}</table>
     ${p.note ? `<div class="down">${t(p.note)}</div>` : ''}`;
@@ -274,11 +275,11 @@ export function renderInspector(v: View): string {
   const { ui, x, slice } = v, t = tx(v.lang), tr = row(v.lang);
   if (!ui.selected) return '';
   const c = inspectorView(x.state, slice, ui.selected.x, ui.selected.y);
-  const site = v.selectedSite;
   const share = c.share ? pct(c.share.power) : pick(S.T.noDemand, v.lang);
   return `${closeBtn(v.lang, 'unselect')}<h3>${t(S.T.cell)} ${c.x},${c.y}</h3>
-    ${c.area ? `<div>${t(c.area)}</div>` : ''}${c.site ? `<div>≈ ${t(c.site)} · ${t(S.T.proxyLocation)}</div>` : ''}
+    ${c.area ? `<div>${t(c.area)}</div>` : ''}${c.site ? `<div>${t(c.site)}</div>` : ''}
     ${c.route ? `<div>${t(c.route)} · ${t(S.T.temporaryAlignment)}</div>` : ''}
+    ${c.landCover ? `<div class="muted">${t(S.T.landCover)}: ${t(c.landCover)}</div>` : ''}
     <div class="muted">${t(S.T.perCell)}</div><table>
       ${c.zone ? tr(S.ZONE, pick(c.zone, v.lang)) : ''}${c.use ? tr(S.T.use, pick(c.use, v.lang)) : ''}
       ${tr(S.T.stage, pick(c.stage, v.lang))}
@@ -292,7 +293,6 @@ export function renderInspector(v: View): string {
       ${c.villageFloorM2 !== undefined ? tr(S.T.villageFloor, `${num(c.villageFloorM2)} m²`) : ''}
       ${c.areaShare !== undefined ? tr(S.T.areaShare, pct(c.areaShare)) : ''}
       ${tr(S.T.jobs, `${num(c.jobs.filled)} / ${num(c.jobs.posted)}`)}${tr(S.T.beds, `${num(c.beds.occupants)} / ${num(c.beds.beds)}`)}</table>
-    ${site ? `<details><summary>${t(S.T.evidence)}</summary>${site.claims.map((q) => `<div>${esc(q.id)}</div>`).join('')}<div>${esc(site.proxy)}</div></details>` : ''}
     <div class="held"><b>${t(S.T.heldBackBy)}:</b> ${t(constraintLabel(c.constraint))}</div>`;
 }
 
@@ -310,7 +310,8 @@ export function renderBriefing(v: View): string {
   const held = mostHeldBack(s, slice);
   // R9 (§11.2): the news since the previous turn's start, by desk, and the timed modifiers still in force
   const news = newsView(s, slice, x.lastTurnStart).map((g) => `<div class="desk"><h4>${t(S.DESK[g.desk] ?? { zh: g.desk, en: g.desk })}</h4>${g.items.map((n) =>
-    n.text ? `<div class="news${n.letter ? ' letter' : ''}"><b>${t(n.name)}</b>${n.letter ? ` <small class="muted">${t(S.T.composedFiction)}</small>` : ''}<p>${t(n.text)}</p></div>`
+    n.text ? (n.letter ? `<article class="news letter"><div class="letterhead">${t(n.name)}</div><p>${t(n.text)}</p></article>`
+      : `<div class="news"><b>${t(n.name)}</b><p>${t(n.text)}</p></div>`)
       : `<div class="news headline">${t(n.name)}</div>`).join('')}</div>`).join('') || `<div class="muted">${t(S.T.noNews)}</div>`;
   const mods = modifiersView(s, slice).map((m) => `<div>${t(m.target)} ×${String(Math.round(m.factor * 100) / 100)} · ${num(m.quartersLeft)} ${t(S.T.quartersLeft)} · ${t(m.source)}</div>`).join('')
     || `<div class="muted">${t(S.T.noModifiers)}</div>`;
@@ -357,6 +358,21 @@ function drawerBuilding(v: View): string {
     <h2>${t(S.T.teams)}</h2>${teamsView(x.state, slice).map((m) => `<div class="q"><span>${t(m.name)} <span class="muted">${num(m.crew)} · ${yuan(m.costPerMonth)}/${t(S.T.month)}</span></span>
       ${m.live ? `<span class="muted">${t(S.T.live)}</span>` : teamLock ? lockedButton(teamLock, v.lang, t(S.T.contract))   // R9 (§11.2)
         : `<button data-act="team" data-id="${esc(m.id)}" ${off(v)}>${t(S.T.contract)}</button>`}</div>`).join('')}`;
+}
+
+/** R11.1: the prologue readiness details, opened from the lower-right strip. */
+function drawerReadiness(v: View): string {
+  const { x, slice } = v, t = tx(v.lang), r = readinessView(x.state, slice);
+  const parts: [string, number][] = [['roads', r.roads], ['land', r.servicedLand], ['power', r.waterPower]];
+  const labels: Record<string, L> = { roads: S.T.readyRoads, land: S.T.readyLand, power: S.T.readyWaterPower };
+  const weakest = r.weakest === 'servicedLand' ? 'land' : r.weakest === 'waterPower' ? 'power' : 'roads';
+  const target = `${t(S.T.readinessTarget)}: ${pct(r.targetBar)} · ${r.targetCards} ${t(S.T.readinessCards)}`;
+  return `<div class="readihead"><span class="readipct">${pct(r.bar)}</span><span class="muted">· ${t(S.T.readinessForecast)} ${r.forecast}</span></div>
+    <div class="bar readibar"><i style="width:${Math.round(100 * Math.max(0, Math.min(1, r.bar)))}%"></i><b class="mark" style="left:${Math.round(100 * r.targetBar)}%"></b></div>
+    <div class="readitarget">${target}</div>
+    <div class="readiparts">${parts.map(([k, n]) => `<div class="${k === weakest ? 'weak' : ''}"><span>${t(labels[k]!)}</span>${bar(n)}<b>${pct(n)}</b></div>`).join('')}</div>
+    <div class="muted">${t(S.T.weakestPart)}: ${t(labels[weakest]!)}</div>
+    <div class="hint">${t(S.T.readinessExplainer)}</div>`;
 }
 
 function drawerBudget(v: View): string {
@@ -453,13 +469,14 @@ function drawerPolitics(v: View): string {
     <h2>${t(S.T.permits)}</h2><div class="opts">${PERMIT_REGIMES.map((n) => `<button data-act="permit" data-v="${n}" class="${p.permitRegime === n ? 'sel' : ''}" ${off(v)}>${t(S.PERMIT[n]!)}</button>`).join('')}</div>`;
 }
 
-export const DRAWER_BODY: Readonly<Record<DrawerId, (v: View) => string>> = {
+export const DRAWER_BODY: Readonly<Record<(typeof DRAWERS)[number], (v: View) => string>> = {
   building: drawerBuilding, budget: drawerBudget, population: drawerPopulation, economy: drawerEconomy, politics: drawerPolitics,
 };
-/** The open drawer, or '' when none is open. */
+/** The open drawer, or '' when none is open. The readiness drawer is opened from the prologue strip. */
 export function renderDrawer(v: View): string {
   const d = v.ui.drawer;
   if (!d) return '';
+  if (d === 'readiness') return `${closeBtn(v.lang, 'closeDrawer')}<h2>${tx(v.lang)(S.T.bar)}</h2>${drawerReadiness(v)}`;
   return `${closeBtn(v.lang, 'closeDrawer')}<h2>${tx(v.lang)(S.CHIP[d]!)}</h2>${DRAWER_BODY[d](v)}`;
 }
 export { DRAWERS };
@@ -495,8 +512,10 @@ export function hoverText(v: Pick<View, 'x' | 'slice' | 'lang'>, c: { x: number;
   const z = s.zones.find((q) => q.runs.some(([y, x0, x1]) => y === c.y && c.x >= x0 && c.x <= x1));
   let out = `${c.x},${c.y}${c.area ? ` · ${p(areaName(s, c.area))}` : ''}${z ? ` · ${p(zoneName(s, slice, z.id))}` : ''}`;
   const site = slice.startSites.find((q) => q.cell[0] === c.x && q.cell[1] === c.y);
-  if (site) out += ` · ≈ ${bi(site.name)} · ${p(S.T.proxyLocation)}`;
+  if (site) out += ` · ${bi(site.name)}`;
   const index = c.y * s.grid.width + c.x;
+  const lc = slice.tick.landcover ? landCoverAt(slice.tick.landcover, index) : undefined;
+  if (lc) out += ` · ${p(S.T.landCover)}: ${p(S.LAND_COVER[lc] ?? { zh: lc, en: lc })}`;
   for (const r of slice.startNetwork.routes) if (r.cells.includes(index)) out += ` · ${bi(r.name)} · ${p(S.T.temporaryAlignment)}`;
   const spatial = constraintContext(s, slice).spatial;
   if (z && !spatial.roads.component.has(index)) {

@@ -33,7 +33,13 @@ export const pct = (x: number) => `${(100 * x).toFixed(1)}%`;
 // ---- names ----
 // Place names (areas, sites, routes, precedent zones) are marked with place(): they stay bilingual (§11.1).
 
+/** R11.1: short names for the map key and labels; the register keeps the full descriptions. */
+export const SHORT_AREA: Readonly<Record<number, L>> = {
+  2: { zh: '罗湖口岸', en: 'Luohu crossing' },
+  4: { zh: '黄贝岭', en: 'Huangbeiling' },
+};
 export function areaName(s: GameState, id: number): L {
+  if (SHORT_AREA[id]) return place(SHORT_AREA[id]!);
   const name = s.areas.find((a) => a.id === id)?.name;
   return name ? place(name) : cat(S.AREA, raw(` ${id}`), '');
 }
@@ -246,7 +252,9 @@ export interface NewsItem { id: string; desk: string; name: L; text?: L; letter:
  */
 export function newsView(now: GameState, slice: Slice, before?: GameState): { desk: string; items: NewsItem[] }[] {
   const fresh = new Set(now.events.fired.slice(before ? before.events.fired.length : 0).map((f) => f.id));
-  const defs = slice.tick.events.filter((d) => d.family === 'news' && d.news && fresh.has(d.id));   // content order
+  // R11.1: the office note's context now lives in old Liang's guide; do not print the note as a wall of text.
+  const hidden = new Set(['news.1979q1.office_note']);
+  const defs = slice.tick.events.filter((d) => d.family === 'news' && d.news && fresh.has(d.id) && !hidden.has(d.id));   // content order
   const letters = defs.filter((d) => d.news!.tone === 'opening'), rest = defs.filter((d) => d.news!.tone !== 'opening');
   const items: NewsItem[] = [
     ...letters.map((d) => ({ id: d.id, desk: d.news!.desk, name: d.name, ...(d.text ? { text: d.text } : {}), letter: true })),
@@ -891,7 +899,7 @@ export function mostHeldBack(s: GameState, slice: Slice): { area: number; name: 
 // ---- the cell inspector ----
 
 export interface InspectorView {
-  x: number; y: number; area?: L; zone?: L; use?: L; stage: L;
+  x: number; y: number; area?: L; zone?: L; use?: L; stage: L; landCover?: L;
   progress?: { done: number; total: number };
   frontage?: { depth: number; max: number };
   /** R11.1: an unzoned cell's frontage if it were zoned now, so scouting does not read "no access" beside a road. */
@@ -905,6 +913,7 @@ export interface InspectorView {
 
 export function inspectorView(s: GameState, slice: Slice, x: number, y: number): InspectorView {
   const cell = y * s.grid.width + x, k = constraintContext(s, slice);
+  const lc = slice.tick.landcover ? landCoverAt(slice.tick.landcover, cell) : undefined;
   const areaId = playableAreaOf(s, cell) || areaAt(s, cell);
   const z = k.zoneAt.get(cell), w = k.works.get(cell);
   const stage = w ? S.WORK_STAGE[w.stage]! : k.served.has(cell) ? S.WORK_STAGE.serviced! : z ? S.WORK_STAGE.zoned! : S.T.notZoned;
@@ -922,6 +931,7 @@ export function inspectorView(s: GameState, slice: Slice, x: number, y: number):
     beds: { occupants: h ? h.occupants.local + h.occupants.rental : 0, beds: h ? h.beds.local + h.beds.rental : 0 },
   };
   if (areaId) v.area = areaName(s, areaId);
+  if (lc) v.landCover = S.LAND_COVER[lc] ?? raw(lc);
   if (z) { v.zone = zoneName(s, slice, z.id); v.use = S.LAND_USE[z.use] ?? raw(z.use); v.zoneFloorM2 = zoneBuiltM2(s, z.id); }
   if (w) v.progress = { done: w.workDone, total: w.workTotal };
   if (f) v.frontage = { depth: f.depth, max: slice.startNetwork.maxFrontageDepth };
@@ -979,7 +989,8 @@ export function villageFloors(s: GameState): Map<number, number> {
 // ---- the chips ----
 
 export const DRAWERS = ['building', 'budget', 'population', 'economy', 'politics'] as const;
-export type DrawerId = (typeof DRAWERS)[number];
+/** Chip drawers plus the prologue readiness detail panel (R11.1). */
+export type DrawerId = (typeof DRAWERS)[number] | 'readiness';
 export interface Chip { id: DrawerId; label: L; values: readonly [string, string]; captions: [L, L];                  // R7: the visible caption above each stat
   hints: readonly [L, L] }
 const signedYuan = (v: number) => `${v < 0 ? '−' : '+'}${yuan(Math.abs(v))}`;

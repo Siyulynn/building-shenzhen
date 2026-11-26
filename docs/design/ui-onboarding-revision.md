@@ -11,7 +11,7 @@ This revision responds to the R11 playtest. The sim's strategic shape was sound,
 - Everything outside the playable areas is covered by a dark shadow (`shadowLayer`). The edge of the playable union is a gold/red planning edge, so the seven areas read as the game board.
 - The present-day Shenzhen limit is drawn as a blue dashed reference line from `data/starts/slice_city_border.json`. This is **not a historical boundary**: it is generated from the OSM `深圳市` relation (3464353, ODbL) by `pipeline/slice_city_border.py`, is labelled "present-day" in the line's own caption and in the map key, and is never read by sim-core.
 - Area names are drawn on the map at every useful zoom. The map key lists all nine areas (seven playable, Shekou and Nantou card-only) with a **Focus** button per area, plus the playable/card-only swatches, the city-boundary key and the temporary road/rail key.
-- "Fit playable", "Whole city" and − / + controls sit in the overlay panel. The map key and area list are `<details>` so they can be folded away.
+- "Fit playable", "Whole city" and - / + controls sit in the overlay panel. The map key and area list are `<details>` so they can be folded away. The map and key use short display names for the crowded core: Area 2 reads "Luohu crossing" and Area 4 "Huangbeiling"; the register keeps the full descriptive names.
 
 ## Build mode
 
@@ -31,15 +31,18 @@ This revision responds to the R11 playtest. The sim's strategic shape was sound,
 - The drawer stops above the stat strip; the inspector starts under the measured overlay.
 - The decisions counter now always reads `cards · N to answer`, and a card shows the month it was raised. This distinguishes two identical recurring petitions without merging them.
 - The first-project card's English now reads "Draw the first zone and the first road on the map"; the budget card points at the Budget drawer, not the briefing.
-- The inspector reads "Frontage if zoned" for an unzoned cell near a road, instead of the old "No road access".
+- The opening "note from the city" is no longer printed. Its county-seal, export-base, one-piece-of-land, grant and canteen beats are woven into old Liang's six dialogue steps (`newsView` filters `news.1979q1.office_note`; the content record stays for its claim).
+- Opening letters are printed as letters (centred letterhead, inset paper, justified body), with no "composed fiction" or evidence labels in the player UI. The land-cover overlay drops "(a lead)", and the inspector shows a site's name without "proxy location" or a claim list.
+- The inspector reads "Frontage if zoned" for an unzoned cell near a road, instead of the old "No road access"; its supplied row is now just "Power and water".
+- Lowland farmland is buildable but carries compensation. It now has a golden field cover on the map at all times, a stronger gold hatch while a build tool is open, a map-key row ("Lowland farmland (buildable, compensated)"), a land-cover row in the inspector, and its class in the drag preview (which now shows a single class too). The hover readout names the tile's land cover (e.g. "Land cover: Lowland farmland") so a cell can be read before zoning. The cover is a warning, not a block: fields can still be zoned.
 - A gesture entirely outside the playable areas is refused with "Outside the seven playable areas", not a raw cell index.
 - The verdict has a short factual summary of growth, the fiscal test and the reviews.
 
 ## The guided opening and the readiness target
 
-The readiness panel is visible from Turn 1 until the SEZ opens. It shows the bar, its three parts, the weakest part, the first-wave forecast, and the prologue target: **half the bar by 1980-Q2**, which the first-wave formula turns into three cards. The target is derived from `readiness.first_wave`, not authored as a number.
+The readiness target is a compact strip in the lower-right stack from Turn 1 until the SEZ opens. It shows the bar and the prologue target; clicking it opens a readiness drawer with the three parts, the weakest part, the first-wave forecast and the explanation. The target is **half the bar**, which the first-wave formula turns into three cards; it is derived from `readiness.first_wave`, not authored as a number.
 
-The guide (`src/tutorial.ts`) is UI-only and deterministic. It points at the real control in six steps:
+The guide (`src/tutorial.ts`) is UI-only and deterministic, and is framed as a dialogue with old Liang (老梁), a fictional committee-office comrade, using the supplied portrait at `src/assets/laoliang.webp`. The card starts where the old top-centre readiness panel used to sit, can be dragged by its header, and points at the real control in six steps:
 
 1. welcome (map, pan/zoom, map key);
 2. open Pending decisions and answer the survey;

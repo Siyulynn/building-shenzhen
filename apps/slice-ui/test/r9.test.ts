@@ -92,15 +92,18 @@ describe('R9 the works pace in the flyout and preview (§5.6, §11.2)', () => {
 });
 
 describe('R9 the briefing: news and live modifiers (§11.2)', () => {
-  it('on Turn 1 shows the opening letters in full, marked as composed fiction, under their desks', () => {
+  it('on Turn 1 shows the opening letter in full under its desk, without the office note or a fiction label', () => {
     const x = newSession(slice);
     const news = newsView(x.state, slice, x.lastTurnStart);
     const letters = news.flatMap((g) => g.items).filter((i) => i.letter);
-    expect(letters.map((i) => i.id).sort()).toEqual(['news.1979q1.assignment', 'news.1979q1.office_note']);
+    expect(letters.map((i) => i.id)).toEqual(['news.1979q1.assignment']);
     expect(letters.every((i) => i.text !== undefined)).toBe(true);
+    const note = slice.tick.events.find((d) => d.id === 'news.1979q1.office_note')!;
     for (const lang of ['en', 'zh'] as const) {
       const html = renderBriefing(view(x, 'select', lang));
-      expect(html).toContain(esc(S.T.composedFiction[lang]));
+      expect(html).not.toContain(esc(note.name[lang]));          // the context now lives in old Liang's guide
+      expect(html.toLowerCase()).not.toContain('fiction');        // no fiction disclaimer on the letter
+      expect(html).toContain('letterhead');
       for (const g of news) expect(html).toContain(esc(S.DESK[g.desk]![lang]));
       expect(html).toContain(esc(S.T.noModifiers[lang]));
     }

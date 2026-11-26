@@ -15,12 +15,12 @@ import { choose, enqueue, newSession, simError, submit, type Session } from '../
 import { LANGS, LANG_NAME, STORAGE_KEY, readStoredLang, resolveLang, storeLang, withLang, type Lang } from '../src/lang.js';
 import {
   DRAWERS, errorText, hoverText, initialUi, pageTitle, renderBriefing, renderChips, renderCue, renderDecisions, renderDrawer,
-  renderFlyout, renderInspector, renderOverlaySelect, renderPreview, renderQuarter, renderRail, renderReadiness, renderStack,
+  renderFlyout, renderInspector, renderOverlaySelect, renderPreview, renderQuarter, renderRail, renderStack,
   renderTutorial, renderVerdict, type UiState, type View,
 } from '../src/render.js';
 import { TOOLS, planGesture } from '../src/tools.js';
 import { ENFORCEMENT, TABLES, T, bi, place } from '../src/strings.js';
-import { actionLabel, areaName, clipZone, previewZone, zoneName } from '../src/views.js';
+import { SHORT_AREA, actionLabel, areaName, clipZone, previewZone, zoneName } from '../src/views.js';
 
 const slice: Slice = loadSlice();
 const HAN = /\p{Script=Han}/u;
@@ -74,6 +74,7 @@ const PLACES: string[] = [...new Set([
   ...slice.startNetwork.routes.map((r) => bi(r.name)),
   ...(slice.tick.precedents ?? []).map((p) => bi(p.name)),
   ...(slice.tick.gateways ?? []).map((g) => bi(g.name)),             // R8d (§5.12): the gateways are place labels
+  ...Object.values(SHORT_AREA).map((n) => bi(n)),
 ])].sort((a, b) => b.length - a.length);
 
 const ENT: Record<string, string> = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
@@ -121,10 +122,10 @@ function checkLang(where: string, html: string, lang: Lang): void {
 function screens(x: Session, lang: Lang): [string, string][] {
   const ui: UiState = { ...initialUi(slice), area: 7 };
   const v: View = { slice, x, ui, lang };
-  const out: [string, string][] = [['quarter', renderQuarter(v)], ['cue', renderCue(v)], ['readiness', renderReadiness(v)],
+  const out: [string, string][] = [['quarter', renderQuarter(v)], ['cue', renderCue(v)],
     ['overlays', renderOverlaySelect(v)], ['rail', renderRail(v)], ['chips', renderChips(v)], ['stack', renderStack(v)],
     ['briefing', renderBriefing(v)], ['decisions', renderDecisions(v)], ['tutorial', renderTutorial({ ...v, ui: { ...ui, tutorialStep: 3 } })],
-    ['verdict', renderVerdict(v) ?? '']];
+    ['readiness drawer', renderDrawer({ ...v, ui: { ...ui, drawer: 'readiness' } })], ['verdict', renderVerdict(v) ?? '']];
   for (const tool of TOOLS) out.push([`flyout ${tool}`, renderFlyout({ ...v, ui: { ...ui, tool } })]);
   for (const drawer of DRAWERS) out.push([`drawer ${drawer}`, renderDrawer({ ...v, ui: { ...ui, drawer } })]);
   for (const area of x.state.areas.filter((a) => a.access === 'playable')) {

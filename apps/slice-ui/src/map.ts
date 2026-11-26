@@ -4,9 +4,9 @@
  * scene main.ts hands it (built from sim state and the pure views) and turns pointer events into gestures; it never
  * changes the session. Canvas text is limited to place labels, which stay bilingual (§11.1).
  */
-import type { GameState, Slice, StartSite } from '@sz/sim-core';
+import { landCoverAt, type GameState, type Slice, type StartSite } from '@sz/sim-core';
 import { bi } from './strings.js';
-import { areaAt, areaBox, playableBox, sliceBox } from './views.js';
+import { areaAt, areaBox, areaName, playableBox, sliceBox } from './views.js';
 
 /** The present-day Shenzhen limit, loaded from data/starts/slice_city_border.json (reference only). */
 export interface CityBorder {
@@ -140,6 +140,7 @@ export class SliceMap {
   private lines: HTMLCanvasElement;
   private shadow: HTMLCanvasElement;
   private playableEdge: HTMLCanvasElement;
+  private farms = new Set<number>();                 // lowland farmland: buildable, but compensation is owed
   private overlay: HTMLCanvasElement | null = null;
   private zones: HTMLCanvasElement | null = null;
   private scene: Scene | null = null;
@@ -153,6 +154,8 @@ export class SliceMap {
     this.lines = outlines(s);
     this.shadow = shadowLayer(s);
     this.playableEdge = playableEdgeLayer(s);
+    const lc = slice.tick.landcover;
+    if (lc) for (let c = 0; c < lc.classOf.length; c++) if (landCoverAt(lc, c) === 'lowland_farm') this.farms.add(c);
     void terrain(s.grid.width, s.grid.height).then((t) => { this.ground = t; this.request(); });
     this.resize(); this.fitPlayable(s);
     addEventListener('resize', () => { this.resize(); if (!this.moved || !(this.view.scale > 0)) this.fitPlayable(s); this.request(); });
@@ -249,6 +252,7 @@ export class SliceMap {
     ctx.drawImage(this.lines, 0, 0);
     if (this.zones) ctx.drawImage(this.zones, 0, 0);
     if (this.overlay) ctx.drawImage(this.overlay, 0, 0);
+    this.drawFarms();                    // fields are buildable, but the cover warns before a drag
     // R11.1: the city exists around the seven playable areas; only the playable land stays lit.
     ctx.drawImage(this.shadow, 0, 0);
     ctx.drawImage(this.playableEdge, 0, 0);
@@ -310,6 +314,27 @@ export class SliceMap {
     }
   }
 
+  /** R11.1: lowland farmland gets a faint cover; a build tool adds a hatch because compensation is owed. */
+  private drawFarms() {
+    if (!this.farms.size) return;
+    const { ctx } = this, W = this.scene?.state.grid.width ?? 1, px = devicePixelRatio / this.view.scale;
+    ctx.save();
+    ctx.fillStyle = this.drawMode ? 'rgba(232,190,80,.42)' : 'rgba(232,190,80,.18)';
+    for (const c of this.farms) ctx.fillRect(c % W, Math.floor(c / W), 1, 1);
+    if (this.drawMode) {
+      ctx.strokeStyle = 'rgba(120,80,20,.55)';
+      ctx.lineWidth = Math.max(px, 0.025);
+      ctx.beginPath();
+      for (const c of this.farms) {
+        const x = c % W, y = Math.floor(c / W);
+        ctx.moveTo(x + .12, y + .88); ctx.lineTo(x + .88, y + .12);
+        ctx.moveTo(x + .5, y + .95); ctx.lineTo(x + .95, y + .5);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   /** R11.1: the present-day city limit, a blue dashed reference line over the shadow. */
   private drawCityBorder() {
     if (!this.border.rings.length) return;
@@ -331,7 +356,7 @@ export class SliceMap {
     const main = this.border.rings[0];
     if (main && this.cellPx >= 3) {
       const top = main.reduce((a, b) => (b[1] < a[1] ? b : a), main[0]!);
-      const label = '深圳市界（今） Shenzhen city limit (present-day)';
+      const label = '深圳市界 Shenzhen city limit';
       ctx.setLineDash([]);
       ctx.font = `italic ${10 * px}px "Courier New", Courier, ui-monospace, SimHei, "Heiti SC", "Microsoft YaHei", sans-serif`;
       ctx.textAlign = 'center';
@@ -362,7 +387,7 @@ export class SliceMap {
       ctx.font = `${playable ? 'bold ' : ''}${(playable ? 11 : 9.5) * px}px "Courier New", Courier, ui-monospace, SimHei, "Heiti SC", "Microsoft YaHei", sans-serif`;
       ctx.globalAlpha = playable ? 1 : 0.72;
       ctx.lineWidth = 3.5 * px; ctx.strokeStyle = playable ? 'rgba(243,236,216,.92)' : 'rgba(31,26,21,.85)'; ctx.lineJoin = 'round';
-      const label = bi(a.name);
+      const label = areaName(sc.state, a.id).en;
       ctx.strokeText(label, x, y);
       ctx.fillStyle = playable ? '#2b1d17' : '#f0e3c4';
       ctx.fillText(label, x, y);
@@ -490,7 +515,7 @@ export class SliceMap {
       if (px <= 1 / 20) {
         ctx.font = `bold ${11 * px}px "Courier New", Courier, ui-monospace, SimHei, "Heiti SC", "Microsoft YaHei", sans-serif`;
         ctx.strokeStyle = 'rgba(243,236,216,.92)'; ctx.lineWidth = 3.5 * px; ctx.lineJoin = 'round';
-        const label = `≈ ${bi(s.name)}`;                // a place label: bilingual in both languages (§11.1)
+        const label = bi(s.name);                       // a place label: bilingual in both languages (§11.1)
         ctx.strokeText(label, x + 1.1, y + .7);
         ctx.fillStyle = '#2b1d17'; ctx.fillText(label, x + 1.1, y + .7);
       }

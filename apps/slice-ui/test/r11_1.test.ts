@@ -5,11 +5,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { createInitialState, playableAreaOf, type Slice } from '@sz/sim-core';
+import { createInitialState, landCoverAt, playableAreaOf, type Slice } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { choose, enqueue, newSession } from '../src/controller.js';
 import {
-  initialUi, renderBriefing, renderDecisions, renderFlyout, renderInspector, renderOverlaySelect, renderReadiness, renderStack, type View,
+  hoverText, initialUi, renderBriefing, renderDecisions, renderDrawer, renderFlyout, renderInspector, renderOverlaySelect,
+  renderReadinessStrip, renderStack, renderTutorial, type View,
 } from '../src/render.js';
 import { inspectorView, playableBox, readinessView } from '../src/views.js';
 import { STARTER_CELLS, STARTER_FROM, STARTER_TO, tutorialView } from '../src/tutorial.js';
@@ -44,6 +45,18 @@ describe('R11.1 the playable-first map', () => {
     expect(html).toContain('Nantou');
     expect(html).toContain(T.cardsOnly.en);
     expect(html).toContain(T.cityBorder.en);
+    expect(html).toContain(T.farmlandBuildable.en);
+  });
+
+  it('names lowland farmland in the inspector so the field cover is legible', () => {
+    const lc = slice.tick.landcover!;
+    let cell = -1;
+    for (let c = 0; c < lc.classOf.length; c++) if (landCoverAt(lc, c) === 'lowland_farm' && playableAreaOf(start, c)) { cell = c; break; }
+    expect(cell).toBeGreaterThan(-1);
+    const x = cell % W, y = Math.floor(cell / W);
+    const c = inspectorView(start, slice, x, y);
+    expect(c.landCover?.en).toBe('Lowland farmland');
+    expect(hoverText(view(), { x, y, area: 1 })).toContain('Land cover: Lowland farmland');
   });
 });
 
@@ -72,7 +85,16 @@ describe('R11.1 the guided opening', () => {
     const r = readinessView(start, slice);
     expect(r.targetCards).toBe(3);
     expect(r.targetBar).toBeCloseTo(0.5, 2);
-    expect(renderReadiness(view())).toContain('50.0%');
+    expect(renderReadinessStrip(view())).toContain('50.0%');
+    expect(renderStack(view())).toContain('50.0%');
+    expect(renderDrawer(view({ drawer: 'readiness' }))).toContain(T.weakestPart.en);
+  });
+
+  it('frames the guide as old Liang with the portrait and the city-office context', () => {
+    const html = renderTutorial({ ...view(), ui: { ...initialUi(slice), tutorialStep: 1 } });
+    expect(html).toContain(T.tutorialSpeaker.en);
+    expect(html).toContain('laoliang.webp');
+    expect(html).toContain('export-base');
   });
 
   it('counts queued land compensation in the budget chip committed figure', () => {

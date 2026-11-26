@@ -47,5 +47,5 @@ export function tutorialView(x: Session, ui: UiState): Tutorial | undefined {
   if (step === 2) return { step, ...c, waiting: true, target: '[data-tool=zone]' };
   if (step === 3) return { step, ...c, waiting: true, cells: STARTER_CELLS, action: 'block' };
   if (step === 4) return { step, ...c, waiting: true, target: '[data-act=submit]' };
-  return { step, ...c, waiting: false, target: '#readiness', action: 'done' };
+  return { step, ...c, waiting: false, target: '[data-drawer=readiness]', action: 'done' };
 }

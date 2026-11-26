@@ -318,11 +318,10 @@
   trigger: { prologue_turn: 0 }          # the opening letters fire at init with the turn-0 beats (§5.8)
   news: { desk: province, tone: opening }
   text:
-    zh: "兹介绍×××同志前往深圳市革命委员会工作。该同志政治可靠，熟悉财经与城建，请予接洽。深圳市系新设省辖市，任务繁重。望到职后，依靠市委领导，团结原有干部，先把情况摸清，再定章程。此致革命敬礼。中共广东省委组织部，一九七九年三月。"
-    en: "Comrade ××× is assigned to the Shenzhen Municipal Revolutionary Committee. Politically reliable, with experience in finance and construction. Please receive this comrade. Shenzhen is a newly established provincial municipality with heavy duties. On arrival, work under the Municipal Party Committee, respect the cadres already here, and understand conditions before setting rules. With revolutionary greetings, Organization Department, CPC Guangdong Provincial Committee, March 1979."
+    zh: "兹介绍×××同志前往深圳市革命委员会工作。该同志政治可靠，熟悉财经与城建，请予接洽。省里已决定将深圳改为省辖市，任务繁重。望到职后，依靠市委领导，团结原有干部，先把情况摸清，再定章程。\n\n此致革命敬礼。\n中共广东省委组织部\n一九七九年一月。"
+    en: "Comrade ××× is assigned to the Shenzhen Municipal Revolutionary Committee. Politically reliable, with experience in finance and construction. Please receive this comrade. The province has decided to make Shenzhen a provincial municipality, with heavy duties. On arrival, work under the Municipal Party Committee, respect the cadres already here, and understand conditions before setting rules.\n\nWith revolutionary greetings,\nOrganization Department,\nCPC Guangdong Provincial Committee, January 1979."
   claims:
     - { id: phase1.politics.province_decision_1979, use: encyclopedia }
-    - { id: phase1.politics.city_reply_1979, use: encyclopedia }
 
 - id: news.1979q1.office_note
   name: { zh: 市革委会办公室便笺, en: A note from the Revolutionary Committee office }
@@ -330,8 +329,8 @@
   trigger: { prologue_turn: 0 }
   news: { desk: city, tone: opening }
   text:
-    zh: "同志：县里的印封了，市里的印还没刻好。你先用这张便条。省里让我们先按“出口基地”做方案。“特区”这个名字，等北京定了再说，先不要对外讲。眼下三件事：一、把地图挂起来。罗湖、上步、深圳墟，哪块地是谁的，哪条路通哪里，先弄清楚。二、选一块能开工的地。不要贪大，先把水、电、路通到地边。三、账上只有省里的补助，没有余钱。花每一笔，都要想着明年省里少给怎么办。饭堂在楼下，饭票自理。此致革命敬礼。市革委会办公室，一九七九年三月。"
-    en: "Comrade: the county seal is sealed up; the city's seal is not yet cut. Use this note for now. The province wants us to plan on the basis of an “export base”. The name “special zone” will wait for Beijing; do not use it in public yet. Three things for now. 1. Hang the map: find out who holds each plot in Luohu, Shangbu and the old market, and which road goes where. 2. Choose one piece of land you can actually start on. Do not be ambitious: get water, power and road to its edge first. 3. The account holds the provincial grant and little else. For every yuan you spend, ask what happens when the grant is smaller next year. The canteen is downstairs; meal tickets are your own. With revolutionary greetings, Office of the Municipal Revolutionary Committee, March 1979."
+    zh: "同志：县里的印封了，市里的印还没刻好。你先用这张便条。省里让我们先按“出口基地”做方案。“特区”这个名字，等北京定了再说，先不要对外讲。眼下三件事：一、把地图挂起来。罗湖、上步、深圳墟，哪块地是谁的，哪条路通哪里，先弄清楚。二、选一块能开工的地。不要贪大，先把水、电、路通到地边。三、账上只有省里的补助，没有余钱。花每一笔，都要想着明年省里少给怎么办。饭堂在楼下，饭票自理。此致革命敬礼。市革委会办公室，一九七九年一月。"
+    en: "Comrade: the county seal is sealed up; the city's seal is not yet cut. Use this note for now. The province wants us to plan on the basis of an “export base”. The name “special zone” will wait for Beijing; do not use it in public yet. Three things for now. 1. Hang the map: find out who holds each plot in Luohu, Shangbu and the old market, and which road goes where. 2. Choose one piece of land you can actually start on. Do not be ambitious: get water, power and road to its edge first. 3. The account holds the provincial grant and little else. For every yuan you spend, ask what happens when the grant is smaller next year. The canteen is downstairs; meal tickets are your own. With revolutionary greetings, Office of the Municipal Revolutionary Committee, January 1979."
   claims:
     - { id: phase1.politics.city_reply_1979, use: encyclopedia }
 
