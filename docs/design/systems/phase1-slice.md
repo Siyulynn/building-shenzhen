@@ -161,16 +161,15 @@ Shenzhen in 1979 had a market town, a border crossing and railway, villages, far
   claims:
     - { id: site.shenzhen_market_town.exists_1979, use: encyclopedia }
     - { id: site.shenzhen_market_town.location, use: geometry }
-  # evidence_status is computed, not stored: the weakest of the site's own encyclopedia and geometry claims.
+  # evidence_status is computed, not stored: the weakest of the site's own encyclopedia claims and its placement claims.
   # design_note claims (context such as later figures) don't move the flag.
   research: [USGS 1977 aerial (V15), period maps, county gazetteer]
 ```
 - **Flags on the map:** every site shows a marker coloured by evidence status: `lead` (red), `sourced` (amber), `verified` (green). Clicking it opens the claims, the sources and what is still unknown. The sites stay flagged in the slice, so the player always sees which parts of 1979 are researched.
 - **How sites enter the start state:** a village becomes a block stock with village houses and farmland; the market town becomes block stocks of shops and state-unit buildings; the station and the bridge become tracked landmarks; the reservoir becomes water and unbuildable land; roads and the railway become network edges.
 - **Placeholders:** where a site is known to exist but its size is not, the start file uses a placeholder (`placeholder: true`) and the map says so.
-- **Status (M1b, 2026-11-23):** 20 sites in the register.
-  - 15 have present-day OSM proxy points (source `osm_shenzhen_places`), and 5 are unplaced (county offices, railway line, Guangzhou road, border fence, military land).
-  - 17 existence claims are `sourced` (`docs/research/phase1-map-sources.md` §5). Every placement is still `lead`, so every placed flag is red.
+- **Status (Stage A, 2026-11-25):** 30 sites in the register, 24 placed and 6 unplaced.
+  - Points are modern proxies or locality picks from the 1977/1980 KH-9 comparison. Every placement is still `lead`. See [`map-1984-previews-and-1979-anchors.md`](../../research/map-1984-previews-and-1979-anchors.md).
   - The viewer shows what the 1979 Landsat scene has at each proxy point, as a hint for placing it.
 - **The key sources for placement:**
   - the Landsat scene of 1979-10-19 (60 m), for coastline, water and the largest built-up patches;
@@ -704,7 +703,7 @@ interface AnsweredCard { card: CardInstance; option: string }   // answered, awa
   7. `upland`: slope > 6%;
   8. `lowland_farm`: everything else.
   Two deviations from the plan's first wording, both forced by the inputs: every 1979 water cell in the playable areas is also coast change 3, so `water` takes only large bodies; and about a fifth of 1979 inland water lies on hills (shadow), so `pond` has an elevation ceiling.
-
+- **R8a precision follow-up (candidate only):** a December 1977 KH-9 registration can inform the opening-date layer. The raster-first candidate keeps the same grid and eight classes. It separates built-up detection from the town/village decision, uses a small contextual town-core mask only to split detected built-up cells, and tests spectral and terrain corroboration. The September 1980 3D traces are a dated comparison, not classification input or an independent 1979 audit. The live layer and save hash stay unchanged pending a fresh spatially held-out audit and gameplay checks. See [the land-cover audit](../../research/phase1-landcover.md).
 - **The compiler checks** the classes and their order, the grid and the areas hash, and that each playable area's classes **partition** its cells: no gap, no overlap, nothing outside the area.
 - **Formable classes** (decided): `upland`, `lowland_farm`, `pond`, `town`. **Villages are not formable**: development wraps around them and their `village_rental` floor keeps growing. `water`, `tidal_flat` and `hill` are not formable either (no reclamation or terracing in Phase 1). A road on a `water` or `tidal_flat` cell is a bridge (§5.6 works); a road may cross `hill` and `village` cells at the road rate.
 - **Formation cost** (`growth.land_cover.<class>.cost`, placeholders): a formable cell's service work is `round(works.service.units_per_cell × cost)` units, at the order's one rate (`works.service.yuan_per_cell ÷ units_per_cell`), so work and money scale together: upland 1.6, lowland_farm 1.2, pond 1.8, town 1.2. A zone that spans classes has a mixed cost; the preview shows the total and the split by class.
@@ -928,8 +927,8 @@ type DeficitOption = 'borrow_short' | 'use_land_money' | 'austerity';
 - **R9: works pace (revision plan §4.6).** Each works order has a `pace`: `normal` (absent), `push` or `all_out`. It is chosen at commit (`pace` on `commit_works`, `build_road` and `place_structure`) and changed by `set_works_pace { order, pace }`; both are gated with `works.priority`.
   - **At pace k,** each crew unit the order takes does `1 ÷ works.pace[k].units` units of its work, and each unit of work costs `works.pace[k].money` × the normal rate. The placeholders are units {1, 0.75, 0.55} and money {1, 1.25, 1.6}. So an order's money scales by exactly its factor (the plan's `budget × b`), and its crew by about its factor (the plan's `unitsTotal × u`; a month's work is whole units, below).
   - **Not paced:** a power station, which is built at its own pace over `build_months`, and a co-financed order, which costs the city nothing. Pace is refused on both.
-  - **R11.2: per-order crew allocation.** `WorksOrder.crew?: number` is optional; absent means `works.crew_per_order`. `set_works_crews { order, crews }` sets a whole number from 1 to `10 × crew_per_order`; the default removes the field. The monthly draw is `min(order.crew ?? crew_per_order, usable)`, so the city pool and materials still cap it, and concentrating crews on one order can starve the others. The Building drawer offers 1×–4× the default. No save version bump: an older save's orders have no field and use the default.
   - **The monthly draw is unchanged** (at most `crew_per_order` crew units), so a rushed order finishes sooner without starving the builders.
+  - **R11.2: per-order crew allocation.** `WorksOrder.crew?: number` is optional; absent means `works.crew_per_order`. `set_works_crews { order, crews }` sets a whole number from 1 to `10 × crew_per_order`; the default removes the field. The monthly draw is `min(order.crew ?? crew_per_order, usable)`, so the city pool and materials still cap it, and concentrating crews on one order can starve the others. The Building drawer offers 1×–4× the default. No save version bump: an older save's orders have no field and use the default.
   - **Changing the step** re-prices only the unworked units; sunk work and money are never re-priced. The order's `budget` is recomputed as `spent` plus the remaining work at the new step.
   - **Priority stays** the crew-for-time lever and pace is the money-for-time lever. No global slider exists. The headless plans keep `normal`.
   - **Fractions.** The pool deals in whole crew units and an order in whole units of work. In a month an order at a step below 1 does `floor(crew ÷ units)` units and takes `ceil(units done × units)` crew, so the spare fraction of a crew unit passes down the queue. Its work is also capped by what it can reach and what the city can pay for, whatever crew it was given.

@@ -6,10 +6,13 @@ import { areasJson, readRepo, sha256, slice } from './fixtures.js';
 describe('R1: the lived-in start', () => {
   it('places only the core point proxies, without turning landscapes or planning guides into settlements', () => {
     const ids = (layer: string) => slice.startSites.filter((s) => s.layer === layer).map((s) => s.id).sort();
-    expect(ids('settlement')).toEqual(['site.caiwuwei', 'site.huangbeiling', 'site.hubei', 'site.shenzhen_market_town',
-      'site.sungang', 'site.xiangxi', 'site.yumin']);
-    expect(ids('landmark')).toEqual(['site.luohu_crossing', 'site.shenzhen_station', 'site.wenjindu_crossing']);
-    expect(ids('landscape')).toEqual(['site.shangbu_land', 'site.shenzhen_reservoir']);
+    expect(ids('settlement')).toEqual(['site.caiwuwei', 'site.huangbeiling', 'site.hubei', 'site.nigang',
+      'site.shenzhen_market_town', 'site.shuibei', 'site.sungang', 'site.tianbei_lower', 'site.tianbei_upper',
+      'site.xiangxi', 'site.yumin']);
+    expect(ids('landmark')).toEqual(['site.luohu_crossing', 'site.peoples_hospital_inpatient',
+      'site.shenzhen_middle_school', 'site.shenzhen_station', 'site.shenzhen_theatre', 'site.sungang_freight',
+      'site.wenjindu_crossing']);
+    expect(ids('landscape')).toEqual(['site.county_offices', 'site.shangbu_land', 'site.shenzhen_reservoir']);
     const station = slice.startSites.find((s) => s.id === 'site.shenzhen_station')!;
     expect(station).toMatchObject({ area: 2, cell: [385, 390], name: { zh: '深圳火车站', en: 'Shenzhen station' } });
     expect(station.claims).toContainEqual({ id: 'site.shenzhen_station.location', use: 'geometry' });

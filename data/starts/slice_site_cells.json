@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "register_sha256": "d8e09e484a79599090b5e4e59ca1c6239ffe8e92bf09053de71bded07f885790",
+  "register_sha256": "e93864926886fabc730a9012c2246e408afc3f33bd7254fe1bd2334e557db040",
   "grid": {
     "width": 931,
     "height": 686,
@@ -20,6 +20,26 @@
       "landCell": [
         387,
         377
+      ]
+    },
+    "site.county_offices": {
+      "cell": [
+        378,
+        376
+      ],
+      "landCell": [
+        378,
+        376
+      ]
+    },
+    "site.shenzhen_theatre": {
+      "cell": [
+        385,
+        375
+      ],
+      "landCell": [
+        385,
+        375
       ]
     },
     "site.luohu_crossing": {
@@ -84,12 +104,62 @@
     },
     "site.hubei": {
       "cell": [
+        393,
+        374
+      ],
+      "landCell": [
+        393,
+        374
+      ]
+    },
+    "site.shuibei": {
+      "cell": [
+        393,
+        346
+      ],
+      "landCell": [
+        393,
+        346
+      ]
+    },
+    "site.tianbei_upper": {
+      "cell": [
+        396,
+        355
+      ],
+      "landCell": [
+        396,
+        355
+      ]
+    },
+    "site.tianbei_lower": {
+      "cell": [
+        392,
+        354
+      ],
+      "landCell": [
+        392,
+        354
+      ]
+    },
+    "site.shenzhen_middle_school": {
+      "cell": [
+        391,
+        367
+      ],
+      "landCell": [
+        391,
+        367
+      ]
+    },
+    "site.peoples_hospital_inpatient": {
+      "cell": [
         397,
-        372
+        360
       ],
       "landCell": [
         397,
-        372
+        360
       ]
     },
     "site.xiangxi": {
@@ -110,6 +180,26 @@
       "landCell": [
         383,
         350
+      ]
+    },
+    "site.nigang": {
+      "cell": [
+        369,
+        349
+      ],
+      "landCell": [
+        369,
+        349
+      ]
+    },
+    "site.sungang_freight": {
+      "cell": [
+        384,
+        355
+      ],
+      "landCell": [
+        384,
+        355
       ]
     },
     "site.shenzhen_reservoir": {

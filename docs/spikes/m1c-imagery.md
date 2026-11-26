@@ -18,10 +18,10 @@
 
 - **The 1984 Landsat scene does not cover the core.** Its band data stops at about UTM E 205.3 km (grid column 409). The scene's QA mask reports more than that: earlier in this session I said the 1984 coverage was better than the research suggested, and that was wrong. Of the playable areas, only Huangbeiling (4) and Donghu–Liantang (6) lie east of the edge.
 - **So the end-1983 picture of the core needs other imagery.** The candidates in hand are listed in `docs/research/phase1-usgs-inventory.csv`:
-  - the KH-9 frames of 1983-11-01 (`D3C1218-200853A005`, `A006`, `F005`, `F006`), the only end-1983 coverage. A KH-9 1980 → KH-9 1983 comparison is the same sensor, so it would beat the Landsat pair;
+  - the KH-9 frames of 1983-11-01 (`D3C1218-200853A005`, `A006`, `F005`, `F006`) were regional catalog leads only. The [follow-up footprint check](../research/kh9-core-basin-shortlist.md) excludes them from the core;
   - Landsat 3 `LM03_L1TP_131044_19820810` (path 131, the same path as the 1979 scene) as a same-sensor midpoint for the core.
 
-  Neither is downloaded yet. The pipeline below runs on them unchanged.
+   The Landsat midpoint is not downloaded yet. No closing-date core image is established. On 2026-11-25 the Hong Kong flight index added a photographic candidate — 22 December 1983, 1:20,000, frames 52327R–52329R — but it is restricted and no scan is in hand (`docs/research/hk-flight-candidates.md`).
 - **Huangbeiling is the one firm signal.** About a fifth of its low, flat land changed from vegetated to bright between October 1979 and November 1984, twenty times the false-alarm rate on the control. In the KH-9 frame, 89% of those cells are *not* among the brightest land in September 1980. So most of the change came after 1980-09. That fits the slice's arc of building starting after the zone opens. The map can't say what was built, though: building sites, roads and bare fields look alike at 60 m.
 
 ## Inputs

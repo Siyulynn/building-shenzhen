@@ -1,7 +1,7 @@
 """Unpack KH-9 Declass 3 scans one segment at a time and keep reduced working copies.
 
 Usage: python -I pipeline/kh9_reduce.py <source_id> [factor]
-  <source_id>  e.g. kh9_1980_09_11_a048 (the .tgz is in data/raw/sources/<source_id>/)
+  <source_id>  e.g. kh9_1980_09_11_a048 (the .tgz or .tar.gz is in data/raw/sources/<source_id>/)
   factor       block-average reduction (default 8: ~1 m scan pixels -> ~8 m)
 
 Writes data/raw/sources/<source_id>/reduced/<segment>_r<factor>.tif (uint8, pixel space, no georeference)
@@ -23,11 +23,16 @@ def main():
     sid = sys.argv[1]
     factor = int(sys.argv[2]) if len(sys.argv) > 2 else 8
     d = ROOT / "data/raw/sources" / sid
-    tgz = next(d.glob("*.tgz"))
-    out = d / "reduced"
+    archives = sorted([*d.glob("*.tgz"), *d.glob("*.tar.gz")])
+    if len(archives) != 1:
+        raise SystemExit(f"Expected one KH-9 archive in {d}, found {len(archives)}")
+    reduce_archive(archives[0], d / "reduced", factor)
+
+
+def reduce_archive(archive, out, factor=8):
     out.mkdir(exist_ok=True)
     info = {}
-    with tarfile.open(tgz, "r:gz") as tf:
+    with tarfile.open(archive, "r:gz") as tf:
         for m in tf:
             if not m.isfile() or not m.name.lower().endswith(".tif"):
                 continue

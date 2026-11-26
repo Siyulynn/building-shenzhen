@@ -1,6 +1,6 @@
 # The 1979 site register (docs/design/systems/phase1-slice.md §3.1, milestone M1b).
 # Existence and placement have separate claims. See docs/research/phase1-map-sources.md.
-# geometry.kind: point (a present-day OSM proxy, low confidence) | unplaced (known to exist, not yet located).
+# geometry.kind: point (a modern or period-image proxy) | unplaced (known to exist, not yet located).
 # evidence_status is not stored here: pipeline/m1b_sites.py computes it from the cited claims for the map.
 # area: the slice area (phase1-slice.md §3, v0.3): 1–7 playable, 8 Shekou and 9 Nantou card-only.
 # in_start_state: card_only for sites in areas 8–9; they appear only through cards.
@@ -20,13 +20,28 @@
 - id: site.county_offices
   name: { zh: 县属机关与国营单位, en: County offices and state units }
   kind: state_unit
-  area: 1
-  geometry: { kind: unplaced }
+  area: 3
+  geometry: { kind: point, lonlat: [114.10459, 22.54650], proxy: kh9_1980_09_11_a048, confidence: 0.35 }
   in_start_state: block_stock
   placeholder: true
   claims:
     - { id: site.county_offices.exists_1979, use: encyclopedia }
-  research: [Bao'an county gazetteer, 1985 yearbook unit lists]
+    - { id: site.county_offices.location, use: geometry }
+    - { id: phase1.map.1984.caiwuwei_county_label, use: design_note }
+  research: [County-seat neighbourhood only; individual offices and unit locations remain open]
+
+- id: site.shenzhen_theatre
+  name: { zh: 深圳戏院, en: Shenzhen Theatre }
+  kind: theatre
+  area: 1
+  geometry: { kind: point, lonlat: [114.11186, 22.54820], proxy: kh9_1980_09_11_a048, confidence: 0.35 }
+  in_start_state: tracked_building
+  placeholder: true
+  claims:
+    - { id: site.shenzhen_theatre.exists_1979, use: encyclopedia }
+    - { id: phase1.observation.kh9_1980.core_anchor_review, use: geometry }
+    - { id: phase1.map.1984.dongmen_frontage, use: design_note }
+  research: [Old theatre block and entrance; roof and footprint remain open]
 
 - id: site.luohu_crossing
   name: { zh: 罗湖桥与口岸, en: Luohu bridge and crossing }
@@ -132,16 +147,80 @@
   research: [Houses, fields, population]
 
 - id: site.hubei
-  name: { zh: 湖贝, en: Hubei village }
+  name: { zh: 湖贝旧村, en: Old Hubei village }
   kind: village
   area: 1
-  geometry: { kind: point, lonlat: [114.1238, 22.5510], proxy: osm_shenzhen_places, confidence: 0.2 }
+  geometry: { kind: point, lonlat: [114.11985, 22.54914], proxy: kh9_1980_09_11_a048, confidence: 0.35 }
   in_start_state: block_stock
   placeholder: true
   claims:
     - { id: site.hubei.exists_1979, use: encyclopedia }
-    - { id: site.hubei.location, use: geometry }
-  research: [Old village core versus the present-day new village]
+    - { id: site.hubei.old_core_location, use: design_note }
+    - { id: phase1.observation.kh9_1980.core_anchor_review, use: geometry }
+  research: [Core east of the pond strip; 1979 village bounds remain open]
+
+- id: site.shuibei
+  name: { zh: 水贝, en: Shuibei village }
+  kind: village
+  area: 1
+  geometry: { kind: point, lonlat: [114.11906, 22.57424], proxy: kh9_1977_12_03_a010, confidence: 0.3 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.shuibei.exists_1979, use: encyclopedia }
+    - { id: phase1.observation.kh9_1977.northern_settlement_anchors, use: geometry }
+    - { id: phase1.map.1982.sungang_shuibei_tianbei, use: design_note }
+  research: [Old village cluster; distinct from Shuibei Industrial Zone]
+
+- id: site.tianbei_upper
+  name: { zh: 上田贝, en: Upper Tianbei village }
+  kind: village
+  area: 1
+  geometry: { kind: point, lonlat: [114.12214, 22.56617], proxy: kh9_1977_12_03_a010, confidence: 0.3 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: phase1.villages.tianbei_old_pair, use: encyclopedia }
+    - { id: phase1.observation.kh9_1977.northern_settlement_anchors, use: geometry }
+    - { id: phase1.map.1982.sungang_shuibei_tianbei, use: design_note }
+  research: [Eastern cluster; test against the 1985 city sheet]
+
+- id: site.tianbei_lower
+  name: { zh: 下田贝, en: Lower Tianbei village }
+  kind: village
+  area: 1
+  geometry: { kind: point, lonlat: [114.11824, 22.56700], proxy: kh9_1977_12_03_a010, confidence: 0.3 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: phase1.villages.tianbei_old_pair, use: encyclopedia }
+    - { id: phase1.observation.kh9_1977.northern_settlement_anchors, use: geometry }
+    - { id: phase1.map.1982.sungang_shuibei_tianbei, use: design_note }
+  research: [Western cluster; test against the 1985 city sheet]
+
+- id: site.shenzhen_middle_school
+  name: { zh: 深圳中学, en: Shenzhen Middle School }
+  kind: state_unit
+  area: 1
+  geometry: { kind: point, lonlat: [114.11711, 22.55552], proxy: kh9_1980_09_11_a048, confidence: 0.35 }
+  in_start_state: tracked_building
+  placeholder: true
+  claims:
+    - { id: phase1.map.1977.school_hospital, use: encyclopedia }
+    - { id: phase1.observation.kh9_1980.core_anchor_review, use: geometry }
+  research: [Campus locality; no individual building identification]
+
+- id: site.peoples_hospital_inpatient
+  name: { zh: 人民医院留医部, en: People's Hospital inpatient unit }
+  kind: state_unit
+  area: 1
+  geometry: { kind: point, lonlat: [114.12291, 22.56194], proxy: kh9_1980_09_11_a048, confidence: 0.35 }
+  in_start_state: tracked_building
+  placeholder: true
+  claims:
+    - { id: phase1.map.1977.school_hospital, use: encyclopedia }
+    - { id: phase1.observation.kh9_1980.core_anchor_review, use: geometry }
+  research: [Inpatient campus locality; distinct from the Dongmen outpatient department]
 
 - id: site.xiangxi
   name: { zh: 向西, en: Xiangxi village }
@@ -166,6 +245,31 @@
     - { id: site.sungang.exists_1979, use: encyclopedia }
     - { id: site.sungang.location, use: geometry }
   research: [Extent of fields and ponds]
+
+- id: site.nigang
+  name: { zh: 泥岗, en: Nigang village }
+  kind: village
+  area: 5
+  geometry: { kind: point, lonlat: [114.09580, 22.57111], proxy: kh9_1977_12_03_a010, confidence: 0.3 }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.nigang.exists_1979, use: encyclopedia }
+    - { id: phase1.observation.kh9_1977.northern_settlement_anchors, use: geometry }
+    - { id: phase1.map.1982.nigang_bagualing_hongling, use: design_note }
+  research: [Village by the south-facing hill foot; extent unresolved]
+
+- id: site.sungang_freight
+  name: { zh: 深圳北站（笋岗货场）, en: Shenzhen North (Sungang freight yard) }
+  kind: railway
+  area: 5
+  geometry: { kind: point, lonlat: [114.11058, 22.56587], proxy: kh9_1977_12_03_a010, confidence: 0.35 }
+  in_start_state: tracked_building
+  placeholder: true
+  claims:
+    - { id: phase1.rail.sungang.renamed_1977, use: encyclopedia }
+    - { id: phase1.observation.kh9_1977.northern_settlement_anchors, use: geometry }
+  research: [Rail-corridor yard proxy; track and building assignments unresolved]
 
 - id: site.shenzhen_reservoir
   name: { zh: 深圳水库, en: Shenzhen Reservoir }
@@ -199,7 +303,20 @@
     - { id: site.shangbu_land.exists_1979, use: encyclopedia }
     - { id: site.shangbu_land.location, use: geometry }
     - { id: phase1.shangbu.reported_pop, use: design_note }
-  research: [Land use in 1979, which villages]
+  research: [District-scale farmland proxy; 1982 上步 village label refers to a separate locality south of Shennan]
+
+- id: site.shangbu_villages
+  name: { zh: 上步村组, en: Shangbu village group }
+  kind: village
+  area: null
+  geometry: { kind: unplaced }
+  in_start_state: block_stock
+  placeholder: true
+  claims:
+    - { id: site.shangbu_villages.exists_1979, use: encyclopedia }
+    - { id: phase1.map.1982.river_villages_planned_channel, use: design_note }
+    - { id: phase1.map.1982.futian_villages, use: design_note }
+  research: [Multiple settlements south of Shennan; most trial 1982 points are outside the playable mask]
 
 - id: site.nantou_old_town
   name: { zh: 南头古城, en: Nantou old town }

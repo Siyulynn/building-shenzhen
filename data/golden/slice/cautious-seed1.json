@@ -7,7 +7,7 @@
     "params_sha256": "5a4ec8f1b70a33afec772c2a75bcfdf7b23fb943be23dd1c331a4f09f571e0c0",
     "precedents_sha256": "d54f17661a4348d98d655754b9e42dea47173e09d8f6d19566de79d2094104f4",
     "investors_sha256": "adc3094d4f690a30c2fb3f684ea30e2695beb29e9c7cf9c1932ec44e967e97ae",
-    "landcover_sha256": "a8fc4372642be8e1f96c9dee10422e3724c4aee7cdb0a9c20c13570508538253",
+    "landcover_sha256": "b529df543131849b2dd47058d99f61025b5e15e63f456a37456e07695c83f76e",
     "fiscal_sha256": "d011f835ee00c7df0b932b5b61b0af06caf755fe30b5288ae77f7c04716c50d8",
     "events_sha256": "3fbb77525ad941ce39b96beab60cf6e2523d85989dd82a108a284331c8396ec7",
     "leaders_sha256": "5bf3fe0aa081c85e6f538add149d93852b4fc6f34142656fd5dd599e8c520467",
@@ -552,7 +552,7 @@
   ],
   "sez": {
     "opened": "1980-09",
-    "readiness": 0.1774,
+    "readiness": 0.1824,
     "waveCards": 2
   },
   "verdict": {

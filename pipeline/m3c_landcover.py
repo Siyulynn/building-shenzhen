@@ -1,6 +1,8 @@
 """R8a: the 1979 land-cover layer for the slice's playable areas (phase1-slice.md §5.5, phase1-revision-plan.md §3.1).
 
 Usage: pipeline/.venv/Scripts/python.exe -I pipeline/m3c_landcover.py [--features OUT.npz | --selftest]
+       pipeline/.venv/Scripts/python.exe -I pipeline/m3c_landcover.py --candidate [--selftest]
+--candidate evaluates the raster-first revision without replacing the shipped layer.
 --selftest classifies a small synthetic fixture grid twice, checks that every rule fires where it should and that the
 result is identical, and writes nothing.
 Reads the Spike A grid (git-ignored, apps/map-spike/public/grid/): grid.bin (present-day DEM and water),
@@ -161,6 +163,9 @@ def selftest():
 
 
 def main():
+    if "--candidate" in sys.argv:
+        from m3c_landcover_candidate import main as candidate_main
+        return candidate_main(sys.argv[sys.argv.index("--candidate") + 1:])
     if "--selftest" in sys.argv:
         return selftest()
     g = load_grid()
@@ -207,8 +212,8 @@ def main():
             "Water and ponds come from one automatic Landsat MSS threshold (60 m, October 1979); small fishponds below "
             "its resolution are missed and read as lowland_farm.",
             "Built texture is from KH-9 of 1980-09-11, after the first works began: evidence for that date, not 1979.",
-            "Village and town points are present-day OSM proxies (confidence 0.2-0.4); a village with no point is not "
-            "a village class here.",
+            "Village and town anchoring uses low-confidence modern or registered period-image proxies. "
+            "The points supply locality only; the built-texture and terrain rules still classify the cells.",
             "Cells without KH-9 coverage (about a sixth of Donghu-Liantang) can never be village or town.",
             "The 1977 street sheet and county map are not georeferenced: they audit and label, they do not classify.",
         ],

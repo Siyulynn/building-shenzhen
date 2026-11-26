@@ -7,7 +7,7 @@ Output: apps/map-spike/public/grid/sites.json (git-ignored)
         data/starts/slice_site_cells.json (committed projection for the playable slice)
 
 Each site gets:
-  evidence_status  the weakest status among its own claims cited for `encyclopedia` or `geometry`
+  evidence_status  the weakest status among its own encyclopedia claims and its placement claims
                    (design_note claims are context, they do not raise or lower the flag)
   cell             grid x, y of the proxy point (None when unplaced)
   landsat_check    what the 1979 scene shows at that cell: an automatic hint for the person who places the site
@@ -63,8 +63,9 @@ def main():
                 raise SystemExit(f"{s['id']}: unknown claim {cid} (run npm run evidence:compile first)")
             cited.append({"id": cid, "use": use, "status": cl["status"], "summary": cl.get("summary"),
                           "source": cl.get("source")})
-        own = [c for c in cited if c["use"] in ("encyclopedia", "geometry") and c["id"].startswith(s["id"] + ".")]
-        status = min((c["status"] for c in own), key=RANK.__getitem__) if own else "lead"
+        evidence = [c for c in cited if c["use"] == "geometry"
+                    or (c["use"] == "encyclopedia" and c["id"].startswith(s["id"] + "."))]
+        status = min((c["status"] for c in evidence), key=RANK.__getitem__) if evidence else "lead"
 
         geom = s.get("geometry") or {"kind": "unplaced"}
         rec = {k: s.get(k) for k in ("id", "name", "kind", "area", "in_start_state", "research")}
