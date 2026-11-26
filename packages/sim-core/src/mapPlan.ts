@@ -8,8 +8,8 @@
 import { contractLive, constructionCreditRoom, liveProject, moneyForProjects } from './fiscal.js';
 import { ROAD_CLASSES, intensityOf, type RoadClass, type SliceParams } from './params.js';
 import { roadClasses } from './freight.js';
-import type { ImportQuota, LandUse } from './enums.js';
-import type { GameState, PlayerAction, Zone } from './state.js';
+import type { ImportQuota, Intensity, LandUse } from './enums.js';
+import type { CellRuns, GameState, PlayerAction, Zone } from './state.js';
 import type { TickContent } from './ticks.js';
 import { liveOrder, spatialViews } from './works.js';
 import { gateRefusal } from './gates.js';
@@ -18,8 +18,14 @@ import { developableCells, zoneRoomM2 } from './growth.js';
 import { coverFactors, needsBridge } from './landcover.js';
 import { importedKw, powerPool } from './power.js';
 
-/** A zone the plan draws in its first month: a precedent's template cells, or an area's buildable cells nearest a road. */
-export type ZonePlan = { template: string } | { use: LandUse; area: number; cells: number };
+/**
+ * A zone the plan draws: a precedent's template cells, or an area's buildable cells nearest a road (both in its first
+ * month, or when their gate opens), or R12 (§5.9) a design zone's own cells from `from_turn` (default 0).
+ */
+export type ZonePlan = { template: string } | { use: LandUse; area: number; cells: number } | DesignZonePlan;
+/** R12 (§5.9): a zone drawn on given cells (the visit's design map, designPlan.ts), once, at the first turn from `from_turn` its gates allow. */
+export interface DesignZonePlan { id: string; use: LandUse; intensity?: Intensity; runs: CellRuns; from_turn?: number }
+const isDesign = (z: ZonePlan): z is DesignZonePlan => 'runs' in z;
 /** Water and power: a source is placed when its areas' sited firms plus `headroom_jobs` would need more than they have. */
 /** R8c (§5.5): substations ahead of need, purchases from a turn in chunks, and one station from a turn (none if absent). */
 export interface UtilityPlan { headroom_jobs: number; max_sources: number; import_kw: number; import_from_turn: number; station_turn?: number }
@@ -108,10 +114,25 @@ export function planZones(s: GameState, tick: TickContent, plan: MapPlan, later 
     ...plan.roads.flatMap((r) => pathCells(s.grid.width, r) ?? [])]);
   const out: PlayerAction[] = [];
   const gated = (use: LandUse) => !!tick.gates?.some((g) => g.gate === `zone.${use}`);
+  let roads: Set<number> | undefined;
   for (const [i, z] of plan.zones.entries()) {
+    if (isDesign(z)) {
+      // R12: drawn once (a zone of its use already holds one of its cells), never on a road, clipped like any stroke
+      if (s.turn < (z.from_turn ?? 0)) continue;
+      const own = new Set(cellsOfRuns(z.runs, s.grid));
+      if (s.zones.some((x) => x.use === z.use && cellsOfRuns(x.runs, s.grid).some((c) => own.has(c)))) continue;
+      roads ??= plannedRoads(s, tick);
+      const runs = zoneCellsAllowed(s, runsOfCells([...own].filter((c) => !taken.has(c) && !roads!.has(c)).sort((p, q) => p - q), s.grid.width));
+      if (!runs.length) continue;
+      const a: PlayerAction & { type: 'create_zone' } = { type: 'create_zone', use: z.use, runs, ...(z.intensity ? { intensity: z.intensity } : {}) };
+      if (!gateAllows(s, tick, a)) continue;
+      for (const c of cellsOfRuns(a.runs, s.grid)) taken.add(c);
+      out.push(a);
+      continue;
+    }
     if (later) {
       if ('template' in z || !gated(z.use)) continue;
-      const same = (x: ZonePlan) => !('template' in x) && x.use === z.use && x.area === z.area;
+      const same = (x: ZonePlan) => !('template' in x) && !isDesign(x) && x.use === z.use && x.area === z.area;
       if (s.zones.filter((x) => x.use === z.use && x.area === z.area).length >= plan.zones.slice(0, i + 1).filter(same).length) continue;
     }
     let a: PlayerAction & { type: 'create_zone' };

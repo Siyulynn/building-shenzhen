@@ -38,3 +38,4 @@ export { offerProjectLoan } from './systems/finance.js';
 export { crewPool } from './systems/projects.js';
 export * from './reach.js';
 export * from './mapPlan.js';
+export * from './designPlan.js';
