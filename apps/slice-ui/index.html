@@ -153,7 +153,11 @@
     #decisions details.more > summary { cursor: pointer; font: bold 11px var(--type); color: var(--maroon); text-transform: uppercase; letter-spacing: .06em; }
     #briefing .modal-foot, #decisions .modal-foot { flex: none; border-top: 1px solid var(--rule); margin-top: 8px; padding-top: 8px; text-align: center; }
     #briefing .go, #verdict .go { display: block; margin: 0 auto; }
-    #preview { display: none; z-index: 7; width: 240px; font-size: 12px; pointer-events: none; border: 1px solid var(--ink); box-shadow: 2px 2px 0 rgba(43,29,23,.35); padding: 5px 8px; }
+    #preview { display: none; z-index: 7; width: 240px; max-height: 60vh; overflow: auto; font-size: 12px; pointer-events: none; border: 1px solid var(--ink); box-shadow: 2px 2px 0 rgba(43,29,23,.35); padding: 5px 8px; }
+    /* R11.2: the preview's auto table let the long land-cover value squeeze the label column to one character per line */
+    #preview table { table-layout: fixed; }
+    #preview td:first-child { width: 58%; }
+    #preview td.n { width: 42%; white-space: normal; overflow-wrap: anywhere; }
     #hover { bottom: 120px; left: 50%; transform: translateX(-50%); font: 12px/1.3 var(--type); padding: 3px 9px; border-width: 1px; box-shadow: 1px 2px 0 rgba(43,29,23,.35); }
     #hover:empty { display: none; }
     /* R11.1: the guided opening card and the outline it puts on the real control */

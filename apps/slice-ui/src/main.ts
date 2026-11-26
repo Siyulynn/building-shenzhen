@@ -105,8 +105,12 @@ function placePreview(): void {
   if (!plan || plan.kind === 'none') { el.style.display = 'none'; return; }
   el.innerHTML = renderPreview(plan, { x, lang });
   el.style.display = 'block';
-  el.style.left = `${Math.min(innerWidth - 260, cursor.x + 16)}px`;
-  el.style.top = `${Math.min(innerHeight - 160, cursor.y + 16)}px`;
+  // R11.2: clamp the preview to the window and put it above/left near the bottom-right stack.
+  const w = el.offsetWidth || 240, h = el.offsetHeight || 120;
+  const left = cursor.x + 16 + w > innerWidth - 8 ? cursor.x - w - 16 : cursor.x + 16;
+  const top = cursor.y + 16 + h > innerHeight - 8 ? cursor.y - h - 16 : cursor.y + 16;
+  el.style.left = `${Math.max(8, Math.min(innerWidth - w - 8, left))}px`;
+  el.style.top = `${Math.max(8, Math.min(innerHeight - h - 8, top))}px`;
 }
 
 /** Switch the language: store it, rewrite ?lang in place (keeping ?seed), re-render. The session is untouched. */
