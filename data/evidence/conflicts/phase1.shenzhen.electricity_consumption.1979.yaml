@@ -1,0 +1,6 @@
+id: "conflict.phase1.shenzhen.electricity_consumption.1979"
+subject: "Shenzhen electricity consumption reported for 1979"
+claims: ["phase1.power.city.annual_consumption.1979.archive","phase1.power.city.annual_consumption.1979.sznews","phase1.power.city.annual_supply.1979","phase1.power.city.annual_consumption.1979.sasac"]
+diagnosis: "The same 0.33亿 kWh figure is called annual supply by the city portal and all-society consumption by an archive retrospective and the 2020 SASAC feature. A 2020 深圳新闻网 statistical feature gives 0.4125亿 kWh as 1979 all-society consumption, 25% higher. Coverage, boundary and vintage are unstated in every case. The 1980 figure of 0.5434亿 kWh implies +65% on 33M but +32% on 41.25M; the reported growth of over 60% favours the 33M series, but that is an inference, not a resolution. The 1979 maximum-load figure of 5 MW implies a 75% load factor on 33M, but 94% on 41.25M, which is high for a small system."
+resolution: {"calibration":"Exclude both consumption figures from targets. Use the wider network's transformer rating only as context until feeder and local demand data are found.","encyclopedia":"Do not state a 1979 consumption figure until the statistical table behind it is found; if shown, label supply and consumption separately and name the source."}
+status: "open"

@@ -1,0 +1,167 @@
+# Map-register claims for the Shenzhenxu old-map intake of 2026-11-23.
+# Source: 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20.
+# These record what the article or the reproduced sheet says. They do not verify
+# a survey date, a scale or a footprint. Geometry work must georeference the
+# image against the 1980-09-11 KH-9 mosaic before any line is treated as observed.
+
+- id: phase1.map.shenzhenxu.qianlong_earliest_name
+  source: phase1_shenzhenxu_qianlong_coastal_defence_map
+  locator: "Article section 广东海防图（乾隆）"
+  quote: "此图成图于乾隆年间，系目前发现的最早记录深圳墟地名的古代舆图。"
+  summary: "The article presents a Qianlong-era coastal-defence chart as the earliest surviving map that records the name 深圳墟."
+  notes: "An attestation of the name, not a survey. The original chart and its holding are not identified."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.xinan_garrison_before_1820
+  source: phase1_shenzhenxu_xinan_garrison_map
+  locator: "Article section 新安县水陆塘汛舆图之深圳墟汛"
+  quote: "《新安县水陆塘汛舆图》成书于嘉庆廿五年（1820）以前。"
+  summary: "The 新安县 water-and-land garrison chart was compiled before 1820 and shows 深圳墟 and 深圳墟汛."
+  notes: "The article gives a terminus ante quem, not a survey year. The sheet is a book-page photograph."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.guangdong_route_pre_1894
+  source: phase1_shenzhenxu_guangdong_route_map
+  locator: "Article section 《广东通省水陆舆图》（局部）"
+  quote: "本系列图系甲午中日战争前，日本间谍所测绘。"
+  summary: "The route-map series was surveyed by Japanese agents before the First Sino-Japanese War."
+  notes: "The article also warns that the series contains many errors. Use as a road-topology lead only."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.zhina_gazetteer_1917
+  source: phase1_shenzhenxu_1917_zhina_gazetteer_map
+  locator: "Article section 深圳图"
+  quote: "本图出自日本东亚同文会于1917年所编纂的《支那省别全志·广东省卷》"
+  summary: "The schematic Shenzhen town map was published in the 1917 《支那省别全志·广东省卷》."
+  date: { value: "1917", precision: year }
+  notes: "A schematic with no scale. It shows the railway, 上大街, 下大街, 市場, 商務會, 警察署 and 停車場."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.army_survey_1914
+  source: phase1_shenzhenxu_1914_army_survey_map
+  locator: "Article section 深圳墟图"
+  quote: "本图完成于1914年，由广东省陆军测量局所绘制，比例尺为二万五千分之一"
+  summary: "A 1:25,000 survey sheet of 深圳墟 was completed in 1914 by the Guangdong Army Survey Bureau."
+  date: { value: "1914", precision: year }
+  notes: "The captured copy is rotated and is a secondary reproduction. Sheet edition and completeness are unconfirmed."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.republican_series_issuers
+  source: phase1_shenzhenxu_republican_series_map_1
+  locator: "Article section 民国系列地图中的深圳墟"
+  quote: "民国时期，广东参谋本部陆地测量总局、广东军事委员会军令部等部门测绘了多套广东省大比例尺的地图"
+  summary: "Republican-era Guangdong military survey bodies produced several large-scale map series covering 深圳墟."
+  notes: "The article does not date the individual sheets. The red ellipse on the image is an article annotation."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.republican_sheet_1934_06
+  source: phase1_shenzhenxu_republican_series_map_2
+  locator: "Sheet margin, top right"
+  quote: "中華民國二十三年六月製版"
+  summary: "The second Republican sheet was printed in June 1934."
+  date: { value: "1934-06", precision: month }
+  notes: "The margin gives the print date, not necessarily the survey date. Scale is not confirmed from this copy."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.japanese_sheet_1940
+  source: phase1_shenzhenxu_1940_hongkong_nearby_map
+  locator: "Article section 香港近傍图之深圳墟"
+  quote: "此图绘制于1940年，为日军所制作。本图为系列图，全套共有24张地图。比例尺为2万分之一"
+  summary: "A 1:20,000 Japanese military sheet of 沙頭/深圳墟 was made in 1940 as one of a 24-sheet series."
+  date: { value: "1940", precision: year }
+  notes: "The red circle is an article annotation. Original sheet number and holding are not identified."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.hongkong_map_1945
+  source: phase1_shenzhenxu_1945_hongkong_map
+  locator: "Article, paragraph following the 1940 sheet"
+  quote: "该图后来也成为港英当局于1945年前后绘制的香港地图（下图）的底图。"
+  summary: "The 1940 Japanese sheet was used as the base for a British Hong Kong map made around 1945."
+  notes: "A derivative relationship asserted by the article. The British edition notes are partly cropped in the copy."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.newsletter_map_1948_07
+  source: phase1_shenzhenxu_1948_newsletter_map
+  locator: "Article section 宝安县深圳墟图"
+  quote: "此图发布于《深圳通讯（第七期）》（1948年7月）最后一页，系目前发现的较早的深圳墟的详细街道图。"
+  summary: "A detailed street map of 深圳墟 appeared on the last page of 《深圳通讯》 issue 7 in July 1948."
+  date: { value: "1948-07", precision: month }
+  notes: "One of the earliest detailed street maps the article knows. No scale or north arrow is visible in the copy."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.british_coastal_series_1940s
+  source: phase1_shenzhenxu_1940s_british_coastal_map
+  locator: "Article section 广东沿海地图之深圳"
+  quote: "此图为上世纪四十年代中后期英军所测绘的广东沿海地图，此套地图共103幅"
+  summary: "A 103-sheet British coastal survey of the mid-to-late 1940s covers Shenzhen at village-name level."
+  date: { value: "1945", precision: year }
+  notes: "The captured sheet is G.S.G.S. 4691, P10 N.W., first edition 1945, 1:50,000. The article gives the wider series date range."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.county_and_street_maps_1977
+  source: phase1_shenzhenxu_1977_shenzhen_street_map
+  locator: "Article section 1977年宝安县地图 / 深圳镇街道图"
+  quote: "此图为广东省测绘局、惠阳地区革委会、宝安县革委会于1977年时绘制"
+  summary: "The 1977 Bao'an county map and the 深圳镇 street sheet were produced by the Guangdong Survey Bureau, the Huiyang prefecture revolutionary committee and the Bao'an county revolutionary committee."
+  date: { value: "1977", precision: year }
+  notes: "The street sheet is the closest detailed pre-1979 source in this register. Red boundary lines and 县革委/附城公社 labels appear on the sheet."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.street_map_1977_scale
+  source: phase1_shenzhenxu_1977_shenzhen_street_map
+  locator: "Sheet, lower left"
+  quote: "1:5000"
+  summary: "The 1977 深圳镇 street sheet is drawn at 1:5,000."
+  notes: "Read from the printed scale on the sheet. The scan resolution is 1280 px wide, so tracing should use the largest available copy."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.keyhole_frames_1960s_1980s
+  source: phase1_shenzhenxu_keyhole_1960s
+  locator: "Article section 锁眼卫星地图中的深圳墟"
+  quote: "图片分别为60年代末、70年代初、80年代初的南头卫星地图，为美国所拍摄。"
+  summary: "The article reproduces three US reconnaissance-satellite frames of the late 1960s, early 1970s and early 1980s."
+  notes: "The caption says 南头 while the section heading says 深圳墟. The frames show the market town, railway and fields, so the heading is the better match. Frame IDs and exact dates are not given; keep them out of the dated evidence layer until identified."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.gazetteer_plate_1987
+  source: phase1_shenzhenxu_1987_gazetteer_map
+  locator: "Article section 深圳市成立前之宝安县城（深圳）"
+  quote: "此图为1987版《深圳市地名志》所配彩图之一。1953年，宝安县政府从南头迁至深圳镇蔡屋围，深圳镇成为宝安县城。"
+  summary: "A colour plate in the 1987 《深圳市地名志》 shows the Bao'an county town before the SEZ; the county seat moved from Nantou to Caiwuwei in 1953."
+  date: { value: "1987", precision: year }
+  notes: "The sheet title dates its subject 1953–1978 and prints a 1:25,000 scale. It is a period composite, not a single-year survey. No overlay marks. This is the map attached in the M3 review."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.gazetteer_plate_1987_scale
+  source: phase1_shenzhenxu_1987_gazetteer_map
+  locator: "Sheet, lower left"
+  quote: "1:25000"
+  summary: "The 1987 gazetteer plate is drawn at 1:25,000."
+  notes: "Read from the printed scale on the sheet. The plate is a 1953–1978 composite."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.map.shenzhenxu.atlas_plate_1997
+  source: phase1_shenzhenxu_1997_atlas_map
+  locator: "Article section 1997深圳市地图集（局部）"
+  quote: "本图截取自1997年由深圳市规划国土局所编撰的《深圳市地图集》中的《城区详图》。"
+  summary: "A city-detail plate from the 1997 《深圳市地图集》 shows the post-reform Luohu/Dongmen street network."
+  date: { value: "1997", precision: year }
+  notes: "A later comparator only. It must not be back-projected into 1979–1984 geometry."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash

@@ -1,0 +1,13 @@
+id: phase1_shenzhenxu_1997_atlas_map
+title: "1997年深圳市地图集·城区详图（局部）"
+issuer: "深圳市规划国土局"
+doc_date: "1997"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/1997_atlas_city_detail.jpeg", sha256: "110cf747244efd508f2230e86ad30b93532c68d716589b8fcdce42861c570120" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "City-detail plate from the 1997 《深圳市地图集》. Shows the post-reform Luohu/Dongmen street network and landmarks. Use only as a later comparator; it is not 1979–1984 geometry and must not be back-projected into the opening scene."

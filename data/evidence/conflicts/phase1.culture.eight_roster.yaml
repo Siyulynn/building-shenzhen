@@ -1,0 +1,9 @@
+id: conflict.phase1.culture.eight_roster
+subject: "Membership of the Eight Major Cultural Facilities"
+claims:
+  - phase1.culture.roster.tan_1982
+  - phase1.culture.roster.hu_1982
+  - phase1.culture.roster.peoples_daily_1993
+diagnosis: "Seven projects recur. The varying eighth item is the Special Zone Daily, an art museum or the university. The label may refer to different planning and retrospective groupings."
+resolution: {"encyclopedia":"Name each roster with its source and date. Treat the university as a separately documented project in its own right."}
+status: open

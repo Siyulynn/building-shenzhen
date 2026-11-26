@@ -1,0 +1,13 @@
+id: phase1_shenzhenxu_1945_hongkong_map
+title: "香港地图（1945年，以1940年日军图为底图）"
+issuer: "British War Office (derived from the 1940 Japanese sheet)"
+doc_date: "1945"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/1945_hongkong_derived.jpeg", sha256: "7a284cccf63e634484cb336192bc932f4be72561cf10dfcdc4c3d7deb61199a2" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "British 1:20,000 sheet 6, described by the article as the 1945 Hong Kong map derived from the 1940 Japanese sheet. Shows 深圳墟, 湖貝, 向南 and the Shenzhen River. The red circle is an article annotation. The sheet title and edition notes are partly cropped."

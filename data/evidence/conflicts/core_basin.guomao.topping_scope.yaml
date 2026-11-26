@@ -1,0 +1,9 @@
+id: conflict.core_basin.guomao.topping_scope
+subject: "Which Guomao construction component topped out in April and September 1984"
+claims:
+  - phase1.guomao.main_tower_topped
+  - core_basin.photo.guomao.september_topping
+diagnosis: "The archive dates the main tower topping to 30 April. A caption published on 30 May 1984 also says the main structure was completed at the end of April, and a 30 May frame in another 1984 set is credited to 李长永. The published photo caption labels 4 September as topping of Guomao without naming a component, and a separate year-only caption labels another view as the 'topping scene' without a day or component. A further 1984 caption states that the annex or secondary block (副楼) had topped, which gives the ambiguity a named component but no date. These may describe different works, or September may represent the topping ceremony."
+resolution:
+  design_note: "Keep the milestones distinct pending original photos and the construction record. The January snapshot shows an unfinished worksite, with storey count open."
+status: open

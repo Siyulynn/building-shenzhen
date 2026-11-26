@@ -1,0 +1,12 @@
+id: "phase1_power_nea_2012"
+title: "粤港电力互送互援共繁荣"
+issuer: "国家能源局网站 (reprinted from 中电联网; 王华、蓝旺)"
+published: {where: "国家能源局网站", date: "2012-07-06"}
+url: "http://www.nea.gov.cn/2012-07/06/c_131698517.htm"
+retrieved: "2026-11-24"
+local_copy: {path: "data/raw/sources/phase1_power_nea_2012/page.html", sha256: "835a9b93924cdd3022746c560552484d2ae22056be2c37d34bbd45c94cde1ecc"}
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "Gives the March 1979 Guangdong-CLP purchase agreement, the first-phase 66 kV double-circuit link from Fanling to the Shuibei 110 kV substation, and later cross-border trade totals. A news feature on an official site, so tier D despite the host."

@@ -1,0 +1,6 @@
+id: "conflict.phase1.power.grid_voltage"
+subject: "The highest voltage in the Shenzhen grid around 1979-1980"
+claims: ["phase1.power.grid.110kv_substations.1979","phase1.power.grid.max_voltage_kv.1980","phase1.power.grid.substations.1980"]
+diagnosis: "The 2019 and 2021 accounts give one 110 kV substation and one 110 kV line at the bureau's 1979 formation. A 2010 anniversary feature says 1980 had four substations and a maximum voltage of 35 kV, yet the same article counts one 110 kV substation in 1980 and traces the 110 kV count from 1 to 140. The '35 kV maximum' sentence may describe the local distribution network before the 110 kV link, or be a drafting error. Which assets the bureau counted, and who owned the 110 kV substation at Shuibei where the Hong Kong link landed, is open."
+resolution: {"calibration":"Use the 25.8 MVA rating (phase1.power.shenzhen_grid.transformer_capacity.1979) as the only network-scale number; do not derive voltage-specific capacities.","encyclopedia":"Show the 110 kV substation and line as the 1979 inventory, and note the 2010 feature's 35 kV sentence as a contradiction, not a fact."}
+status: "open"

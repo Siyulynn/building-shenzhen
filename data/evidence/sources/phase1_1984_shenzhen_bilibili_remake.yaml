@@ -1,0 +1,14 @@
+id: "phase1_1984_shenzhen_bilibili_remake"
+title: "穿越到1984年，看看不一样的深圳"
+issuer: "未来城视（未来城视（深圳）网络科技有限公司） / 买房之前"
+published: { where: "Bilibili (BV1Kh411R7CX)", date: "2020-08-26" }
+url: "https://www.bilibili.com/video/BV1Kh411R7CX"
+retrieved: "2026-11-25"
+local_copy:
+  path: "data/raw/sources/phase1_1984_shenzhen_bilibili_remake/video.mp4"
+  sha256: "bcccb7b02ab883ede152dabe9da9d161c9271f47550959dbc044e82e40097291"
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "40th-anniversary side-by-side remake video ('深圳特区40岁民间生日会'特别制作, 341.12s, 1920x1080, 25fps). End credits at 05:30 explicitly attribute the archival documentary excerpts to Pearl River Film Studio (珠江电影制片厂): 1984 《日新月异的深圳》 (opening title card at 00:10 reads 《日新月异的深圳经济特区》) and 1988 《蛇口奏鸣曲》 (printed in credits as 《蛇口鸣奏曲》). Not every historical insert in the 00:18-02:14 sequence is from 1984: on-screen labels explicitly mark 00:19 as 1980, 00:34 as 1983, and 02:11 as 1994, and several colour still/aerial views are spliced alongside the green-tinted 1984 film stock. 03:30-05:22 is a retrospective photo timeline (1982-2019). Keyframes and contact sheet extracted by pipeline/extract_1984_video_frames.py into data/raw/sources/phase1_1984_shenzhen_bilibili_remake/frames/. Copyright notice at 05:40 reserves all rights to 未来城视（深圳）网络科技有限公司; treat strictly as reference_only."

@@ -1,0 +1,16 @@
+id: kh9_1977_12_03_f010
+title: KH-9 Hexagon Declass 3 frame D3C1213-400953F010
+issuer: U.S. Geological Survey Earth Resources Observation and Science Center
+doc_date: 1977-12-03
+url: https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-3
+tier: B
+reuse: unknown
+notes: >-
+  EarthExplorer Declass 3 Standard Format. The acquisition register
+  (docs/research/phase1-map-sources.md, section 3) reports four native TIFF
+  segments and an original archive of 2,475,824,675 bytes with SHA-256
+  db8b15953f4bbe32d5f146abc1d22b526b70c7f4efa54c5fbb73fa2b0c6120c1.
+  Numbered ZIP parts are available locally. Reassembly passed the archive
+  checksum, and all four segments were reduced by pipeline/m1c_kh9_1977.py.
+  None supplied enough consistent ties to the September 1980 slice mosaic
+  for a usable warp in this trial.

@@ -1,0 +1,12 @@
+id: phase1_shenzhenxu_guangdong_route_map
+title: "《广东通省水陆舆图》（局部）"
+issuer: "Japanese survey before the First Sino-Japanese War"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/guangdong_water_land_route.jpeg", sha256: "8708eebe0f21f6a956072f27cc4c1d738655f23f953fc0efaba00894ddab8033" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Japanese survey of Guangdong routes before the First Sino-Japanese War (1894). The article warns that the series contains many errors. Only a local extract is reproduced. Use as a late-Qing road-topology lead, not as a surveyed alignment."

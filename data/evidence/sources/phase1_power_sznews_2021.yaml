@@ -1,0 +1,12 @@
+id: "phase1_power_sznews_2021"
+title: "深圳电力，究竟从何而来？"
+issuer: "深圳特区报 (via 深圳新闻网)"
+published: {where: "深圳新闻网, 深圳要闻", date: "2021-05-25"}
+url: "https://sznews.com/news/content/2021-05/25/content_24244251.htm"
+retrieved: "2026-11-24"
+local_copy: {path: "data/raw/sources/phase1_power_sznews_2021/page.html", sha256: "0c8eaa8b95eaacb9482d48458df930e44c0497eab101757662a6baab6253437c"}
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "Bureau-centred feature on the sources of Shenzhen's electricity. States that provincial-grid power was the city's main source from August 1965 to 1987, names 1987 Shajiao B and the later local oil-fired and Mawan plants, and quotes the first bureau director on >60% annual growth and overloaded substations. The 70%-purchased-share figure is a 2021 system description, not a 1979-84 one."

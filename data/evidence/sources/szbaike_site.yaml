@@ -1,0 +1,11 @@
+id: szbaike_site
+title: "深圳百科 (SZBAIKE)"
+issuer: "深圳百科"
+url: "http://szbaike.com/"
+retrieved: "2026-11-23"
+local_copy: { path: "data/raw/sources/szbaike_site/home.html", sha256: "0ddbfeb242e38326e699e4cb42eaf995dd760a785517d95a5f6acb257353a1d5" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Collection-level record for a Shenzhen compilation site with 48 sections and more than 10,000 article records. Individual articles have mixed provenance: 《深圳百科全书》, the 口述罗湖 oral-history series, 深圳风物志, government pages and unattributed web pieces. Use the article URL and a paragraph locator in any claim; this record only anchors the site. The parsed finding aid is docs/research/szbaike-index.md and docs/research/szbaike/index.html."

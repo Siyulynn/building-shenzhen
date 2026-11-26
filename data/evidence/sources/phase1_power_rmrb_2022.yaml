@@ -1,0 +1,12 @@
+id: "phase1_power_rmrb_2022"
+title: "内地对港供电累计突破3000亿千瓦时"
+issuer: "新华社 (via 中央人民政府驻香港特别行政区联络办公室)"
+published: {where: "中央政府驻港联络办网站", date: "2022-06-30"}
+url: "http://locpg.gov.cn/jsdt/2022-06/30/c_1211662381.htm"
+retrieved: "2026-11-24"
+local_copy: {path: "data/raw/sources/phase1_power_rmrb_2022/page.html", sha256: "326937d47e830db461e9fdc9d5d52b3a09657ca77c1d950d430a098547d293f6"}
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "Wire copy. Confirms the 1979 start of Guangdong's purchases from CLP in one sentence, and the 1996 end of purchases with the Shekou industrial zone excepted. No volumes or prices."

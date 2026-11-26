@@ -1,0 +1,33 @@
+# Claims carried back from the isolated 3D atlas. The images stay reference-only; no photograph is shipped from this repository.
+
+- id: atlas.photo.electronics_section.caption_1983
+  source: atlas_szlzp_catalogue
+  locator: "深圳老照片 catalogue, 电子大厦段---深南中路，与华发路连接（1983）, image 1759220777.jpg; local intake manifest"
+  quote: "电子大厦段"
+  summary: "The catalogue labels the view as the Electronics Building section of Shennan Middle Road at Huafa Road and gives the year 1983."
+  date: {value: "1983", precision: year}
+  notes: "Use the horizontal windows and end wall as stylistic cues only. The image does not measure the named building's parcel or prove the identity of each mass in the frame. The catalogue caption gives a road junction and year, not a negative date or photographer."
+  status: sourced
+  extracted_by: "ai:opencode-atlas"
+  assessments:
+    - by: "ai:opencode-main"
+      date: "2026-11-25"
+      method: "Compared the claim's caption, image filename and year with the live catalogue page."
+      result: pass
+      note: "The catalogue page carries the caption 电子大厦段---深南中路，与华发路连接（1983） above image 1759220777.jpg. This is a machine check, not a person's verification."
+
+- id: atlas.photo.luohu_worksite.caption_1982
+  source: atlas_szlzp_catalogue
+  locator: "深圳老照片 catalogue, 罗湖工地的女钢工（1982）, image 1759218629.jpg; companion 这是工人们在泥塘中奋战（1982）, image 1759218621.jpg; local intake manifest"
+  quote: "罗湖工地的女钢工（1982）"
+  summary: "The catalogue labels the steelworker image as the Luohu worksite in 1982; another view in the series shows work in mud."
+  date: {value: "1982", precision: year}
+  notes: "Year is the publisher's caption. Worksite character only; no parcel geometry or January 1984 progress is derived from these views. The caption does not identify the site within Luohu."
+  status: sourced
+  extracted_by: "ai:opencode-atlas"
+  assessments:
+    - by: "ai:opencode-main"
+      date: "2026-11-25"
+      method: "Compared the claim's caption, image filenames and year with the live catalogue page."
+      result: pass
+      note: "The catalogue page carries the caption 罗湖工地的女钢工（1982） above image 1759218629.jpg and the companion caption 这是工人们在泥塘中奋战（1982） above image 1759218621.jpg. This is a machine check, not a person's verification."

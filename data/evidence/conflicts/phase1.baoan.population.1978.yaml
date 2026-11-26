@@ -1,0 +1,6 @@
+id: "conflict.phase1.baoan.population.1978"
+subject: "Former Bao'an County population around 1978"
+claims: ["phase1.pop.baoan.period_total.1978","phase1.pop.baoan.reported.1978"]
+diagnosis: "The 1985 yearbook gives an exact year-end total and two components. The 1997 article gives a rounded county count in its paragraph about the 1978 town. Its cutoff and coverage are unspecified."
+resolution: {"calibration":"Do not use either county number to allocate opening population across the playable areas.","research":"Use the exact 1985 reading as a county context value and seek the original year-end register or the comparable census table."}
+status: "open"

@@ -1,0 +1,12 @@
+id: "phase1_power_sasac_2020"
+title: "【特区40年 央企共奋进①】南方电网：不负时代 逐梦前行 助力深圳经济特区高质量发展"
+issuer: "国务院国有资产监督管理委员会网站 (article supplied by 中国南方电网有限责任公司)"
+published: {where: "国务院国资委网站, 央企联播", date: "2020-08-26"}
+url: "http://ysp.net.sasac.gov.cn/n2588025/n2588124/c15392723/content.html"
+retrieved: "2026-11-24"
+local_copy: {path: "data/raw/sources/phase1_power_sasac_2020/page.html", sha256: "e138fc500cacadba7fe7327a9b8dc8e673710d50daa980ee0d3b1c6b2990fd71"}
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "Corporate anniversary feature. Labels 0.33亿 kWh as all-society consumption and gives a 1979 maximum load of 0.5万千瓦; also gives a different founding account (1979 renaming to 深圳市供电公司, 1980 adoption of 深圳供电局). Both readings conflict with other accounts and are recorded as conflicts."

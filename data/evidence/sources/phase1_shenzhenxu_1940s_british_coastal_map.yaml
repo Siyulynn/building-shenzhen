@@ -1,0 +1,13 @@
+id: phase1_shenzhenxu_1940s_british_coastal_map
+title: "广东沿海地图之深圳（G.S.G.S. 4691, P10 N.W.）"
+issuer: "British War Office, Geographical Section, General Staff"
+doc_date: "1945"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/1940s_british_coastal.jpeg", sha256: "d98993eea1ed0bac126980e545720d6d003ee05e30b770a88b101012c39037f3" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "G.S.G.S. 4691, sheet P10 N.W., first edition 1945, 1:50,000. Covers the Shenzhen–Deep Bay–Hong Kong border and names settlements to village level. The red circle is an article annotation. The article describes the series as mid-to-late 1940s."

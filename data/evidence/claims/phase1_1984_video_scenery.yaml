@@ -1,0 +1,183 @@
+# Scenery and visual-evidence catalogue extracted from the 1980-1984 documentary
+# section of Bilibili BV1Kh411R7CX ("穿越到1984年，看看不一样的深圳", 未来城视, 2020-08-26),
+# which credits Pearl River Film Studio's 1984 documentary 《日新月异的深圳》 (and 1988
+# 《蛇口奏鸣曲》). Keyframes are extracted by pipeline/extract_1984_video_frames.py into
+# data/raw/sources/phase1_1984_shenzhen_bilibili_remake/frames/.
+# Each claim records the verbatim on-screen caption/narration subtitle and what is
+# visually observable, without treating retrospective labels as verified dates.
+# AI extraction remains `sourced`.
+
+- id: "phase1.video.1984.provenance_credits"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "05:30 (frame 22_credits_pearl_river_studio.jpg); 00:10 (frame 01_title_card.jpg)"
+  quote: "致敬珠江电影制片厂 1984年《日新月异的深圳》、1988年《蛇口鸣奏曲》"
+  summary: "The 2020 remake video attributes its archival documentary excerpts to Pearl River Film Studio's 1984 《日新月异的深圳》 and 1988 《蛇口奏鸣曲》 (printed as 《蛇口鸣奏曲》)."
+  date: { value: "1984", precision: year }
+  notes: "Opening title card at 00:10 displays the film title 《日新月异的深圳经济特区》 with '1984-2020' overlaid. The 1988 title is recorded elsewhere as 《蛇口奏鸣曲》 (Golden Rooster Best Documentary, 1989). This establishes a Tier-B archival film lineage behind the Tier-D 2020 compilation, though individual spliced shots still require per-shot dating."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1980.dananshan_view_hk"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "00:18-00:21 (frame 02_1980_dananshan_hk.jpg)"
+  quote: "1980年从大南山看香港 / 深圳经济特区位于南海之滨 毗邻港澳"
+  summary: "Archival view labelled 1980 looking across the bay from Dananshan toward Hong Kong, showing largely undeveloped shoreline and water."
+  geography: "Dananshan (大南山) looking toward Shenzhen Bay / Hong Kong"
+  date: { value: "1980", precision: year }
+  notes: "Explicitly labelled 1980 by the 2020 editors rather than 1984. Useful as a high-vantage coastal baseline for western Shekou/Nantou."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.sea_world_minghua"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "00:28-00:31 (frame 03_1984_sea_world.jpg)"
+  quote: "1984年海上世界 / 这里建起了蛇口客货运码头"
+  summary: "Archival view labelled 1984 showing the white passenger ship Minghua moored at Sea World in Shekou, backed by mid-rise waterfront buildings and vegetated hills."
+  geography: "Sea World (海上世界), Shekou"
+  date: { value: "1984", precision: year }
+  notes: "Colour still/clip spliced into the 1984 comparison sequence; visually distinct from the green-tinted 1984 film stock. Shows the Minghua still in water prior to later land reclamation around Sea World."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1983.shekou_earthworks"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "00:32-00:35 (frame 04_1983_shekou_aerial.jpg)"
+  quote: "1983年的蛇口 / 和为南海石油后勤基地服务的赤湾万吨级海港"
+  summary: "Elevated/aerial view labelled 1983 showing extensive bare-earth site levelling, coastal quay construction and cranes in Shekou/Chiwan."
+  geography: "Shekou / Chiwan coast"
+  date: { value: "1983", precision: year }
+  notes: "Explicitly labelled 1983 on screen. Shows large-scale cut-and-fill earthworks between coastal hills and newly built berths."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.chiwan_port"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "00:36-00:39 (frame 05_1984_chiwan_port.jpg)"
+  quote: "1984年赤湾港 / 和为南海石油后勤基地服务的赤湾万吨级海港"
+  summary: "Aerial view labelled 1984 showing Chiwan Port's straight quay wall, portal cranes, open storage yard and surrounding bay."
+  geography: "Chiwan Port (赤湾港), Nanshan"
+  date: { value: "1984", precision: year }
+  notes: "Colour aerial view spliced into the comparison sequence. Visually corroborates active port quay and yard infrastructure at Chiwan with largely open land behind it."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.municipal_government_building"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "00:40-00:46 (frame 06_1984_municipal_gov.jpg)"
+  quote: "1984年深圳市政府大楼 / 在新办深圳经济特区的第5个春天 百花争艳 蓬勃生机"
+  summary: "1984 documentary film footage showing the Shenzhen Municipal Government building facade, wide entrance canopy, landscaped forecourt and parked cars."
+  geography: "Shenzhen Municipal Government Building (old site on Shennan Middle Road)"
+  date: { value: "1984", precision: year }
+  notes: "Green-tinted 1984 Pearl River Film Studio footage. Depicts a horizontal modernist institutional complex set back behind a planted forecourt. The geography gloss 'old site on Shennan Middle Road' is an unsourced inference; the identification chain is in phase1.site.municipal_government.1981_location and docs/research/municipal-government-building.md. The wide horizontal element in front may be the compound gate rather than a canopy attached to the block."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.electronics_assembly_plant"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "00:48-00:53 (frame 07_1984_electronics_factory.jpg)"
+  quote: "就拿电子工业来说 办特区前是一片空白"
+  summary: "1984 documentary film footage of an electronics workshop interior with rows of young workers at assembly and bench-testing stations."
+  geography: "Shenzhen SEZ, factory unidentified"
+  date: { value: "1984", precision: year }
+  notes: "No factory name or district is given on screen; useful as period visual reference for early electronics assembly workshops."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.xiangmihu_resort"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "00:58-00:59 (frame 08_1984_xiangmihu_resort.jpg)"
+  quote: "香蜜湖度假村"
+  summary: "1984 documentary film footage showing traditional-roofed pavilions, lakeside walkways and low-rise resort buildings at Xiangmihu Resort."
+  geography: "Xiangmihu Resort (香蜜湖度假村), Futian"
+  date: { value: "1984", precision: year }
+  notes: "Green-tinted 1984 documentary footage. Documents early leisure/tourism development west of Shangbu."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.shenzhen_bay_hotel_amusement"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "01:00-01:05 (frames 09_1984_sz_bay_hotel_park.jpg, 10_1984_sz_bay_ferris_wheel.jpg)"
+  quote: "1984年深圳湾大酒店游乐场 / 1984年深圳湾大酒店摩天轮 / 成为市民娱乐游玩的好去处"
+  summary: "1984 documentary film footage showing the Shenzhen Bay Hotel amusement park, carousel rides and Ferris wheel with low-rise surroundings."
+  geography: "Shenzhen Bay Hotel (深圳湾大酒店), Overseas Chinese Town / Shahe area"
+  date: { value: "1984", precision: year }
+  notes: "Green-tinted 1984 documentary footage. Illustrates the sparse skyline around the Shenzhen Bay leisure complex in 1984."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.housing_interiors_and_floor_area"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "01:06-01:18 (frames 11_1984_housing_interior_living.jpg, 12_1984_housing_interior_bed.jpg)"
+  quote: "深圳居民平均住房面积 从原来的2.5平方米增加到7.8平方米 / 许多家庭过上了电气化生活"
+  summary: "1984 documentary narration asserts average residential floor area rose from 2.5 sq m to 7.8 sq m, over footage of furnished living-room and bedroom interiors."
+  geography: "Shenzhen SEZ, housing estate unidentified"
+  date: { value: "1984", precision: year }
+  notes: "Documentary narration figure (2.5 -> 7.8 sq m) is not a primary statistical table and gives no definition or baseline year; treat as a period documentary claim rather than a calibration figure."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.housing_typology_contrast"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "01:20-01:28 (frame 13_1984_housing_street_villas.jpg)"
+  quote: "从60年代的平房到80年代的花园式的洋楼 就可以看出鲜明的对比"
+  summary: "1984 documentary film pan contrasting older low-rise row housing along a narrow street with newly built 1980s two-storey garden-style villas."
+  geography: "Shenzhen SEZ, neighbourhood unidentified"
+  date: { value: "1984", precision: year }
+  notes: "Green-tinted 1984 documentary footage. Visually shows the coexistence of older 1-2 storey masonry/plaster town housing and new detached garden villas."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.guomao_under_construction"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "01:30-01:40 (frames 14_1984_guomao_scaffold.jpg, 15_1984_guomao_tower.jpg)"
+  quote: "1984年国贸大厦 / 看到深圳建设速度 人们当然会联想到深圳国贸大厦 这幢目前深圳和内地最高的建筑物"
+  summary: "1984 documentary film footage tilting up the rising concrete tower of the Shenzhen International Trade Centre (Guomao) wrapped in scaffolding and slipform rigging."
+  geography: "Guomao Building (国贸大厦), Luohu"
+  date: { value: "1984", precision: year }
+  notes: "Green-tinted 1984 documentary footage. Visually confirms high-rise structural construction in progress in 1984."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.guomao_slipform_pace_interview"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "01:42-01:52 (frame 16_1984_guomao_slipform_interview.jpg)"
+  quote: "我们5层到10层 平均是7天一层 / 10层到20层 平均是5天一层 / 20层到30层 平均是4天一层 / 30层到50层 平均是3天一层"
+  summary: "An on-site hard-hatted engineer in the 1984 documentary states the Guomao construction pace accelerated from 7 days/floor (floors 5-10), to 5 days/floor (10-20), 4 days/floor (20-30), and 3 days/floor (30-50)."
+  geography: "Guomao Building (国贸大厦), Luohu"
+  date: { value: "1984", precision: year }
+  notes: "Contemporaneous on-site interview excerpt from the 1984 documentary. Corroborates the '3 days per floor' slipform milestone documented in other Guomao sources."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.shennan_avenue"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "01:54-01:57 (frame 17_1984_shennan_avenue.jpg)"
+  quote: "1984年的深南大道 / 经过4年建设的深圳特区"
+  summary: "Elevated view labelled 1984 looking along Shennan Avenue, showing a wide multi-lane corridor under active earthworks/paving with sparse trucks and cars, trees, and low-rise buildings along the edges."
+  geography: "Shennan Avenue (深南大道), segment unidentified"
+  date: { value: "1984", precision: year }
+  notes: "Colour elevated clip spliced into the 1984 sequence. Useful visual reference for early Shennan Avenue width, median landscaping, unpaved verges and sparse motor traffic."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.aerial_urban_fabric"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "01:58-02:05 (frames 18_1984_aerial_city_a.jpg, 19_1984_aerial_city_b.jpg)"
+  quote: "已经是一个初具规模的现代化城市 / 3万多人口的小镇发展为30万人口的中等城市"
+  summary: "1984 documentary aerial/high-vantage pan showing clusters of newly completed mid-rise and slab-block high-rise buildings interspersed with large open cleared construction plots, road grids and surrounding low hills."
+  geography: "Shenzhen urban core (Luohu / Shangbu area)"
+  date: { value: "1984", precision: year }
+  notes: "Green-tinted 1984 documentary footage. Visually valuable for 1984 urban morphology: discrete modern building clusters rising out of cleared earthworks rather than a continuous high-rise fabric. The '30,000 to 300,000' population figure is documentary narration, not a statistical table."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"
+
+- id: "phase1.video.1984.migrant_workers_night_school"
+  source: "phase1_1984_shenzhen_bilibili_remake"
+  locator: "02:25-02:26 (frame 21_1984_night_school.jpg)"
+  quote: "1984年打工妹上夜校 / 特区已为他们提供了英雄大有用武之地的环境"
+  summary: "Archival clip labelled 1984 showing young female factory workers seated in an evening classroom."
+  geography: "Shenzhen SEZ, venue unidentified"
+  date: { value: "1984", precision: year }
+  notes: "Appears at the start of the 1988 《蛇口奏鸣曲》 segment (02:22-03:08), though the on-screen caption labels this specific shot 1984. Keep dating cautious until checked against the original films."
+  status: "sourced"
+  extracted_by: "ai:opencode-1984-video"

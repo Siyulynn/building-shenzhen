@@ -1,0 +1,12 @@
+id: phase1_shenzhenxu_keyhole_1970s
+title: "锁眼卫星影像中的深圳墟（70年代初）"
+issuer: "US reconnaissance satellite programme (Keyhole)"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/keyhole_1970s.jpeg", sha256: "12b7b2b24d9846439ea1d920be7c406bf236aaed40923fec9275a92c7c65a443" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "US reconnaissance satellite image, early 1970s, per the article caption. Same caption/heading mismatch as the 1960s frame. Frame ID and exact acquisition date are not given. Keep out of the dated evidence layer until the frame is identified."

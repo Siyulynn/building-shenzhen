@@ -1,0 +1,41 @@
+# Build years and current names taken from the municipal historic-building list, used only where the
+# 1979-84 reports do not give a date. The list is a finding aid (tier D); the official gazette is the next step.
+
+- id: phase1.historic.shanghai_hotel.built_1983
+  source: phase1_2024_sz_historic_buildings_list
+  locator: "第一批 SZ-J-01004 上海宾馆 row, 始建年代"
+  quote: "1983年"
+  summary: "The historic-building list gives 1983 as the Shanghai Hotel's build year."
+  date: { value: "1983", precision: year }
+  geography: "深南中路3032号, 福田区"
+  status: sourced
+  extracted_by: ai:opencode-buildings-1984-register
+  notes: >-
+    The list also records the address and 2018 designation. A build year is not a completion day; no opening
+    date is given.
+
+- id: phase1.historic.museum_old.built_1984
+  source: phase1_2024_sz_historic_buildings_list
+  locator: "第一批 SZ-J-01005 深圳博物馆旧馆 row, 始建年代"
+  quote: "1984年"
+  summary: "The historic-building list gives 1984 as the build year of the old Shenzhen Museum."
+  date: { value: "1984", precision: year }
+  geography: "同心路6号, 福田区"
+  status: sourced
+  extracted_by: ai:opencode-buildings-1984-register
+  notes: >-
+    The list gives the address and 2018 designation. The M4 roster separately names the museum among the eight
+    cultural facilities; whether the 1984 date is start or completion is not stated.
+
+- id: core_basin.luohu.terminal_opened_1985
+  source: szbaike_2024_luohu_bridge
+  locator: "Paragraph beginning 改革开放后，往返罗湖桥的客流井喷, third sentence"
+  quote: "现代化的罗湖口岸联检大楼于1985年启用后，人行桥改造成出入境分离的双层桥。"
+  summary: "A later history dates the opening of the modern Luohu passenger terminal building to 1985."
+  date: { value: "1985", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-buildings-1984-register
+  notes: >-
+    This fixes the opening after 1984, so the building was at most under construction in 1984. The start of
+    works is not given; the 1983 signing in phase1_2020_pengcheng_shiji_luohu is a cooperation agreement, not
+    a construction date.

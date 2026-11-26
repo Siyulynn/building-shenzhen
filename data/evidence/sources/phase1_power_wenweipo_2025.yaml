@@ -1,0 +1,12 @@
+id: "phase1_power_wenweipo_2025"
+title: "【貢獻中企力量】深港築牢灣區電力生命線"
+issuer: "香港文匯報"
+published: {where: "香港文匯報, 要聞", date: "2025-07-07"}
+url: "https://www.wenweipo.com/epaper/view/newsDetail/1941913434178326528.html"
+retrieved: "2026-11-24"
+local_copy: {path: "data/raw/sources/phase1_power_wenweipo_2025/page.html", sha256: "4acfe994dba895b16b5f1f1becfa5c0e939f45abab47ff0a387b72a93d692bcb"}
+tier: "D"
+language: "zh-Hant"
+reuse: "reference_only"
+access: "open"
+notes: "Interview feature on the Shenzhen-Hong Kong power link. It traces the story to 1979 in one sentence, but the dated assets it names are the 1992 500 kV channel and 1996 mutual supply. The 1979 sentence therefore cannot establish a Shenzhen-Hong Kong physical link or purchase on its own."

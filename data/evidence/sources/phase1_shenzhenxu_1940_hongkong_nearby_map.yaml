@@ -1,0 +1,13 @@
+id: phase1_shenzhenxu_1940_hongkong_nearby_map
+title: "香港近傍图之深圳墟（1940年日军制）"
+issuer: "Japanese military survey"
+doc_date: "1940"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/1940_hongkong_nearby.jpeg", sha256: "57b6553d04e97615d7c5d8cd4dfeb6ad2bc881aaa368eb358820baa447fe842c" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Japanese 1:20,000 sheet titled 沙頭 (SHA TAU), one of 24. Shows 深圳墟, 湖貝 and 向南. The red circle and inset are annotations added by the article. Original sheet number and holding are not identified."

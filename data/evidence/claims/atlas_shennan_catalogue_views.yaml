@@ -1,0 +1,414 @@
+# Publisher-captioned frames from the ????? catalogue, read for the atlas viewpoint review.
+# Years and localities are the publisher's captions, machine-read; they are not negative dates.
+
+- id: atlas.photo.szlzp.1554
+  source: atlas_szlzp_catalogue
+  locator: showProducts1554.html, image 1759221268.jpg; local intake photo-selection.json
+  quote: 国贸段---深南东路，与人民路连接（1985）
+  summary: The publisher captions this frame '国贸段---深南东路，与人民路连接（1985）' and credits 何煌友.
+  date:
+    value: '1985'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1557
+  source: atlas_szlzp_catalogue
+  locator: showProducts1557.html, image 1759223082.jpg; local intake photo-selection.json
+  quote: 红岭段---深南东路，与红岭路连接（1985）
+  summary: The publisher captions this frame '红岭段---深南东路，与红岭路连接（1985）' and credits 何煌友.
+  date:
+    value: '1985'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1559
+  source: atlas_szlzp_catalogue
+  locator: showProducts1559.html, image 1759219073.jpg; local intake photo-selection.json
+  quote: 统建楼段---深南中路，与燕南路连接（1985）
+  summary: The publisher captions this frame '统建楼段---深南中路，与燕南路连接（1985）' and credits 何煌友.
+  date:
+    value: '1985'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1561
+  source: atlas_szlzp_catalogue
+  locator: showProducts1561.html, image 1759221975.jpg; local intake photo-selection.json
+  quote: 华强路段---深南中路，与华强路连接（1985）
+  summary: The publisher captions this frame '华强路段---深南中路，与华强路连接（1985）' and credits 何煌友.
+  date:
+    value: '1985'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1552
+  source: atlas_szlzp_catalogue
+  locator: showProducts1552.html, image 1759217786.jpg; local intake photo-selection.json
+  quote: 黄贝岭---深南东路起点连接沿河路（1983）
+  summary: The publisher captions this frame '黄贝岭---深南东路起点连接沿河路（1983）' and credits 何煌友.
+  date:
+    value: '1983'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1566
+  source: atlas_szlzp_catalogue
+  locator: showProducts1566.html, image 1759225792.jpg; local intake photo-selection.json
+  quote: 大冲路段---深南大道，与河西路连接（1983）
+  summary: The publisher captions this frame '大冲路段---深南大道，与河西路连接（1983）' and credits 何煌友.
+  date:
+    value: '1983'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1553
+  source: atlas_szlzp_catalogue
+  locator: showProducts1553.html, image 1759220641.jpg; local intake photo-selection.json
+  quote: 湖贝段---深南东路，与文静路连接（1983）
+  summary: The publisher captions this frame '湖贝段---深南东路，与文静路连接（1983）' and credits 何煌友.
+  date:
+    value: '1983'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1567
+  source: atlas_szlzp_catalogue
+  locator: showProducts1567.html, image 1759225748.jpg; local intake photo-selection.json
+  quote: 南头路段---深南大道，与中山园路连接（1984）
+  summary: The publisher captions this frame '南头路段---深南大道，与中山园路连接（1984）' and credits 何煌友.
+  date:
+    value: '1984'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1558
+  source: atlas_szlzp_catalogue
+  locator: showProducts1558.html, image 1759224891.jpg; local intake photo-selection.json
+  quote: 市府路---深南中路，与上步路连接（1985）
+  summary: The publisher captions this frame '市府路---深南中路，与上步路连接（1985）' and credits 何煌友.
+  date:
+    value: '1985'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1555
+  source: atlas_szlzp_catalogue
+  locator: showProducts1555.html, image 1759220606.jpg; local intake photo-selection.json
+  quote: 蔡屋围段---深南东路，与和平路连接（1985）
+  summary: The publisher captions this frame '蔡屋围段---深南东路，与和平路连接（1985）' and credits 何煌友.
+  date:
+    value: '1985'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1541
+  source: atlas_szlzp_catalogue
+  locator: showProducts1541.html, image 1759221057.jpg; local intake photo-selection.json
+  quote: 罗湖崛起
+  summary: The publisher captions this frame '罗湖崛起' and credits 何煌友.
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date. Undated and shows many finished towers; probably
+    later than 1985.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1506
+  source: atlas_szlzp_catalogue
+  locator: showProducts1506.html, image 1759158460.jpg; local intake photo-selection.json
+  quote: 建设中的罗湖（1981）
+  summary: The publisher captions this frame '建设中的罗湖（1981）' and credits 何煌友.
+  date:
+    value: '1981'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1520
+  source: atlas_szlzp_catalogue
+  locator: showProducts1520.html, image 1759215952.jpg; local intake photo-selection.json
+  quote: 罗湖小区填平了，实现了，五通一平，一个宏大的建设计划即将开始（1980）
+  summary: The publisher captions this frame '罗湖小区填平了，实现了，五通一平，一个宏大的建设计划即将开始（1980）' and credits 何煌友.
+  date:
+    value: '1980'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1518
+  source: atlas_szlzp_catalogue
+  locator: showProducts1518.html, image 1759220978.jpg; local intake photo-selection.json
+  quote: 开挖罗湖山南坡（1980）
+  summary: The publisher captions this frame '开挖罗湖山南坡（1980）' and credits 何煌友.
+  date:
+    value: '1980'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1521
+  source: atlas_szlzp_catalogue
+  locator: showProducts1521.html, image 1759223331.jpg; local intake photo-selection.json
+  quote: 罗湖摆战场，20多栋高层建筑先后动工，罗湖沸腾了（1981）
+  summary: The publisher captions this frame '罗湖摆战场，20多栋高层建筑先后动工，罗湖沸腾了（1981）' and credits 何煌友.
+  date:
+    value: '1981'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1523
+  source: atlas_szlzp_catalogue
+  locator: showProducts1523.html, image 1759221025.jpg; local intake photo-selection.json
+  quote: 海丰苑是当时全市最高楼。1984年1月建成交付使用（1984）
+  summary: The publisher captions this frame '海丰苑是当时全市最高楼。1984年1月建成交付使用（1984）' and credits 何煌友.
+  date:
+    value: '1984'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1511
+  source: atlas_szlzp_catalogue
+  locator: showProducts1511.html, image 1759213680.jpg; local intake photo-selection.json
+  quote: 和平路（1985）
+  summary: The publisher captions this frame '和平路（1985）' and credits 何煌友.
+  date:
+    value: '1985'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1526
+  source: atlas_szlzp_catalogue
+  locator: showProducts1526.html, image 1759217983.jpg; local intake photo-selection.json
+  quote: 正在建设中的湖心酒店（1982）
+  summary: The publisher captions this frame '正在建设中的湖心酒店（1982）' and credits 何煌友.
+  date:
+    value: '1982'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date. The tall circular-top shaft resembles Guomao;
+    the caption names 湖心酒店. Identity needs confirmation.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1529
+  source: atlas_szlzp_catalogue
+  locator: showProducts1529.html, image 1759221481.jpg; local intake photo-selection.json
+  quote: 国商大厦工地（1981）
+  summary: The publisher captions this frame '国商大厦工地（1981）' and credits 何煌友.
+  date:
+    value: '1981'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1530
+  source: atlas_szlzp_catalogue
+  locator: showProducts1530.html, image 1759217959.jpg; local intake photo-selection.json
+  quote: 国商承建（1982）
+  summary: The publisher captions this frame '国商承建（1982）' and credits 何煌友.
+  date:
+    value: '1982'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1522
+  source: atlas_szlzp_catalogue
+  locator: showProducts1522.html, image 1759215274.jpg; local intake photo-selection.json
+  quote: 海丰苑大厦动工（1982）
+  summary: The publisher captions this frame '海丰苑大厦动工（1982）' and credits 何煌友.
+  date:
+    value: '1982'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1524
+  source: atlas_szlzp_catalogue
+  locator: showProducts1524.html, image 1759218252.jpg; local intake photo-selection.json
+  quote: 罗湖大厦接近完工（1982）
+  summary: The publisher captions this frame '罗湖大厦接近完工（1982）' and credits 何煌友.
+  date:
+    value: '1982'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1462
+  source: atlas_szlzp_catalogue
+  locator: showProducts1462.html, image 1759158970.jpg; local intake photo-selection.json
+  quote: 八卦岭工业区破土动工（1982.9.14)
+  summary: The publisher captions this frame '八卦岭工业区破土动工（1982.9.14)' and credits 何煌友.
+  date:
+    value: '1982-09-14'
+    precision: day
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1460
+  source: atlas_szlzp_catalogue
+  locator: showProducts1460.html, image 1759158686.jpg; local intake photo-selection.json
+  quote: 上步区大规模兴建（1981）
+  summary: The publisher captions this frame '上步区大规模兴建（1981）' and credits 何煌友.
+  date:
+    value: '1981'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1470
+  source: atlas_szlzp_catalogue
+  locator: showProducts1470.html, image 1759150438.jpg; local intake photo-selection.json
+  quote: 莲塘工业区动工（1985.4.29）
+  summary: The publisher captions this frame '莲塘工业区动工（1985.4.29）' and credits 何煌友.
+  date:
+    value: '1985-04-29'
+    precision: day
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1385
+  source: atlas_szlzp_catalogue
+  locator: showProducts1385.html, image 1758453726.jpg; local intake photo-selection.json
+  quote: 蛇口开发初期（1980）
+  summary: The publisher captions this frame '蛇口开发初期（1980）' and credits 何煌友.
+  date:
+    value: '1980'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1386
+  source: atlas_szlzp_catalogue
+  locator: showProducts1386.html, image 1758450095.jpg; local intake photo-selection.json
+  quote: 蛇口填海码头（1985）
+  summary: The publisher captions this frame '蛇口填海码头（1985）' and credits 何煌友.
+  date:
+    value: '1985'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1407
+  source: atlas_szlzp_catalogue
+  locator: showProducts1407.html, image 1759151800.jpg; local intake photo-selection.json
+  quote: 赤湾港初建（1981）
+  summary: The publisher captions this frame '赤湾港初建（1981）' and credits 何煌友.
+  date:
+    value: '1981'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1393
+  source: atlas_szlzp_catalogue
+  locator: showProducts1393.html, image 1758450026.jpg; local intake photo-selection.json
+  quote: 蛇口货运码头投入使用（1981）
+  summary: The publisher captions this frame '蛇口货运码头投入使用（1981）' and credits 何煌友.
+  date:
+    value: '1981'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1502
+  source: atlas_szlzp_catalogue
+  locator: showProducts1502.html, image 1759153728.jpg; local intake photo-selection.json
+  quote: 蛇口海上世界是国内第一次采用大型客轮作旅游基地
+  summary: The publisher captions this frame '蛇口海上世界是国内第一次采用大型客轮作旅游基地' and credits 何煌友.
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1469
+  source: atlas_szlzp_catalogue
+  locator: showProducts1469.html, image 1759159774.jpg; local intake photo-selection.json
+  quote: 妈湾港正式动工兴建（1985.4.13)
+  summary: The publisher captions this frame '妈湾港正式动工兴建（1985.4.13)' and credits 何煌友.
+  date:
+    value: '1985-04-13'
+    precision: day
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1503
+  source: atlas_szlzp_catalogue
+  locator: showProducts1503.html, image 1759159957.jpg; local intake photo-selection.json
+  quote: 深圳湾大酒店游乐场
+  summary: The publisher captions this frame '深圳湾大酒店游乐场' and credits 何煌友.
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.966
+  source: atlas_szlzp_catalogue
+  locator: showProducts966.html, image 1758360819.jpg; local intake photo-selection.json
+  quote: 罗湖桥(1984)
+  summary: The publisher captions this frame '罗湖桥(1984)' and credits 何煌友.
+  date:
+    value: '1984'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.971
+  source: atlas_szlzp_catalogue
+  locator: showProducts971.html, image 1758356105.jpg; local intake photo-selection.json
+  quote: 文锦渡口岸(1984)
+  summary: The publisher captions this frame '文锦渡口岸(1984)' and credits 何煌友.
+  date:
+    value: '1984'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.974
+  source: atlas_szlzp_catalogue
+  locator: showProducts974.html, image 1758359913.jpg; local intake photo-selection.json
+  quote: 文锦渡客货口岸落成通车(1981)
+  summary: The publisher captions this frame '文锦渡客货口岸落成通车(1981)' and credits 何煌友.
+  date:
+    value: '1981'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.978
+  source: atlas_szlzp_catalogue
+  locator: showProducts978.html, image 1758359099.jpg; local intake photo-selection.json
+  quote: 沙头角远眺(1982)
+  summary: The publisher captions this frame '沙头角远眺(1982)' and credits 何煌友.
+  date:
+    value: '1982'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1507
+  source: atlas_szlzp_catalogue
+  locator: showProducts1507.html, image 1759213778.jpg; local intake photo-selection.json
+  quote: 东门街景（1979）
+  summary: The publisher captions this frame '东门街景（1979）' and credits 何煌友.
+  date:
+    value: '1979'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1510
+  source: atlas_szlzp_catalogue
+  locator: showProducts1510.html, image 1759216268.jpg; local intake photo-selection.json
+  quote: 人民路（1980）
+  summary: The publisher captions this frame '人民路（1980）' and credits 何煌友.
+  date:
+    value: '1980'
+    precision: year
+  notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
+  status: sourced
+  extracted_by: ai:opencode-shennan-catalogue

@@ -1,0 +1,12 @@
+id: phase1_shenzhenxu_keyhole_1960s
+title: "锁眼卫星影像中的深圳墟（60年代末）"
+issuer: "US reconnaissance satellite programme (Keyhole)"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/keyhole_1960s.jpeg", sha256: "9554bad89a60d1aab61e87a35ea7b8dbba8a019d6845c8e7cad038a64ce0835c" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "US reconnaissance satellite image, late 1960s, per the article caption. The caption also says 南头 while the section heading says 深圳墟; the frame shows the market town, railway and fields, so the heading is the better match. Frame ID and exact acquisition date are not given. Keep out of the dated evidence layer until the frame is identified."

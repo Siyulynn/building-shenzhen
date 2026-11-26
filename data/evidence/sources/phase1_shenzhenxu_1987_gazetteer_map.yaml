@@ -1,0 +1,13 @@
+id: phase1_shenzhenxu_1987_gazetteer_map
+title: "深圳市成立前之宝安县城（深圳）（1987年《深圳市地名志》彩图）"
+issuer: "《深圳市地名志》 (1987 edition)"
+doc_date: "1987"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/1987_gazetteer_plate.jpeg", sha256: "aef893942123a616cc13dcf828ed2213ccb2003197e4665cd86d5d3a3c402e67" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Colour plate from the 1987 edition of 《深圳市地名志》, titled 深圳市成立前之宝安县城（深圳）（1953年—1978年）. Shows the county town before the SEZ: 宝安县, 深圳墟, 火车站, 罗湖山, 深圳河, 水稻田 and 鱼塘. Scale 1:25,000 is printed on the sheet. The map depicts the 1953–1978 period, not a single year. No overlay marks. This is the map attached in the M3 review."

@@ -1,0 +1,115 @@
+# Claims from the 2025 东门-origin essay. The article is original research, not a
+# primary source. Factual dates are marked; the gate-location argument is an
+# interpretation built from the 1948 map, the 1949 redraw, the 炮楼 and street names.
+# Do not treat any gate position as surveyed until it is checked on the ground.
+
+- id: phase1.shenzhenxu.market_founded_qing
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Opening section, paragraph beginning “深圳墟”是清初
+  quote: "“深圳墟”是清初（一说明末）在今东门老街位置建立的一座墟市"
+  summary: "The market was founded in the early Qing, with one account placing it in the late Ming, at today's Dongmen old street beside the Buji River."
+  notes: "The article gives two possible periods. Keep the date as a range, not a single year."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.shenzhen_town_1931
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Paragraph beginning 到了民国时
+  quote: "1931年在深圳墟基础上设置“宝安县深圳镇”"
+  summary: "In 1931 the Bao'an county established Shenzhen town on the basis of the market."
+  date: { value: "1931", precision: year }
+  notes: "A dated administrative statement. Verify against a county gazetteer before use."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.county_seat_1953
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Paragraph beginning 民国后期
+  quote: "解放后的1953年，因应新的国内国际形势，宝安县的县城遂从南头迁到深圳镇，县政府驻深圳镇蔡屋围"
+  summary: "In 1953 the Bao'an county seat moved from Nantou to Shenzhen town; the county government was at Caiwuwei."
+  date: { value: "1953", precision: year }
+  notes: "Corroborates site.county_offices.exists_1979 (phase1_sham_chun_historical_geography), which gives the same 1953 move. This article adds that the government sat north of today's 地王大厦, the origin of 宝安路. Verify the address separately."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.four_gates_positions
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Section beginning 在考释“东门”在哪里之前
+  quote: "“南门”位于南庆街（今仍称南庆街）南端，“北门”位于今新园路中段西侧，“东门”则位于今解放路与东门中路交汇处"
+  summary: "On the 1948/1949 maps, 南门 is at the south end of 南庆街, 北门 at the west side of mid-新园路, and the marked 东门 at 解放路 × 东门中路."
+  notes: "The article calls the marked east gate the Republican 'new' east gate. The west gate is inferred at 解放路 × 永新路, by the 深圳戏院/中海商城."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.street_name_equivalences
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: 图1 caption
+  quote: "图中绿色为“维新街”，即今人民北路；橙色为今解放路，主体是“谷行街”，再连接西和街、三角街、东新街构成"
+  summary: "维新街 is today's 人民北路; today's 解放路 is formed by 谷行街, 西和街, 三角街 and 东新街."
+  notes: "A direct street-name mapping from the author's overlay. Use it to trace the 1948/1949 maps onto the present street grid; it does not give footprints."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.old_east_gate_at_crossroads
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Paragraph beginning 黄伟文老师的观点是
+  quote: "今十字街是最早的（清代）东门位置所在，即“老东门”"
+  summary: "The article argues that the Qing-era east gate stood at 十字街 (人民北路 × 解放路), and the Republican expansion moved the gate east to 解放路 × 东门中路."
+  notes: "An interpretation, not a surveyed gate. The evidence is the map's gate positions, the 炮楼 on 人民北路 and the 东新 street names."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.people_road_eastern_boundary
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Paragraph beginning 人民北路以西
+  quote: "人民北路是最早的深圳墟的东边边沿，故此才建有炮楼"
+  summary: "人民北路 was the early market's eastern boundary, which is why the 炮楼 stood there."
+  notes: "An inference from the defensive logic of the 炮楼 and the street layout. It supports the old-east-gate-at-十字街 argument."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.yewu_outside_market
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Section with the four numbered arguments, item 4
+  quote: "叶屋村当时是在深圳墟之外"
+  summary: "叶屋村 lay outside the early market; the Republican eastward expansion later enclosed it."
+  notes: "The article reasons from the Jiaqing gazetteer and the Zhang lineage's ownership of the market. Treat as an inference."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.east_new_streets
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Section with the four numbered arguments, item 1
+  quote: "东新街、东新横街，东新后街就是在“老东门”外延伸、扩展出去的“街”"
+  summary: "The 东新后街/东新横街/东新街 sequence marks the eastward expansion beyond the old east gate."
+  notes: "Street-name evidence. The article uses it to place the old gate at 十字街 and the new gate at 解放路 × 东门中路."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.dongmen_name_1984
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Paragraph quoting 廖虹雷
+  quote: "正式（将深圳墟该处）叫东门，是1984年第一期东门（文山楼麦当劳一带）改造时，方便改造片区时叫开的"
+  summary: "According to 廖虹雷, the formal name '东门' spread during the 1984 first-phase Dongmen redevelopment; before that people called the area 深圳墟 or 旧街."
+  date: { value: "1984", precision: year }
+  notes: "A quoted recollection, attributed to 廖虹雷. The article adds that the name was adopted to avoid confusion with 深圳市 after 1979."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.buji_river_cutoff
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Opening section, paragraph on 布吉河
+  quote: "布吉河在数十年前已截弯取直"
+  summary: "The Buji River was straightened decades ago and no longer runs past the old street; it now flows south from 洪湖公园 to the Shenzhen River."
+  notes: "No date is given. Use for landscape context only; the pre-straightening channel is a separate geometry question."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash
+
+- id: phase1.shenzhenxu.east_gate_name_reason
+  source: phase1_shenzhenxu_dongmen_origin_article
+  locator: Closing section, paragraph beginning 所以，综上所述
+  quote: "人们去十字街那里的时候就依习惯说“去东门”"
+  summary: "Because the old east gate was at 十字街 and the crossroads became the market centre, people kept saying '去东门' for the whole old street."
+  notes: "The article's main onomastic argument. It explains the name, not a boundary."
+  status: sourced
+  extracted_by: ai:deepseek-v4.1-flash

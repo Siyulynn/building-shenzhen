@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SZBAIKE research index · 深圳百科资料索引</title>
+<style>
+  :root { color-scheme: light; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; color: #26302b; background: #eee9dc; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  main { max-width: 1500px; margin: auto; padding: clamp(16px, 3vw, 40px); }
+  header { border-bottom: 1px solid #a9ad9c; padding-bottom: 16px; margin-bottom: 16px; }
+  h1 { margin: 0 0 6px; font-size: clamp(24px, 4vw, 38px); letter-spacing: -.02em; }
+  h2 { margin: 0 0 8px; font-size: 18px; }
+  p { margin: 6px 0; }
+  a { color: #24564d; }
+  .lede { max-width: 980px; color: #46554d; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 4px; }
+  .stat { background: #f8f4e9; border: 1px solid #b9b5a4; padding: 8px 12px; min-width: 130px; }
+  .stat b { display: block; font-size: 22px; }
+  .stat span { color: #5a655d; font-size: 12px; }
+  nav.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 12px; }
+  nav.tabs button { font: inherit; padding: 7px 13px; border: 1px solid #a9ad9c; background: #f6f2e7; color: inherit; cursor: pointer; }
+  nav.tabs button[aria-selected=true] { background: #36564c; border-color: #36564c; color: #fff; }
+  .filters { display: grid; grid-template-columns: minmax(220px, 2fr) repeat(5, minmax(120px, 1fr)); gap: 6px; margin: 0 0 10px; }
+  .filters input, .filters select { font: inherit; padding: 7px 8px; border: 1px solid #aaa99a; background: #fbf8f0; color: inherit; min-width: 0; }
+  .meta { color: #59655c; font-size: 13px; margin: 6px 0 8px; }
+  .tablewrap { overflow: auto; border: 1px solid #b2af9f; background: #fbf8ef; max-height: 72vh; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th { position: sticky; top: 0; z-index: 1; background: #e5e0d2; text-align: left; font-weight: 600; padding: 8px 7px; border-bottom: 1px solid #aaa99a; white-space: nowrap; }
+  td { padding: 7px; border-bottom: 1px solid #ded9ca; vertical-align: top; }
+  tr.row { cursor: pointer; }
+  tr.row:hover td { background: #f3eedf; }
+  td.title { min-width: 300px; max-width: 560px; }
+  td.title a { font-weight: 600; text-decoration: none; }
+  td.title a:hover { text-decoration: underline; }
+  .tag { display: inline-block; padding: 1px 5px; margin: 1px 3px 1px 0; border: 1px solid #b7b3a2; background: #f1ecdd; font-size: 11px; white-space: nowrap; }
+  .tag.m3 { border-color: #8da596; background: #e7efe7; }
+  .tag.era { border-color: #b8a98a; background: #f5edda; }
+  .tag.quality { border-color: #a99bb0; background: #f0e9f1; }
+  .detail td { background: #f7f3e7; padding: 10px 12px; }
+  .detail p { margin: 4px 0; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .muted { color: #6a746c; }
+  button.more { font: inherit; margin: 10px 0 30px; padding: 8px 14px; border: 1px solid #a9ad9c; background: #f6f2e7; cursor: pointer; }
+  .coverage { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .panel { border: 1px solid #b2af9f; background: #fbf8ef; padding: 12px 14px; }
+  .bar { display: grid; grid-template-columns: 150px 1fr 40px; gap: 6px; align-items: center; margin: 4px 0; font-size: 12.5px; }
+  .bar i { display: block; height: 9px; background: #5c7f6e; }
+  .bar b { text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .empty { padding: 24px; color: #6a746c; }
+  .cand { max-width: 760px; }
+  .cand q { quotes: "“" "”"; }
+  footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid #a9ad9c; color: #5a655d; font-size: 12.5px; }
+  @media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } }
+</style>
+<main>
+  <header>
+    <h1>深圳百科 research index / 深圳百科资料索引</h1>
+    <p class="lede">A parsed, sorted finding aid for <a href="http://szbaike.com/" target="_blank" rel="noopener">szbaike.com</a>. It indexes the site’s article catalogue, extracts the articles most useful for the 1979–2009 city and the M3 core basin, and lists candidate factual sentences for human checking. The site is a compilation with mixed provenance; every row is a <b>lead</b>, not a verified fact.</p>
+    <p class="lede" lang="zh-Hans">这是对深圳百科网站的文章目录、重点全文和候选事实句的整理。所有条目均为线索，未经人工核验。</p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="articles" aria-selected="true">Articles · 文章</button>
+    <button role="tab" data-tab="facts" aria-selected="false">Candidate facts · 候选事实</button>
+    <button role="tab" data-tab="coverage" aria-selected="false">Coverage · 覆盖</button>
+  </nav>
+
+  <section id="articles-panel">
+    <div class="filters">
+      <input id="q" type="search" placeholder="Search title, source, place, topic… / 搜索" aria-label="Search">
+      <select id="section" aria-label="Section"></select>
+      <select id="m3" aria-label="M3 area"></select>
+      <select id="era" aria-label="Era"></select>
+      <select id="quality" aria-label="Source quality"></select>
+      <select id="sort" aria-label="Sort">
+        <option value="score">Sort: score / 相关度</option>
+        <option value="m3">Sort: selected M3 area / 重点区匹配</option>
+        <option value="candidates">Sort: candidate facts / 候选句</option>
+        <option value="date">Sort: newest article / 日期</option>
+        <option value="title">Sort: title / 标题</option>
+      </select>
+    </div>
+    <p class="meta" id="article-meta"></p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Title / 标题</th><th>Section</th><th>Date</th><th>M3</th><th>Era</th><th>Source</th><th class="num">Score</th><th class="num">Facts</th></tr></thead>
+        <tbody id="article-rows"></tbody>
+      </table>
+    </div>
+    <button class="more" id="more" type="button">Load more / 更多</button>
+  </section>
+
+  <section id="facts-panel" hidden>
+    <div class="filters" style="grid-template-columns:2fr 1fr">
+      <input id="fq" type="search" placeholder="Search candidate sentences… / 搜索候选句" aria-label="Search candidate facts">
+      <select id="fm3" aria-label="M3 area"></select>
+    </div>
+    <p class="meta" id="fact-meta"></p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Candidate sentence / 候选句</th><th>Article</th><th>Year</th><th class="num">Rank</th></tr></thead>
+        <tbody id="fact-rows"></tbody>
+      </table>
+    </div>
+    <button class="more" id="fmore" type="button">Load more / 更多</button>
+  </section>
+
+  <section id="coverage-panel" hidden>
+    <div class="coverage" id="coverage"></div>
+  </section>
+
+  <footer>
+    <p>Data: <a href="../../../data/research/szbaike/useful.csv">useful.csv</a> (1,078 analysed articles) · <a href="../../../data/research/szbaike/articles.csv">articles.csv</a> (10,416 catalogue rows) · <a href="../../../data/research/szbaike/candidate-facts.csv">candidate-facts.csv</a> (300 sentences). Read the <a href="../szbaike-index.md">method and caveats</a>.</p>
+    <p>Source pages are <code>reference_only</code>. Titles, URLs and short snippets are kept for research and verification; do not republish article text. Run the page from the local Vite server, for example <code>npx vite --host 127.0.0.1 --port 5180</code>, so the JSON loads.</p>
+  </footer>
+</main>
+<script type="module">
+  const sectionLabels = {
+    'humanity/place-name': '地名起源', 'humanity/village': '传统村落', 'humanity/history': '建置沿革',
+    'humanity/relic': '文物遗迹', 'humanity/h-events': '史事典籍', 'course/c-summary': '改革开放综述',
+    'course/politics': '政治法律', 'course/system': '体制改革', 'course/dictation': '口述史',
+    'social/construction': '城市建设', 'social/s-summary': '社会综合', 'social/culture': '文化事业',
+    'social/education': '教育事业', 'social/medical': '医疗卫生', 'social/science': '科学',
+    'industry/traffic': '交通运输', 'industry/enterprise': '名企', 'industry/primary': '第一产业',
+    'industry/secondary': '第二产业', 'industry/tertiary': '第三产业', 'industry/e-summary': '经济综合',
+    'travel/h-architecture': '历史建筑', 'travel/t-summary': '文旅综合', 'travel/c-heritage': '非遗',
+    'travel/m-culture': '现代文化', 'travel/scenery': '自然风景', 'travel/block': '购物街区',
+    'memorabilia/modern-events': '大事记·近代以前', 'memorabilia/1949': '大事记·1949',
+    'memorabilia/1978': '大事记·1978', 'memorabilia/2000': '大事记·2000',
+    'memorabilia/2010': '大事记·2010', 'memorabilia/2020': '大事记·2020',
+    'communication/sz-hk': '深港关系', 'communication/h-citizen': '荣誉市民', 'communication/sister-city': '友好城市',
+    'personage/modern-vip': '近现代人物', 'personage/ancient-vip': '古代人物', 'personage/overseas': '华人华侨',
+    'personage/elite': '专家学者', 'natural/terrain': '地形气候', 'natural/n-summary': '自然综合',
+    'natural/marine': '动植物资源', 'natural/ocean': '海洋资源', 'hisz/szing': '深圳ING', 'hisz/anothersz': '街道画像',
+  };
+  const m3Labels = {
+    Yumin: '渔民村', Shenzhenxu: '深圳墟/东门', LuohuGuomao: '罗湖/国贸', Caiwuwei: '蔡屋围',
+    Shangbu: '上步/华强北', Shekou: '蛇口', Nantou: '南头', Huangbeiling: '黄贝岭/文锦渡',
+    Sungang: '笋岗/清水河', DonghuLiantang: '东湖/莲塘',
+  };
+  const qualityLabels = { book: 'book / 书志', oral: 'oral / 口述', government: 'gov / 政府', 'street-portrait': 'street / 街道画像', web: 'web / 网页', other: 'other' };
+  const eraLabels = { 'pre-1949': 'pre-1949', '1949-1978': '1949–78', '1979-1992': '1979–92', '1993-2009': '1993–2009', 'post-2009': '2010+' };
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const [articlesData, candidatesData] = await Promise.all([
+    fetch('./articles.json').then((r) => r.json()),
+    fetch('./candidates.json').then((r) => r.json()),
+  ]);
+  const articles = articlesData.articles;
+  const candidates = candidatesData.candidates;
+  const state = { tab: 'articles', limit: 100, flimit: 100, filters: {} };
+
+  const unique = (xs) => [...new Set(xs)];
+  const sections = unique(articles.map((a) => a.section)).sort();
+  const m3s = unique(articles.flatMap((a) => a.m3));
+  const eras = unique(articles.flatMap((a) => a.eras));
+  const qualities = unique(articles.map((a) => a.quality));
+
+  const fill = (el, items, label, allLabel) => {
+    el.innerHTML = `<option value="">${allLabel}</option>` + items.map((x) => `<option value="${esc(x)}">${esc(label(x))}</option>`).join('');
+  };
+  fill(document.querySelector('#section'), sections, (x) => sectionLabels[x] ?? x, 'All sections / 全部栏目');
+  fill(document.querySelector('#m3'), m3s, (x) => m3Labels[x] ?? x, 'All M3 areas / 全部重点区');
+  fill(document.querySelector('#era'), eras, (x) => eraLabels[x] ?? x, 'All eras / 全部年代');
+  fill(document.querySelector('#quality'), qualities, (x) => qualityLabels[x] ?? x, 'All sources / 全部来源');
+  fill(document.querySelector('#fm3'), m3s, (x) => m3Labels[x] ?? x, 'All M3 areas / 全部重点区');
+
+  document.querySelector('#stats').innerHTML = [
+    [articlesData.counts.all.toLocaleString(), 'catalogue rows / 目录条目'],
+    [articlesData.counts.analysed.toLocaleString(), 'full-text articles / 已读全文'],
+    [candidatesData.candidates.length.toLocaleString(), 'candidate facts / 候选事实句'],
+    [articlesData.counts.sections, 'sections / 栏目'],
+  ].map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join('');
+
+  const filterArticles = () => {
+    const q = document.querySelector('#q').value.trim().toLowerCase();
+    const sec = document.querySelector('#section').value;
+    const m3 = document.querySelector('#m3').value;
+    const era = document.querySelector('#era').value;
+    const qual = document.querySelector('#quality').value;
+    let rows = articles.filter((a) => {
+      if (sec && a.section !== sec) return false;
+      if (m3 && !a.m3.includes(m3)) return false;
+      if (era && !a.eras.includes(era)) return false;
+      if (qual && a.quality !== qual) return false;
+      if (q) {
+        const hay = [a.title, a.source, a.author, a.places.join(' '), a.topics.join(' '), a.section].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    const sort = document.querySelector('#sort').value;
+    rows.sort((a, b) => sort === 'm3' ? ((m3 ? (b.m3Hits?.[m3] ?? 0) - (a.m3Hits?.[m3] ?? 0) : 0) || b.score - a.score)
+      : sort === 'candidates' ? b.candidates - a.candidates || b.score - a.score
+      : sort === 'date' ? String(b.date).localeCompare(String(a.date)) || b.score - a.score
+      : sort === 'title' ? a.title.localeCompare(b.title, 'zh-Hans-CN')
+      : b.score - a.score || b.candidates - a.candidates);
+    return rows;
+  };
+
+  const rowHtml = (a) => `<tr class="row" data-id="${esc(a.id)}">
+    <td class="title"><a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.title)}</a></td>
+    <td>${esc(sectionLabels[a.section] ?? a.section)}</td>
+    <td class="muted">${esc(a.date)}</td>
+    <td>${a.m3.map((x) => `<span class="tag m3">${esc(m3Labels[x] ?? x)}</span>`).join('')}</td>
+    <td>${a.eras.map((x) => `<span class="tag era">${esc(eraLabels[x] ?? x)}</span>`).join('')}</td>
+    <td class="muted">${esc(a.source || '—')}</td>
+    <td class="num">${a.score}</td>
+    <td class="num">${a.candidates || '—'}</td>
+  </tr>`;
+
+  const detailHtml = (a) => `<tr class="detail"><td colspan="8">
+    <p><b>Author / 作者:</b> ${esc(a.author || '—')} · <b>Chars / 字数:</b> ${a.chars.toLocaleString()} · <b>Quality / 来源类型:</b> ${esc(qualityLabels[a.quality] ?? a.quality)}</p>
+    <p><b>Years / 年份:</b> ${a.years.length ? a.years.join(', ') : '—'}</p>
+    <p><b>Places / 地名:</b> ${a.places.length ? a.places.join('、') : '—'}</p>
+    <p><b>Topics / 主题:</b> ${a.topics.length ? a.topics.join('、') : '—'}</p>
+    <p><b>Source / 来源:</b> ${esc(a.source || '—')}</p>
+    <p><a href="${esc(a.url)}" target="_blank" rel="noopener">Open the article / 打开原文</a></p>
+  </td></tr>`;
+
+  const renderArticles = () => {
+    const rows = filterArticles();
+    const shown = rows.slice(0, state.limit);
+    document.querySelector('#article-rows').innerHTML = shown.length ? shown.map(rowHtml).join('') : '<tr><td colspan="8" class="empty">No matching articles. / 没有匹配文章。</td></tr>';
+    document.querySelector('#article-meta').textContent = `${rows.length.toLocaleString()} matching articles · showing ${shown.length.toLocaleString()} / 匹配文章，当前显示`;
+    document.querySelector('#more').hidden = shown.length >= rows.length;
+    document.querySelectorAll('#article-rows tr.row').forEach((tr) => {
+      tr.addEventListener('click', (ev) => {
+        if (ev.target.closest('a')) return;
+        const next = tr.nextElementSibling;
+        if (next?.classList.contains('detail')) { next.remove(); return; }
+        const a = articles.find((x) => x.id === tr.dataset.id);
+        if (a) tr.insertAdjacentHTML('afterend', detailHtml(a));
+      });
+    });
+  };
+
+  const filterFacts = () => {
+    const q = document.querySelector('#fq').value.trim().toLowerCase();
+    const m3 = document.querySelector('#fm3').value;
+    return candidates.filter((c) => {
+      if (m3) {
+        const a = articles.find((x) => x.id === c.id);
+        if (!a || !a.m3.includes(m3)) return false;
+      }
+      if (q && ![c.sentence, c.title, c.source].join(' ').toLowerCase().includes(q)) return false;
+      return true;
+    });
+  };
+
+  const renderFacts = () => {
+    const rows = filterFacts();
+    const shown = rows.slice(0, state.flimit);
+    document.querySelector('#fact-rows').innerHTML = shown.length ? shown.map((c) => `<tr>
+      <td class="cand"><q>${esc(c.sentence)}</q></td>
+      <td><a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.title)}</a><br><span class="muted">${esc(sectionLabels[c.section] ?? c.section)} · ${esc(c.date)}</span></td>
+      <td class="muted">${esc((c.years ?? []).join(', '))}</td>
+      <td class="num">${c.rank}</td>
+    </tr>`).join('') : '<tr><td colspan="4" class="empty">No matching candidate facts. / 没有匹配候选句。</td></tr>';
+    document.querySelector('#fact-meta').textContent = `${rows.length.toLocaleString()} candidate facts · showing ${shown.length.toLocaleString()} / 候选事实句，当前显示`;
+    document.querySelector('#fmore').hidden = shown.length >= rows.length;
+  };
+
+  const bars = (obj, total, label) => Object.entries(obj).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="bar"><span title="${esc(k)}">${esc(label(k))}</span><i style="width:${Math.max(2, (v / total) * 100)}%"></i><b>${v}</b></div>`).join('');
+
+  const renderCoverage = () => {
+    const countBy = (fn) => articles.reduce((acc, a) => { for (const k of fn(a)) acc[k] = (acc[k] ?? 0) + 1; return acc; }, {});
+    const m3c = countBy((a) => a.m3);
+    const qc = countBy((a) => [a.quality]);
+    const ec = countBy((a) => a.eras);
+    const sc = articles.reduce((acc, a) => { const s = a.source || '(none)'; acc[s] = (acc[s] ?? 0) + 1; return acc; }, {});
+    document.querySelector('#coverage').innerHTML = `
+      <div class="panel"><h2>M3 areas · 重点区</h2>${bars(m3c, articles.length, (k) => m3Labels[k] ?? k)}</div>
+      <div class="panel"><h2>Source quality · 来源类型</h2>${bars(qc, articles.length, (k) => qualityLabels[k] ?? k)}</div>
+      <div class="panel"><h2>Era tags · 年代</h2>${bars(ec, articles.length, (k) => eraLabels[k] ?? k)}</div>
+      <div class="panel"><h2>Top sources · 主要来源</h2>${bars(Object.fromEntries(Object.entries(sc).sort((a, b) => b[1] - a[1]).slice(0, 12)), articles.length, (k) => k)}</div>
+      <div class="panel"><h2>Sections · 栏目</h2>${bars(articles.reduce((acc, a) => { acc[a.section] = (acc[a.section] ?? 0) + 1; return acc; }, {}), articles.length, (k) => sectionLabels[k] ?? k)}</div>`;
+  };
+
+  const setTab = (tab) => {
+    state.tab = tab;
+    for (const btn of document.querySelectorAll('nav.tabs button')) btn.setAttribute('aria-selected', btn.dataset.tab === tab);
+    document.querySelector('#articles-panel').hidden = tab !== 'articles';
+    document.querySelector('#facts-panel').hidden = tab !== 'facts';
+    document.querySelector('#coverage-panel').hidden = tab !== 'coverage';
+    if (tab === 'facts') renderFacts();
+    if (tab === 'coverage') renderCoverage();
+  };
+
+  for (const el of document.querySelectorAll('.filters input, .filters select')) {
+    el.addEventListener('input', () => { state.limit = 100; state.flimit = 100; renderArticles(); renderFacts(); });
+  }
+  document.querySelector('#more').addEventListener('click', () => { state.limit += 100; renderArticles(); });
+  document.querySelector('#fmore').addEventListener('click', () => { state.flimit += 100; renderFacts(); });
+  for (const btn of document.querySelectorAll('nav.tabs button')) btn.addEventListener('click', () => setTab(btn.dataset.tab));
+
+  renderArticles();
+  renderFacts();
+</script>
+</html>

@@ -1,0 +1,19 @@
+id: "phase1_sparktour_shenzhen_1980_2025"
+title: "1980-2025：45年前的深圳卫星图"
+authors: ["sparktour"]
+issuer: "Sparktour's Blog"
+published: { where: "blog.sparktour.me", date: "2025-04-16" }
+url: "https://blog.sparktour.me/posts/2025/04/16/shenzhen-1980-2025/"
+retrieved: "2026-11-25"
+tier: "D"
+language: "zh-Hans"
+reuse: "open_share_alike"
+access: "open"
+notes: >-
+  Hobbyist georeferencing post (updated 2025-04-24). Pairs a 1980-09-11 USGS Earth Explorer frame, scene
+  D3C1216-300662F047, with 2024-2025 Google Earth imagery and OSM street geometry. That scene is the KH-9 frame
+  already held as kh9_1980_09_11_f047, so the post is an independent alignment of imagery we have, not a new
+  capture. The blogger's section-by-section readings are interpretations, not measurements. Licence is
+  CC BY-NC-SA 4.0: attribution and share-alike, and no commercial use without a separate check. The 荔枝公园
+  section reproduces a quotation from 《文化深圳》 (WeChat article linked in the post) without a page reference;
+  the original was not opened for these claims.

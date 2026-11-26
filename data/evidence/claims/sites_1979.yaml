@@ -184,7 +184,7 @@
   summary: Nantou old town (南头古城) was an established former county seat by 1979.
   status: sourced
   extracted_by: ai:phase1-map-research
-  notes: Wall survival and street geometry in 1979 remain open.
+  notes: "Wall survival and street geometry in 1979 remain open. Later accounts give a 680 × 500 m walled extent, a nine-street historical set and 40-plus surviving Qing and Republican houses (phase1.nantou.old_town.extent, phase1.nantou.streets.nine, phase1.nantou.houses.qing_republican). They are present-day measurements and survival counts, not a 1979 survey."
 - id: site.nantou_old_town.location
   source: osm_shenzhen_places
   locator: "way 219961346 (南头古城), centroid"
@@ -192,10 +192,13 @@
   status: lead
 
 - id: site.shekou_fishing_harbour.exists_1979
-  origin: general_knowledge
-  summary: Shekou had fishing villages and a small harbour in 1979.
-  status: lead
-  notes: Shekou is card only in the slice.
+  source: phase1_shekou_shelter_southcn_2018
+  locator: "老蛇口人记忆中的避风塘, second paragraph"
+  quote: "蛇口避风塘由南头半岛东端凸入海中的蛇口山与其南侧海岸构成"
+  summary: Shekou had a fishing settlement and a named typhoon shelter before 1979.
+  status: sourced
+  extracted_by: ai:opencode-atlas-followup
+  notes: "The shelter is the harbour referent, not the modern 蛇口渔港. Its site became 蛇口广场 after 2000. Village composition and the pre-1979 fishing character are in phase1.shekou.villages.composition and phase1.shekou.pre1979.settlement_form. No surveyed outline yet."
 - id: site.shekou_fishing_harbour.location
   source: osm_shenzhen_places
   locator: "name=蛇口渔港"
@@ -223,7 +226,7 @@
   summary: The Kowloon–Canton railway operated across the border via Luohu in 1979.
   status: sourced
   extracted_by: ai:phase1-map-research
-  notes: The 1979 alignment awaits a trace from period material.
+  notes: "The 1979 alignment awaits a trace from period material. The northern corridor is now supported by a 1962 station between Shenzhen and Buji, renamed Shenzhen North in 1977 and described as the main freight station (phase1.rail.sungang.opened_1962, phase1.rail.sungang.renamed_1977), and by a May 1979 timetable with 25 intermediate stations (phase1.rail.1979.timetable_intermediate_stations). Existence and station sequence only; no surveyed alignment."
 - id: site.guangshen_road.exists_1979
   source: phase1_shennan_road_construction
   locator: "深南大道南山段 opening paragraph and later paragraph beginning 建市后"

@@ -1,0 +1,113 @@
+# Claims transcribing named buildings, institutions, villages and terrain labels from the 1982 深圳市区图.
+# Source: phase1_1982_shenzhen_city_map (2000x1500 phone photograph of a folded paper city map, 汤奔日 collection).
+# Caveat: the "1982" date is the reproducing article's caption, not a visible imprint; no scale or legend is visible,
+# and the sheet includes planned features (e.g. 科学馆, 计划中水道). Treat labels as period attestations of named
+# features and relative positions, not as a metric survey of completed buildings.
+
+- id: phase1.map.1982.luohu_station_crossing
+  source: phase1_1982_shenzhen_city_map
+  locator: "Lower-right quadrant (Luohu rail corridor, 建设路–人民南路–文锦渡, px x=1280..1860, y=960..1430)"
+  quote: "罗湖桥、深圳车站、卫生检疫所、海关大楼、深圳行车公宇、小汽车出租点、罗湖大厦、友谊大厦、国际商业大厦、铁路小学、旅游局、中国外贸局展销大楼、市食出加工场、文锦渡分关、文锦渡、深圳船步码头、运输总公司、新郊村、黄泥地、湖塘尾、下水亮"
+  summary: >-
+    The 1982 city map labels the Luohu crossing, railway station, customs and quarantine offices, commercial towers
+    (国际商业大厦, 友谊大厦, 罗湖大厦, 中国外贸局展销大楼), 文锦渡分关, 深圳船步码头 and adjacent settlements.
+  geography: "罗湖, 文锦渡"
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:gemini-4-neon
+  notes: >-
+    Transcribed from high-resolution crops of map_1982.jpg. On this schematic sheet the 建设路–人民南路 corridor is
+    slightly widened for label legibility. 国际商业大厦 was reported complete in April 1983 (phase1.guoshang), so
+    its presence on the sheet may reflect under-construction or planned status.
+
+- id: phase1.map.1982.dongmen_old_town
+  source: phase1_1982_shenzhen_city_map
+  locator: "East-centre quadrant (东门–解放路–湖贝–东门北路, px x=1220..1870, y=560..990)"
+  quote: "深圳戏院、工人文化宫、新园招待所、深圳中学、深圳汽车站、邮电局、市中医院、检疫所、人民体育场、图书馆、市六小、铁路学校、市卫生防疫站、房管局、五七中学、石油公司、汽车公司、食品公司、罗湖区工艺厂、酱料厂、无线电厂、塑料厂、农机学校、教育新村、湖贝、禾塘村、向西、河东、东安、蛟湖、东新郊、田贝塘、竹边、坳仔、大坟尾、茅屋仔"
+  summary: >-
+    The 1982 city map labels the Dongmen old-town civic, commercial and industrial cluster (深圳戏院, 工人文化宫,
+    深圳中学, 邮电局, 市中医院, 人民体育场, 图书馆, 深圳汽车站) together with old Hubei, Xiangxi and neighbouring villages.
+  geography: "东门, 湖贝, 向西"
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:gemini-4-neon
+  notes: >-
+    Transcribed from map_1982.jpg. Two separate 房管局 labels appear (near 蛟湖 and near 解放路/湖贝). Places 深圳戏院
+    immediately south of 工人文化宫 and west of 解放路, providing a period map location for the unplaced 1984 theatre entry.
+
+- id: phase1.map.1982.shangbu_industrial
+  source: phase1_1982_shenzhen_city_map
+  locator: "West-centre quadrant (华强路–上步路–深南路, px x=360..1030, y=730..1240)"
+  quote: "华丽装修家私公司、深圳印刷制品厂、航空公司、华强电子工业公司、京华电子公司、家乐床具厂、电子装配厂、服装厂、养鸡场、建筑技术培训中心、人民医院、汽车装配厂、市委宿舍、科学馆、友谊商店、华强生活区、深圳电子工业大楼、深圳电子装配厂、市委机关宿舍、建筑工业公司、建材运输公司、道路公司"
+  summary: >-
+    The 1982 city map labels the early Shangbu and Huaqiang industrial and institutional grid on both sides of 深南路,
+    including electronics factories, printing, furniture, garments, aviation, auto assembly, training, hospital and dormitories.
+  geography: "上步, 华强"
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:gemini-4-neon
+  notes: >-
+    Transcribed from map_1982.jpg. 华强电子工业公司 appears at two blocks (north of 深南路 and south near 上赤尾).
+    深圳电子工业大楼 (电子大厦) is drawn south of 深南路 on this schematic sheet, whereas the built 电子大厦 stands on the
+    north side of 深南中路; 科学馆 was likely still planned in 1982.
+
+- id: phase1.map.1982.futian_villages
+  source: phase1_1982_shenzhen_city_map
+  locator: "Lower-left quadrant (福田路–深南路 south to Shenzhen River, px x=80..720, y=850..1400)"
+  quote: "福田中学、福田小学、卫生院、农机厂、手套厂、福田、福田新村、新村、下步庙、旧圩、沙步头、上赤尾、下赤尾、田面、赤离头、长流水、王光湖、大山尾、蟾蜍石"
+  summary: >-
+    The 1982 city map labels Futian village and new village, Futian Middle and Primary Schools, clinic, glove and farm-machinery
+    factories, and the lowland villages of Tianmian, Xiabumiao, Jiuxu, Shabutou and Upper/Lower Chiwei.
+  geography: "福田, 赤尾, 田面"
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:gemini-4-neon
+  notes: >-
+    Transcribed from map_1982.jpg. Shows an established agricultural and village belt west of 华强路 with local schools
+    and small factories.
+
+- id: phase1.map.1982.sungang_shuibei_tianbei
+  source: phase1_1982_shenzhen_city_map
+  locator: "Upper-right quadrant (笋岗车站–水贝–田贝–翠竹/东湖路, px x=1200..1920, y=60..600)"
+  quote: "市变电站、水贝、水贝小学、笋岗小学、笋岗、笋岗车站、田心、磷肥、皮鞋厂、糖烟酒公司、市罐头厂、市石油公司供应站、冷冻厂、农机公司、肥皂厂、电信局、深圳市砖厂、市人民医院留医部、水电局、林业研究所、装卸修配厂、市园林站、市鱼苗场、市公路局、凉果厂、农机汽车修理厂、市师范学校、上田贝、下田贝、马古岭、大头岭、大龙、犬王爷、湾仔、甫丁、长坑"
+  summary: >-
+    The 1982 city map labels the Sungang railway goods yard and the Shuibei–Tianbei industrial and municipal-service belt,
+    including the substation, inpatient hospital, brickworks, cannery, cold storage, soap and shoe factories, and schools.
+  geography: "笋岗, 水贝, 田贝, 翠竹"
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:gemini-4-neon
+  notes: >-
+    Transcribed from map_1982.jpg. 磷肥 is printed over a large industrial compound west of 笋岗车站 (phosphate fertilizer
+    plant). 大头岭 is marked with a hill-peak triangle and also labels houses to its south.
+
+- id: phase1.map.1982.nigang_bagualing_hongling
+  source: phase1_1982_shenzhen_city_map
+  locator: "Upper-left and upper-centre quadrants (笔架山–泥岗–八卦岭–红岭路–洪岭, px x=60..1310, y=60..970)"
+  quote: "笔架山、梅岗林场、打靶场、黄木岗、园岭仔、白沙岭、园头岭、八卦岭、泥岗、五七农场、威士厂、深圳恤衫厂、宝安畜牧研究所、煤炭公司、贮煤场、木材公司、市气象站、怡兴工厂、公安局、红星汽车修配厂、松园、洪岭、龙尾塘、望牛墩、坑尾、黄泥塘、大堂、窝园、马流浪、河笛坡、围背坑、西边岭、梅仔园、南安、江板田、兰背、小横坑、横径、虎南田、散下、羊棚坑、大茫田、瓦坑、蟹地、大坟山、蚊州、洪木桥、屠龙枕、下竹树、乌泥龙、西边坑、南门口、鬼背"
+  summary: >-
+    The 1982 city map labels the northern hill and valley belt (笔架山, 白沙岭, 园头岭, 泥岗, 八卦岭), rural/forestry works
+    (梅岗林场, 五七农场, 打靶场), and the Hongling–Hongling-east industrial and civic strip (威士厂, 深圳恤衫厂, 宝安畜牧研究所,
+    市气象站, 公安局, 红星汽车修配厂, 煤炭公司, 木材公司).
+  geography: "泥岗, 八卦岭, 红岭, 笔架山"
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:gemini-4-neon
+  notes: >-
+    Transcribed from map_1982.jpg. 八卦岭 appears as a locality name south of 泥岗路 before the October 1983 industrial-zone
+    works (phase1.zoning.bagualing.first_works).
+
+- id: phase1.map.1982.river_villages_planned_channel
+  source: phase1_1982_shenzhen_city_map
+  locator: "South-centre strip along Shenzhen River (上步–蔡屋围–渔民村, px x=780..1280, y=950..1240)"
+  quote: "上步、向东围、巴丁、咸塘、新围、蔡屋围、三角围、祠堂村、咸田脚、深冲、下围、渔民村、市旅游供应公司、计划中水道"
+  summary: >-
+    The 1982 city map labels the Shenzhen River floodplain villages (上步, 巴丁, 向东围, 蔡屋围, 新围, 渔民村, 祠堂村,
+    三角围, 深冲, 下围) and draws a dashed straight channel labelled 计划中水道 across the river meanders.
+  geography: "上步, 蔡屋围, 渔民村, 深圳河"
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:gemini-4-neon
+  notes: >-
+    Transcribed from map_1982.jpg. The dashed 计划中水道 confirms that the 1982 map includes planned engineering works
+    alongside existing villages and buildings.

@@ -1,0 +1,12 @@
+id: "phase1_power_sohu_2010"
+title: "30年深圳供电局与深圳经济特区共成长"
+issuer: "南方日报 (republished by 搜狐)"
+published: {where: "搜狐汽车, 新闻", date: "2010-08-23"}
+url: "https://auto.sohu.com/20100823/n274395024.shtml"
+retrieved: "2026-11-24"
+local_copy: {path: "data/raw/sources/phase1_power_sohu_2010/page.html", sha256: "77608084d0550ef21ffc7b573162c5d0777821172255d98ccda0486779375f28"}
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "30th-anniversary feature quoting the bureau. Gives 1980 as 4 substations with a stated maximum voltage of 35 kV and 0.5434亿 kWh consumed, and the 1984-1990 shortage with 48% and 40% gaps. It also counts one 110 kV substation in 1980, so its own voltage sentence is internally inconsistent."

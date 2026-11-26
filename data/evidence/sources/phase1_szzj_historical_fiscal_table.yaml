@@ -1,0 +1,10 @@
+id: "phase1_szzj_historical_fiscal_table"
+title: "全市历年财政金融情况"
+published: {"where":"深圳统计资料，表7-3，第187页；末列年度2005"}
+url: "https://www.szzj.gov.cn/module/download/downfile.jsp?classid=0&filename=0aa59a74adff4dedbb0bbab82aff1b80.pdf"
+tier: "A"
+language: "zh-Hans"
+notes: "Official-hosted retrospective table through 2005. The precise edition title and publication date were not exposed by the online PDF."
+retrieved: "2026-11-23"
+reuse: "reference_only"
+access: "open"

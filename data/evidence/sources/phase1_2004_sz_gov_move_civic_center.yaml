@@ -1,0 +1,14 @@
+id: "phase1_2004_sz_gov_move_civic_center"
+title: "深圳市政府今起“大搬家” 迁入全新“市民中心”"
+issuer: "中国新闻网，据《广州日报》报道（新浪转载）"
+published: { where: "news.sina.com.cn/c/2004-05-17/12392552136s.shtml", date: "2004-05-17" }
+url: "https://news.sina.com.cn/c/2004-05-17/12392552136s.shtml"
+retrieved: "2026-11-25"
+tier: "B"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: >-
+  Contemporaneous report on the first day of the move into the Civic Center. Page is served in GBK; read from
+  the raw bytes decoded as GB18030. Useful because it names the old site (深南中路, "一办" and "二办"), gives its
+  then-current use (市委、市政府领导 and 人事局、纪委), and records that the 市委 stayed after the bureaus left.

@@ -1,0 +1,12 @@
+id: phase1_shenzhenxu_dongmen_origin_article
+title: "深圳墟（深圳老街）为什么称“东门”？"
+authors: ["宝安县土著中"]
+published: { where: "新安历史文化研究 (WeChat); the author states the article appeared in 《深圳史志》", date: "2025-01-01" }
+url: "https://mp.weixin.qq.com/s/srYqxaWaA2iNtEZrgftx8A"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/dongmen-origin/article.html", sha256: "1a1530f440dd55891002511e6ded03b6773a203079a52f1ce4b39fed9fce6287" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Original research and author-edited maps. The author says the article was published in 《深圳史志》; the print issue, date and page have not been inspected, so the web copy is tier D. The six figures are interpretive overlays on the 1948 《深圳通讯》 map and the 1949 redraw; they are not surveyed geometry. The author forbids reuse of the images without permission."

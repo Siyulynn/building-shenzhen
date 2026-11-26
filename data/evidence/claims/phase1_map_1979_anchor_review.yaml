@@ -1,0 +1,100 @@
+- id: site.county_offices.location
+  source: phase1_shenzhenxu_1977_shenzhen_street_map
+  locator: "Red star near x≈214 y≈693, north of the old west approach"
+  quote: "县革委"
+  summary: The 1977 street sheet locates the county revolutionary committee on the west approach at Caiwuwei.
+  notes: The red-star neighbourhood and the later 县委 label bound a search area; the draft KH-9 point is a neighbourhood proxy for the county seat, not a compound survey.
+  status: lead
+
+- id: site.hubei.old_core_location
+  source: phase1_urbanus_hubei_timeline
+  locator: "背景, second paragraph"
+  quote: "湖贝旧村位于东门商业圈湖贝路北侧、中兴路南侧、罗湖文化公园以西"
+  summary: URBANUS locates old Hubei north of Hubei Road, south of Zhongxing Road and west of Luohu Cultural Park.
+  notes: The named area and 1977 street-sheet topology help distinguish the old core from the later neighbourhood proxy. The point is an imagery-based lead.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: site.nigang.exists_1979
+  source: phase1_2016_luohu_village_names
+  locator: "泥岗村 section, paragraph citing 新安县志"
+  quote: "《新安县志》称： 官富司管属村有泥岗村"
+  summary: A local history cites the county gazetteer for the earlier village of Nigang.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: site.shuibei.exists_1979
+  source: phase1_2016_shuibei_village_history
+  locator: "Paragraph beginning 被拆除之前"
+  quote: "根据水贝村的村史记载，水贝村从明朝永乐八年即1410年立村"
+  summary: The report cites Shuibei's village history for the settlement's existence well before 1979.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.villages.tianbei_old_pair
+  source: phase1_2016_luohu_village_names
+  locator: "田贝村 section, second paragraph"
+  quote: "在东称田贝东（旧称上田贝），在西称田贝西（旧称下田贝）"
+  summary: The local account places two old Tianbei settlements on opposite sides of present-day Wenjin North Road, with Upper Tianbei to the east.
+  notes: The account traces Tianbei to before the SEZ; the 1982 sheet names both parts. No surveyed opening-date limits are given.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.map.1977.school_hospital
+  source: phase1_shenzhenxu_1977_shenzhen_street_map
+  locator: "Northeast of the core, labels near x≈810 y≈270 and x≈1140 y≈26 in the 1280×1477 reference"
+  quote: "深圳中学；人民医院留医部"
+  summary: The 1977 street sheet places Shenzhen Middle School and the People's Hospital inpatient unit northeast of the old market town.
+  notes: These are two separate institutional anchors. The draft points mark campus localities based on the relative position and the September 1980 imagery; they do not identify particular buildings.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.observation.kh9_1977.northern_settlement_anchors
+  source: kh9_1977_12_03_a010
+  locator: "Registered A010/c, 100 m slice grid columns 368–399, rows 345–368; compare the 1980 mosaic at the same cells"
+  summary: >-
+    Apparent built clusters near the mapped Nigang, Shuibei and Tianbei localities, and rail-side development
+    near Sungang, are visible before the slice opening.
+  notes: >-
+    Trial anchors are Nigang (369,349), Shuibei (393,346), Lower Tianbei (392,354),
+    Upper Tianbei (396,355), and Sungang freight yard (384,355). The map names guide the search.
+    Texture and roof patterns alone cannot identify an institution or define the historical village edge.
+  status: lead
+
+- id: phase1.observation.kh9_1980.core_anchor_review
+  source: kh9_1980_09_11_a048
+  locator: "Registered A048/c mosaic, slice grid: (378,376), (385,375), (393,374), (391,367), (397,360)"
+  summary: >-
+    The September imagery supplies neighbourhood-scale point proxies for the county-seat area,
+    Dongmen theatre frontage, Hubei old core, Middle School and People's Hospital inpatient area.
+  notes: >-
+    The first three points reuse the draft core-basin picks and, for the shops, the opposite frontage read
+    from the 1984 crop. The school and hospital are best-fit locality checks against the two period maps.
+    This is a post-opening comparator; it supplies no parcel outline or evidence of 1979 continuity by itself.
+  status: lead
+
+- id: site.shenzhen_theatre.exists_1979
+  source: phase1_sz_archive_theatre
+  locator: "Opening paragraph and paragraph beginning 1997年"
+  quote: "于1960年完成了深圳戏院的建造"
+  summary: The municipal archive's retrospective dates the Dongmen theatre to 1960 and reports a refurbishment in 1997.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: site.shangbu_villages.exists_1979
+  source: phase1_2018_shangbu_villages
+  locator: "Paragraph beginning 改革开放之前的上步村"
+  quote: "改革开放之前的上步村，由巴登、埔尾、向东围、祠堂村、沙埔头、旧墟、赤尾七个自然村组成"
+  summary: The report names seven natural villages in the pre-reform Shangbu village group.
+  notes: Useful for the municipality view. The 1982 labels and the visible clusters along the river do not locate every village reliably on the opening map.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.industry.pre_sez_town_workshops
+  source: phase1_hk_edb_shenzhen_urban_development
+  locator: "深圳的工業化, pp. 76–77, opening paragraph"
+  quote: "化肥、五金、無線電、罐頭四間小工廠"
+  summary: The retrospective describes fertilizer, hardware, radio and canning as early industries in Shenzhen town.
+  notes: This is a district-level cross-check only; it does not identify the specific 1982 labelled compounds or show that the same plants occupied those locations in 1979.
+  status: sourced
+  extracted_by: ai:opencode

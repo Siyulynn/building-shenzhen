@@ -1,0 +1,13 @@
+id: phase1_shenzhenxu_1917_zhina_gazetteer_map
+title: "深圳图（《支那省别全志·广东省卷》）"
+issuer: "东亚同文会 (East Asia Common Culture Association)"
+doc_date: "1917"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/1917_zhina_gazetteer.jpeg", sha256: "436a56367b031b3305937c6876dc53a95325a689a46e16f4da203030eb1fb280" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Schematic town map from 《支那省别全志·广东省卷》 (1917). Shows the railway, 上大街, 下大街, 市場, 商務會, 警察署 and 停車場. Not a survey; no scale. Useful for street names and relative topology only."

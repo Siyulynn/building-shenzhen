@@ -1,0 +1,8 @@
+id: conflict.phase1.shennan.first_segment_limits
+subject: "Limits of the first surfaced Shennan section reported for 1980"
+claims:
+  - phase1.shennan.first_paved_segment_west
+  - phase1.shennan.first_paved_segment_archive_limits
+diagnosis: "Both accounts give 2.1 km and 7 m. The interview names the Caiwuwei–Shangbu reach. The archive retrospective mentions wider eastern and western extensions in the same description. The construction limits may refer to separate phases."
+resolution: {"design_note":"Use the shared dimensions as a scale comparator. Use Caiwuwei–Shangbu as a research corridor and defer a precise 1979–80 line to a dated map."}
+status: open

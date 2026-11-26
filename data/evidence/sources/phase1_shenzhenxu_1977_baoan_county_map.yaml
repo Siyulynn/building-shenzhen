@@ -1,0 +1,13 @@
+id: phase1_shenzhenxu_1977_baoan_county_map
+title: "宝安县地图（1977年）"
+issuer: "广东省测绘局、惠阳地区革委会、宝安县革委会"
+doc_date: "1977"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/1977_baoan_county_map.jpeg", sha256: "0af914370f82335a0254f4c3117ca2f23aca785a51fac0643d64b4c1b444b220" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "County map with a 深圳镇街道图 inset. The article calls it the closest county map to the founding of the city. Use for settlement pattern and regional context; the street inset duplicates the separate 1977 street sheet."

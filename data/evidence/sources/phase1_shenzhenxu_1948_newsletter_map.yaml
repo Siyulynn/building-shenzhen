@@ -1,0 +1,13 @@
+id: phase1_shenzhenxu_1948_newsletter_map
+title: "宝安县深圳墟图（《深圳通讯》第七期，1948年7月）"
+issuer: "《深圳通讯》 (Shenzhen Newsletter)"
+doc_date: "1948-07"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/1948_newsletter.jpeg", sha256: "3f068d2ea73123111a4f28e0f71f50aaa71421c504c97739c8f69625c4197297" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Detailed street plan published on the last page of 《深圳通讯（第七期）》 in July 1948. Shows 中山公園, 南塘村, 向南村, 上大街, 下大街, 深圳車站 and the surrounding lanes. The article calls it one of the earliest detailed street maps of 深圳墟. No scale or north arrow is visible in the copy."

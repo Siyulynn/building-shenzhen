@@ -1,0 +1,9 @@
+id: phase1_shenzhenxu_rail_map_slide
+title: "宝安县深圳墟图（标注版）"
+local_copy: { path: data/Shenzhenxu/Image_20261123114032_4_2.png, sha256: dd71eb4ac40f7a1bd9bb2ae846c801f33f4693f90ca987e3e0b0d2b76f22eb36 }
+retrieved: "2026-11-23"
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "The slide caption frames 1911–1937 and its overlay compares old and expanded market areas. The underlying map's survey date, scale, cartographer and original edition are unconfirmed."

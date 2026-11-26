@@ -1,0 +1,12 @@
+id: "phase1_power_szepta_2019"
+title: "70年峥嵘岁月：从星星点灯到霓虹闪耀"
+issuer: "深圳市电力行业协会 (feature first published in 南方电网报 and 深圳特区报)"
+published: {where: "深圳市电力行业协会网站, 党建信息", date: "2019-10-11"}
+url: "https://szepta.org.cn/dangjianxinxi/108.html"
+retrieved: "2026-11-24"
+local_copy: {path: "data/raw/sources/phase1_power_szepta_2019/page.html", sha256: "4726a6d2594fcd65d76c0ffff182b2d21bdf06348c204ec8cb97e04a6dae9b49"}
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: "Electric-power industry retrospective for the 70th anniversary. Gives the 1979 grid inventory, the 1980-onward >60% growth, the 1982 100 GWh threshold and the 25.8 MVA starting capacity. Its 1979 supply and consumption labels need the separate conflict record."

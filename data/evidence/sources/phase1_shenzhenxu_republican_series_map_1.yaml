@@ -1,0 +1,12 @@
+id: phase1_shenzhenxu_republican_series_map_1
+title: "民国系列地图中的深圳墟（其一）"
+issuer: "广东参谋本部陆地测量总局 / 广东军事委员会军令部 (series; sheet unknown)"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/republican_series_1.jpeg", sha256: "8bbc3eca7b1a1e04f507987a539f035412f6f39ac935cd5ac6d61f2d3f9cb9db" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Republican-era survey sheet with 深圳墟, 湖貝, 向西, 向南 and 塘尾. The red ellipse is an annotation added by the article, not map content. Sheet number 000202 is visible at top right; survey date and scale are not legible in this copy."

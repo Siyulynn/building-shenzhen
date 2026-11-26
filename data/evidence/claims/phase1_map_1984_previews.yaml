@@ -1,0 +1,85 @@
+- id: phase1.map.1984.preview_edition
+  source: phase1_1984_shenzhen_traffic_map_previews
+  locator: "Article, first two paragraphs; front and reverse overview captions"
+  quote: "1984年5月第一版 1984年6月第一次印刷"
+  summary: The host identifies a May 1984 edition, first printed in June, with a city map and bus stop table on the reverse.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.map.1984.dongmen_frontage
+  source: phase1_1984_shenzhen_traffic_map_previews
+  locator: "5-2.jpg, left half, across 解放路 from the theatre symbol"
+  quote: "博雅画廊；新安酒家；友谊商店；山珍楼海味酒家"
+  summary: The Dongmen detail puts Boya Gallery and Xin'an Restaurant south of Jiefang Road opposite the theatre block.
+  notes: The theatre label is clipped at left; compare the 1982 label and the 1984 photograph caption. This gives a frontage relationship, not a parcel, coordinate or opening date.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.map.1984.dongmen_other_labels
+  source: phase1_1984_shenzhen_traffic_map_previews
+  locator: "5-2.jpg, the Jiefang Road curve, market and streets south of it"
+  quote: "音乐茶座；艺园；新华通讯社特区分社；十字街口；蛇餐馆；东门旅店；人民旅店；市人民医院门诊部；邮局；电信局；新城酒家；佳丽影场；兴业大厦；市话大楼；金城大厦"
+  summary: These legible labels identify additional retail, civic and lodging leads near the Dongmen market. The two cut-off names at the right edge are unresolved.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.map.1984.caiwuwei_county_label
+  source: phase1_1984_shenzhen_traffic_map_previews
+  locator: "6.jpg, x≈100 y≈315, north of 解放路 and southwest of 市气象站"
+  quote: "县委"
+  summary: The Caiwuwei detail labels a county committee site on the north side of Jiefang Road.
+  notes: This complements the 1977 县革委 label. It does not establish continuity of the county committee in 1984 or locate every county office at the 1979 opening.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.map.1984.caiwuwei_grade_separation_unbuilt
+  source: phase1_1984_shenzhen_traffic_map_previews
+  locator: "6.jpg, x≈380 y≈490, corridor south of 解放路, at the railway and drainage crossings"
+  quote: "立体交叉（未建成）"
+  summary: The map explicitly depicts the Caiwuwei grade separation south of Jiefang Road as not completed.
+  notes: The edition postdates 24 January 1984. Use it as a negative check against drawing a finished interchange; neither the date of works nor the exact ramps or opening date is established here.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.map.1984.caiwuwei_other_labels
+  source: phase1_1984_shenzhen_traffic_map_previews
+  locator: "6.jpg, along 解放路 between 市气象站 and 和平路口 and south toward 人民体育场"
+  quote: "广州机电产品公司；湖北展销大楼；北方工业公司；喜相逢酒家；市中医院；南粤糖烟酒商店；美新酒家；西江旅店；飞鹏商场；华登宾馆；和平路口"
+  summary: The Caiwuwei detail names the hospital, nearby commerce, and Heping Road junction beside a circled route 4 symbol.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.map.1984.regional_river_topology
+  source: phase1_1984_shenzhen_traffic_map_previews
+  locator: "4-2.jpg, regional inset around the Shenzhen River and railway"
+  quote: "岗厦；皇岗；渔农村；罗芳；简头围；落马洲；米埔；古洞；上水；粉岭"
+  summary: The regional inset draws a hatched urban area north of the river and a rail corridor continuing south toward Sheung Shui and Fanling.
+  notes: Regional cartographic generalisation; 渔农村 is a separate label from 渔民村 in the Luohu core.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.map.1984.overview_comparison
+  source: phase1_1984_shenzhen_traffic_map_previews
+  locator: "3-2.jpg, 800×592 reverse overview, city panel and bus-stop table at left"
+  quote: "深圳市区图；汽车站名表"
+  summary: The overview gives the broad street pattern, contrasting block fills, a park and water graphic west of the old core, and route headings 1–11 in the margin.
+  notes: The legend and small type cannot be read reliably. Treat block colours, the park identity, and the striped basin as comparison leads, not independently dated land-use or engineering observations.
+  status: lead
+
+- id: phase1.boya.dongmen_history
+  source: phase1_boya_history_foshanplus
+  locator: "Founding paragraph and paragraph beginning 41年文化传承"
+  quote: "深圳博雅也历经了地址的数次搬迁，从最初的东门老街，到后来的深交所"
+  summary: The profile dates the gallery’s founding to 1980, names Dongmen as its first location and reports later moves and renaming.
+  notes: The 1983 book fair dates the organisation, not the specific building on the 1984 map.
+  status: sourced
+  extracted_by: ai:opencode
+
+- id: phase1.xinan.early_operation_and_rebuild
+  source: phase1_szlao_xinan_history
+  locator: "Sections 新安酒家的名字走入千家万户 and 新安酒家见证深圳的沧桑和变迁"
+  quote: "1983年，新安酒家重出江湖"
+  summary: The retrospective reports opening at Spring Festival 1961, reopening after renovation in 1983, and a later 1994–96 rebuild and reopening.
+  notes: This is a continuity lead for the Dongmen site at the January 1984 cutoff; the preview is the source for the frontage relation.
+  status: sourced
+  extracted_by: ai:opencode

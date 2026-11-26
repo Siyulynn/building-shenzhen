@@ -1,0 +1,6 @@
+id: "conflict.phase1.power.bureau_founding"
+subject: "When the Shenzhen power bureau was established and under what name"
+claims: ["phase1.power.bureau.founded.1979_08","phase1.power.bureau.renamed.1979"]
+diagnosis: "A 2019 industry-association feature dates 深圳供电局 to August 1979. A 2020 Nanfang Grid feature says the former Bao'an County supply company was renamed 深圳市供电公司 in 1979 and took the name 深圳供电局 the next year. The 1985 yearbook context of the 25.8 MVA start figure dates the bureau's formation to September 1979. The accounts may describe a legal renaming, the bureau's establishment, and the adoption of its name as separate milestones, or one may be a retrospective simplification."
+resolution: {"encyclopedia":"Describe the 1979 reorganisation and the 1980 name change only if the founding notice is found; until then, say 'from 1979' without a month.","anchor_date":"Not used as an event date in Phase 1."}
+status: "open"

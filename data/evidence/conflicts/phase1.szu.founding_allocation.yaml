@@ -1,0 +1,8 @@
+id: conflict.phase1.szu.founding_allocation
+subject: "Shenzhen University founding construction allocation"
+claims:
+  - phase1.szu.capital_decision.archive
+  - phase1.szu.capital_decision.retrospective
+diagnosis: "The dated September meeting entry says close to ¥100m. A later narrative says ¥50m. They may report different stages or coverage. Neither provides a disbursement schedule."
+resolution: {"design_note":"Keep the two figures with their stated scope. Use milestone commitment and staged payments as design choices until the capital appropriation and project accounts are available."}
+status: open

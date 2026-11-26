@@ -1,0 +1,20 @@
+id: conflict.phase1.yumin.villa_project_cost
+subject: Reported cost of the Yumin villa project
+claims:
+  - phase1.housing.yumin.house_project_cost.1983_02
+  - phase1.housing.yumin.building_outlay.1984_02
+diagnosis: >-
+  The February 1983 report gives 1,500,000 yuan as the total project cost and
+  says the collective handled the shells while households fitted out the
+  interiors. The February 1984 report says the village first put out 770,000
+  yuan for 35 villa buildings and a further 200,000-plus yuan for public works.
+  The two figures may describe different scopes (total project including
+  household work versus the collective's building outlay), different stages,
+  or a revised account. Neither article defines its accounting boundary.
+resolution:
+  design_note: >-
+    Keep both figures visible. Use 1,500,000 yuan only inside the 1983
+    article's own arithmetic and do not divide the 770,000 yuan by 35 as a
+    verified per-unit cost. Seek the project accounts or a dated cost table
+    that states what each figure covers.
+status: open

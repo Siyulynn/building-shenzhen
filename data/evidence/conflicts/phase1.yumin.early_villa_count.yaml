@@ -1,0 +1,24 @@
+id: conflict.phase1.yumin.early_villa_count
+subject: Number of villas in the early collective housing project at Yumin
+claims:
+  - phase1.housing.yumin.houses.1983_02
+  - phase1.housing.yumin.villas.1984_02
+  - phase1.housing.yumin.houses.gazetteer
+  - phase1.housing.yumin.villas.chinanews_2018
+diagnosis: >-
+  Two contemporary newspaper reports give 35 buildings: the February 1983
+  account says 35 villas standing and distinguishes gross floor from land
+  occupied, and the February 1984 account says the village built 35 villas,
+  one per household. Later accounts give 33: the gazetteer says 33 villas and
+  35 households, and a 2018 feature citing 《渔民村村史》 pairs 35 households
+  with 33 uniformly planned buildings. The repeated 35 households alongside
+  both 33 and 35 buildings points to a difference between the household count
+  and the building count, or to two buildings being counted or completed
+  differently, but no source states which. Reporting scope and date remain open.
+resolution:
+  design_note: >-
+    Use 35 only for arithmetic within the February 1983 report that gives its
+    floor area and project total. Keep both building counts visible in the
+    atlas. Do not force the illustrative rows to equal either count, and seek
+    the original project register or village history before choosing one.
+status: open

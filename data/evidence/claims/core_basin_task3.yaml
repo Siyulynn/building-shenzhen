@@ -1,0 +1,151 @@
+- id: core_basin.photo.dongmen.li_1985
+  source: core_basin_li_dongmen_gallery
+  locator: "开篇十字街口段；1985年东门组照及组照前段"
+  quote: "人民路和解放路交界处"
+  summary: "The photographer places his 1985 crossroads viewpoint at Renmin Road and Jiefang Road."
+  date: {"value":"1985","precision":"year"}
+  notes: "The same article illustrates streets and market life. This does not date the annotated local copy."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.photo.dongmen.1983
+  source: phase1_sz_place_gazetteer
+  locator: "上册 pp. 342–343, 东门老街, historical photo caption"
+  quote: "1983 年的东门老街。"
+  summary: "The city gazetteer captions this photograph as 1983 Dongmen Old Street."
+  date: {"value":"1983","precision":"year"}
+  notes: "No camera position or original holding is stated in the caption."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.photo.yumin.1981
+  source: phase1_yumin_water_bureau
+  locator: "Caption below the aerial photo before the 1992 section"
+  quote: "1981年的渔民村"
+  summary: "The Water Bureau labels this aerial as Yumin in 1981."
+  date: {"value":"1981","precision":"year"}
+  notes: "Publisher attribution. Original date, photographer, bearing and negative ID have not been independently corroborated."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.photo.yumin.1984
+  source: phase1_sz_place_gazetteer_lower
+  locator: "下册 pp. 740–741, 渔民村, first historical illustration"
+  quote: "1984年的渔民村。"
+  summary: "The gazetteer labels this aerial as Yumin in 1984."
+  date: {"value":"1984","precision":"year"}
+  notes: "No month or negative ID stated. Compare to the Water Bureau image before treating the two as different aerial exposures."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.luohu.bridge_parallel_deck
+  source: core_basin_luohu_bridge_interview
+  locator: "黄荣胜 interview, paragraph starting 罗湖口岸管理服务中心"
+  quote: "直到1981年，在铁路桥旁边兴建了一座人行桥"
+  summary: "Port staff date a parallel pedestrian bridge next to the railway bridge to 1981."
+  date: {"value":"1981","precision":"year"}
+  notes: >-
+    The same source distinguishes the 1985 double-deck crossing. The deck's position is now given by a separate
+    retrospective as 11 m east of the railway bridge (core_basin.luohu.bridge_parallel_deck_offset), and its
+    opening as 15 January 1981 by a photo caption (core_basin.luohu.pedestrian_bridge_opened_1981_01_15). Deck
+    width and approaches remain open.
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.guomao.site
+  source: phase1_sz_place_gazetteer_lower
+  locator: "国贸大厦, 地理位置"
+  quote: "人民南路3002号，人民南路与嘉宾路交会处东北侧"
+  summary: "The gazetteer places Guomao on the northeast side of the Renmin South Road and Jiabin Road junction."
+  notes: "Use the named site for search and placement control. The gazetteer address does not measure the January construction footprint."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.guoshang.site
+  source: core_basin_guoshang_archive
+  locator: "Opening paragraph, 国际商业大厦"
+  quote: "位于罗湖区嘉宾路3005号的国际商业大厦"
+  summary: "The city archive places the International Commercial Building at 3005 Jiabin Road."
+  notes: "Independent of the Guomao address and the January visit account. The accompanying exterior is dated 2005."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.guomao.slipform_trial
+  source: core_basin_szbaike_li_slipform
+  locator: "Paragraph beginning 1983年9月18日 and following account"
+  quote: "1983年9月18日晚上9点，我们开始了第四次滑模试滑"
+  summary: "Li Chuanfang dates the start of the successful fourth slipform trial to the evening of 18 September 1983."
+  date: {"value":"1983-09-18","precision":"day"}
+  notes: "Retrospective participant account. The adjacent worksite photo and January 1984 tower height are undated by this passage."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.photo.guomao.february_1984
+  source: core_basin_guomao_photo_gallery
+  locator: "Third photo, caption credited to 刘廷芳"
+  quote: "1984年2月,兴建中的国贸大厦"
+  summary: "The gallery captions Liu Tingfang's photograph of Guomao under construction to February 1984."
+  date: {"value":"1984-02","precision":"month"}
+  notes: "A later comparator for the January scene. Its capture day and camera position are open."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.photo.guomao.september_topping
+  source: core_basin_guomao_photo_gallery
+  locator: "Fifth photo, caption credited to 刘廷芳"
+  quote: "1984年9月4日，国贸大厦封顶"
+  summary: "The gallery labels Liu Tingfang's 4 September 1984 image as the Guomao topping-out."
+  date: {"value":"1984-09-04","precision":"day"}
+  notes: "The caption does not specify a component. The archive separately dates main-tower topping to April."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.photo.electronics.shennan
+  source: phase1_sz_place_gazetteer
+  locator: "上册 pp. 306–307, 深南大道 historical plates, east-to-west photograph"
+  quote: "从东向西看深南大道，右为施工中的电子大厦"
+  summary: "The gazetteer identifies an east-to-west Shennan photograph with the Electronics Building under construction on the right."
+  notes: "The caption dates it to the early 1980s at broad precision. It gives orientation and stage, with capture year and camera position open."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.photo.demery.visit_1980
+  source: core_basin_demery_photo_album
+  locator: "Album introduction and individual captions"
+  quote: 'I made my "first visit" to China on 1980 July 17.'
+  summary: "The photographer dates this Shenzhen cross-border tour to 17 July 1980."
+  date: {"value":"1980-07-17","precision":"day"}
+  notes: "Includes Dongmen streets and rail crossing, Lo Wu Bridge and its north approach. Use photographer captions where scan or upload metadata differ. The local mural frame match remains a lead."
+  status: sourced
+  extracted_by: "ai:codex-core-basin-task3"
+
+- id: core_basin.luohu.bridge_parallel_deck_offset
+  source: szbaike_2024_luohu_bridge
+  locator: "Paragraph beginning 改革开放后，往返罗湖桥的客流井喷"
+  quote: "1981年，在铁路桥东侧11米建起了一座专供旅客通关的人行桥，罗湖桥成了铁路桥和人行桥并行的口岸通道。"
+  summary: "A later history places the 1981 pedestrian deck 11 m east of the railway bridge, with the two running in parallel."
+  date: {"value":"1981","precision":"year"}
+  status: sourced
+  extracted_by: "ai:opencode-luohu-crossing-check"
+  notes: >-
+    Single source for the 11 m figure; the article cites no document and gives no measurement method. It does
+    agree with the port-staff interview, which says the deck was built "beside" the railway bridge
+    (core_basin.luohu.bridge_parallel_deck). Read 11 m as centre-line offset or clear gap, not established.
+    Deck width, approaches, and which bank the stair/ramp landed on remain open.
+
+- id: core_basin.luohu.pedestrian_bridge_opened_1981_01_15
+  source: phase1_2020_pengcheng_shiji_luohu
+  locator: "Photo caption repeated on the two opening views, mid-article"
+  quote: "1981年1月15日，中英合建的新罗湖行人桥新桥正式启用。"
+  summary: "A photo caption dates the opening of the jointly built new Lo Wu pedestrian bridge to 15 January 1981."
+  date: {"value":"1981-01-15","precision":"day"}
+  status: sourced
+  extracted_by: "ai:opencode-luohu-crossing-check"
+  notes: >-
+    The caption supplies the day; the running text of the same article only says 1981, and the 2024
+    port-staff interview also stops at the year. Two independent accounts agree on 1981, one on the day.
+    The caption calls the bridge 中英合建; no agreement or opening programme was seen. That this is the same
+    deck as the 11 m east structure is an inference: both are new pedestrian bridges dated 1981, but no source
+    names both together.
+
+

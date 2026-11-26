@@ -1,0 +1,59 @@
+- id: atlas.photo.guomao_renmin.caption_1985
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1554.html, title and caption, image 1759221268.jpg"
+  quote: "国贸段---深南东路，与人民路连接（1985）"
+  summary: "He Huangyou's catalogue identifies Shennan East at Renmin Road. Its text describes dense development in Luohu and the still-interrupted Shennan connection at the railway."
+  date: {value: "1985", precision: year}
+  notes: "Finished Guomao and its later neighbours are comparators only. The long axis is probably Shennan eastbound; the old low-rise fabric sits to the north and Guomao to the south. No camera fix."
+  status: sourced
+  extracted_by: "ai:opencode-shennan-review"
+
+- id: atlas.photo.huangbeiling_section.caption_1983
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1552.html, title, image 1759217786.jpg"
+  quote: "黄贝岭---深南东路起点连接沿河路（1983）"
+  summary: "The catalogue identifies the Huangbeiling end of Shennan East at Yanhe Road. A broad carriageway, village roofs, slab courts and open works share the frame."
+  date: {value: "1983", precision: year}
+  notes: "Likely looking toward the eastern hills along Shennan. The exact crossroads, road edge and order of occupation of visible blocks are not registered."
+  status: sourced
+  extracted_by: "ai:opencode-shennan-review"
+
+- id: atlas.photo.huaqiang_section.caption_1985
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1561.html, title and caption, image 1759221975.jpg"
+  quote: "华强北路口，西为华强大楼，东为赛格大楼、电子大厦。"
+  summary: "The caption places Huaqiang Building west of Huaqiang North and SEG and Electronics Building east of it. The photo appears to look north from the Shennan junction."
+  date: {value: "1985", precision: year}
+  notes: "The east-west landmark relationship guides approximate placement. The later buildings do not establish January 1984 massing."
+  status: sourced
+  extracted_by: "ai:opencode-shennan-review"
+
+- id: atlas.photo.hongling_section.caption_1985
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1557.html, title and caption, image 1759223082.jpg"
+  quote: "红岭段---深南东路，与红岭路连接（1985）"
+  summary: "The caption places the view at Shennan and Hongling Road and names Hongling Building, Jingdu Hotel foundations at lower right, the Grand Theatre and Lizhi Park."
+  date: {value: "1985", precision: year}
+  notes: "The park on the west side of Hongling supports a roughly northward camera. Construction stages and finished intersection shape are post-cutoff comparisons."
+  status: sourced
+  extracted_by: "ai:opencode-shennan-review"
+
+- id: atlas.photo.dachong_section.caption_1983
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1566.html, title and caption, image 1759225792.jpg"
+  quote: "此路段要跨越闻名的大沙河"
+  summary: "The catalogue identifies the Dachong reach at Hexi Road and names the Dasha River crossing. The road spans a rural valley of fields, ponds and grouped village buildings."
+  date: {value: "1983", precision: year}
+  notes: "The central river and transverse bridge support a likely up-valley view. The bridge footprint, historical channel and camera station remain unregistered."
+  status: sourced
+  extracted_by: "ai:opencode-shennan-review"
+
+- id: atlas.photo.yannan_section.caption_1985
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1559.html, title and caption, image 1759219073.jpg"
+  quote: "统建楼段---深南中路，与燕南路连接（1985）"
+  summary: "The catalogue gives Shennan Middle at Yannan Road and describes building works opposite the Electronics Building. Parallel finished slabs share the view with work sites."
+  date: {value: "1985", precision: year}
+  notes: "Looking west is a working interpretation based on the sides shown. The individual blocks and camera origin are unregistered. The photographed buildings and progress are not backdated."
+  status: sourced
+  extracted_by: "ai:opencode-shennan-review"

@@ -1,0 +1,332 @@
+# The 1981 Party/ government office block on 深南中路, its site, appearance and afterlife.
+# Research note: docs/research/municipal-government-building.md.
+# The building is not yet in the slice; these claims exist so a landmark, encyclopedia entry or walkable route
+# can be built from evidence later.
+
+- id: phase1.site.municipal_government.1981_move
+  source: phase1_sparktour_shenzhen_1980_2025
+  locator: "荔枝公园 section, block quote beginning 1981年年底"
+  quote: "1981年年底，市委、市政府机关搬到上埗岭上新建的办公楼。"
+  summary: At the end of 1981 the Party committee and municipal government organs moved into a newly built office block on 上埗岭.
+  date: { value: "1981", precision: year }
+  geography: "Shangbu / Tongxinling area, Futian"
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    The blog reproduces a memoir passage without a page reference; the underlying 《文化深圳》 article was not
+    opened. 1981年年底 means late December, but the date is kept at year precision. 上埗岭 is the memoir's name
+    for the rise; it is not yet matched to a gazetteer entry or a 1982 map. The move date and the move itself
+    need a second, independent source before use as an anchor date.
+
+- id: phase1.site.municipal_government.1981_form
+  source: phase1_sparktour_shenzhen_1980_2025
+  locator: "荔枝公园 section, block quote, second sentence"
+  quote: "党政机关都在这座还没有电梯更没有空调、高6层的楼里。"
+  summary: The new block housed both Party and government organs in one six-storey building with no lift and no air conditioning.
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    Six storeys agrees with the 1984 film frame (phase1.photo.1984.municipal_government_form) and with the slab
+    visible behind the gate in phase1_2010_commons_sz_committee_gate. No plan, floor area or facade dimensions
+    are given.
+
+- id: phase1.site.municipal_government.1981_dorms
+  source: phase1_sparktour_shenzhen_1980_2025
+  locator: "荔枝公园 section, block quote, third and fourth sentences"
+  quote: "干部宿舍建在办公楼后面的通心岭（现“通新岭”）上。最初只有5栋6层的水泥砖结构宿舍楼"
+  summary: The cadre dormitories stood behind the office block at Tongxinling (now 通新岭) and began with five six-storey cement-brick blocks.
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    "Behind" is relative to the office, i.e. north up the slope towards 红荔路. Five blocks is the initial
+    estate, not its later extent. The same passage says the blocks were shared by several cadre households and
+    that the area had frequent power and water cuts.
+
+- id: phase1.site.municipal_government.address_2017
+  source: sz_gov_2017_recruitment_notice
+  locator: "三、选拔办法 (三) 接受推荐、报名和资格初审, final sentence of the 报名方式 paragraph"
+  quote: "地址：深圳市深南中路1008号深圳市委大院前楼420室。"
+  summary: A 2017 municipal notice gives the Party committee compound address as 1008 Shennan Middle Road and places an office in its front building (前楼).
+  geography: "North side of 深南中路, 通新岭社区, 华强北街道, 福田区"
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    A 2017 address, not a 1981 one. It fixes the compound on 深南中路 and shows that a 前楼 existed in 2017; it
+    does not prove that the 1981 block is that 前楼. Later listings (Wikipedia's 市委 article, the 2024
+    historic-building entry for the 《艰苦岁月》 sculpture) give 1018号 for the same gate; the 1008/1018 difference
+    is unresolved and is probably a renumbering or a frontage/compound distinction.
+
+- id: phase1.photo.1981.municipal_government_construction
+  source: phase1_2020_guangdong_release_40_years
+  locator: "Photo caption after the 黄玲 quotation, mid-article"
+  quote: "1981年建设中的深圳市委大楼。周顺斌 摄 深圳方志馆 供图"
+  summary: An archival photograph is captioned as the Shenzhen Party committee building under construction in 1981.
+  date: { value: "1981", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    Caption only. The image was not inspected, the caption gives no street or district, and the negative is
+    held by 深圳方志馆 without a published archive ID. Whether this is the same block as the 1984 film frame is an
+    inference, not something the caption says.
+
+- id: phase1.photo.1986.municipal_government_ruziniu
+  source: phase1_2020_guangdong_release_40_years
+  locator: "Photo caption immediately after the 1981 caption"
+  quote: "1986年，深圳市委办公大楼和楼前的雕塑孺子牛。唐桂生 摄 深圳方志馆 供图"
+  summary: A 1986 photograph shows the Party committee office building with the 孺子牛 sculpture in front of it.
+  date: { value: "1986", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    Identifies the building in 1986 as the 市委办公大楼 and puts the sculpture in front of it. It does not name
+    the street; the sculpture's later documented position at the 深南中路 gate is what ties the two together.
+
+- id: phase1.photo.1984.municipal_government_form
+  source: phase1_1984_shenzhen_bilibili_remake
+  locator: "00:40-00:46, frame 06_1984_municipal_gov.jpg"
+  quote: "1984年深圳市政府大楼"
+  summary: >-
+    The 1984 frame shows a long six-storey slab with continuous horizontal window bands and a flat roof, a lower
+    two-storey wing at the right, a wide flat entrance canopy carried on columns over the drive, and a low wall
+    with shrubs and flower beds in front.
+  date: { value: "1984", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    An inspection of the green-tinted film frame, not a measured drawing. The wide horizontal element may be the
+    compound gate rather than a canopy attached to the block; the frame cannot settle that. Cars and a van are
+    parked in the forecourt. The same frame is the on-screen comparison with the 2020 市民中心.
+
+- id: phase1.event.municipal_government.2004_move
+  source: phase1_2004_sz_gov_move_civic_center
+  locator: "Paragraph beginning 深南中路的深圳市政府"
+  quote: "深南中路的深圳市政府，这里是深圳市委、市政府领导以及人事局、纪委等部门的办公点。“大搬家”之后，这里将作为深圳市委的办公地，深圳市委、市政府合署办公的历史将结束。"
+  summary: >-
+    In May 2004 the municipal bureaus began moving out of the 一办 and 二办 compounds on 深南中路 into the Civic
+    Center, ending joint Party–government occupancy; the 深南中路 site remained the Party committee's office.
+  date: { value: "2004-05-17", precision: day }
+  geography: "深南中路, Futian"
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    Contemporaneous press report (中新网, citing 《广州日报》). It dates the start of the move; the Civic Center
+    opened on 31 May 2004. The same article calls the old offices "20多年办公历史", consistent with a 1981-82
+    build but not a construction date. It also records that the 拓荒牛 statue stayed at the old gate.
+
+- id: phase1.site.municipal_government.gate_coords_2010
+  source: phase1_2010_commons_sz_committee_gate
+  locator: "Commons file page wikitext, {{Location}} template under the information box"
+  quote: "{{Location|22|32|36.46|N|114|5|36.49|E|scale:3125_region:CN}}"
+  value_raw: "22°32′36.46″N, 114°5′36.49″E (first photo); 22.543477, 114.093103 (second photo)"
+  value: "22.5435 N, 114.0931-114.0935 E"
+  summary: >-
+    The camera positions of two dated 2010 photographs of the 市委 gate fall on 深南中路 at about 22.5435 N,
+    114.0931–114.0935 E, fixing the frontage to the north side just west of 荔枝公园.
+  geography: "深南中路, 通新岭社区, 福田区"
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    These are camera positions on the south side of the road, looking north at the gate; the gate itself is
+    20-30 m further north. WGS84 as published by Commons, not GCJ-02. The second photo's template is decimal
+    ({{Location|22.543477|114.093103|source:Panoramio}}). The coordinates confirm the frontage; they do not give
+    the office block's footprint.
+
+- id: phase1.site.municipal_government.1981_location
+  origin: "inference from phase1.site.municipal_government.1981_move, phase1.site.municipal_government.address_2017 and present-day street geometry"
+  summary: >-
+    The 1981 block probably stood in the 市委大院 on the north side of 深南中路, between 上步中路 and the west edge
+    of 荔枝公园, with the 通新岭 dormitories on the slope directly north.
+  geography: "Approx. 22.544 N, 114.093 E; 通新岭社区, 华强北街道, 福田区"
+  status: lead
+  notes: >-
+    The chain: the memoir puts the office on 上埗岭 with dorms behind at 通心岭; the 2017 notice puts the 市委大院
+    at 深南中路1008号; OSM puts 通新岭社区 between 深南中路 (south), 红荔路 (north), 上步中路 (west) and 红岭中路
+    (east), with 荔枝公园 filling its eastern half; the 2010 gate photographs are geotagged on the opposite side
+    of 深南中路 at about 22.5435 N, 114.0931-114.0935 E; and the 1982 city map labels 深圳市人民政府 in the same
+    block with 市委宿舍 north and 上步岭 east (phase1.map.1982.municipal_government_compound). The compound is
+    therefore fixed; the block's surveyed footprint and floor plan remain open. The existing 1984 video claim's
+    geography gloss, "old site on Shennan Middle Road", is unsourced and should be replaced by this chain.
+
+- id: phase1.site.municipal_government.1981_survival
+  source: phase1_2010_commons_sz_committee_gate
+  locator: "Whole frame, looking north from 深南中路"
+  summary: >-
+    The six-storey block may survive as the 前楼 of the 市委大院, visible behind the gate in a 2010 photograph.
+  status: lead
+  notes: >-
+    The photograph shows a six-storey white slab with a top window band behind the gate and the 孺子牛 sculpture,
+    but trees hide the lower floors and the image cannot be dated back to the 1980s. A 2024 street-level post,
+    seen only as a search summary (tier E), describes the compound as having "简简单单的几座低层办公楼". Needs a
+    dated elevation, a site plan, or a demolition/renovation record.
+
+- id: phase1.map.1982.municipal_government_compound
+  source: phase1_1982_shenzhen_city_map
+  locator: "Centre of the sheet, east of 上步路 and north of 深南路"
+  quote: "深圳市人民政府"
+  summary: >-
+    The 1982 city map labels 深圳市人民政府 on the north side of 深南路, east of 上步路, with 市委宿舍 to its north
+    and 上步岭 to its east, and draws a building block inside the compound.
+  geography: "上步, 福田"
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    Read from the 2000x1500 photograph of the paper map. The map's 1982 date is the reproducing article's, not an
+    imprint; no scale, legend or imprint is visible. The sheet also labels 科学馆 south of the compound, which may
+    still have been a planned facility in 1982, so it may mix built and proposed features: treat the blocks as
+    schematic, not as a survey of completed work. Combined with phase1.site.municipal_government.address_2017 and
+    gate_coords_2010, the labels fix the compound's relative position without a georeferenced transform.
+
+- id: phase1.map.1982.shangbuling
+  source: phase1_1982_shenzhen_city_map
+  locator: "Vertical label immediately east of the 深圳市人民政府 block"
+  quote: "上步岭"
+  summary: "The 1982 city map names the hill immediately east of the government compound 上步岭."
+  geography: "上步, 福田"
+  date: { value: "1982", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    Corroborates the memoir's 上埗岭 (phase1.site.municipal_government.1981_move) as a real local name and places
+    it east of the compound, not under it. The compound may sit on the hill's western slope; the map does not say.
+
+- id: phase1.site.municipal_government.site_choice
+  source: szbaike_2021_zhang_xunfu
+  locator: "Passage beginning 第三件事，是要确定深圳市委、市府的所在地"
+  quote: "后来我们看中一块地方，那里有很多荔枝树，还有一片低洼地。我们后来把这块凹地改为湖，就在荔枝园的旁边建设深圳市委、市政府的办公大楼。"
+  summary: >-
+    Zhang Xunfu recalled that the first municipal standing committee chose the office site beside a lychee orchard,
+    with a low-lying hollow that was turned into a lake.
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    A first-person retrospective. "荔枝园" is the lychee orchard that became 荔枝公园; the lake is the park lake.
+    This is the earliest account of the siting decision and matches the 1982 map's position. It does not give a
+    street or a construction date for the office block.
+
+- id: phase1.site.municipal_government.occupation_early_1981
+  source: szbaike_2021_zhang_xunfu
+  locator: "Final sentence of the same passage"
+  quote: "1979年5月就开始动工建设，到1981年初，就开始住人和办公了。"
+  summary: >-
+    Zhang Xunfu recalled that work on the cadre housing began in May 1979 and that people were living and working
+    there by early 1981.
+  date: { value: "1981", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    The sentence follows the office-site passage but its subject is the 科技干部住宅 (cadre housing). "办公" may
+    mean offices in the same compound, not the six-storey office block. It sits in tension with the memoir quoted
+    by the blog, which dates the Party/government move to the end of 1981. Keep both; a person should decide
+    whether the office block opened early or late in 1981, or whether the housing and offices opened at different
+    times.
+
+- id: phase1.site.municipal_government.mast_building_end_1981
+  source: szbaike_2022_qiupanlian_newspaper
+  locator: "Paragraph beginning 记得大约在1981年底"
+  quote: "记得大约在1981年底，《深圳特区报》的筹备工作正紧锣密鼓地进行着，社址拟选择在市委大楼东侧200米左右的地段。那里离市委近，又靠深南大道"
+  summary: >-
+    A newspaper memoir places the 市委大楼 at the end of 1981, with the paper's planned site about 200 m to its
+    east, near 深南大道.
+  date: { value: "1981", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    Independent of the blog's memoir and of the 2017 address. It confirms that the 市委大楼 existed by late 1981,
+    that it was near 深南大道, and that there was open land 200 m east of it. "大约" keeps the date approximate.
+
+- id: phase1.observation.kh9_1980.municipal_site_unbuilt
+  source: kh9_1980_09_11_a048
+  locator: "Segment c, r8 reduction; crop UTM 50N E 199.8-202.2 km, N 2,494.7-2,497.1 km, rendered at 3 m and 1.5 m with the c_georef.json inverse model"
+  summary: >-
+    The 1980-09-11 KH-9 frame shows the inferred 市委大院 block as cultivation, trees and small structures, with
+    深南路 along its south edge and no large building or cleared construction pad.
+  geography: "上步, 福田; approx. 22.543-22.546 N, 114.091-114.094 E"
+  date: { value: "1980-09-11", precision: day }
+  status: lead
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    AI reading of the registered frame, not a human check. The model's held-out RMSE is 27.8 m and the reduction
+    is 7.5 m per pixel, so a 100 m building would be about 13 px; the crop can rule out a large completed block,
+    not small works. Rendered crops: data/raw/sources/kh9_1980_09_11_a048/reduced/municipal_site_1980_wide.png
+    and _close.png (git-ignored; regenerate with the locator's parameters). This is consistent with construction
+    starting in 1981 and is the basis for saying the site was empty in September 1980.
+
+# --- Other readings from the same blog post -------------------------------------------------
+
+- id: phase1.landcover.1980.futian_center
+  source: phase1_sparktour_shenzhen_1980_2025
+  locator: "福田中心区 section, first paragraph"
+  quote: "1980年的福田中心区全是水田和鱼塘，大型的现代建设只有深南大道。"
+  summary: The blog reads the 1980 frame as showing paddy fields and fish ponds across today's Futian central district, with 深南大道 the only large modern work.
+  geography: "Futian central district"
+  date: { value: "1980", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    The blogger's reading of the georeferenced 1980-09-11 KH-9 frame, not a land-cover classification. Our copy
+    of that frame (kh9_1980_09_11_f047) is noted as cloudy over Futian and Luohu, so the blog's alignment and
+    band choice need checking before this becomes a land-cover claim.
+
+- id: phase1.landcover.1980.huaqiangbei_textile_building
+  source: phase1_sparktour_shenzhen_1980_2025
+  locator: "华强北 section, first paragraph"
+  quote: "1980年时的华强北西侧已经做好了土地平整，准备建设深纺大厦。深纺大厦至今依然存在。"
+  summary: By 1980 the west side of 华强北 had been graded for the Shenzhen Textile Building (深纺大厦).
+  geography: "华强北, Futian"
+  date: { value: "1980", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    The blogger's reading of the frame plus local knowledge. The building's construction and completion dates
+    are not given and still need a source; "still stands" describes 2025, not 1980.
+
+- id: phase1.landcover.1980.lychee_park_hill
+  source: phase1_sparktour_shenzhen_1980_2025
+  locator: "荔枝公园 section, second paragraph"
+  quote: "中间的山包上可以看到五栋楼房，根据一些回忆录文章，那几栋楼房可能就是现在通新岭小区的其中几栋住宅。"
+  summary: The blog suggests that five blocks on a hill inside today's 荔枝公园 block in the 1980 frame may be some of the 通新岭 housing.
+  geography: "荔枝公园 / 通新岭, Futian"
+  date: { value: "1980", precision: year }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    Hedged in the source ("可能"). If true, it dates part of the 通新岭 estate to before September 1980, which
+    would sit awkwardly with the memoir's "initially only five blocks" built for the 1981 move; the two need to
+    be reconciled before either is used for building dates.
+
+- id: phase1.site.dongmen_commercial_street.1990s
+  source: phase1_sparktour_shenzhen_1980_2025
+  locator: "东门 section, first paragraph"
+  quote: "东门一带的村落现在已经变成了写字楼和商业街（商业街大约是1990年初建设的）。"
+  summary: The blog dates the Dongmen commercial street to about the early 1990s, replacing villages still visible in 1980.
+  geography: "东门, Luohu"
+  date: { value: "1990", precision: approx }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: "Approximate in the source (“大约”). Use only as a lead for the redevelopment date."
+
+- id: phase1.landcover.2000s.houhai_reclamation
+  source: phase1_sparktour_shenzhen_1980_2025
+  locator: "华侨城 section, second paragraph"
+  quote: "欢乐海岸和超级总部都是2000年代初修建滨海大道时填海出来的部分，这一片在1980年的地图上还是深圳湾的一部分。"
+  summary: The blog attributes 欢乐海岸 and the Super Headquarters land to reclamation during the early-2000s 滨海大道 works; in 1980 the area was part of Shenzhen Bay.
+  geography: "华侨城 / 后海 coast, Nanshan"
+  date: { value: "2000", precision: approx }
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    Applies only to the two named sites. Do not extend it to 前海 or 大铲湾, which the post mentions separately
+    without dates.
+
+- id: phase1.site.xiangmihu.reservoir_name
+  source: phase1_sparktour_shenzhen_1980_2025
+  locator: "香蜜湖 section, first paragraph"
+  quote: "香蜜湖曾经的名字叫香茅场水库"
+  summary: 香蜜湖 was formerly 香茅场水库 and still worked as a reservoir in 1980, with a larger water surface than today.
+  geography: "香蜜湖, Futian"
+  status: sourced
+  extracted_by: ai:opencode-municipal-government-research
+  notes: >-
+    The post cites Wikipedia for the former name. The 1980 extent is the blogger's reading of the frame; the
+    resort's construction date is not given here.

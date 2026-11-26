@@ -1,16 +1,14 @@
-# Leads for the slice's precedents (docs/design/systems/phase1-slice.md §5.3, §5.4): historical zones whose names
-# can attach to the player's zones, and the named things the emergence engine may use later. All leads: no source
-# page has been read for these statements. No dates or sizes are recorded here.
+# Claims for the slice's precedents (docs/design/systems/phase1-slice.md §5.3, §5.4).
+# Existence and chronology have sources. Playable placements still depend on present-day proxies.
 
 - id: precedent.zone.shangbu_industrial.exists
-  origin: design_brief
+  source: phase1_1985_industrial_buildings
+  locator: "p. 363, 工业厂房建设, opening paragraph"
+  quote: "上步和八卦岭工业区"
   summary: The Shangbu Industrial Zone (上步工业区) was an industrial zone in the early SEZ.
-  status: lead
-  notes: >-
-    Named in the design brief (2026-11-23). The research batch in progress names it on p. 363 of source
-    phase1_1985_industrial_buildings (claims phase1.industry.shangbu.operating_or_trial_plants.1984 and
-    phase1.housing.shangbu_bagualing.completed_industrial_floor.1984). Once that batch is committed, point source and
-    locator at the page and capture a quote naming the zone. Its start date and extent are open.
+  status: sourced
+  extracted_by: ai:codex-phase1-zoning
+  notes: "See the September 1982 municipal decision and the July 1983 completion of No. 1 factory. The period footprint is open."
 - id: precedent.zone.shangbu_industrial.location
   source: osm_shenzhen_places
   locator: "way 588326736 (上步工业区, landuse=commercial), centre"
@@ -19,18 +17,22 @@
   notes: Present-day position only. The template's 6 × 6 cell square around it is a placeholder footprint.
 
 - id: precedent.zone.bagualing_industrial.exists
-  origin: design_brief
+  source: phase1_1985_industrial_buildings
+  locator: "p. 363, 工业厂房建设, developer practices item 1"
+  quote: "八卦岭工业区"
   summary: The Bagualing Industrial Zone (八卦岭工业区) was an industrial zone in the early SEZ.
-  status: lead
-  notes: >-
-    Named in the design brief (2026-11-23), and with Shangbu on p. 363 of phase1_1985_industrial_buildings in the research
-    batch in progress. Its location is not in the store (the OSM export's query did not ask for it).
+  status: sourced
+  extracted_by: ai:codex-phase1-zoning
+  notes: "The yearbook reports underground works in 1983. The gazetteer gives a modern street envelope in Yuanling and dates construction to October 1983."
 
 - id: precedent.zone.shuibei_industrial.exists
-  origin: design_brief
+  source: phase1_sz_place_gazetteer
+  locator: "p. 154, 水贝工业区, overview and name-origin entry"
+  quote: "深圳最早建立的工业区之一"
   summary: The Shuibei Industrial Zone (水贝工业区) was one of Shenzhen's early industrial zones.
-  status: lead
-  notes: Named in the design brief (2026-11-23) as an early industrial zone. No source opened; start date and extent are open.
+  status: sourced
+  extracted_by: ai:codex-phase1-zoning
+  notes: "The gazetteer identifies the developer as 特发集团. The September 1982 proposal has a separate source. Construction, occupation and period extent remain open."
 - id: precedent.zone.shuibei_industrial.location
   source: osm_shenzhen_places
   locator: "node 13019007378 (水贝社区, place=quarter)"
@@ -38,16 +40,24 @@
   status: lead
   notes: >-
     A second 水贝 point (node 1689942217) falls in slice area 6 rather than 1, and OSM's present-day 水贝石化工业区
-    polygon carries a different name. Which, if any, matches the historical zone is open.
+    polygon carries a different name. The gazetteer points to Cuizhu in area 1 and gives the modern street envelope.
+    The quarter point remains a placeholder for the period zone.
 
 - id: precedent.landmark.wanjia_first_store
-  origin: design_brief
-  summary: The first Wanjia supermarket (万佳) opened in Shenzhen, possibly in or near Shangbu.
-  status: lead
-  notes: An example of named emergence from the design brief. Its date and place are not in the store; whether it falls inside 1979–83 is the first thing to check (§5.4).
+  source: phase1_cr_vanguard_history
+  locator: "Opening retail history, discussion of the first store and mainland expansion"
+  quote: "1992年初，华润超市把超级市场这一全新物种开到了深圳"
+  summary: The China Resources supermarket line that became part of CR Vanguard reached Shenzhen in 1992.
+  date: { value: "1992", precision: year }
+  status: sourced
+  extracted_by: ai:codex-phase1-zoning
+  notes: "The original lead conflated 华润万家 and 万佳百货. The latter's separate Huaqiangbei branch opened in 1994. Both lines are outside the slice."
 - id: precedent.cluster.huaqiangbei_electronics
-  source: phase1_shangbu_huaqiang_history
-  locator: "title and opening section"
-  summary: The Huaqiangbei electronics complex grew from the Shangbu industrial area into an electronics street.
-  status: lead
-  notes: An example of named emergence from the design brief. When the market or complex formed is open; the source's section 深圳电子工业肇启 may name in-window plants.
+  source: phase1_huaqiangbei_market_history
+  locator: "华强北的由来, passage dating the opening of the component market"
+  quote: "1988年3月28日"
+  summary: The account dates the opening of the SEG electronics components market to March 1988.
+  date: { value: "1988-03", precision: month }
+  status: sourced
+  extracted_by: ai:codex-phase1-zoning
+  notes: "The market is distinct from the 1979–83 electronics manufacturing concentration and the Electronics Building."

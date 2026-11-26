@@ -1,0 +1,12 @@
+id: phase1_shenzhenxu_xinan_garrison_map
+title: "新安县水陆塘汛舆图之深圳墟汛"
+issuer: "Unknown Qing garrison chart"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/xinan_water_land_garrison.jpeg", sha256: "2da27db105c1dfe7f55fb0dfb69df5e191b60a32b042f918639b1e579487b457" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Garrison chart compiled before Jiaqing 25 (1820). Shows 深圳墟 and 深圳墟汛 with a text block on the garrison. A British Museum stamp is visible on the photographed page. The image is a book-page photograph, not a flat scan; page curvature and colour cast limit tracing."

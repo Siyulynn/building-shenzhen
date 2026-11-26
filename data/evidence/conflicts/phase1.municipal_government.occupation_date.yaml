@@ -1,0 +1,17 @@
+id: "conflict.phase1.municipal_government.occupation_date"
+subject: "When the 1981 市委大院 complex was occupied (office block vs cadre housing)"
+claims:
+  - "phase1.site.municipal_government.1981_move"
+  - "phase1.site.municipal_government.occupation_early_1981"
+diagnosis: >-
+  Probably not the same subject. The blog's memoir dates the Party and government organs' move into the new
+  office block to the end of 1981. Zhang Xunfu's sentence dates the cadre housing from May 1979 and says people
+  were living and working there by early 1981; its subject is the 科技干部住宅, and "办公" may mean offices in
+  the same compound rather than the six-storey block. A 1981 photo caption separately shows the 市委大楼 still
+  under construction during 1981. The sources may therefore describe housing first and the office block later in
+  the same year.
+resolution:
+  calibration: "No date used; the building is not in the slice."
+  encyclopedia: "Say 'built in 1981', give the housing start (May 1979) and the late-1981 move separately, and do not present either as the office block's completion day."
+  route_building: "No effect until the block is modelled."
+status: open

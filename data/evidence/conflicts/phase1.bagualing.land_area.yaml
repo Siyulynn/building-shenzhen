@@ -1,0 +1,9 @@
+id: conflict.phase1.bagualing.land_area
+subject: Reported land area of Bagualing Industrial Zone
+claims:
+  - phase1.zoning.bagualing.area_period
+  - phase1.zoning.bagualing.area_gazetteer
+diagnosis: The 1985 yearbook gives 1.08 km² for the development project and the later place-name gazetteer gives 1.06 km² for the named zone. Measurement dates and boundaries differ or may differ.
+resolution:
+  design_note: Use the period figure as a project scale reference. Use the later road envelope as a search aid. Use surveyed period geometry for a playable template and preserve the two figures separately.
+status: open

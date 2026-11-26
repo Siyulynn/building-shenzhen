@@ -1,0 +1,8 @@
+id: conflict.phase1.culture.eight_programme_cost
+subject: "Reported investment scale for the Eight Major Cultural Facilities"
+claims:
+  - phase1.culture.capital_programme.yearbook
+  - phase1.culture.capital_programme.hu
+diagnosis: "The 1985 yearbook reports a ¥160m three-year plan from 1982. Hu Hongxia gives ¥700m with an unspecified period and a differing list. The plans and actual ledger require reconciliation."
+resolution: {"design_note":"Use the ¥160m figure as the period programme estimate. Keep the ¥700m retrospective figure out of the cost table."}
+status: open

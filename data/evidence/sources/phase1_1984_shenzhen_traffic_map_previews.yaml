@@ -1,0 +1,19 @@
+id: phase1_1984_shenzhen_traffic_map_previews
+title: 深圳最新交通游览图（1984年第一版，公开预览）
+issuer: 广东省地图出版社
+doc_date: "1984-05"
+published: { where: 历史地图网, date: "2024-03-01" }
+url: http://www.txlzp.com/ditu/12126.html
+retrieved: "2026-11-25"
+local_copy:
+  path: data/raw/sources/phase1_1984_shenzhen_traffic_map_previews/back_overview.jpg
+  sha256: d274495c5e0a609c5a35606c6b92725387f2c800bfcaf94e96503557ee3b1d13
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: >-
+  Public previews only: front and back overviews (2-2.jpg, 3-2.jpg), regional detail (4-2.jpg),
+  Dongmen detail (5-2.jpg), and Caiwuwei detail (6.jpg), under /wp-content/uploads/2024/03/.
+  The host identifies the edition as May 1984 and first printing as June 1984; the content
+  survey date is unknown. The full-sheet scan advertised by the host was not inspected.

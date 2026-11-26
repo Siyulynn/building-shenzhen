@@ -9,6 +9,15 @@
     that is land now (fishponds and the reservoir). The layer's water and pond classes rest on it.
   status: lead
   extracted_by: ai:phase1-r8a-landcover
+- id: phase1.map.kh9_1977
+  source: kh9_1977_12_03_a010
+  locator: "D3C1213-400953A010 segment c, 1977-12-03; pipeline/m1c_kh9_1977.py registration and validity mask"
+  summary: >-
+    Segment c is a dated pre-opening comparison for settlement, fields and water.
+    Its alignment is relative to the September 1980 mosaic, and unsupported pixels
+    cannot establish presence or absence.
+  status: lead
+  extracted_by: ai:phase1-r8a-precision
   notes: >-
     Automatic Otsu threshold at 60 m with no hand check; small fishponds below the pixel size are missed, and hill
     shadow reads as water above about 50 m (landsat1979.json caveats). The audit found water and pond at 70-75%

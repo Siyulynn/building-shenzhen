@@ -1,0 +1,12 @@
+id: phase1_shenzhenxu_qianlong_coastal_defence_map
+title: "广东海防图（乾隆）"
+issuer: "Unknown Qing coastal-defence chart"
+published: { where: "Reproduced in 土生菌, 土生土长深圳人, 《分享丨一些老旧地图里的深圳墟（镇）》, 2025-01-20", date: "2025-01-20" }
+url: "https://mp.weixin.qq.com/s/ZqEgR5u4JlU6NoVR8dWdow"
+retrieved: "2026-11-23"
+local_copy: { path: "data/Shenzhenxu/maps/qianlong_guangdong_coastal_defence.png", sha256: "3b637a2bf752bd9baf6aa198a85e60c73b53f7c76cb9deb96f2150819fa43978" }
+tier: D
+language: zh-Hans
+reuse: reference_only
+access: open
+notes: "Qianlong-era Guangdong coastal-defence chart. The article calls it the earliest surviving map recording the name 深圳墟. The extract labels 深圳墟 among hills, a river and the coast. Original chart, holding and sheet number are not identified in the copy. No overlay marks."

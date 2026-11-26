@@ -1,0 +1,22 @@
+id: "phase1_1982_shenzhen_city_map"
+title: "深圳市区图（1982年，汤奔日藏，唐桂生文章翻拍）"
+issuer: "Publisher not identified; paper map from the 汤奔日 collection, photographed in 唐桂生《为一张20多年被误导的深圳老照片正名》"
+doc_date: "1982"
+published: { where: "美篇 (meipian.cn/3d81eeji)", date: "2021-01-16" }
+url: "https://www.meipian.cn/3d81eeji"
+retrieved: "2026-11-25"
+local_copy:
+  path: "data/raw/sources/phase1_1982_shenzhen_city_map/map_1982.jpg"
+  sha256: "511e5a8a278ec5260e2e4e6a38c660ec8f51d9d5a8588d163511ee8bf14a27d5"
+tier: "D"
+language: "zh-Hans"
+reuse: "reference_only"
+access: "open"
+notes: >-
+  A 2000x1500 phone photograph of a folded paper city map, taken at a slight angle, reproduced in a 2021
+  photo-identification article. The "1982" date is the article caption's, not an imprint: no publisher, scale,
+  survey date or legend is visible in the photograph. It is a city map that labels streets, villages, factories
+  and public buildings; because it also labels the 科学馆 (which may still have been planned in 1982), it may mix
+  built and proposed features. Read it as a period map for relative positions, not as a survey of completed work.
+  The paper original is not in an archive we have used; if one is found, this becomes a tier-B period map. Read
+  from the HEIC original; the JPEG on the article is a smaller copy.

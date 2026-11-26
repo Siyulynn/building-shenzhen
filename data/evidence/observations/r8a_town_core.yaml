@@ -1,0 +1,15 @@
+# Context only: naming mask for the raster-first R8a candidate. These are grid
+# edge coordinates (column, row), not a surveyed 1979 boundary. A cell still
+# needs raster evidence of built cover. The county-office/village mix is unresolved.
+status: lead
+coordinate_system: slice_grid_cell_edges
+reference: kh9_1977_12_03_a010
+locator: "A010/c, market blocks east of the main railway and rail approach; see phase1-landcover.md"
+envelopes:
+  - name: { zh: 深圳墟核心, en: Shenzhenxu core }
+    claims: [site.shenzhen_market_town.exists_1979, phase1.map.shenzhenxu_refs]
+    ring: [[384, 375], [386, 372], [389, 372], [391, 374], [390, 378], [386, 379], [384, 377], [384, 375]]
+  - name: { zh: 深圳站站场, en: Shenzhen station yard }
+    claims: [site.shenzhen_station.exists_1979]
+    # Round 4: the south edge follows the September 1980 yard envelope (rows 387.6-395.4), not the A010 coverage edge
+    ring: [[384, 387], [386, 387], [387, 396], [385, 396], [384, 387]]

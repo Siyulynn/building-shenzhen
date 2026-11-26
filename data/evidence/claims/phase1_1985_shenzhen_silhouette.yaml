@@ -1,0 +1,73 @@
+# Catalogue of the 1985 Shenzhen silhouette gallery reposted by 那些看得见的老照片 on Sohu. These are post-slice context photos, not January 1984 geometry. AI extraction remains `sourced`.
+
+- id: "phase1.photo.1985.shenzhen_city_view"
+  source: "phase1_1985_shenzhen_silhouette_gallery"
+  locator: "Caption above image c9e2472685f24ec9829386d498409ea0"
+  quote: "1985年深圳市区一角。自1979年深圳设置经济特区以来，这里已经成为一座初具规模的现代化城市。"
+  summary: "A 1985 city view is captioned as a corner of Shenzhen, described as a modern city taking shape since the special economic zone was set up."
+  geography: "Shenzhen, location unidentified"
+  date: {value: "1985", precision: year}
+  notes: "No street or district is named. The caption dates the SEZ to 1979; the project's existing claims date its establishment to 1980. Reproduce the caption's wording as the publisher's, not as a corrected founding date. The 'modern city' phrase is a characterisation, not a built-up-area measurement."
+  status: "sourced"
+  extracted_by: "ai:opencode-photo-sets-1984-85"
+
+- id: "phase1.photo.1985.shekou_office_slogan_sign"
+  source: "phase1_1985_shenzhen_silhouette_gallery"
+  locator: "Caption above image b8e82a62e82748a58f83ed0da9881e1e"
+  quote: "深圳蛇口工业区办公室，一块繁体字写成的牌子“时间就是金钱，效率就是生命”。当年这句话，曾激励了深圳人。"
+  summary: "A 1985 photograph shows a traditional-character slogan board at the Shekou Industrial Zone office."
+  geography: "Shekou Industrial Zone office, Shenzhen"
+  date: {value: "1985", precision: year}
+  notes: "A later sign than the November 1981 wooden board at the Gongye First Road / Gongye Avenue junction (phase1.local.shekou_slogan_sign_1981). The caption does not date this board's erection or say whether it is the same sign relocated. Do not overwrite the 1981 claim."
+  status: "sourced"
+  extracted_by: "ai:opencode-photo-sets-1984-85"
+
+- id: "phase1.photo.1985.shenzhen_bay_hotel_park"
+  source: "phase1_1985_shenzhen_silhouette_gallery"
+  locator: "Caption above image 11a8914e4f9c4f69a72a16e4ccd928e2"
+  quote: "深圳湾大酒店游乐场，建在风景秀丽的海滨，占地面积六万多平方米，已开发营业的有过山车、摩天轮、太空穿梭机等19种大型游乐项目。"
+  value_raw: "占地六万多平方米；19种大型游乐项目"
+  unit: "m² and rides"
+  summary: "The 1985 caption gives the Shenzhen Bay Hotel amusement park as more than 60,000 m² with 19 large rides, including a roller coaster, Ferris wheel and space shuttle."
+  geography: "Shenzhen Bay, Shenzhen"
+  date: {value: "1985", precision: year}
+  notes: "A 1984 photograph of the park exists (phase1.photo.1984.shenzhen_bay_hotel_park), but this caption does not date the area or ride count to 1984. The figures describe the park as open in 1985."
+  status: "sourced"
+  extracted_by: "ai:opencode-photo-sets-1984-85"
+
+- id: "phase1.photo.1985.shekou_quay"
+  source: "phase1_1985_shenzhen_silhouette_gallery"
+  locator: "Caption above image a962b69ff8f942cd88f245445c209559"
+  quote: "蛇口区600米长的顺岸码头，可停泊3000吨驳船和吃水5米以下的客货轮。"
+  value_raw: "600米长；可停泊3000吨驳船和吃水5米以下客货轮"
+  unit: "m and vessel limits"
+  summary: "The 1985 caption describes a 600 m quay at Shekou able to berth 3,000-tonne barges and passenger or cargo ships drawing under 5 m."
+  geography: "Shekou, Shenzhen"
+  date: {value: "1985", precision: year}
+  notes: "The Shekou shelter feature dates a 顺岸码头 to July 1984; this 1985 caption gives its length and berth limits. It does not give the berth count, water depth or exact alignment."
+  status: "sourced"
+  extracted_by: "ai:opencode-photo-sets-1984-85"
+
+- id: "phase1.photo.1985.shekou_minghua"
+  source: "phase1_1985_shenzhen_silhouette_gallery"
+  locator: "Caption above image 1b7c423fe9c446d6883a2104f86578fb"
+  quote: "蛇口工业区是一个吸引广大游客的旅游点，远处为新开拓的海上乐园——明华轮。"
+  summary: "The 1985 caption identifies the Minghua ship in the distance as a newly developed sea park in the Shekou industrial area."
+  geography: "Shekou, Shenzhen"
+  date: {value: "1985", precision: year}
+  notes: "No conversion date, berth or ownership is given. The caption calls it newly developed in 1985; it does not establish the ship's state in January 1984."
+  status: "sourced"
+  extracted_by: "ai:opencode-photo-sets-1984-85"
+
+- id: "phase1.photo.1985.chiwan_port"
+  source: "phase1_1985_shenzhen_silhouette_gallery"
+  locator: "Caption above image f27f6c39d6d94d188de5559d4e3d67e3"
+  quote: "深圳赤湾港。目前已经建成一座2万吨级的多功能深水码头和一座长300米的石油专用码头。与此同时，港区还兴建了一批住宅和公用设施。"
+  value_raw: "2万吨级多功能深水码头；300米石油专用码头"
+  unit: "berth class and m"
+  summary: "The 1985 caption reports a completed 20,000-tonne multi-purpose deep-water berth and a 300 m oil terminal at Chiwan port, with housing and utilities."
+  geography: "Chiwan, Shenzhen"
+  date: {value: "1985", precision: year}
+  notes: "No berth count beyond these two, no dredged depth and no completion date. Do not project the port back into the 1979 opening scene."
+  status: "sourced"
+  extracted_by: "ai:opencode-photo-sets-1984-85"
