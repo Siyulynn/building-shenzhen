@@ -38,7 +38,7 @@ export const SHORT_AREA: Readonly<Record<number, L>> = {
   2: { zh: '罗湖口岸', en: 'Luohu crossing' },
   4: { zh: '黄贝岭', en: 'Huangbeiling' },
 };
-/** R11.2: the 1984 scene-review proposal, compiled by pipeline/m3d_historical_zones.py. Reference only. */
+/** R11.2: the core-basin January 1984 design map, copied by pipeline/m3d_historical_zones.py. Reference only. */
 export interface HistoricalZone {
   id: string; name: L; use: string; intensity: string; stage: string;
   cellCount: number; cells: readonly number[]; label: readonly [number, number];

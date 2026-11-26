@@ -148,14 +148,19 @@ describe('R11.2 strategic card clarity', () => {
 
 describe('R11.2 the 1984 historical plan', () => {
   const hist = historicalPlan(readFileSync('data/starts/slice_historical_zones.json', 'utf8'), 931)!;
-  it('extracts the proposal zones from the scene-review SVG', () => {
-    expect(hist.zones).toHaveLength(10);
-    expect(hist.roads).toHaveLength(35);
+  it('copies the proposal and works zones from the resolved design grid', () => {
+    expect(hist.zones).toHaveLength(12);
+    expect(hist.roads).toHaveLength(41);
     expect(hist.date).toBe('1984-01-24');
     const factories = hist.zones.find((z) => z.id === 'shangbu-factories')!;
-    expect(factories.cellCount).toBe(15);
-    expect(factories.cells).toHaveLength(15);
+    expect(factories.cellCount).toBe(70);
+    expect(factories.cells).toHaveLength(70);
     expect(factories.use).toBe('industrial');
+    // placed where the design map draws it: Shangbu, x 349-363, y 375-379 (no SVG page-margin offset)
+    for (const i of factories.cells) {
+      expect(i % 931).toBeGreaterThanOrEqual(349); expect(i % 931).toBeLessThanOrEqual(363);
+      expect(Math.floor(i / 931)).toBeGreaterThanOrEqual(375); expect(Math.floor(i / 931)).toBeLessThanOrEqual(379);
+    }
     expect(hist.zones.some((z) => z.id === 'shangbu-housing' && z.use === 'residential')).toBe(true);
   });
 
@@ -163,12 +168,12 @@ describe('R11.2 the 1984 historical plan', () => {
     const v: View = { ...view(), historical: hist, ui: { ...initialUi(slice), tool: 'zone', guide: true } };
     const html = renderFlyout(v);
     expect(html).toContain('1984');
-    expect(html).toContain('Shangbu factories');
+    expect(html).toContain('Shangbu industrial &amp; electronics');   // escaped in the HTML
     expect(html).toContain('Shangbu housing');
     expect(html).toContain('1984 plan zones');
     const sc = sceneOf(base, slice, { layer: 'plan_1984', guide: false, historical: hist, selected: null, plan: null });
-    expect(sc.historical).toHaveLength(10);
-    expect(sc.historicalRoads).toHaveLength(35);
+    expect(sc.historical).toHaveLength(12);
+    expect(sc.historicalRoads).toHaveLength(41);
     expect(sc.guide).toBeNull();
     expect(base.queue).toHaveLength(0);
   });
