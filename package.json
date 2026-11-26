@@ -22,6 +22,7 @@
     "design:maps": "pipeline\\.venv\\Scripts\\python -I pipeline/make-zoning-maps.py",
     "test:atlas": "vitest run --root apps/snapshot-3d --testTimeout 30000",
     "build:atlas": "vite build apps/snapshot-3d --base ./ --target es2022",
+    "publish:atlas": "node apps/snapshot-3d/publish-pages.mjs",
     "slice": "tsx apps/cli/src/main.ts",
     "golden:update": "tsx apps/cli/src/main.ts golden --update",
     "slice:ui": "vite apps/slice-ui --port 5174 --strictPort"
