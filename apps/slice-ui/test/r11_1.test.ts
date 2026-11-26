@@ -5,14 +5,14 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { createInitialState, landCoverAt, playableAreaOf, type Slice } from '@sz/sim-core';
+import { createInitialState, landCoverAt, playableAreaOf, sizeOffer, type Slice } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { choose, chooseGroup, enqueue, newSession } from '../src/controller.js';
 import {
   hoverText, initialUi, renderBriefing, renderDecisions, renderDrawer, renderFlyout, renderInspector, renderOverlaySelect,
   renderReadinessStrip, renderStack, renderTutorial, type View,
 } from '../src/render.js';
-import { cardStack, inspectorView, playableBox, readinessView } from '../src/views.js';
+import { cardStack, inspectorView, playableBox, readinessView, siteName } from '../src/views.js';
 import { STARTER_CELLS, STARTER_FROM, STARTER_TO, tutorialView } from '../src/tutorial.js';
 import { applyPlan, planGesture, queuedBudget } from '../src/tools.js';
 import { INTENSITY_BRIEF, T } from '../src/strings.js';
@@ -46,6 +46,17 @@ describe('R11.1 the playable-first map', () => {
     expect(html).toContain(T.cardsOnly.en);
     expect(html).toContain(T.cityBorder.en);
     expect(html).toContain(T.farmlandBuildable.en);
+    expect(renderOverlaySelect(view({ tool: 'zone' }))).toContain(T.notFormable.en);
+    expect(renderOverlaySelect(view({ tool: 'road' }))).not.toContain(T.notFormable.en);
+  });
+
+  it('calls the Sungang yard the freight yard, without the modern Shenzhen North name', () => {
+    const yard = slice.startSites.find((s) => s.id === 'site.sungang_freight');
+    expect(yard).toBeDefined();
+    expect(siteName(yard!).zh).toBe('笋岗货场');
+    expect(siteName(yard!).en).toBe('Sungang freight yard');
+    expect(hoverText(view(), { x: yard!.cell[0], y: yard!.cell[1], area: yard!.area })).toContain('笋岗货场');
+    expect(hoverText(view(), { x: yard!.cell[0], y: yard!.cell[1], area: yard!.area })).not.toContain('Shenzhen North');
   });
 
   it('names lowland farmland in the inspector so the field cover is legible', () => {
@@ -95,6 +106,36 @@ describe('R11.1 the guided opening', () => {
     expect(html).toContain(T.tutorialSpeaker.en);
     expect(html).toContain('laoliang.webp');
     expect(html).toContain('export-base');
+  });
+
+  it('has old Liang explain the first scrutiny score once, after the guide is done', () => {
+    const base = newSession(slice);
+    const x = { ...base, state: { ...base.state, climate: { ...base.state.climate, scrutiny: 4 } } };
+    const ui = { ...initialUi(slice), tutorial: false };
+    const tut = tutorialView(x, ui);
+    expect(tut?.kind).toBe('scrutiny');
+    expect(tut?.body.en).toContain('stepping stone');
+    const html = renderTutorial({ ...view({ tutorial: false }, x) });
+    expect(html).toContain(T.tutScrutinyDone.en);
+    expect(tutorialView(x, { ...ui, scrutinySeen: true })).toBeUndefined();
+  });
+
+  it('puts the offer\'s shared figures at the top and asks each site only about power and beds', () => {
+    const base = newSession(slice);
+    const offer = sizeOffer(slice.params, 'investor.hk_processing', 'hk_processing', 120);
+    const card = { id: 'offer@test', card: 'investor.hk_processing', options: ['accept:premises:1', 'accept:premises:2', 'decline'],
+      interrupting: false, raisedAt: base.state.date, payload: { offer } };
+    const x = { ...base, state: { ...base.state, pendingCards: [card] } };
+    const c = cardStack(x.state, slice).find((q) => q.card === 'investor.hk_processing')!;
+    const labels = c.lines.map((l) => l.label.en);
+    for (const label of [T.offerJobs.en, T.powerNeed.en, T.bedsNeeded.en, T.perYearOutput.en, T.cash.en, T.retained.en, T.newObligations.en])
+      expect(labels).toContain(label);
+    expect(c.lines.map((l) => l.label.en)).not.toContain(T.area.en + ' Shenzhen market town');
+    const site = c.options.find((o) => o.id === 'accept:premises:1')!;
+    expect(site.note?.en).toMatch(new RegExp(`${T.powerEnough.en}|${T.powerShort.en}`));
+    expect(site.note?.en).toMatch(new RegExp(`${T.bedsEnough.en}|${T.bedsShort.en}`));
+    expect(site.note?.en).not.toContain(T.perYearOutput.en);
+    expect(site.note?.en).not.toContain(T.cash.en);
   });
 
   it('counts queued land compensation in the budget chip committed figure', () => {

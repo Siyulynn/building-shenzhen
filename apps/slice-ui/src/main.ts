@@ -156,6 +156,7 @@ function render(): void {
   map.setScene(sceneOf(x, slice, { layer: ui.layer, guide: ui.guide, selected: ui.selected, plan,
     tutorial: tutCells ? { cells: tutCells, label: lang === 'zh' ? T.startHere.zh : T.startHere.en } : null }));
   map.setDrawMode(isBuildTool(ui.tool) && x.mode === 'turn');
+  map.setZoneMode(ui.tool === 'zone' && x.mode === 'turn');
   if (tut?.step === 3 && tutorialFocusStep !== 3) { map.centerOn(tut.cells ?? []); tutorialFocusStep = 3; }
   else if (tut?.step !== 3) tutorialFocusStep = -1;
   placePreview();
@@ -173,7 +174,10 @@ document.addEventListener('click', (e) => {
   switch (d.act) {
     case 'lang': if (isLang(d.lang) && d.lang !== lang) setLang(d.lang); return;
     case 'tool':
-      ui.tool = d.tool as Tool; plan = null; ui.drawer = null;      // the flyout and a drawer share the left column
+      // R11.1: choosing a tool is also how a player leaves the briefing or the decisions modal;
+      // the tool switch was happening behind the open modal, so the click looked dead.
+      ui.tool = d.tool as Tool; plan = null; ui.drawer = null;
+      ui.briefing = false; ui.decisions = false;
       if (isBuildTool(ui.tool) && x.mode === 'turn') map.ensureBuildView();   // R11.1: open at a buildable scale
       break;
     case 'mapFitPlayable': map.fitPlayable(); return;
@@ -197,6 +201,7 @@ document.addEventListener('click', (e) => {
       x = applyPlan(x, planGesture(x, ui.opts, { tool: 'zone', from: STARTER_FROM, to: STARTER_TO }));
       break;
     case 'tutorialDone': case 'tutorialSkip': ui.tutorial = false; break;
+    case 'scrutinyDone': ui.scrutinySeen = true; break;
     case 'choose':
       x = d.group === '1'
         ? chooseGroup(x, d.card!, d.opt!)
@@ -220,7 +225,7 @@ document.addEventListener('click', (e) => {
     case 'cancelOrder': return act({ type: 'cancel_works', order: Number(d.id) });
     case 'restart':
       x = newSession(slice, x.seed); ui.briefing = true; ui.selected = null;
-      ui.tutorial = true; ui.tutorialStep = 0;
+      ui.tutorial = true; ui.tutorialStep = 0; ui.scrutinySeen = false;
       briefingShown = false; decisionsShown = false; tutorialFocusStep = -1;
       break;
   }

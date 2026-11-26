@@ -248,6 +248,8 @@ export const T = {
   failure: l('因上级关注度过高被撤职', 'Removed: scrutiny stayed too high'),
   report: l('报告', 'Report'), preview: l('预估', 'Preview'), opensIn: l('开工还需（月）', 'Months to open'),
   bedsNeeded: l('需要床位', 'Beds needed'), powerNeed: l('用电', 'Power'), powerFree: l('富余电力', 'Spare power'),
+  powerEnough: l('电力够', 'Power enough'), powerShort: l('电力不足', 'Power short'),
+  bedsEnough: l('床位够', 'Beds enough'), bedsShort: l('床位不足', 'Beds short'),
   perYearOutput: l('满产年产值', 'Output a year at full ramp'), cash: l('本季度现金', 'Cash this quarter'),
   retained: l('每年留成税收', 'Retained tax a year'), newObligations: l('每年新增支出', 'New obligations a year'),
   shortfall: l('缺口', 'Shortfall'), capacity: l('可借', 'Can borrow'), principal: l('本金', 'Principal'),
@@ -335,6 +337,7 @@ export const T = {
   cardOnlyArea: l('仅卡片片区', 'Card-only area'), cardsOnly: l('仅卡片', 'cards only'),
   cityBorder: l('市界', 'City limit'),
   farmlandBuildable: l('农田（可平整，有补偿）', 'Lowland farmland (buildable, compensated)'),
+  notFormable: l('不可平整（划区时显示红色）', 'Not formable (red while zoning)'),
   startRoutes: l('临时道路／铁路', 'Temporary road / rail'),
   areasLegend: l('片区', 'Areas'), focusArea: l('定位', 'Focus'),
   fitPlayable: l('可开发片区', 'Fit playable'), fitAll: l('全境', 'Whole city'),
@@ -378,6 +381,10 @@ export const T = {
   tut5Title: l('准备程度', 'Readiness'),
   tut5Body: l('省里明年补助会少。准备程度到一半，第一批投资才像样。先补最弱的那一环；右下角那条小条，点开能看到细账。',
     'The province’s grant will shrink next year. Get readiness to half and the first wave looks decent. Fix the weakest part first; click the small strip at the bottom right for the details.'),
+  tutScrutinyTitle: l('审查分是什么', 'What scrutiny means'),
+  tutScrutinyBody: l('你头上现在有审查分了。省里看你怎么迈步：抢工、破例、人情，都会记上一笔。摸着石头过河，但别成了垫脚石。分高了会来检查，评审不过，人就得走。',
+    'You have a scrutiny score now. It is the province’s file on how boldly you move: rushed work, exceptions and favours all leave a mark. Cross the river by touching the stones — but do not become the stepping stone. High scrutiny brings inspections, and a failed review can remove you.'),
+  tutScrutinyDone: l('知道了', 'Understood'),
 } as const satisfies Record<string, L>;
 
 /** R9 (§5.6): the works pace steps. */

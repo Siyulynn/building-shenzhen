@@ -12,7 +12,7 @@ import {
   VILLAGE_ARCHETYPES, SOURCE_KINDS, areaTakes, poolFactor, powerPool, importedKw, utilityShares,
   firmFreight, freightContent, freightNetwork, crewPool, modifierLive,
   type CardInstance, type CellRuns, type EventDef, type EventEffect, type CellWork, type GameState, type PlayerAction, type Slice, type SpatialViews,
-  type WorksOrder, type Zone, type LandCoverClass, landCoverAt,
+  type StartSite, type WorksOrder, type Zone, type LandCoverClass, landCoverAt,
 } from '@sz/sim-core';
 import * as S from './strings.js';
 import { place, type L } from './strings.js';
@@ -38,6 +38,11 @@ export const SHORT_AREA: Readonly<Record<number, L>> = {
   2: { zh: '罗湖口岸', en: 'Luohu crossing' },
   4: { zh: '黄贝岭', en: 'Huangbeiling' },
 };
+/** R11.1: the name the player sees; the register keeps the full historical name and its citation. */
+export const SITE_NAME: Readonly<Record<string, L>> = {
+  'site.sungang_freight': { zh: '笋岗货场', en: 'Sungang freight yard' },
+};
+export const siteName = (site: StartSite): L => SITE_NAME[site.id] ?? site.name;
 export function areaName(s: GameState, id: number): L {
   if (SHORT_AREA[id]) return place(SHORT_AREA[id]!);
   const name = s.areas.find((a) => a.id === id)?.name;
@@ -79,30 +84,54 @@ export interface CardView {
   id: string; card: string; title: L; interrupting: boolean; raised?: string; expires?: string;
   ids: readonly string[]; count: number;              // R11.1: identical emergent cards stack into one
   description?: L;                                    // R7: an event card's content description
-  options: { id: string; label: L; badges: L[] }[];   // badges: R7's derived effect badges, event cards only
+  options: { id: string; label: L; badges: L[]; note?: L }[];   // note: R11.1's site status on an offer
   lines: Line[];
+}
+
+/** R11.1: an offer's shared project lines, and the one-line status shown under each site's button. */
+function offerView(s: GameState, c: CardInstance, slice: Slice): { lines: Line[]; notes: Map<string, L> } {
+  const v = previewOffer(s, c, slice.params, slice.tick);
+  const beds = v.sites.map((q) => q.bedsNeeded), output = v.sites.map((q) => q.perYear.output);
+  const f0 = v.sites[0]?.fiscal;
+  const same = (xs: readonly number[]) => xs.length > 0 && xs.every((x) => x === xs[0]);
+  const shared = {
+    beds: same(beds), output: same(output),
+    cash: f0 !== undefined && v.sites.every((q) => q.fiscal?.cashThisQuarter === f0.cashThisQuarter),
+    retained: f0 !== undefined && v.sites.every((q) => q.fiscal?.retainedTaxPerYear === f0.retainedTaxPerYear),
+    obligations: f0 !== undefined && v.sites.every((q) => q.fiscal?.newObligationsPerYear === f0.newObligationsPerYear),
+  };
+  // The project's own figures once at the top; each site only says whether it can carry them.
+  const lines: Line[] = [
+    { label: S.T.offerJobs, value: raw(num(v.jobs)) }, { label: S.T.powerNeed, value: raw(`${num(v.powerKw)} kW`) }];
+  if (shared.beds) lines.push({ label: S.T.bedsNeeded, value: raw(num(beds[0]!)) });
+  if (shared.output) lines.push({ label: S.T.perYearOutput, value: raw(yuan(output[0]!)) });
+  if (shared.cash) lines.push({ label: S.T.cash, value: raw(yuan(f0!.cashThisQuarter)) });
+  if (shared.retained) lines.push({ label: S.T.retained, value: raw(yuan(f0!.retainedTaxPerYear)) });
+  if (shared.obligations) lines.push({ label: S.T.newObligations, value: raw(yuan(f0!.newObligationsPerYear)) });
+  const notes = new Map<string, L>();
+  for (const site of v.sites) {
+    const h = s.housing.find((q) => q.area === site.area);
+    const bedsFree = h ? Math.max(0, h.beds.local + h.beds.rental - h.occupants.local - h.occupants.rental) : 0;
+    const parts = [lv(S.T.opensIn, String(site.opensInMonths)),
+      site.powerFreeKw >= v.powerKw ? S.T.powerEnough! : S.T.powerShort!,
+      bedsFree >= site.bedsNeeded ? S.T.bedsEnough! : S.T.bedsShort!];
+    if (!shared.beds) parts.push(lv(S.T.bedsNeeded, num(site.bedsNeeded)));
+    if (!shared.output) parts.push(lv(S.T.perYearOutput, yuan(site.perYear.output)));
+    const f = site.fiscal;
+    if (f) {
+      if (!shared.cash) parts.push(lv(S.T.cash, yuan(f.cashThisQuarter)));
+      if (!shared.retained) parts.push(lv(S.T.retained, yuan(f.retainedTaxPerYear)));
+      if (!shared.obligations) parts.push(lv(S.T.newObligations, yuan(f.newObligationsPerYear)));
+    }
+    notes.set(site.option, joinL(parts, ' · '));
+  }
+  return { lines, notes };
 }
 
 function cardLines(s: GameState, slice: Slice, c: CardInstance): Line[] {
   const p = slice.params;
   const pl = (c.payload ?? {}) as Record<string, any>;
   const out: Line[] = [];
-  if (pl.offer) {
-    const v = previewOffer(s, c, p, slice.tick);
-    out.push({ label: S.T.offerJobs, value: raw(num(v.jobs)) }, { label: S.T.powerNeed, value: raw(`${num(v.powerKw)} kW`) });
-    for (const site of v.sites) {
-      const lbl = optionLabel(s, slice, c.card, site.option) ?? raw(site.option);
-      const f = site.fiscal;
-      out.push({ label: lbl, value: joinL([
-        lv(S.T.opensIn, String(site.opensInMonths)),
-        lv(S.T.powerFree, `${num(site.powerFreeKw)} kW`),
-        lv(S.T.bedsNeeded, num(site.bedsNeeded)),
-        lv(S.T.perYearOutput, yuan(site.perYear.output)),
-        ...(f ? [lv(S.T.cash, yuan(f.cashThisQuarter)), lv(S.T.retained, yuan(f.retainedTaxPerYear)),
-          lv(S.T.newObligations, yuan(f.newObligationsPerYear))] : []),
-      ], ' · ') });
-    }
-  }
   if (c.card === LOAN_CARD) {
     out.push({ label: S.T.principal, value: raw(yuan(pl.principal)) }, { label: S.T.rate, value: raw(pct(pl.rate_month)) },
       { label: S.T.grace, value: raw(String(pl.grace_months)) }, { label: S.T.term, value: raw(String(pl.term_months)) });
@@ -205,14 +234,16 @@ export function effectBadges(d: EventDef, slice: Slice, _s?: GameState, count = 
 export function cardView(s: GameState, slice: Slice, c: CardInstance, count = 1, ids: readonly string[] = [c.id]): CardView {
   const ev = slice.tick.events.find((d) => d.id === c.card);
   const badges = ev ? effectBadges(ev, slice, s, count) : {};
+  const offer = c.payload?.offer ? offerView(s, c, slice) : undefined;
   return {
     id: c.id, card: c.card, title: cardTitle(slice, c.card) ?? raw(c.card), interrupting: c.interrupting,
     ids, count,
     ...(c.raisedAt !== undefined ? { raised: formatYM(c.raisedAt) } : {}),
     ...(c.expires !== undefined ? { expires: formatYM(c.expires) } : {}),
     ...(ev?.description ? { description: ev.description } : {}),
-    options: c.options.map((o) => ({ id: o, label: optionLabel(s, slice, c.card, o) ?? raw(o), badges: badges[o] ?? [] })),
-    lines: cardLines(s, slice, c),
+    options: c.options.map((o) => ({ id: o, label: optionLabel(s, slice, c.card, o) ?? raw(o), badges: badges[o] ?? [],
+      ...(offer?.notes.get(o) ? { note: offer.notes.get(o) } : {}) })),
+    lines: [...(offer?.lines ?? []), ...cardLines(s, slice, c)],
   };
 }
 
@@ -958,7 +989,7 @@ export function inspectorView(s: GameState, slice: Slice, x: number, y: number):
   }
   if (share) { v.share = share; v.areaShare = utilityShare(s, z?.area ?? areaId); }
   if (areaId && village > 0) v.villageFloorM2 = village;
-  if (site) v.site = place(site.name);
+  if (site) v.site = place(siteName(site));
   if (route) v.route = place(route.name);
   return v;
 }

@@ -20,7 +20,7 @@ import {
 } from '../src/render.js';
 import { TOOLS, planGesture } from '../src/tools.js';
 import { ENFORCEMENT, TABLES, T, bi, place } from '../src/strings.js';
-import { SHORT_AREA, actionLabel, areaName, clipZone, previewZone, zoneName } from '../src/views.js';
+import { SHORT_AREA, SITE_NAME, actionLabel, areaName, clipZone, previewZone, zoneName } from '../src/views.js';
 
 const slice: Slice = loadSlice();
 const HAN = /\p{Script=Han}/u;
@@ -75,6 +75,7 @@ const PLACES: string[] = [...new Set([
   ...(slice.tick.precedents ?? []).map((p) => bi(p.name)),
   ...(slice.tick.gateways ?? []).map((g) => bi(g.name)),             // R8d (§5.12): the gateways are place labels
   ...Object.values(SHORT_AREA).map((n) => bi(n)),
+  ...Object.values(SITE_NAME).map((n) => bi(n)),
 ])].sort((a, b) => b.length - a.length);
 
 const ENT: Record<string, string> = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };

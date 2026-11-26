@@ -21,6 +21,8 @@ This revision responds to the R11 playtest. The sim's strategic shape was sound,
 - The tool flyout has a max height and its own scroll, so the Plan-only and historical-plan controls are reachable at 980×664.
 - Locked uses, tiers, road classes, pace steps and tools are the same shape and size as the open ones: greyed and disabled, with the tooltip "Unlocks later"; the opener's long text is no longer printed under them.
 - A "Show details" switch in the flyout is off by default. Off, the flyout shows one brief line for the selected intensity, pace, road tier or formation. On, it shows the full explanatory paragraph. The full intensity text is also on each tier's hover title.
+- With Zones open, every playable cell a zone cannot form (water, tidal flat, hill, village) gets a flat red cover, with a map-key row "Not formable (red while zoning)". The cover is a warning like the farmland one; it does not change what the gesture does.
+- Choosing any rail tool also closes the briefing or the decisions modal. Before, the tool switched behind the open modal, so the click looked dead.
 
 ## The historical plan is reference only
 
@@ -36,6 +38,8 @@ This revision responds to the R11 playtest. The sim's strategic shape was sound,
 - The opening "note from the city" is no longer printed. Its county-seal, export-base, one-piece-of-land, grant and canteen beats are woven into old Liang's six dialogue steps (`newsView` filters `news.1979q1.office_note`; the content record stays for its claim).
 - Opening letters are printed as letters (centred letterhead, inset paper, justified body), with no "composed fiction" or evidence labels in the player UI. The land-cover overlay drops "(a lead)", and the inspector shows a site's name without "proxy location" or a claim list.
 - The inspector reads "Frontage if zoned" for an unzoned cell near a road, instead of the old "No road access"; its supplied row is now just "Power and water".
+- An investor offer card shows the project's shared figures once at the top (jobs, power, beds needed, output, cash, retained tax, obligations). Under each site's own button, one line reads: months to open, **Power enough/short** and **Beds enough/short**. A figure that genuinely differs between sites falls back to that line. The area list is no longer printed twice.
+- The Sungang freight yard is displayed as 笋岗货场 / "Sungang freight yard". The site register keeps its full 1977 name and the citation for it; the display override lives in `views.ts` (`SITE_NAME`), like the short area names.
 - Lowland farmland is buildable but carries compensation. It now has a golden field cover on the map at all times, a stronger gold hatch while a build tool is open, a map-key row ("Lowland farmland (buildable, compensated)"), a land-cover row in the inspector, and its class in the drag preview (which now shows a single class too). The hover readout names the tile's land cover (e.g. "Land cover: Lowland farmland") so a cell can be read before zoning. The cover is a warning, not a block: fields can still be zoned.
 - A gesture entirely outside the playable areas is refused with "Outside the seven playable areas", not a raw cell index.
 - The verdict has a short factual summary of growth, the fiscal test and the reviews.
@@ -55,6 +59,8 @@ The guide (`src/tutorial.ts`) is UI-only and deterministic, and is framed as a d
 
 The suggested block is `[[386,376],[387,376]]` in the market town: buildable, inside Area 1, and fronting the temporary Guangshen road, so a one-cell zone already has frontage. The guide advances only when the state shows the action: the survey answered, Zones open, a zone queued, the quarter ended. It is session-only and can be skipped.
 
+After (or instead of) the six steps, the first time the scrutiny score is above zero old Liang appears once more: "Crossing the river by touching the stones, but don't be a stepping stone." The card explains that rushed work, exceptions and favours all leave a mark, and that inspections and a failed review follow a high score. It has one "Understood" button and does not repeat in the session.
+
 ## Tests
 
-`apps/slice-ui/test/r11_1.test.ts` covers the starter cells, the guide's state machine, the readiness target, the map key/no-zoneGuide flyout, the answered-card counter, the prospective frontage, the modal bodies and the city-border data contract. The existing language test renders every new string in both languages.
+`apps/slice-ui/test/r11_1.test.ts` covers the starter cells, the guide's state machine, the readiness target, the one-off scrutiny explanation, the map key/no-zoneGuide flyout, the zoning key row, the Sungang display name, the offer card's shared-top/site-status layout, the answered-card counter, the prospective frontage, the modal bodies and the city-border data contract. The existing language test renders every new string in both languages.

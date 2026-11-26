@@ -15,12 +15,13 @@ export const STARTER_TO: readonly [number, number] = [387, 376];
 
 export interface Tutorial {
   step: number;
+  kind?: 'scrutiny';                  // R11.1: a one-off explanation, not a guide step
   title: L;
   body: L;
   target?: string;
   waiting: boolean;
   cells?: readonly (readonly [number, number])[];
-  action?: 'start' | 'block' | 'done';
+  action?: 'start' | 'block' | 'done' | 'scrutiny';
 }
 
 const CONTENT: readonly { title: L; body: L }[] = [
@@ -34,7 +35,12 @@ const CONTENT: readonly { title: L; body: L }[] = [
 
 /** The step shown now. Action steps advance when the state shows the player did them. */
 export function tutorialView(x: Session, ui: UiState): Tutorial | undefined {
-  if (!ui.tutorial) return undefined;
+  // R11.1: after (or instead of) the opening guide, the first scrutiny score gets one explanation.
+  if (!ui.tutorial) {
+    if (ui.scrutinySeen || x.state.climate.scrutiny <= 0) return undefined;
+    return { step: 0, kind: 'scrutiny', title: S.T.tutScrutinyTitle, body: S.T.tutScrutinyBody,
+      waiting: false, action: 'scrutiny' };
+  }
   let step = ui.tutorialStep;
   const firstPending = x.state.pendingCards.some((c) => c.card === 'event.first_project' && x.answers[c.id] === undefined);
   if (step === 1 && !firstPending) step = 2;                                     // the opening card is answered or gone

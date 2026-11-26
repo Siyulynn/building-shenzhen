@@ -16,7 +16,7 @@ import { tutorialView } from './tutorial.js';
 import {
   DRAWERS, LAND_COVER_COLOR, powerView, freightView, OVERLAY_LAYERS, USE_COLOR, actionLabel, areaName, areaView, briefing, cardStack, chipsView, constraintContext,
   commitments, constraintLabel, finishedWork, icrCue, inspectorView, ledgerView, leadersView, mostHeldBack, num, pct, projectsView,
-  reviewView, readinessView, teamsView, verdictView, worksView, yuan, zoneName, gateLock, newsView, modifiersView,
+  reviewView, readinessView, siteName, teamsView, verdictView, worksView, yuan, zoneName, gateLock, newsView, modifiersView,
   type DrawerId, type OverlayLayer,
 } from './views.js';
 
@@ -33,11 +33,12 @@ export interface UiState {
   area: number;                                // the Population drawer's area
   tutorial: boolean;                           // R11.1: the guided opening, session-only
   tutorialStep: number;
+  scrutinySeen: boolean;                       // R11.1: old Liang has explained the first scrutiny score
   details: boolean;                            // R11.1: full flyout descriptions; off = one brief line
 }
 export const initialUi = (slice: Slice): UiState => ({
   layer: 'areas', tool: 'select', guide: false, drawer: null, decisions: false, briefing: true, selected: null, area: 1,
-  tutorial: true, tutorialStep: 0, details: false,
+  tutorial: true, tutorialStep: 0, scrutinySeen: false, details: false,
   opts: { use: 'industrial', planOnly: false, facility: Object.keys(slice.params.works?.facilities ?? {})[0] ?? 'school' },
 });
 /** Everything a screen reads. */
@@ -116,6 +117,7 @@ export function renderOverlaySelect(v: View): string {
       <div><i class="sw card"></i>${t(S.T.cardOnlyArea)}</div>
       <div><i class="sw border"></i>${t(S.T.cityBorder)}</div>
       <div><i class="sw farm"></i>${t(S.T.farmlandBuildable)}</div>
+      ${v.ui.tool === 'zone' ? `<div><i class="sw noform"></i>${t(S.T.notFormable)}</div>` : ''}
       <div><i class="sw road"></i>${t(S.T.startRoutes)}</div>
     </details>
     <details class="key"><summary>${t(S.T.areasLegend)} (${s.areas.length})</summary>${areas}</details>
@@ -163,15 +165,16 @@ export function renderStack(v: View): string {
 export function renderTutorial(v: View): string {
   const tut = tutorialView(v.x, v.ui);
   if (!tut) return '';
-  const t = tx(v.lang);
+  const t = tx(v.lang), scrutiny = tut.kind === 'scrutiny';
   const action = tut.action === 'start' ? `<button class="go" data-act="tutorialNext">${t(S.T.tutorialStart)}</button>`
     : tut.action === 'block' ? `<button data-act="tutorialBlock">${t(S.T.tutorialUseBlock)}</button>`
-    : tut.action === 'done' ? `<button class="go" data-act="tutorialDone">${t(S.T.tutorialDone)}</button>` : '';
+    : tut.action === 'done' ? `<button class="go" data-act="tutorialDone">${t(S.T.tutorialDone)}</button>`
+    : tut.action === 'scrutiny' ? `<button class="go" data-act="scrutinyDone">${t(S.T.tutScrutinyDone)}</button>` : '';
   return `<div class="tuthead"><span class="grip" aria-hidden="true">⠿</span><b>${t(S.T.tutorialSpeaker)}</b>
-      <small>${t(S.T.tutorialRole)}</small><span class="tutstep">${tut.step + 1} / 6</span></div>
+      <small>${t(S.T.tutorialRole)}</small><span class="tutstep">${scrutiny ? t(S.T.scrutiny) : `${tut.step + 1} / 6`}</span></div>
     <div class="tutbody"><img class="tutportrait" src="${esc(LAOLIANG)}" alt="" width="76" height="96">
       <div class="tutsay"><h3>${t(tut.title)}</h3><p>“${t(tut.body)}”</p>
-      <div class="opts">${action}<button data-act="tutorialSkip">${t(S.T.tutorialSkip)}</button></div>
+      <div class="opts">${action}${scrutiny ? '' : `<button data-act="tutorialSkip">${t(S.T.tutorialSkip)}</button>`}</div>
       ${tut.waiting ? `<div class="muted">${t(S.T.tutorialWait)}</div>` : ''}</div></div>`;
 }
 
@@ -336,7 +339,7 @@ export function renderDecisions(v: View): string {
       ${c.description ? `<p class="desc">${t(c.description)}</p>` : ''}
       ${c.lines.map((l) => `<div class="line">${t(l.label)}: ${t(l.value)}</div>`).join('')}
       <div class="opts">${c.options.map((o) => `<div class="opt"><button data-act="choose" data-card="${esc(c.id)}" data-opt="${esc(o.id)}" data-group="${c.count > 1 ? '1' : '0'}"
-        class="${x.answers[c.id] === o.id ? 'sel' : ''}">${t(o.label)}</button>${o.badges.length ? `<ul class="badges">${o.badges.map((b) =>
+        class="${x.answers[c.id] === o.id ? 'sel' : ''}">${t(o.label)}</button>${o.note ? `<div class="muted">${t(o.note)}</div>` : ''}${o.badges.length ? `<ul class="badges">${o.badges.map((b) =>
         `<li>${t(b)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div></div>`).join('') || `<div class="muted">${t(S.T.noCards)}</div>`;
   return `${closeBtn(v.lang, 'closeDecisions')}<h2>${t(S.T.pendingDecisions)}</h2><div class="modal-body">${cards}</div>
     <div class="modal-foot"><button data-act="closeDecisions">${t(S.T.close)}</button></div>`;
@@ -515,7 +518,7 @@ export function hoverText(v: Pick<View, 'x' | 'slice' | 'lang'>, c: { x: number;
   const z = s.zones.find((q) => q.runs.some(([y, x0, x1]) => y === c.y && c.x >= x0 && c.x <= x1));
   let out = `${c.x},${c.y}${c.area ? ` · ${p(areaName(s, c.area))}` : ''}${z ? ` · ${p(zoneName(s, slice, z.id))}` : ''}`;
   const site = slice.startSites.find((q) => q.cell[0] === c.x && q.cell[1] === c.y);
-  if (site) out += ` · ${bi(site.name)}`;
+  if (site) out += ` · ${bi(siteName(site))}`;
   const index = c.y * s.grid.width + c.x;
   const lc = slice.tick.landcover ? landCoverAt(slice.tick.landcover, index) : undefined;
   if (lc) out += ` · ${p(S.T.landCover)}: ${p(S.LAND_COVER[lc] ?? { zh: lc, en: lc })}`;

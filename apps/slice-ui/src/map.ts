@@ -4,9 +4,9 @@
  * scene main.ts hands it (built from sim state and the pure views) and turns pointer events into gestures; it never
  * changes the session. Canvas text is limited to place labels, which stay bilingual (§11.1).
  */
-import { landCoverAt, type GameState, type Slice, type StartSite } from '@sz/sim-core';
+import { isFormable, landCoverAt, type GameState, type Slice, type StartSite } from '@sz/sim-core';
 import { bi } from './strings.js';
-import { areaAt, areaBox, areaName, playableBox, sliceBox } from './views.js';
+import { areaAt, areaBox, areaName, playableBox, siteName, sliceBox } from './views.js';
 
 /** The present-day Shenzhen limit, loaded from data/starts/slice_city_border.json (reference only). */
 export interface CityBorder {
@@ -141,12 +141,14 @@ export class SliceMap {
   private shadow: HTMLCanvasElement;
   private playableEdge: HTMLCanvasElement;
   private farms = new Set<number>();                 // lowland farmland: buildable, but compensation is owed
+  private nonFormable = new Set<number>();           // water, tidal flat, hill and village: a zone cannot form here
   private overlay: HTMLCanvasElement | null = null;
   private zones: HTMLCanvasElement | null = null;
   private scene: Scene | null = null;
   private pending = false;
   /** Left drags draw with a build tool; otherwise they pan. Right-drag always pans, even while building (R11.1). */
   drawMode = false;
+  private zoneMode = false;
 
   constructor(private canvas: HTMLCanvasElement, private slice: Slice, s: GameState, private border: CityBorder,
     private h: MapHandlers) {
@@ -155,7 +157,11 @@ export class SliceMap {
     this.shadow = shadowLayer(s);
     this.playableEdge = playableEdgeLayer(s);
     const lc = slice.tick.landcover;
-    if (lc) for (let c = 0; c < lc.classOf.length; c++) if (landCoverAt(lc, c) === 'lowland_farm') this.farms.add(c);
+    if (lc) for (let c = 0; c < lc.classOf.length; c++) {
+      const k = landCoverAt(lc, c);
+      if (k === 'lowland_farm') this.farms.add(c);
+      else if (k !== undefined && !isFormable(lc, c)) this.nonFormable.add(c);
+    }
     void terrain(s.grid.width, s.grid.height).then((t) => { this.ground = t; this.request(); });
     this.resize(); this.fitPlayable(s);
     addEventListener('resize', () => { this.resize(); if (!this.moved || !(this.view.scale > 0)) this.fitPlayable(s); this.request(); });
@@ -170,6 +176,8 @@ export class SliceMap {
     this.request();
   }
   setDrawMode(on: boolean) { this.drawMode = on; this.canvas.classList.toggle('drawing', on); }
+  /** R11.1: the Zoning tool marks the land a zone cannot use, like the farmland cover does. */
+  setZoneMode(on: boolean) { this.zoneMode = on; this.request(); }
   /** Screen pixels per cell. */
   get cellPx() { return this.view.scale / devicePixelRatio; }
 
@@ -253,6 +261,7 @@ export class SliceMap {
     if (this.zones) ctx.drawImage(this.zones, 0, 0);
     if (this.overlay) ctx.drawImage(this.overlay, 0, 0);
     this.drawFarms();                    // fields are buildable, but the cover warns before a drag
+    this.drawNonFormable();              // Zoning: water, hills and villages cannot be formed
     // R11.1: the city exists around the seven playable areas; only the playable land stays lit.
     ctx.drawImage(this.shadow, 0, 0);
     ctx.drawImage(this.playableEdge, 0, 0);
@@ -332,6 +341,16 @@ export class SliceMap {
       }
       ctx.stroke();
     }
+    ctx.restore();
+  }
+
+  /** R11.1: while zoning, a red cover over the land site formation cannot work. */
+  private drawNonFormable() {
+    if (!this.zoneMode || !this.nonFormable.size) return;
+    const { ctx } = this, W = this.scene?.state.grid.width ?? 1;
+    ctx.save();
+    ctx.fillStyle = 'rgba(172,38,32,.36)';
+    for (const c of this.nonFormable) ctx.fillRect(c % W, Math.floor(c / W), 1, 1);
     ctx.restore();
   }
 
@@ -515,7 +534,7 @@ export class SliceMap {
       if (px <= 1 / 20) {
         ctx.font = `bold ${11 * px}px "Courier New", Courier, ui-monospace, SimHei, "Heiti SC", "Microsoft YaHei", sans-serif`;
         ctx.strokeStyle = 'rgba(243,236,216,.92)'; ctx.lineWidth = 3.5 * px; ctx.lineJoin = 'round';
-        const label = bi(s.name);                       // a place label: bilingual in both languages (§11.1)
+        const label = bi(siteName(s));                  // a place label: bilingual in both languages (§11.1)
         ctx.strokeText(label, x + 1.1, y + .7);
         ctx.fillStyle = '#2b1d17'; ctx.fillText(label, x + 1.1, y + .7);
       }
