@@ -377,6 +377,8 @@ export function events(p: SliceParams, content: {
           const a = archetypes.find((x) => x.id === e.archetype);
           if (!a) throw new Error(`${d.id}: no investor archetype ${e.archetype}`);
           const inst = raiseOffer(ctx, 'events', a, num(d, 'jobs'), p, content.buildable);
+          // no site: the offer is recorded as not sited; the concession is not attached to a later offer
+          if (!inst) { cofinanced = undefined; cofinancedOrder = undefined; return undefined; }
           // the co-financed project of the same answer is the deal's: declining the investor withdraws it
           if (cofinanced !== undefined) { inst.payload = { ...inst.payload, cofinanced }; cofinanced = undefined; }
           if (cofinancedOrder !== undefined) { inst.payload = { ...inst.payload, cofinancedOrder }; cofinancedOrder = undefined; }
@@ -519,8 +521,7 @@ export function events(p: SliceParams, content: {
         let x = ctx.rng.float() * total, a = pool[pool.length - 1]!;
         for (const q of pool) { x -= mix[q.id]!; if (x < 0) { a = q; break; } }
         const [lo, hi] = p.investors.archetypes[a.id]!.jobs;
-        raiseOffer(ctx, 'events', a, lo + ctx.rng.int(hi - lo + 1), p, content.buildable);
-        raisedCards++;
+        if (raiseOffer(ctx, 'events', a, lo + ctx.rng.int(hi - lo + 1), p, content.buildable)) raisedCards++;
       }
       s.sez = { ...s.sez, waveCards: raisedCards };
       ev('first_wave', { cards: raisedCards, readiness: bar, by: d.id });

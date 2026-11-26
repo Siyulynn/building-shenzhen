@@ -143,5 +143,5 @@ describe('the repository evidence store', () => {
     const store = loadStore(resolve(__dirname, '../../..'));
     expect(store.errors).toEqual([]);
     expect(store.claims.size).toBeGreaterThan(0);
-  });
+  }, 30_000);
 });

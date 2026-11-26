@@ -4,7 +4,7 @@
  * page. The chrome shows one language; place labels (marked by place() in the views) read zh and en in both.
  */
 import {
-  ENFORCEMENT_LEVELS, IMPORT_QUOTAS, HIGH_INTENSITY_KEY, INTENSITIES, LAND_USES, PERMIT_REGIMES, formatYM, landCoverAt,
+  ENFORCEMENT_LEVELS, IMPORT_QUOTAS, HIGH_INTENSITY_KEY, INTENSITIES, LAND_USES, PERMIT_REGIMES, SHORTCUT_CARD, formatYM, landCoverAt,
   type Slice, type StartSite,
 } from '@sz/sim-core';
 import { unanswered, type Session, type UiError } from './controller.js';
@@ -34,11 +34,12 @@ export interface UiState {
   tutorial: boolean;                           // R11.1: the guided opening, session-only
   tutorialStep: number;
   scrutinySeen: boolean;                       // R11.1: old Liang has explained the first scrutiny score
+  sezReported: boolean;                        // R11.2: the prologue result has been shown
   details: boolean;                            // R11.1: full flyout descriptions; off = one brief line
 }
 export const initialUi = (slice: Slice): UiState => ({
   layer: 'areas', tool: 'select', guide: false, drawer: null, decisions: false, briefing: true, selected: null, area: 1,
-  tutorial: true, tutorialStep: 0, scrutinySeen: false, details: false,
+  tutorial: true, tutorialStep: 0, scrutinySeen: false, sezReported: false, details: false,
   opts: { use: 'industrial', planOnly: false, facility: Object.keys(slice.params.works?.facilities ?? {})[0] ?? 'school' },
 });
 /** Everything a screen reads. */
@@ -118,6 +119,8 @@ export function renderOverlaySelect(v: View): string {
       <div><i class="sw border"></i>${t(S.T.cityBorder)}</div>
       <div><i class="sw farm"></i>${t(S.T.farmlandBuildable)}</div>
       ${v.ui.tool === 'zone' ? `<div><i class="sw noform"></i>${t(S.T.notFormable)}</div>` : ''}
+      <div class="muted">${t(S.T.zoneKey)}</div>
+      ${['industrial', 'residential', 'commercial'].map((k) => `<div><i class="sw" style="background:rgba(${USE_COLOR[k]!.slice(0, 3).join(',')},.7)"></i>${t(S.LAND_USE[k]!)}</div>`).join('')}
       <div><i class="sw road"></i>${t(S.T.startRoutes)}</div>
     </details>
     <details class="key"><summary>${t(S.T.areasLegend)} (${s.areas.length})</summary>${areas}</details>
@@ -154,8 +157,10 @@ export function renderStack(v: View): string {
     `<div class="q"><span>${t(actionLabel(s, slice, x.queue, k))}</span><button data-act="dequeue" data-k="${k}" aria-label="${esc(pick(S.T.remove, v.lang))}">✕</button></div>`).join('')}</div>` : '';
   const cards = cardStack(s, slice).length, must = unanswered(x).length;
   const error = x.error ? `<div class="err" role="alert">${x.error.what === S.T.error ? '' : `${t(S.T.error)}: `}${t(x.error.what)}${x.error.detail !== undefined ? `: ${diag(x.error.detail)}` : ''}</div>` : '';
+  const committed = commitments(s, slice, queuedBudget(x));
+  const over = committed.projected < 0 ? `<div class="warn">${t(S.T.overspend)}: ${yuan(-committed.projected)}</div>` : '';
   const go = x.mode === 'over' ? '' : `<button class="go" data-act="submit" ${must ? 'disabled' : ''}>${t(x.mode === 'paused' ? S.T.continue : S.T.endQuarter)}</button>`;
-  return `${error}${renderReadinessStrip(v)}${queue}
+  return `${error}${over}${renderReadinessStrip(v)}${queue}
     <button data-act="briefing" ${x.mode !== 'turn' ? 'disabled' : ''}>${t(S.T.briefing)}</button>
     <button data-act="decisions" class="${must ? 'must' : cards ? 'answered' : ''}">${t(S.T.pendingDecisions)} ${cards} · ${must} ${t(S.T.toAnswer)}</button>
     ${go}`;
@@ -163,18 +168,20 @@ export function renderStack(v: View): string {
 
 /** R11.1: the guided opening as a movable dialogue with old Liang. main.ts applies the highlight. */
 export function renderTutorial(v: View): string {
-  const tut = tutorialView(v.x, v.ui);
+  const tut = tutorialView(v.x, v.ui, v.slice);
   if (!tut) return '';
-  const t = tx(v.lang), scrutiny = tut.kind === 'scrutiny';
+  const t = tx(v.lang), scrutiny = tut.kind === 'scrutiny', sez = tut.kind === 'sez';
   const action = tut.action === 'start' ? `<button class="go" data-act="tutorialNext">${t(S.T.tutorialStart)}</button>`
     : tut.action === 'block' ? `<button data-act="tutorialBlock">${t(S.T.tutorialUseBlock)}</button>`
     : tut.action === 'done' ? `<button class="go" data-act="tutorialDone">${t(S.T.tutorialDone)}</button>`
-    : tut.action === 'scrutiny' ? `<button class="go" data-act="scrutinyDone">${t(S.T.tutScrutinyDone)}</button>` : '';
+    : tut.action === 'scrutiny' ? `<button class="go" data-act="scrutinyDone">${t(S.T.tutScrutinyDone)}</button>`
+    : tut.action === 'sez' ? `<button class="go" data-act="sezDone">${t(S.T.sezResultDone)}</button>` : '';
+  const step = sez ? t(S.T.sezResult) : scrutiny ? t(S.T.scrutiny) : `${tut.step + 1} / 6`;
   return `<div class="tuthead"><span class="grip" aria-hidden="true">⠿</span><b>${t(S.T.tutorialSpeaker)}</b>
-      <small>${t(S.T.tutorialRole)}</small><span class="tutstep">${scrutiny ? t(S.T.scrutiny) : `${tut.step + 1} / 6`}</span></div>
+      <small>${t(S.T.tutorialRole)}</small><span class="tutstep">${step}</span></div>
     <div class="tutbody"><img class="tutportrait" src="${esc(LAOLIANG)}" alt="" width="76" height="96">
       <div class="tutsay"><h3>${t(tut.title)}</h3><p>“${t(tut.body)}”</p>
-      <div class="opts">${action}${scrutiny ? '' : `<button data-act="tutorialSkip">${t(S.T.tutorialSkip)}</button>`}</div>
+      <div class="opts">${action}${scrutiny || sez ? '' : `<button data-act="tutorialSkip">${t(S.T.tutorialSkip)}</button>`}</div>
       ${tut.waiting ? `<div class="muted">${t(S.T.tutorialWait)}</div>` : ''}</div></div>`;
 }
 
@@ -333,15 +340,22 @@ export function renderBriefing(v: View): string {
 
 export function renderDecisions(v: View): string {
   const { x, slice } = v, t = tx(v.lang);
-  const cards = cardStack(x.state, slice).map((c) => `<div class="card ${c.interrupting ? 'int' : ''}">
+  const cards = cardStack(x.state, slice);
+  const investor = (c: (typeof cards)[number]) =>
+    c.card === SHORTCUT_CARD || (slice.tick.investors ?? []).some((a) => a.id === c.card);
+  const main = cards.filter((c) => !investor(c) || c.interrupting);
+  const more = cards.filter((c) => investor(c) && !c.interrupting);
+  const html = (c: (typeof cards)[number]) => `<div class="card ${c.interrupting ? 'int' : ''}">
       <h3>${t(c.title)}${c.count > 1 ? ` ×${c.count}` : ''}</h3>
       <div class="muted">${t(c.interrupting ? S.T.mustAnswer : S.T.optional)}${c.raised ? ` · ${t(S.T.raised)} ${c.raised}` : ''}${c.expires ? ` · ${t(S.T.expires)} ${c.expires}` : ''}${c.count > 1 ? ` · ${t(S.T.stacked)} ${c.count}` : ''}</div>
       ${c.description ? `<p class="desc">${t(c.description)}</p>` : ''}
       ${c.lines.map((l) => `<div class="line">${t(l.label)}: ${t(l.value)}</div>`).join('')}
       <div class="opts">${c.options.map((o) => `<div class="opt"><button data-act="choose" data-card="${esc(c.id)}" data-opt="${esc(o.id)}" data-group="${c.count > 1 ? '1' : '0'}"
         class="${x.answers[c.id] === o.id ? 'sel' : ''}">${t(o.label)}</button>${o.note ? `<div class="muted">${t(o.note)}</div>` : ''}${o.badges.length ? `<ul class="badges">${o.badges.map((b) =>
-        `<li>${t(b)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div></div>`).join('') || `<div class="muted">${t(S.T.noCards)}</div>`;
-  return `${closeBtn(v.lang, 'closeDecisions')}<h2>${t(S.T.pendingDecisions)}</h2><div class="modal-body">${cards}</div>
+        `<li>${t(b)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div></div>`;
+  const moreHtml = more.length
+    ? `<details class="more"><summary>${t(S.T.moreOffers)} (${more.length})</summary>${more.map(html).join('')}</details>` : '';
+  return `${closeBtn(v.lang, 'closeDecisions')}<h2>${t(S.T.pendingDecisions)}</h2><div class="modal-body">${main.map(html).join('')}${moreHtml || (main.length ? '' : `<div class="muted">${t(S.T.noCards)}</div>`)}</div>
     <div class="modal-foot"><button data-act="closeDecisions">${t(S.T.close)}</button></div>`;
 }
 
@@ -350,16 +364,21 @@ export function renderDecisions(v: View): string {
 function drawerBuilding(v: View): string {
   const t = tx(v.lang), { x, slice } = v;
   const teamLock = gateLock(x.state, slice, 'team.contract');
-  const works = worksView(x.state, slice).map((w) => `<div class="card"><b>#${w.id}</b> ${t(w.kind)} · ${t(w.where)}
-      <div class="muted">${t(w.stage)}${w.waiting ? ` · ${t(w.waiting)}` : ''} · ${yuan(w.spent)} / ${yuan(w.budget)} · ${t(S.T.remaining)} ${yuan(w.budget - w.spent)}</div>
+  const works = worksView(x.state, slice, x.queue).map((w) => `<div class="card"><b>#${w.id}</b> ${t(w.kind)} · ${t(w.where)}
+      ${w.priority === 'high' ? `<span class="tag">${t(S.T.highPriority)}</span>` : ''}
+      <div class="muted">${t(w.stage)}${w.waiting ? ` · ${t(w.waiting)}` : ''}${w.cancelling ? ` · ${t(S.T.cancelPending)}` : ''} · ${yuan(w.spent)} / ${yuan(w.budget)} · ${t(S.T.remaining)} ${yuan(w.budget - w.spent)}</div>
+      ${w.compensation ? `<div class="line">${t(S.T.compensation)}: ${yuan(w.compensation)}</div>` : ''}
+      ${w.byClass ? `<div class="line">${t(S.T.landCover)}: ${Object.entries(w.byClass).map(([k, n]) => `${t(S.LAND_COVER[k] ?? { zh: k, en: k })} ${num(n!)}`).join(' · ')}</div>` : ''}
       ${bar(w.total ? w.done / w.total : 0)}
       ${w.cells ? `<div class="cells">${w.cells.map((c) => `<span title="${c.x},${c.y}">${c.x},${c.y} ${t(c.stage)}</span>`).join(' · ')}</div>` : ''}
-      <button data-act="pauseOrder" data-id="${w.id}" data-paused="${w.paused ? '0' : '1'}" ${off(v)}>${t(w.paused ? S.T.resume : S.T.pause)}</button>
-      <button data-act="cancelOrder" data-id="${w.id}" ${off(v)}>${t(S.T.cancel)}</button></div>`).join('') || `<div class="muted">${t(S.T.none)}</div>`;
+      ${w.gap ? `<button data-act="showGap" data-x="${w.gap.x}" data-y="${w.gap.y}" ${off(v)}>${t(S.T.showGap)}</button>` : ''}
+      <button data-act="pauseOrder" data-id="${w.id}" data-paused="${w.paused ? '0' : '1'}" ${off(v) || w.cancelling ? 'disabled' : ''}>${t(w.paused ? S.T.resume : S.T.pause)}</button>
+      <button data-act="cancelOrder" data-id="${w.id}" ${off(v) || w.cancelling ? 'disabled' : ''}>${t(w.cancelling ? S.T.cancelPending : S.T.cancel)}</button></div>`).join('') || `<div class="muted">${t(S.T.none)}</div>`;
+  const crewCap = `<div class="muted">${t(S.T.crewCap)}: ${num(slice.params.works?.crew_per_order ?? 0)}</div>`;
   const projects = projectsView(x.state, slice).map((p) => `<div class="card"><b>#${p.id}</b> ${t(p.name)} · ${t(p.where)}
       <div class="muted">${t(p.stage)}${p.waiting ? ` · ${t(p.waiting)}` : ''} · ${yuan(p.spent)} / ${yuan(p.budget)}</div>${bar(p.progress)}
       <button data-act="cancel" data-id="${p.id}" ${off(v)}>${t(S.T.cancel)}</button></div>`).join('');
-  return `<h2>${t(S.T.worksQueue)}</h2>${works}
+  return `<h2>${t(S.T.worksQueue)}</h2>${crewCap}${works}
     ${projects ? `<h2>${t(S.T.projectsList)}</h2>${projects}` : ''}
     <h2>${t(S.T.teams)}</h2>${teamsView(x.state, slice).map((m) => `<div class="q"><span>${t(m.name)} <span class="muted">${num(m.crew)} · ${yuan(m.costPerMonth)}/${t(S.T.month)}</span></span>
       ${m.live ? `<span class="muted">${t(S.T.live)}</span>` : teamLock ? lockedButton(teamLock, v.lang, t(S.T.contract))   // R9 (§11.2)
@@ -368,16 +387,18 @@ function drawerBuilding(v: View): string {
 
 /** R11.1: the prologue readiness details, opened from the lower-right strip. */
 function drawerReadiness(v: View): string {
-  const { x, slice } = v, t = tx(v.lang), r = readinessView(x.state, slice);
+  const { x, slice } = v, t = tx(v.lang), r = readinessView(x.state, slice, x.lastTurnStart);
   const parts: [string, number][] = [['roads', r.roads], ['land', r.servicedLand], ['power', r.waterPower]];
   const labels: Record<string, L> = { roads: S.T.readyRoads, land: S.T.readyLand, power: S.T.readyWaterPower };
+  const deltaKey = { roads: 'roads', land: 'servicedLand', power: 'waterPower' } as const;
+  const partDelta = (k: string) => r.delta?.[deltaKey[k as keyof typeof deltaKey]];
   const weakest = r.weakest === 'servicedLand' ? 'land' : r.weakest === 'waterPower' ? 'power' : 'roads';
   const target = `${t(S.T.readinessTarget)}: ${pct(r.targetBar)} · ${r.targetCards} ${t(S.T.readinessCards)}`;
   return `<div class="readihead"><span class="readipct">${pct(r.bar)}</span><span class="muted">· ${t(S.T.readinessForecast)} ${r.forecast}</span></div>
     <div class="bar readibar"><i style="width:${Math.round(100 * Math.max(0, Math.min(1, r.bar)))}%"></i><b class="mark" style="left:${Math.round(100 * r.targetBar)}%"></b></div>
     <div class="readitarget">${target}</div>
-    <div class="readiparts">${parts.map(([k, n]) => `<div class="${k === weakest ? 'weak' : ''}"><span>${t(labels[k]!)}</span>${bar(n)}<b>${pct(n)}</b></div>`).join('')}</div>
-    <div class="muted">${t(S.T.weakestPart)}: ${t(labels[weakest]!)}</div>
+    <div class="readiparts">${parts.map(([k, n]) => { const d = partDelta(k); return `<div class="${k === weakest ? 'weak' : ''}"><span>${t(labels[k]!)}</span>${bar(n)}<b>${pct(n)}</b>${d === undefined || Math.abs(d) < 0.0005 ? '' : `<span class="${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : '-'}${(100 * Math.abs(d)).toFixed(1)} ${t(S.T.points)}</span>`}</div>`; }).join('')}</div>
+    <div class="muted">${t(S.T.weakestPart)}: ${t(labels[weakest]!)}${r.newFirms ? ` · ${num(r.newFirms)} ${t(S.T.newFirms)}` : ''}</div>
     <div class="hint">${t(S.T.readinessExplainer)}</div>`;
 }
 

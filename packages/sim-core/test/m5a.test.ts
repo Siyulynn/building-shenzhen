@@ -105,8 +105,9 @@ describe('M5a: the guaranteed first contract', () => {
 
 describe('M5a: the SEZ chain', () => {
   it('raises the card on the anchor month, pauses, and opens the next month with the answered priority', () => {
-    const r = go(initial(), SEZ_MONTH + 1, { answer: declineInvestors });
-    const s = r.state;
+    const r = go(initial(), SEZ_MONTH + 1, { answer: declineInvestors,
+      script: { 0: [{ type: 'create_zone', use: 'industrial', runs: areaRuns(7, 20) }] } });
+    const s = { ...r.state, zones: r.state.zones.map((z) => ({ ...z, servicedShare: 1 })) };
     expect(s.date).toBe(ym('1980-09'));
     const card = s.pendingCards.find((c) => c.card === 'event.sez_established')!;
     expect(card.interrupting).toBe(true);
@@ -150,7 +151,10 @@ describe('M5a: the SEZ chain', () => {
   });
 
   it('new origins arrive only after the opening', () => {
-    const r = go(initial(), 45, { answer: declineInvestors, seed: 3 });
+    const base = initial();
+    const prepared: GameState = { ...base, zones: [{ id: 1, use: 'industrial', runs: areaRuns(7, 20), cellCount: 20,
+      area: 7, created: base.date, servicedShare: 1, name: { kind: 'generic' } }], servicedLand: areaRuns(7, 20) };
+    const r = go(prepared, 45, { answer: declineInvestors, seed: 3 });
     const opened = r.state.sez.opened!;
     const sezCards = r.states.flatMap((s) => s.pendingCards).filter((c) => SEZ_ARCHETYPES.includes(c.card));
     expect(sezCards.length).toBeGreaterThan(0);
@@ -162,7 +166,7 @@ describe('M5a: readiness', () => {
   it('starts with every part below 1, and each part rises with its own work', () => {
     const s = initial();
     const r0 = readiness(s, params, buildable);
-    expect(r0.cells).toBe(470 + 242 + 222 + 537);    // R8a: the formable land-cover cells of areas 1, 2, 3 and 7
+    expect(r0.cells).toBe(431 + 242 + 222 + 536);    // Formable land-cover cells of areas 1, 2, 3 and 7.
     expect(r0.roads).toBe(0);
     expect(r0.servicedLand).toBe(0);
     expect(r0.waterPower).toBeGreaterThan(0);
@@ -327,6 +331,17 @@ describe('M5a: the deal-maker\'s shortcut', () => {
       expect(t.pendingCards.some((c) => c.card === SHORTCUT_CARD)).toBe(false);
     }
     expect(t.pendingCards.some((c) => c.card === HK)).toBe(true);
+  });
+
+  it('keeps at most one shortcut pending when several offers would qualify', () => {
+    let s = withLeaders(), most = 0;
+    for (let m = 0; m < 12; m++) {
+      const r = step(s, m === 0 ? [ONE] : [], new Rng(2), steps);
+      if (r.status !== 'advanced') throw new Error(r.status);
+      s = r.state;
+      most = Math.max(most, s.pendingCards.filter((c) => c.card === SHORTCUT_CARD).length);
+    }
+    expect(most).toBe(1);
   });
 
   it('accepting sites the firm on unserviced land at a sweetheart price, with the risk recorded', () => {

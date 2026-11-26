@@ -149,6 +149,8 @@
     #briefing > .x, #decisions > .x { position: absolute; top: 8px; right: 10px; z-index: 2; }
     #briefing > h2:first-child, #decisions > h2 { font-size: 15px; color: var(--maroon); border-bottom: 3px double var(--maroon); padding-bottom: 3px; margin-top: 0; flex: none; }
     #briefing .modal-body, #decisions .modal-body { flex: 1 1 auto; min-height: 0; overflow-y: scroll; padding-right: 4px; }
+    #decisions details.more { margin-top: 8px; border-top: 1px dotted var(--rule); padding-top: 6px; }
+    #decisions details.more > summary { cursor: pointer; font: bold 11px var(--type); color: var(--maroon); text-transform: uppercase; letter-spacing: .06em; }
     #briefing .modal-foot, #decisions .modal-foot { flex: none; border-top: 1px solid var(--rule); margin-top: 8px; padding-top: 8px; text-align: center; }
     #briefing .go, #verdict .go { display: block; margin: 0 auto; }
     #preview { display: none; z-index: 7; width: 240px; font-size: 12px; pointer-events: none; border: 1px solid var(--ink); box-shadow: 2px 2px 0 rgba(43,29,23,.35); padding: 5px 8px; }
@@ -214,6 +216,8 @@
     details > summary { cursor: pointer; font-family: var(--type); }
     .lang { float: right; display: flex; gap: 2px; margin-left: 8px; } .lang button { padding: 1px 6px; font-size: 12px; box-shadow: none; }
     .err { background: #f2d6cb; color: var(--ink); border: 1px solid var(--red); border-left: 6px solid var(--red); padding: 6px 8px; }
+    .warn { background: #f6e6bf; color: var(--ink); border: 1px solid #8a6d1f; border-left: 6px solid #b8860b; padding: 5px 8px; font-size: 12px; }
+    .tag { display: inline-block; margin-left: 5px; padding: 0 5px; border: 1px solid var(--maroon); color: var(--maroon); font: bold 10px var(--type); text-transform: uppercase; letter-spacing: .04em; }
     .err::before { content: "✕ "; color: var(--red-ink); font-weight: bold; }
     .refused { color: var(--red-ink); } .refused::before { content: "✕ "; font-weight: bold; }
     .q { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin: 3px 0; } .q button { padding: 0 6px; }

@@ -129,13 +129,19 @@ const dealMaker = (s: GameState) => s.leadership.leaders.find((l) => l.traits.in
 
 /**
  * Raise an investor card of `jobs` jobs (§5.5): used by arrivals and by M5a's events (the guaranteed contract, the
- * first wave). Non-interrupting, with the sites as options and the offer as its payload.
+ * first wave). Non-interrupting, with the sites as options and the offer as its payload. An offer with no site is not
+ * raised: a card whose only option is Decline is noise, so it is recorded and dropped (R11.2).
  */
 export function raiseOffer(ctx: TickContext, step: string, a: InvestorArchetype, jobs: number, p: SliceParams,
-  buildable?: Buildable): CardInstance {
+  buildable?: Buildable): CardInstance | undefined {
   const s = ctx.state;
   const o = sizeOffer(p, a.id, a.ownership, jobs);
-  const inst = ctx.raise({ card: a.id, options: siteOptions(s, a, o, p, buildable), interrupting: false });
+  const options = siteOptions(s, a, o, p, buildable);
+  if (!options.some((option) => option !== 'decline')) {
+    ctx.events.push({ step, kind: 'offer_not_sited', detail: { archetype: a.id, jobs: o.jobs } });
+    return undefined;
+  }
+  const inst = ctx.raise({ card: a.id, options, interrupting: false });
   inst.payload = { offer: { ...o } };
   inst.expires = s.date + p.investors.offer_months;
   ctx.events.push({ step, kind: 'offer_raised', detail: { card: inst.id, jobs: o.jobs } });
@@ -248,9 +254,10 @@ export function offers(p: SliceParams, content: InvestorContent) {
       raiseOffer(ctx, 'investment', a, lo + ctx.rng.int(hi - lo + 1), p, content.buildable);
     }
 
-    // 5. the deal-maker's shortcut: once per offer with no zone site, when a zone would fit it on unserviced land
+    // 5. the deal-maker's shortcut: once per offer with no zone site, when a zone would fit it on unserviced land.
+    // R11.2: one pending shortcut at a time, rather than one per eligible offer in the same month.
     const dm = dealMaker(s);
-    if (!dm) return;
+    if (!dm || s.pendingCards.some((c) => c.card === SHORTCUT_CARD)) return;
     for (const c of [...s.pendingCards]) {
       if (!byId.has(c.card) || c.payload?.shortcutOffered || c.options.some((x) => x.startsWith('accept:zone:'))) continue;
       const options = shortcutOptions(s, offerOf(c), p, content.buildable);
@@ -260,6 +267,7 @@ export function offers(p: SliceParams, content: InvestorContent) {
       inst.payload = { offerCard: c.id, offer: { ...offerOf(c) }, leader: dm.id };
       if (c.expires !== undefined) inst.expires = c.expires;
       ev('shortcut_offered', { card: inst.id, offer: c.id });
+      break;
     }
   };
 }

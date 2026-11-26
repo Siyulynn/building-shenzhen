@@ -6,6 +6,8 @@
  */
 import type { Session } from './controller.js';
 import type { UiState } from './render.js';
+import { pct, readinessView } from './views.js';
+import type { Slice } from '@sz/sim-core';
 import * as S from './strings.js';
 import type { L } from './strings.js';
 
@@ -15,13 +17,13 @@ export const STARTER_TO: readonly [number, number] = [387, 376];
 
 export interface Tutorial {
   step: number;
-  kind?: 'scrutiny';                  // R11.1: a one-off explanation, not a guide step
+  kind?: 'scrutiny' | 'sez';          // R11.1/R11.2: a one-off panel, not a guide step
   title: L;
   body: L;
   target?: string;
   waiting: boolean;
   cells?: readonly (readonly [number, number])[];
-  action?: 'start' | 'block' | 'done' | 'scrutiny';
+  action?: 'start' | 'block' | 'done' | 'scrutiny' | 'sez';
 }
 
 const CONTENT: readonly { title: L; body: L }[] = [
@@ -34,12 +36,26 @@ const CONTENT: readonly { title: L; body: L }[] = [
 ];
 
 /** The step shown now. Action steps advance when the state shows the player did them. */
-export function tutorialView(x: Session, ui: UiState): Tutorial | undefined {
+export function tutorialView(x: Session, ui: UiState, slice?: Slice): Tutorial | undefined {
   // R11.1: after (or instead of) the opening guide, the first scrutiny score gets one explanation.
+  // R11.2: the SEZ opening gets a prologue result, once, with the actual readiness and first wave.
   if (!ui.tutorial) {
-    if (ui.scrutinySeen || x.state.climate.scrutiny <= 0) return undefined;
-    return { step: 0, kind: 'scrutiny', title: S.T.tutScrutinyTitle, body: S.T.tutScrutinyBody,
-      waiting: false, action: 'scrutiny' };
+    if (!ui.scrutinySeen && x.state.climate.scrutiny > 0) {
+      return { step: 0, kind: 'scrutiny', title: S.T.tutScrutinyTitle, body: S.T.tutScrutinyBody,
+        waiting: false, action: 'scrutiny' };
+    }
+    if (slice && x.state.sez.opened !== undefined && !ui.sezReported) {
+      const r = readinessView(x.state, slice);
+      const met = r.bar >= r.targetBar;
+      const lead = met ? S.T.sezResultMet : S.T.sezResultMissed;
+      const wave = x.state.sez.waveCards ?? r.forecast;
+      const body: L = {
+        zh: `${lead.zh}特区成立时准备程度 ${pct(r.bar)}，目标 ${pct(r.targetBar)}；首批投资 ${wave} 张。`,
+        en: `${lead.en} Readiness when the zone opened: ${pct(r.bar)}; target ${pct(r.targetBar)}; first wave ${wave} cards.`,
+      };
+      return { step: 0, kind: 'sez', title: S.T.sezResultTitle, body, waiting: false, action: 'sez' };
+    }
+    return undefined;
   }
   let step = ui.tutorialStep;
   const firstPending = x.state.pendingCards.some((c) => c.card === 'event.first_project' && x.answers[c.id] === undefined);

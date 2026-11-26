@@ -69,36 +69,41 @@ describe('M3b offers: arrivals and options', () => {
     }
   });
 
-  it('offers industrial zones with room, existing premises and decline; an inland unit needs a zone', () => {
+  it('drops an offer with no site instead of raising a dead card; with a site it lists zones and premises', () => {
+    // 200 jobs is more than an area's existing premises hold: with no zone there is no card, only a log line
     const r = month(initial());
-    const c = offerCards(r.state)[0]!;
+    expect(offerCards(r.state)).toHaveLength(0);
+    expect(kinds(r.events)).toContain('offer_not_sited');
+    // 100 jobs fits existing premises
+    const small = month(initial(), [], SMALL);
+    const c = offerCards(small.state)[0]!;
     expect(c).toMatchObject({ card: HK, interrupting: false, expires: initial().date + params.investors.offer_months });
-    expect(c.payload).toMatchObject({ offer: { archetype: HK, jobs: 200, floorM2: 2000, dormM2: 300 } });
-    expect(kinds(r.events)).toEqual(['card_raised', 'offer_raised']);
-    // 200 jobs is more than an area's existing premises hold: with no zone, only decline
-    expect(c.options).toEqual(['decline']);
-    expect(offerCards(month(initial(), [], SMALL).state)[0]!.options).toEqual([...PREMISES, 'decline']);
+    expect(c.payload).toMatchObject({ offer: { archetype: HK, jobs: 100 } });
+    expect(c.options).toEqual([...PREMISES, 'decline']);
     // an industrial zone is offered first; a residential one is not
     const z = month(initial(), [ONE_CELL, zoneAt(361, 362, 372, 372, 'residential')], SMALL);
     expect(offerCards(z.state)[0]!.options).toEqual(['accept:zone:1', ...PREMISES, 'decline']);
     const soe = createTickSteps(validateParams({ ...params, investors: { ...params.investors, archetypes: {
       [HK]: { ...params.investors.archetypes[HK]!, rate_per_quarter: 0 },
       [SOE]: { ...params.investors.archetypes[SOE]!, rate_per_quarter: 3 } } } }), { precedents, investors });
-    expect(offerCards(month(initial(), [], soe).state)[0]!.options).toEqual(['decline']);
+    const soeNoZone = month(initial(), [], soe);
+    expect(offerCards(soeNoZone.state)).toHaveLength(0);
+    expect(kinds(soeNoZone.events)).toContain('offer_not_sited');
+    expect(offerCards(month(initial(), [ONE_CELL], soe).state)[0]!.options).toEqual(['accept:zone:1', 'decline']);
   });
 
   it('shows a zone drawn after the offer in the next options, and accepts into it (through runQuarter)', () => {
     const rng = new Rng(2);
-    const q1 = runQuarter(initial(), [], rng, STEPS);
+    const q1 = runQuarter(initial(), [], rng, SMALL);
     expect(q1.status).toBe('turn_end');
     const first = offerCards(q1.state)[0]!;
     expect(first.options).not.toContain('accept:zone:1');
-    const q2 = runQuarter(q1.state, [ONE_CELL], rng, STEPS);
+    const q2 = runQuarter(q1.state, [ONE_CELL], rng, SMALL);
     const again = offerCards(q2.state).find((c) => c.id === first.id)!;
     expect(again.options[0]).toBe('accept:zone:1');
-    const q3 = runQuarter(q2.state, [answer(again, 'accept:zone:1')], rng, STEPS);
+    const q3 = runQuarter(q2.state, [answer(again, 'accept:zone:1')], rng, SMALL);
     expect(q3.state.firms).toHaveLength(1);
-    expect(q3.state.firms[0]).toMatchObject({ zone: 1, area: 7, premises: 'new_factory', jobs: 200 });
+    expect(q3.state.firms[0]).toMatchObject({ zone: 1, area: 7, premises: 'new_factory', jobs: 100 });
   });
 });
 

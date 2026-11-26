@@ -88,26 +88,47 @@ export interface CardView {
   lines: Line[];
 }
 
-/** R11.1: an offer's shared project lines, and the one-line status shown under each site's button. */
+/** R11.2: one figure across an offer's sites, split by site kind when that is what differs. */
+function offerFigure(v: ReturnType<typeof previewOffer>, label: L, pick: (site: (typeof v.sites)[number]) => number | undefined,
+  fmt: (n: number) => string): Line | undefined {
+  const values = v.sites.map(pick);
+  if (values.some((x) => x === undefined)) return undefined;
+  const unique = [...new Set(values as number[])];
+  if (!unique.length) return undefined;
+  if (unique.length === 1) return { label, value: raw(fmt(unique[0]!)) };
+  const byKind = new Map<string, Set<number>>();
+  for (const [i, site] of v.sites.entries()) {
+    const kind = site.premises;
+    const set = byKind.get(kind) ?? new Set<number>();
+    set.add(values[i]!);
+    byKind.set(kind, set);
+  }
+  const order = ['existing', 'new_factory'] as const;
+  if (unique.length === 2 && order.every((k) => (byKind.get(k)?.size ?? 0) <= 1)
+    && order.some((k) => byKind.get(k)?.size === 1)) {
+    const parts = order.filter((k) => byKind.get(k)?.size === 1).map((k) => {
+      const n = [...byKind.get(k)!][0]!;
+      return joinL([raw(fmt(n)), k === 'existing' ? S.T.inPremises! : S.T.inNewFactory!], ' ');
+    });
+    return { label, value: joinL(parts, ' · ') };
+  }
+  const min = Math.min(...unique), max = Math.max(...unique);
+  return { label, value: raw(min === max ? fmt(min) : `${fmt(min)}–${fmt(max)}`) };
+}
+
+/** R11.2: an offer's project figures, and the one-line status shown under each site's button. */
 function offerView(s: GameState, c: CardInstance, slice: Slice): { lines: Line[]; notes: Map<string, L> } {
   const v = previewOffer(s, c, slice.params, slice.tick);
-  const beds = v.sites.map((q) => q.bedsNeeded), output = v.sites.map((q) => q.perYear.output);
-  const f0 = v.sites[0]?.fiscal;
-  const same = (xs: readonly number[]) => xs.length > 0 && xs.every((x) => x === xs[0]);
-  const shared = {
-    beds: same(beds), output: same(output),
-    cash: f0 !== undefined && v.sites.every((q) => q.fiscal?.cashThisQuarter === f0.cashThisQuarter),
-    retained: f0 !== undefined && v.sites.every((q) => q.fiscal?.retainedTaxPerYear === f0.retainedTaxPerYear),
-    obligations: f0 !== undefined && v.sites.every((q) => q.fiscal?.newObligationsPerYear === f0.newObligationsPerYear),
-  };
-  // The project's own figures once at the top; each site only says whether it can carry them.
   const lines: Line[] = [
     { label: S.T.offerJobs, value: raw(num(v.jobs)) }, { label: S.T.powerNeed, value: raw(`${num(v.powerKw)} kW`) }];
-  if (shared.beds) lines.push({ label: S.T.bedsNeeded, value: raw(num(beds[0]!)) });
-  if (shared.output) lines.push({ label: S.T.perYearOutput, value: raw(yuan(output[0]!)) });
-  if (shared.cash) lines.push({ label: S.T.cash, value: raw(yuan(f0!.cashThisQuarter)) });
-  if (shared.retained) lines.push({ label: S.T.retained, value: raw(yuan(f0!.retainedTaxPerYear)) });
-  if (shared.obligations) lines.push({ label: S.T.newObligations, value: raw(yuan(f0!.newObligationsPerYear)) });
+  const figures: (Line | undefined)[] = [
+    offerFigure(v, S.T.bedsNeeded!, (site) => site.bedsNeeded, num),
+    offerFigure(v, S.T.perYearOutput!, (site) => site.perYear.output, yuan),
+    offerFigure(v, S.T.cash!, (site) => site.fiscal?.cashThisQuarter, yuan),
+    offerFigure(v, S.T.retained!, (site) => site.fiscal?.retainedTaxPerYear, yuan),
+    offerFigure(v, S.T.newObligations!, (site) => site.fiscal?.newObligationsPerYear, yuan),
+  ];
+  for (const f of figures) if (f) lines.push(f);
   const notes = new Map<string, L>();
   for (const site of v.sites) {
     const h = s.housing.find((q) => q.area === site.area);
@@ -115,14 +136,7 @@ function offerView(s: GameState, c: CardInstance, slice: Slice): { lines: Line[]
     const parts = [lv(S.T.opensIn, String(site.opensInMonths)),
       site.powerFreeKw >= v.powerKw ? S.T.powerEnough! : S.T.powerShort!,
       bedsFree >= site.bedsNeeded ? S.T.bedsEnough! : S.T.bedsShort!];
-    if (!shared.beds) parts.push(lv(S.T.bedsNeeded, num(site.bedsNeeded)));
-    if (!shared.output) parts.push(lv(S.T.perYearOutput, yuan(site.perYear.output)));
-    const f = site.fiscal;
-    if (f) {
-      if (!shared.cash) parts.push(lv(S.T.cash, yuan(f.cashThisQuarter)));
-      if (!shared.retained) parts.push(lv(S.T.retained, yuan(f.retainedTaxPerYear)));
-      if (!shared.obligations) parts.push(lv(S.T.newObligations, yuan(f.newObligationsPerYear)));
-    }
+    if (site.premises === 'existing' && site.premisesJobsFree !== undefined) parts.push(lv(S.T.premisesFree, num(site.premisesJobsFree)));
     notes.set(site.option, joinL(parts, ' · '));
   }
   return { lines, notes };
@@ -235,6 +249,12 @@ export function cardView(s: GameState, slice: Slice, c: CardInstance, count = 1,
   const ev = slice.tick.events.find((d) => d.id === c.card);
   const badges = ev ? effectBadges(ev, slice, s, count) : {};
   const offer = c.payload?.offer ? offerView(s, c, slice) : undefined;
+  // R11.2: a shortcut card names the offer it belongs to; without this the queue shows identical cards.
+  const shortcut = c.card === SHORTCUT_CARD ? c.payload?.offer as { archetype?: string; jobs?: number } | undefined : undefined;
+  const from = shortcut?.archetype ? named(slice.tick.investors, shortcut.archetype) : undefined;
+  const shortcutLine: Line[] = shortcut?.archetype
+    ? [{ label: S.T.shortcutFrom, value: joinL([from ?? raw(shortcut.archetype), lv(S.T.offerJobs, num(shortcut.jobs ?? 0))], ' · ') }]
+    : [];
   return {
     id: c.id, card: c.card, title: cardTitle(slice, c.card) ?? raw(c.card), interrupting: c.interrupting,
     ids, count,
@@ -243,7 +263,7 @@ export function cardView(s: GameState, slice: Slice, c: CardInstance, count = 1,
     ...(ev?.description ? { description: ev.description } : {}),
     options: c.options.map((o) => ({ id: o, label: optionLabel(s, slice, c.card, o) ?? raw(o), badges: badges[o] ?? [],
       ...(offer?.notes.get(o) ? { note: offer.notes.get(o) } : {}) })),
-    lines: [...(offer?.lines ?? []), ...cardLines(s, slice, c)],
+    lines: [...(offer?.lines ?? []), ...shortcutLine, ...cardLines(s, slice, c)],
   };
 }
 
@@ -651,16 +671,21 @@ export function areaBox(s: GameState, id: number, pad = 6): [number, number, num
 }
 
 /** The prologue's readiness panel (R11.1): the bar, its three parts and a first-wave target. */
-export function readinessView(s: GameState, slice: Slice) {
+export function readinessView(s: GameState, slice: Slice, before?: GameState) {
   const r = readiness(s, slice.params, slice.tick.buildable);
   const wave = slice.params.readiness.first_wave;
   const targetCards = Math.min(wave.max_cards, Math.max(wave.min_cards, 3));
   // The first-wave card count rounds, so find the smallest bar that actually yields the target.
   let targetBar = 0;
   for (let b = 0; b <= 1; b += 0.01) if (firstWaveCards(b, slice.params) >= targetCards) { targetBar = b; break; }
+  const prev = before ? readiness(before, slice.params, slice.tick.buildable) : undefined;
+  const delta = prev ? { bar: r.bar - prev.bar, roads: r.roads - prev.roads,
+    servicedLand: r.servicedLand - prev.servicedLand, waterPower: r.waterPower - prev.waterPower } : undefined;
+  const newFirms = before ? s.firms.filter((f) => f.opens !== undefined && f.opens > before.date && f.opens <= s.date).length : 0;
   return {
     bar: r.bar, roads: r.roads, servicedLand: r.servicedLand, waterPower: r.waterPower, weakest: r.weakest,
     forecast: firstWaveCards(r.bar, slice.params), targetCards, targetBar,
+    ...(delta ? { delta } : {}), newFirms,
   };
 }
 
@@ -1107,7 +1132,12 @@ export function chipsView(s: GameState, slice: Slice, queuedBudget = 0): Chip[] 
 
 export interface WorkRow {
   id: number; kind: L; where: L; stage: L; waiting?: L; paused: boolean; priority: string;
-  done: number; total: number; spent: number; budget: number; cells?: { x: number; y: number; stage: L }[];
+  done: number; total: number; spent: number; budget: number;
+  cancelling: boolean;                                   // R11.2: a cancel is queued for this order
+  compensation?: number;                                 // R11.2: land compensation owed by this order
+  byClass?: Partial<Record<string, number>>;              // R11.2: a service order's cells by land-cover class
+  gap?: { x: number; y: number };                        // R11.2: a road order's disconnected end
+  cells?: { x: number; y: number; stage: L }[];
 }
 function orderWhere(s: GameState, slice: Slice, o: WorksOrder): L {
   const W = s.grid.width, xy = (c: number) => `${c % W},${Math.floor(c / W)}`;
@@ -1120,15 +1150,28 @@ function orderWhere(s: GameState, slice: Slice, o: WorksOrder): L {
   const kind = pl.kind === 'facility' && pl.facility ? S.FACILITY[pl.facility] ?? raw(pl.facility) : S.STRUCTURE[pl.kind]!;
   return cat(kind, cat(areaName(s, playableAreaOf(s, pl.cell)), raw(` · ${xy(pl.cell)}`), '', ''), ': ');
 }
-export function worksView(s: GameState, slice: Slice): WorkRow[] {
+export function worksView(s: GameState, slice: Slice, queue: readonly PlayerAction[] = []): WorkRow[] {
   const W = s.grid.width;
-  return s.worksOrders.filter(liveOrder).map((o) => ({
-    id: o.id, kind: S.ORDER_KIND[o.kind]!, where: orderWhere(s, slice, o), stage: S.ORDER_STAGE[o.stage]!,
-    ...(o.waiting ? { waiting: S.WAITING[o.waiting] ?? raw(o.waiting) } : {}), paused: o.paused, priority: o.priority,
-    done: o.unitsDone, total: o.unitsTotal, spent: o.spent, budget: o.budget,
-    ...(o.kind === 'service' ? { cells: s.cellWorks.filter((w) => w.order === o.id)
-      .map((w) => ({ x: w.cell % W, y: Math.floor(w.cell / W), stage: S.WORK_STAGE[w.stage]! })) } : {}),
-  }));
+  const cancelling = new Set(queue.flatMap((a) => (a.type === 'cancel_works' ? [a.order] : [])));
+  return s.worksOrders.filter(liveOrder).map((o) => {
+    const cells = o.kind === 'service' ? s.cellWorks.filter((w) => w.order === o.id) : [];
+    const byClass = o.kind === 'service' && slice.tick.landcover
+      ? cells.reduce((m, w) => { const k = landCoverAt(slice.tick.landcover!, w.cell); if (k) m[k] = (m[k] ?? 0) + 1; return m; },
+        {} as Partial<Record<string, number>>) : undefined;
+    const start = o.kind === 'road' ? o.path?.[0]?.cell : undefined;
+    const gap = o.waiting === 'access' && start !== undefined ? { x: start % W, y: Math.floor(start / W) } : undefined;
+    const compensation = s.fiscal.obligations
+      .filter((x) => x.kind === 'compensation' && x.createdBy === `works.${o.id}`)
+      .reduce((n, x) => n + x.perMonth, 0);
+    return {
+      id: o.id, kind: S.ORDER_KIND[o.kind]!, where: orderWhere(s, slice, o), stage: S.ORDER_STAGE[o.stage]!,
+      ...(o.waiting ? { waiting: S.WAITING[o.waiting] ?? raw(o.waiting) } : {}), paused: o.paused, priority: o.priority,
+      done: o.unitsDone, total: o.unitsTotal, spent: o.spent, budget: o.budget, cancelling: cancelling.has(o.id),
+      ...(compensation > 0 ? { compensation } : {}), ...(byClass && Object.keys(byClass).length ? { byClass } : {}),
+      ...(gap ? { gap } : {}),
+      ...(o.kind === 'service' ? { cells: cells.map((w) => ({ x: w.cell % W, y: Math.floor(w.cell / W), stage: S.WORK_STAGE[w.stage]! })) } : {}),
+    };
+  });
 }
 
 // ---- the briefing: where work finished ----

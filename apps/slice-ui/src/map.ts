@@ -42,6 +42,19 @@ export interface Scene {
   villages: ReadonlyMap<number, number>;   // core zoom: village floor over footprint, by area
 }
 
+/** R11.2: a 1-cell dark edge around each zone, so zone blocks read at fit-playable zoom. */
+function zoneEdgeLayer(W: number, H: number, px: Uint8ClampedArray): HTMLCanvasElement {
+  const out = new Uint8ClampedArray(W * H * 4);
+  const same = (a: number, b: number) => px[a * 4] === px[b * 4] && px[a * 4 + 1] === px[b * 4 + 1] && px[a * 4 + 2] === px[b * 4 + 2];
+  for (let c = 0; c < W * H; c++) {
+    if (px[c * 4 + 3] === 0) continue;
+    const x = c % W;
+    const ns = [x > 0 ? c - 1 : -1, x < W - 1 ? c + 1 : -1, c - W, c + W];
+    if (ns.some((n) => n < 0 || n >= W * H || px[n * 4 + 3] === 0 || !same(c, n))) out.set([92, 31, 36, 190], c * 4);
+  }
+  return layerOf(W, H, out);
+}
+
 const layerOf = (W: number, H: number, px: Uint8ClampedArray) => {
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
@@ -144,6 +157,7 @@ export class SliceMap {
   private nonFormable = new Set<number>();           // water, tidal flat, hill and village: a zone cannot form here
   private overlay: HTMLCanvasElement | null = null;
   private zones: HTMLCanvasElement | null = null;
+  private zoneEdges: HTMLCanvasElement | null = null;
   private scene: Scene | null = null;
   private pending = false;
   /** Left drags draw with a build tool; otherwise they pan. Right-drag always pans, even while building (R11.1). */
@@ -171,7 +185,10 @@ export class SliceMap {
   setScene(sc: Scene) {
     const { width: W, height: H } = sc.state.grid;
     if (sc.overlay !== this.scene?.overlay) this.overlay = sc.overlay ? layerOf(W, H, sc.overlay) : null;
-    if (sc.zones !== this.scene?.zones) this.zones = layerOf(W, H, sc.zones);
+    if (sc.zones !== this.scene?.zones) {
+      this.zones = layerOf(W, H, sc.zones);
+      this.zoneEdges = zoneEdgeLayer(W, H, sc.zones);
+    }
     this.scene = sc;
     this.request();
   }
@@ -260,6 +277,7 @@ export class SliceMap {
     ctx.drawImage(this.lines, 0, 0);
     if (this.zones) ctx.drawImage(this.zones, 0, 0);
     if (this.overlay) ctx.drawImage(this.overlay, 0, 0);
+    if (this.zoneEdges && this.cellPx >= 2) ctx.drawImage(this.zoneEdges, 0, 0);
     this.drawFarms();                    // fields are buildable, but the cover warns before a drag
     this.drawNonFormable();              // Zoning: water, hills and villages cannot be formed
     // R11.1: the city exists around the seven playable areas; only the playable land stays lit.
@@ -458,19 +476,28 @@ export class SliceMap {
     const { ctx } = this, W = sc.state.grid.width, px = devicePixelRatio / this.view.scale;
     const start = new Set(this.slice.startNetwork.routes.filter((r) => r.kind === 'road').flatMap((r) => r.cells));
     const all = new Set([...sc.roads, ...start]);
-    const half = Math.max(.18, 1.5 * px);
+    const half = Math.max(.22, 1.8 * px);
     ctx.save();
+    // R11.2: a dark casing and a warm centre, so a built road is not mistaken for a planning boundary.
+    for (const c of sc.roads) {
+      const x = c % W + .5, y = Math.floor(c / W) + .5, h = half * 1.35;
+      ctx.fillStyle = sc.bridges.has(c) ? '#5a4a3a' : '#4d3c31';
+      ctx.fillRect(x - h, y - h, 2 * h, 2 * h);
+      if (all.has(c - 1) && c % W > 0) ctx.fillRect(x - .5, y - h, .5, 2 * h);
+      if (all.has(c + 1) && (c + 1) % W > 0) ctx.fillRect(x, y - h, .5, 2 * h);
+      if (all.has(c - W)) ctx.fillRect(x - h, y - .5, 2 * h, .5);
+      if (all.has(c + W)) ctx.fillRect(x - h, y, 2 * h, .5);
+    }
     for (const c of sc.roads) {
       const x = c % W + .5, y = Math.floor(c / W) + .5;
-      if (sc.bridges.has(c)) { ctx.fillStyle = '#6b5a48'; ctx.fillRect(x - half * 1.8, y - half * 1.8, half * 3.6, half * 3.6); }
-      ctx.fillStyle = '#e9e1cc';
+      ctx.fillStyle = '#f7edd6';
       ctx.fillRect(x - half, y - half, 2 * half, 2 * half);
       if (all.has(c - 1) && c % W > 0) ctx.fillRect(x - .5, y - half, .5, 2 * half);
       if (all.has(c + 1) && (c + 1) % W > 0) ctx.fillRect(x, y - half, .5, 2 * half);
       if (all.has(c - W)) ctx.fillRect(x - half, y - .5, 2 * half, .5);
       if (all.has(c + W)) ctx.fillRect(x - half, y, 2 * half, .5);
     }
-    ctx.strokeStyle = 'rgba(233,225,204,.9)'; ctx.lineWidth = Math.max(px, .05); ctx.setLineDash([3 * px, 2 * px]);
+    ctx.strokeStyle = 'rgba(77,60,49,.9)'; ctx.lineWidth = Math.max(px, .05); ctx.setLineDash([3 * px, 2 * px]);
     for (const b of sc.building) {
       const x = b.cell % W, y = Math.floor(b.cell / W);
       ctx.strokeRect(x + .5 - half, y + .5 - half, 2 * half, 2 * half);

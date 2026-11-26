@@ -127,7 +127,7 @@ function render(): void {
   if (x.mode !== 'turn' && isBuildTool(ui.tool)) ui.tool = 'select';   // tools are off mid-quarter and after the end
   if (x.mode === 'paused' && unanswered(x).length) ui.decisions = true;
   const v = view();
-  const tut = x.mode === 'turn' && !ui.briefing && !ui.decisions && !ui.drawer ? tutorialView(x, ui) : undefined;
+  const tut = x.mode === 'turn' && !ui.briefing && !ui.decisions && !ui.drawer ? tutorialView(x, ui, slice) : undefined;
   if (tut) ui.tutorialStep = tut.step;                                  // action steps advance from the state
   document.documentElement.lang = htmlLang(lang);
   document.title = pageTitle(lang);
@@ -180,11 +180,21 @@ document.addEventListener('click', (e) => {
       ui.briefing = false; ui.decisions = false;
       if (isBuildTool(ui.tool) && x.mode === 'turn') map.ensureBuildView();   // R11.1: open at a buildable scale
       break;
+    case 'showGap': {
+      const gx = Number(d.x), gy = Number(d.y);
+      ui.tool = 'road'; plan = null; ui.drawer = null; ui.decisions = false; ui.briefing = false;
+      map.ensureBuildView();
+      map.centerOn([[gx, gy]], innerWidth * 0.66, innerHeight * 0.56, 12);
+      break;
+    }
     case 'mapFitPlayable': map.fitPlayable(); return;
     case 'mapFitAll': map.fitAll(); return;
     case 'mapZoomIn': map.zoomBy(1.25); return;
     case 'mapZoomOut': map.zoomBy(1 / 1.25); return;
-    case 'focusArea': map.focusArea(Number(d.id)); return;
+    case 'focusArea':
+      ui.selected = null;                       // R11.2: do not leave a stale inspector on another area
+      map.focusArea(Number(d.id));
+      return;
     case 'use': ui.opts.use = d.use as LandUse; break;
     case 'roadClass': ui.opts.roadClass = d.cls as RoadClass; break;
     case 'intensity': ui.opts.intensity = d.tier as Intensity; break;
@@ -202,6 +212,7 @@ document.addEventListener('click', (e) => {
       break;
     case 'tutorialDone': case 'tutorialSkip': ui.tutorial = false; break;
     case 'scrutinyDone': ui.scrutinySeen = true; break;
+    case 'sezDone': ui.sezReported = true; break;
     case 'choose':
       x = d.group === '1'
         ? chooseGroup(x, d.card!, d.opt!)
@@ -225,7 +236,7 @@ document.addEventListener('click', (e) => {
     case 'cancelOrder': return act({ type: 'cancel_works', order: Number(d.id) });
     case 'restart':
       x = newSession(slice, x.seed); ui.briefing = true; ui.selected = null;
-      ui.tutorial = true; ui.tutorialStep = 0; ui.scrutinySeen = false;
+      ui.tutorial = true; ui.tutorialStep = 0; ui.scrutinySeen = false; ui.sezReported = false;
       briefingShown = false; decisionsShown = false; tutorialFocusStep = -1;
       break;
   }
