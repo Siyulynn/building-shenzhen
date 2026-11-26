@@ -370,6 +370,9 @@ function drawerBuilding(v: View): string {
       ${w.compensation ? `<div class="line">${t(S.T.compensation)}: ${yuan(w.compensation)}</div>` : ''}
       ${w.byClass ? `<div class="line">${t(S.T.landCover)}: ${Object.entries(w.byClass).map(([k, n]) => `${t(S.LAND_COVER[k] ?? { zh: k, en: k })} ${num(n!)}`).join(' · ')}</div>` : ''}
       ${bar(w.total ? w.done / w.total : 0)}
+      ${w.crewDefault ? `<div class="muted">${t(S.T.crews)}${w.crewPending ? ` · ${t(S.T.queue)}` : ''}</div><div class="opts">${[...new Set([w.crewDefault, w.crewDefault * 2, w.crewDefault * 3, w.crewDefault * 4, w.crew])]
+        .filter((n) => n > 0 && n <= w.crewMax).map((n) => `<button data-act="orderCrews" data-id="${w.id}" data-crews="${n}"
+        class="${w.crew === n ? 'sel' : ''}" ${off(v) || w.cancelling ? 'disabled' : ''}>${num(n)}</button>`).join('')}</div>` : ''}
       ${w.cells ? `<div class="cells">${w.cells.map((c) => `<span title="${c.x},${c.y}">${c.x},${c.y} ${t(c.stage)}</span>`).join(' · ')}</div>` : ''}
       ${w.gap ? `<button data-act="showGap" data-x="${w.gap.x}" data-y="${w.gap.y}" ${off(v)}>${t(S.T.showGap)}</button>` : ''}
       <button data-act="pauseOrder" data-id="${w.id}" data-paused="${w.paused ? '0' : '1'}" ${off(v) || w.cancelling ? 'disabled' : ''}>${t(w.paused ? S.T.resume : S.T.pause)}</button>

@@ -170,6 +170,7 @@ export type PlayerAction =
   | { type: 'cancel_works'; order: number; cells?: CellRuns }
   | { type: 'set_works_paused'; order: number; paused: boolean }
   | { type: 'set_works_priority'; order: number; priority: Priority }
+  | { type: 'set_works_crews'; order: number; crews: number }          // R11.2: this order's monthly crew allocation
   | { type: 'set_works_pace'; order: number; pace: WorksPace };        // R9 (§5.6): re-prices the unworked units
 export type SubStep = 0 | 1 | 2;
 export interface ActionLogEntry { date: YM; subStep: SubStep; action: PlayerAction }

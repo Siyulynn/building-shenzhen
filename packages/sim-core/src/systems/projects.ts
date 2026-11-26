@@ -165,7 +165,7 @@ export function allocatePool(ctx: TickContext, p: SliceParams, wc?: WorksContent
   // materials flow carries for the units its jobs would use at their pace; jobs draw it in queue order, as they draw
   // the pool, so a short area's spare units pass down the queue and nothing is lost
   const budget = wc?.freight ? materials(ctx, wc, jobs.map((j): [number | undefined, number] => {
-    if (j.order) return [j.area, j.order.paused || frozen ? 0 : Math.min(wc.works.crew_per_order, month!.usable(j.order))];
+    if (j.order) return [j.area, j.order.paused || frozen ? 0 : Math.min(j.order.crew ?? wc.works.crew_per_order, month!.usable(j.order))];
     if (j.cohort) return [j.area, cohortRest(j.cohort, p, s)];
     const x = j.project!, k = x.contract !== undefined ? s.fiscal.contracts.find((c) => c.id === x.contract) : undefined;
     if (frozen || (k && s.date < k.starts)) return [j.area, 0];
@@ -183,7 +183,7 @@ export function allocatePool(ctx: TickContext, p: SliceParams, wc?: WorksContent
       if (frozen) { o.waiting = 'frozen'; continue; }
       const usable = month!.usable(o);
       if (usable === 0) { o.waiting = 'access'; continue; }
-      const pace = Math.min(wc!.works.crew_per_order, usable), want = Math.min(pace, left, take(j.area, pace));
+      const pace = Math.min(o.crew ?? wc!.works.crew_per_order, usable), want = Math.min(pace, left, take(j.area, pace));
       const got = month!.affordable(o, want);
       if (got < pace) o.waiting = got < want ? 'finance' : 'capacity';
       const used = month!.work(o, got, ctx.events);

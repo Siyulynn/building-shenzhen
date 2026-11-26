@@ -7,7 +7,7 @@ import { sizeOffer, type GameState, type WorksOrder } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
 import { newSession, type Session } from '../src/controller.js';
 import { initialUi, renderDecisions, renderDrawer, renderOverlaySelect, renderTutorial, type UiState, type View } from '../src/render.js';
-import { cardView, readinessView, worksView } from '../src/views.js';
+import { actionLabel, cardView, readinessView, worksView } from '../src/views.js';
 import { tutorialView } from '../src/tutorial.js';
 import * as S from '../src/strings.js';
 
@@ -80,12 +80,22 @@ describe('R11.2 works feedback', () => {
     expect(r.cancelling).toBe(true);
     expect(r.gap).toEqual({ x: 386, y: 375 });
     expect(r.priority).toBe('high');
+    expect(r.crew).toBe(40);
+    expect(r.crewMax).toBe(400);
     expect(rows.find((q) => q.id === 8)!.compensation).toBe(240_000);
     const html = renderDrawer(view(x, { drawer: 'building' }));
     expect(html).toContain(S.T.cancelPending.en);
     expect(html).toContain(S.T.showGap.en);
     expect(html).toContain(S.T.compensation.en);
     expect(html).toContain(S.T.crewCap.en);
+    expect(html).toContain('data-act="orderCrews"');
+    expect(html).toContain('data-crews="80"');
+    const label = actionLabel(state, slice, [{ type: 'set_works_crews', order: 7, crews: 80 }], 0);
+    expect(label.en).toContain(S.T.crews.en);
+    expect(label.en).toContain('80');
+    const pending = worksView(state, slice, [{ type: 'set_works_crews', order: 7, crews: 80 }]).find((q) => q.id === 7)!;
+    expect(pending.crew).toBe(80);
+    expect(pending.crewPending).toBe(true);
   });
 });
 

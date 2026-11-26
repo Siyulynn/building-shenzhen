@@ -518,6 +518,7 @@ export function actionLabel(s: GameState, slice: Slice, queue: readonly PlayerAc
     case 'cancel_works': return cat(S.T.cancel, cat(orderName(s, a.order), raw(a.cells ? ` (${cellsOfRuns(a.cells, s.grid).length})` : ''), ''), ': ');
     case 'set_works_paused': return cat(a.paused ? S.T.pause : S.T.resume, orderName(s, a.order), ': ');
     case 'set_works_priority': return cat(cat(S.T.priority, orderName(s, a.order), ' '), S.PRIORITY[a.priority] ?? raw(a.priority), ': ');
+    case 'set_works_crews': return cat(cat(S.T.crews, orderName(s, a.order), ' '), raw(String(a.crews)), ': ');
     case 'set_works_pace': return cat(cat(S.T.pace, orderName(s, a.order), ' '), S.PACE[a.pace] ?? raw(a.pace), ': ');
     default: return raw((a as { type: string }).type);
   }
@@ -1133,6 +1134,8 @@ export function chipsView(s: GameState, slice: Slice, queuedBudget = 0): Chip[] 
 export interface WorkRow {
   id: number; kind: L; where: L; stage: L; waiting?: L; paused: boolean; priority: string;
   done: number; total: number; spent: number; budget: number;
+  crew: number; crewDefault: number; crewMax: number;    // R11.2: this order's allocation and the drawer's choices
+  crewPending?: boolean;                                  // R11.2: a new allocation is queued this turn
   cancelling: boolean;                                   // R11.2: a cancel is queued for this order
   compensation?: number;                                 // R11.2: land compensation owed by this order
   byClass?: Partial<Record<string, number>>;              // R11.2: a service order's cells by land-cover class
@@ -1151,8 +1154,9 @@ function orderWhere(s: GameState, slice: Slice, o: WorksOrder): L {
   return cat(kind, cat(areaName(s, playableAreaOf(s, pl.cell)), raw(` · ${xy(pl.cell)}`), '', ''), ': ');
 }
 export function worksView(s: GameState, slice: Slice, queue: readonly PlayerAction[] = []): WorkRow[] {
-  const W = s.grid.width;
+  const W = s.grid.width, defaultCrew = slice.params.works?.crew_per_order ?? 0;
   const cancelling = new Set(queue.flatMap((a) => (a.type === 'cancel_works' ? [a.order] : [])));
+  const crewsQueued = new Map(queue.flatMap((a) => (a.type === 'set_works_crews' ? [[a.order, a.crews] as const] : [])));
   return s.worksOrders.filter(liveOrder).map((o) => {
     const cells = o.kind === 'service' ? s.cellWorks.filter((w) => w.order === o.id) : [];
     const byClass = o.kind === 'service' && slice.tick.landcover
@@ -1166,7 +1170,9 @@ export function worksView(s: GameState, slice: Slice, queue: readonly PlayerActi
     return {
       id: o.id, kind: S.ORDER_KIND[o.kind]!, where: orderWhere(s, slice, o), stage: S.ORDER_STAGE[o.stage]!,
       ...(o.waiting ? { waiting: S.WAITING[o.waiting] ?? raw(o.waiting) } : {}), paused: o.paused, priority: o.priority,
-      done: o.unitsDone, total: o.unitsTotal, spent: o.spent, budget: o.budget, cancelling: cancelling.has(o.id),
+      done: o.unitsDone, total: o.unitsTotal, spent: o.spent, budget: o.budget,
+      crew: crewsQueued.get(o.id) ?? o.crew ?? defaultCrew, crewDefault: defaultCrew, crewMax: defaultCrew * 10,
+      ...(crewsQueued.has(o.id) ? { crewPending: true } : {}), cancelling: cancelling.has(o.id),
       ...(compensation > 0 ? { compensation } : {}), ...(byClass && Object.keys(byClass).length ? { byClass } : {}),
       ...(gap ? { gap } : {}),
       ...(o.kind === 'service' ? { cells: cells.map((w) => ({ x: w.cell % W, y: Math.floor(w.cell / W), stage: S.WORK_STAGE[w.stage]! })) } : {}),

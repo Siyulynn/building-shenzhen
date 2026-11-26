@@ -65,6 +65,23 @@ describe('R9 works pace (§5.6)', () => {
     expect(s.worksOrders[0]!.unitsDone).toBe(2 * 54);
   });
 
+  it('assigns more crews to one order, bounded by the per-order cap and the pool', () => {
+    const rng = new Rng(21);
+    let s = play(funded(), 1, rng, [{ type: 'build_road', path: SPUR, priority: 'high' }]);
+    const o = s.worksOrders[0]!;
+    expect(o.crew).toBeUndefined();                                           // the default is works.crew_per_order
+    const before = o.unitsDone;
+    apply(s, { type: 'set_works_crews', order: o.id, crews: 90 });
+    expect(s.worksOrders[0]!.crew).toBe(90);
+    s = play(s, 1, rng);
+    expect(s.worksOrders[0]!.unitsDone - before).toBe(90);                    // normal pace: one crew unit is one work unit
+    expect(() => apply(s, { type: 'set_works_crews', order: o.id, crews: 0 })).toThrow(/whole number/);
+    expect(() => apply(s, { type: 'set_works_crews', order: o.id, crews: 301 })).toThrow(/at most 300/);
+    expect(() => apply(s, { type: 'set_works_crews', order: o.id, crews: 40.5 })).toThrow(/whole number/);
+    apply(s, { type: 'set_works_crews', order: o.id, crews: 30 });
+    expect(s.worksOrders[0]!.crew).toBeUndefined();                           // back to the default
+  });
+
   it('short of money, a paced order does only what the city can pay for, and never goes negative', () => {
     const rng = new Rng(17);
     const s0 = initial();

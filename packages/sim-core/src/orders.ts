@@ -25,7 +25,7 @@ export interface WorksContent {
 }
 
 const WORKS_ACTIONS: readonly string[] = ['commit_works', 'build_road', 'place_structure', 'cancel_works', 'set_works_paused',
-  'set_works_priority', 'set_works_pace'];
+  'set_works_priority', 'set_works_crews', 'set_works_pace'];
 export const isWorksAction = (a: PlayerAction) => WORKS_ACTIONS.includes(a.type);
 
 // ---- shared lookups ----
@@ -463,6 +463,12 @@ export function applyWorksAction(s: GameState, wc: WorksContent, a: PlayerAction
     const o = findOrder(s, a.order);
     if (a.priority === undefined) throw new Error('a priority is needed');
     o.priority = checkPriority(a.priority);
+  } else if (a.type === 'set_works_crews') {
+    const o = findOrder(s, a.order);
+    if (!Number.isSafeInteger(a.crews) || a.crews < 1) throw new Error('crews must be a whole number >= 1');
+    const max = wc.works.crew_per_order * 10;
+    if (a.crews > max) throw new Error(`crews may be at most ${max} per order`);
+    if (a.crews === wc.works.crew_per_order) delete o.crew; else o.crew = a.crews;
   } else if (a.type === 'set_works_pace') {
     if (a.pace === undefined) throw new Error('a pace is needed');
     setPace(s, wc, findOrder(s, a.order), a.pace);
@@ -656,8 +662,8 @@ export function previewWorks(s: GameState, w: WorksParams, actions: readonly Pla
       return m;
     }, {} as Partial<Record<LandCoverClass, number>>) } : {}),
     // R9 (§5.6): at the order's pace a month's full draw does floor(crew_per_order ÷ units) units
-    crewPerMonth: Math.min(w.crew_per_order, crewFor(o, w, o.unitsTotal)),
-    months: Math.ceil(o.unitsTotal / Math.max(1, workFor(o, w, w.crew_per_order))),
+    crewPerMonth: Math.min(o.crew ?? w.crew_per_order, crewFor(o, w, o.unitsTotal)),
+    months: Math.ceil(o.unitsTotal / Math.max(1, workFor(o, w, o.crew ?? w.crew_per_order))),
   })) };
 }
 
