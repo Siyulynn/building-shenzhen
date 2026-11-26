@@ -1,0 +1,23 @@
+- id: atlas.shenzhenxu.r01.frontage_reference
+  source: atlas_shenzhenxu_r01
+  locator: "Orange road labels and visible corner frontages in the annotated local R01 print"
+  quote: "这是人民路；这是解放路"
+  summary: "The annotation identifies the transverse street as Renmin and the receding street as Jiefang. The image can guide the arcade rhythm, setbacks and relative roof heights, not compass bearing or a date."
+  status: lead
+  extracted_by: ai:atlas-step5
+- id: atlas.shenzhenxu.dongmen_july_1980
+  source: atlas_shenzhenxu_demery_dongmen
+  locator: "Photographer's title and last line of caption, Flickr frame 3101377791"
+  quote: "1980 July 17."
+  summary: "The dated Dongmen view shows shaded shopfronts, tiled roofs, weathered masonry, utility wires and cycles. The exact relationship of its camera to R01 is unresolved."
+  date: {value: "1980-07-17", precision: day}
+  status: sourced
+  extracted_by: ai:atlas-step5
+- id: atlas.shenzhenxu.paper_crossroads_1980_caption
+  source: atlas_shenzhenxu_paper_caption
+  locator: "1980 entry in the 1978–2018 series"
+  quote: "1980年，深圳，解放路与人民路口。"
+  summary: "The publisher captions a crossroads photo to 1980 at year precision. Do not transfer this date to R01 without a pixel or original-caption match."
+  date: {value: "1980", precision: year}
+  status: sourced
+  extracted_by: ai:atlas-step5

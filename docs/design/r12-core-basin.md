@@ -130,5 +130,5 @@ which is Bagualing from 1982: Shangbu's roads are flanked by zones.
   and ~110 graded. Matching it needs sim parameters (crew capacity, servicing cost per cell), which would also move the
   cautious and aggressive runs.
 - **The station arrives late.** It is still building at the visit.
-- **The generator is untracked.** It lives in `build/`, so these design-map changes cannot be rebuilt from a clean
-  checkout.
+- **The generator now lives in the repository.** `pipeline/make-zoning-maps.py` (Stage B app at `apps/snapshot-3d/`)
+  rebuilds both plates and the grid with `npm run design:maps`; only the prepared `public/grid/` inputs are local.

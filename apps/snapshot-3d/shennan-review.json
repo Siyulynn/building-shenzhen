@@ -1,0 +1,1469 @@
+{
+ "views": [
+  {
+   "id": "guomao",
+   "name": [
+    "Guomao / Renmin Road",
+    "国贸／人民路"
+   ],
+   "product": 1554,
+   "image": "1759221268.jpg",
+   "page": "showProducts1554.html",
+   "year": 1985,
+   "captionZh": "国贸段---深南东路，与人民路连接（1985）",
+   "claim": "atlas.photo.szlzp.1554",
+   "mode": "camera",
+   "span": 1550,
+   "fov": 45,
+   "confidence": "medium",
+   "reading": "Long axis along Shennan East with the old town left and Guomao right.",
+   "target": [
+    203560,
+    2496030
+   ],
+   "eye": [
+    202730,
+    2495900,
+    262
+   ],
+   "look": [
+    203560,
+    2496030,
+    6
+   ]
+  },
+  {
+   "id": "hongling",
+   "name": [
+    "Hongling / Shennan",
+    "红岭路／深南路"
+   ],
+   "product": 1557,
+   "image": "1759223082.jpg",
+   "page": "showProducts1557.html",
+   "year": 1985,
+   "captionZh": "红岭段---深南东路，与红岭路连接（1985）",
+   "claim": "atlas.photo.szlzp.1557",
+   "mode": "camera",
+   "span": 1460,
+   "fov": 53,
+   "confidence": "medium",
+   "reading": "North over the Hongling junction with Lizhi Park on the west side.",
+   "target": [
+    202086,
+    2496420
+   ],
+   "eye": [
+    201985,
+    2495670,
+    260
+   ],
+   "look": [
+    202086,
+    2496420,
+    10
+   ]
+  },
+  {
+   "id": "yannan",
+   "name": [
+    "Yannan / Tongjianlou",
+    "燕南路／统建楼地段"
+   ],
+   "product": 1559,
+   "image": "1759219073.jpg",
+   "page": "showProducts1559.html",
+   "year": 1985,
+   "captionZh": "统建楼段---深南中路，与燕南路连接（1985）",
+   "claim": "atlas.photo.szlzp.1559",
+   "mode": "camera",
+   "span": 1380,
+   "fov": 51,
+   "confidence": "medium",
+   "reading": "West along Shennan Middle past the Yannan frontage.",
+   "target": [
+    199887,
+    2495858
+   ],
+   "eye": [
+    200700,
+    2495945,
+    182
+   ],
+   "look": [
+    199887,
+    2495858,
+    7
+   ]
+  },
+  {
+   "id": "huaqiang",
+   "name": [
+    "Huaqiang / Shennan Middle",
+    "华强路／深南中路"
+   ],
+   "product": 1561,
+   "image": "1759221975.jpg",
+   "page": "showProducts1561.html",
+   "year": 1985,
+   "captionZh": "华强路段---深南中路，与华强路连接（1985）",
+   "claim": "atlas.photo.szlzp.1561",
+   "mode": "camera",
+   "span": 1420,
+   "fov": 54,
+   "confidence": "high",
+   "reading": "North over the Huaqiang junction; the caption puts Huaqiang Building west and SEG/Electronics east.",
+   "target": [
+    199930,
+    2496375
+   ],
+   "eye": [
+    199934,
+    2495528,
+    245
+   ],
+   "look": [
+    199930,
+    2496375,
+    8
+   ]
+  },
+  {
+   "id": "huangbeiling",
+   "name": [
+    "Huangbeiling / Yanhe Road",
+    "黄贝岭／沿河路"
+   ],
+   "product": 1552,
+   "image": "1759217786.jpg",
+   "page": "showProducts1552.html",
+   "year": 1983,
+   "captionZh": "黄贝岭---深南东路起点连接沿河路（1983）",
+   "claim": "atlas.photo.szlzp.1552",
+   "mode": "camera",
+   "span": 1710,
+   "fov": 52,
+   "confidence": "medium",
+   "reading": "East along Shennan East toward the Huangbeiling hills.",
+   "target": [
+    205821,
+    2496529
+   ],
+   "eye": [
+    204955,
+    2496312,
+    236
+   ],
+   "look": [
+    205821,
+    2496529,
+    8
+   ]
+  },
+  {
+   "id": "dachong",
+   "name": [
+    "Dachong / Dasha River",
+    "大冲／大沙河"
+   ],
+   "product": 1566,
+   "image": "1759225792.jpg",
+   "page": "showProducts1566.html",
+   "year": 1983,
+   "captionZh": "大冲路段---深南大道，与河西路连接（1983）",
+   "claim": "atlas.photo.szlzp.1566",
+   "mode": "camera",
+   "span": 2170,
+   "fov": 51,
+   "confidence": "low",
+   "reading": "Up-valley toward the Dasha River crossing; the river and bridge are not modelled.",
+   "target": [
+    187380,
+    2496800
+   ],
+   "eye": [
+    187028,
+    2495570,
+    238
+   ],
+   "look": [
+    187380,
+    2496800,
+    5
+   ]
+  },
+  {
+   "id": "hubei",
+   "name": [
+    "Hubei / Wenjing Road",
+    "湖贝段／文静路"
+   ],
+   "product": 1553,
+   "image": "1759220641.jpg",
+   "page": "showProducts1553.html",
+   "year": 1983,
+   "captionZh": "湖贝段---深南东路，与文静路连接（1983）",
+   "claim": "atlas.photo.szlzp.1553",
+   "mode": "camera",
+   "span": 900,
+   "fov": 52,
+   "confidence": "low",
+   "reading": "East along the paving works with the old Hubei lane on the left.",
+   "target": [
+    204520,
+    2496200
+   ],
+   "eye": [
+    204180,
+    2496030,
+    110
+   ],
+   "look": [
+    204520,
+    2496200,
+    5
+   ]
+  },
+  {
+   "id": "nantou",
+   "name": [
+    "Nantou / Zhongshanyuan Road",
+    "南头段／中山园路"
+   ],
+   "product": 1567,
+   "image": "1759225748.jpg",
+   "page": "showProducts1567.html",
+   "year": 1984,
+   "captionZh": "南头路段---深南大道，与中山园路连接（1984）",
+   "claim": "atlas.photo.szlzp.1567",
+   "mode": "camera",
+   "span": 1500,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "East along the Guangzhou-Shenzhen road; the sign gives 19 km to Shenzhen and 8 km to Shekou.",
+   "target": [
+    186300,
+    2495960
+   ],
+   "eye": [
+    184980,
+    2496120,
+    45
+   ],
+   "look": [
+    186300,
+    2495960,
+    8
+   ]
+  },
+  {
+   "id": "shifu",
+   "name": [
+    "Shifu Road / Shangbu Road",
+    "市府路／上步路"
+   ],
+   "product": 1558,
+   "image": "1759224891.jpg",
+   "page": "showProducts1558.html",
+   "year": 1985,
+   "captionZh": "市府路---深南中路，与上步路连接（1985）",
+   "claim": "atlas.photo.szlzp.1558",
+   "mode": "camera",
+   "span": 1650,
+   "fov": 51,
+   "confidence": "high",
+   "reading": "North over the Shangbu junction and the compound frontages east of Shennan.",
+   "target": [
+    200520,
+    2496120
+   ],
+   "eye": [
+    200480,
+    2495480,
+    360
+   ],
+   "look": [
+    200520,
+    2496120,
+    0
+   ]
+  },
+  {
+   "id": "caiwuwei",
+   "name": [
+    "Caiwuwei / Heping Road",
+    "蔡屋围／和平路"
+   ],
+   "product": 1555,
+   "image": "1759220606.jpg",
+   "page": "showProducts1555.html",
+   "year": 1985,
+   "captionZh": "蔡屋围段---深南东路，与和平路连接（1985）",
+   "claim": "atlas.photo.szlzp.1555",
+   "mode": "camera",
+   "span": 1750,
+   "fov": 50,
+   "confidence": "low",
+   "reading": "Locality comparison. The foreground rail and receding road axis in the photo do not match this bearing.",
+   "target": [
+    203230,
+    2495960
+   ],
+   "eye": [
+    202590,
+    2495390,
+    420
+   ],
+   "look": [
+    203230,
+    2495960,
+    0
+   ]
+  },
+  {
+   "id": "luohu-rise",
+   "name": [
+    "Luohu from the south",
+    "罗湖崛起"
+   ],
+   "product": 1541,
+   "image": "1759221057.jpg",
+   "page": "showProducts1541.html",
+   "year": "undated",
+   "captionZh": "罗湖崛起",
+   "claim": "atlas.photo.szlzp.1541",
+   "mode": "camera",
+   "span": 2300,
+   "fov": 38,
+   "confidence": "low",
+   "reading": "Skyline across the river; many towers shown, so the frame is probably later than 1985.",
+   "target": [
+    203380,
+    2495560
+   ],
+   "eye": [
+    203520,
+    2494180,
+    210
+   ],
+   "look": [
+    203380,
+    2495560,
+    10
+   ]
+  },
+  {
+   "id": "luohu-town-1981",
+   "name": [
+    "Luohu town from the south",
+    "建设中的罗湖"
+   ],
+   "product": 1506,
+   "image": "1759158460.jpg",
+   "page": "showProducts1506.html",
+   "year": 1981,
+   "captionZh": "建设中的罗湖（1981）",
+   "claim": "atlas.photo.szlzp.1506",
+   "mode": "camera",
+   "span": 1000,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "North over the old Dongmen roofs with new blocks and works in front.",
+   "target": [
+    203160,
+    2496420
+   ],
+   "eye": [
+    202960,
+    2495990,
+    55
+   ],
+   "look": [
+    203160,
+    2496420,
+    8
+   ]
+  },
+  {
+   "id": "luohu-fill-1980",
+   "name": [
+    "Luohu site after filling",
+    "罗湖小区五通一平"
+   ],
+   "product": 1520,
+   "image": "1759215952.jpg",
+   "page": "showProducts1520.html",
+   "year": 1980,
+   "captionZh": "罗湖小区填平了，实现了，五通一平，一个宏大的建设计划即将开始（1980）",
+   "claim": "atlas.photo.szlzp.1520",
+   "mode": "camera",
+   "span": 1100,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "North-east over the levelled site; pond and low village in the foreground.",
+   "target": [
+    203360,
+    2495560
+   ],
+   "eye": [
+    202790,
+    2495120,
+    70
+   ],
+   "look": [
+    203360,
+    2495560,
+    5
+   ]
+  },
+  {
+   "id": "luohu-hill-cut-1980",
+   "name": [
+    "Luohu hill south slope",
+    "开挖罗湖山南坡"
+   ],
+   "product": 1518,
+   "image": "1759220978.jpg",
+   "page": "showProducts1518.html",
+   "year": 1980,
+   "captionZh": "开挖罗湖山南坡（1980）",
+   "claim": "atlas.photo.szlzp.1518",
+   "mode": "camera",
+   "span": 950,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "North over the cut slope with the village foot and haul tracks.",
+   "target": [
+    203180,
+    2495330
+   ],
+   "eye": [
+    202880,
+    2494890,
+    85
+   ],
+   "look": [
+    203180,
+    2495330,
+    15
+   ]
+  },
+  {
+   "id": "luohu-works-1981",
+   "name": [
+    "Luohu works 1981",
+    "罗湖摆战场"
+   ],
+   "product": 1521,
+   "image": "1759223331.jpg",
+   "page": "showProducts1521.html",
+   "year": 1981,
+   "captionZh": "罗湖摆战场，20多栋高层建筑先后动工，罗湖沸腾了（1981）",
+   "claim": "atlas.photo.szlzp.1521",
+   "mode": "camera",
+   "span": 950,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "North-west over the pile drivers with Luohu hill behind.",
+   "target": [
+    203230,
+    2495680
+   ],
+   "eye": [
+    203120,
+    2495120,
+    60
+   ],
+   "look": [
+    203230,
+    2495680,
+    10
+   ]
+  },
+  {
+   "id": "haifengyuan-1984",
+   "name": [
+    "Haifengyuan and the works",
+    "海丰苑与工地"
+   ],
+   "product": 1523,
+   "image": "1759221025.jpg",
+   "page": "showProducts1523.html",
+   "year": 1984,
+   "captionZh": "海丰苑是当时全市最高楼。1984年1月建成交付使用（1984）",
+   "claim": "atlas.photo.szlzp.1523",
+   "mode": "camera",
+   "span": 1050,
+   "fov": 50,
+   "confidence": "low",
+   "reading": "North-west over three finished towers, works and old roofs.",
+   "target": [
+    203200,
+    2495760
+   ],
+   "eye": [
+    203460,
+    2495330,
+    85
+   ],
+   "look": [
+    203200,
+    2495760,
+    15
+   ]
+  },
+  {
+   "id": "heping-1985",
+   "name": [
+    "Heping Road / Luohu",
+    "和平路／罗湖"
+   ],
+   "product": 1511,
+   "image": "1759213680.jpg",
+   "page": "showProducts1511.html",
+   "year": 1985,
+   "captionZh": "和平路（1985）",
+   "claim": "atlas.photo.szlzp.1511",
+   "mode": "camera",
+   "span": 1150,
+   "fov": 50,
+   "confidence": "low",
+   "reading": "Locality comparison. The rail, street, river bend and left-hand ridge are not registered to this bearing.",
+   "target": [
+    203260,
+    2495770
+   ],
+   "eye": [
+    203010,
+    2495200,
+    95
+   ],
+   "look": [
+    203260,
+    2495770,
+    10
+   ]
+  },
+  {
+   "id": "huxin-1982",
+   "name": [
+    "Luohu towers 1982",
+    "湖心酒店一带"
+   ],
+   "product": 1526,
+   "image": "1759217983.jpg",
+   "page": "showProducts1526.html",
+   "year": 1982,
+   "captionZh": "正在建设中的湖心酒店（1982）",
+   "claim": "atlas.photo.szlzp.1526",
+   "mode": "camera",
+   "span": 1100,
+   "fov": 48,
+   "confidence": "low",
+   "reading": "West over completed and rising towers; the circular-top shaft needs identity confirmation.",
+   "target": [
+    203230,
+    2495900
+   ],
+   "eye": [
+    203460,
+    2495520,
+    95
+   ],
+   "look": [
+    203230,
+    2495900,
+    25
+   ]
+  },
+  {
+   "id": "guoshang-works-1981",
+   "name": [
+    "Guoshang works 1981",
+    "国商大厦工地"
+   ],
+   "product": 1529,
+   "image": "1759221481.jpg",
+   "page": "showProducts1529.html",
+   "year": 1981,
+   "captionZh": "国商大厦工地（1981）",
+   "claim": "atlas.photo.szlzp.1529",
+   "mode": "district",
+   "span": 700,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "Pile frames and foundation pits on the Guoshang parcel.",
+   "target": [
+    203280,
+    2495682
+   ],
+   "eye": [
+    203364.0,
+    2495164.0,
+    644.0
+   ],
+   "look": [
+    203280,
+    2495682,
+    6
+   ]
+  },
+  {
+   "id": "guoshang-1982",
+   "name": [
+    "Guoshang under construction",
+    "国商承建"
+   ],
+   "product": 1530,
+   "image": "1759217959.jpg",
+   "page": "showProducts1530.html",
+   "year": 1982,
+   "captionZh": "国商承建（1982）",
+   "claim": "atlas.photo.szlzp.1530",
+   "mode": "camera",
+   "span": 620,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "Two scaffolded slabs seen from the south-west, with haul roads in front.",
+   "target": [
+    203250,
+    2495810
+   ],
+   "eye": [
+    203000,
+    2495560,
+    45
+   ],
+   "look": [
+    203250,
+    2495810,
+    45
+   ]
+  },
+  {
+   "id": "haifengyuan-1982",
+   "name": [
+    "Haifengyuan foundations",
+    "海丰苑大厦动工"
+   ],
+   "product": 1522,
+   "image": "1759215274.jpg",
+   "page": "showProducts1522.html",
+   "year": 1982,
+   "captionZh": "海丰苑大厦动工（1982）",
+   "claim": "atlas.photo.szlzp.1522",
+   "mode": "camera",
+   "span": 800,
+   "fov": 50,
+   "confidence": "low",
+   "reading": "Down over foundation mats and haul roads beside a new carriageway.",
+   "target": [
+    203250,
+    2495620
+   ],
+   "eye": [
+    203520,
+    2495360,
+    120
+   ],
+   "look": [
+    203250,
+    2495620,
+    5
+   ]
+  },
+  {
+   "id": "luohu-building-1982",
+   "name": [
+    "Luohu Building frontage",
+    "罗湖大厦"
+   ],
+   "product": 1524,
+   "image": "1759218252.jpg",
+   "page": "showProducts1524.html",
+   "year": 1982,
+   "captionZh": "罗湖大厦接近完工（1982）",
+   "claim": "atlas.photo.szlzp.1524",
+   "mode": "camera",
+   "span": 700,
+   "fov": 50,
+   "confidence": "low",
+   "reading": "Street-level cluster of rising blocks with cranes.",
+   "target": [
+    203320,
+    2495620
+   ],
+   "eye": [
+    203120,
+    2495480,
+    25
+   ],
+   "look": [
+    203320,
+    2495620,
+    30
+   ]
+  },
+  {
+   "id": "bagualing-1982",
+   "name": [
+    "Bagualing ground breaking",
+    "八卦岭破土动工"
+   ],
+   "product": 1462,
+   "image": "1759158970.jpg",
+   "page": "showProducts1462.html",
+   "year": 1982,
+   "captionZh": "八卦岭工业区破土动工（1982.9.14)",
+   "claim": "atlas.photo.szlzp.1462",
+   "mode": "camera",
+   "span": 900,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "Cleared ground in the fields with the northern hills behind.",
+   "target": [
+    201760,
+    2497600
+   ],
+   "eye": [
+    201420,
+    2497260,
+    35
+   ],
+   "look": [
+    201760,
+    2497600,
+    5
+   ]
+  },
+  {
+   "id": "shangbu-1981",
+   "name": [
+    "Shangbu site works",
+    "上步区大规模兴建"
+   ],
+   "product": 1460,
+   "image": "1759158686.jpg",
+   "page": "showProducts1460.html",
+   "year": 1981,
+   "captionZh": "上步区大规模兴建（1981）",
+   "claim": "atlas.photo.szlzp.1460",
+   "mode": "district",
+   "span": 1200,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "Earthmoving across the Shangbu fields; no fixed camera station.",
+   "target": [
+    200300,
+    2496000
+   ],
+   "eye": [
+    200444.0,
+    2495112.0,
+    1104.0
+   ],
+   "look": [
+    200300,
+    2496000,
+    6
+   ]
+  },
+  {
+   "id": "liantang-1985",
+   "name": [
+    "Liantang works at dusk",
+    "莲塘工业区动工"
+   ],
+   "product": 1470,
+   "image": "1759150438.jpg",
+   "page": "showProducts1470.html",
+   "year": 1985,
+   "captionZh": "莲塘工业区动工（1985.4.29）",
+   "claim": "atlas.photo.szlzp.1470",
+   "mode": "camera",
+   "span": 5200,
+   "fov": 42,
+   "confidence": "medium",
+   "reading": "West over the border works toward the city and the bay.",
+   "target": [
+    202700,
+    2496080
+   ],
+   "eye": [
+    206700,
+    2497000,
+    330
+   ],
+   "look": [
+    202700,
+    2496080,
+    0
+   ]
+  },
+  {
+   "id": "shekou-1980",
+   "name": [
+    "Shekou peninsula 1980",
+    "蛇口开发初期"
+   ],
+   "product": 1385,
+   "image": "1758453726.jpg",
+   "page": "showProducts1385.html",
+   "year": 1980,
+   "captionZh": "蛇口开发初期（1980）",
+   "claim": "atlas.photo.szlzp.1385",
+   "mode": "camera",
+   "span": 2600,
+   "fov": 46,
+   "confidence": "medium",
+   "reading": "North-west over the cut hills, harbour and Deep Bay.",
+   "target": [
+    182500,
+    2490920
+   ],
+   "eye": [
+    182980,
+    2490060,
+    520
+   ],
+   "look": [
+    182500,
+    2490920,
+    0
+   ]
+  },
+  {
+   "id": "shekou-harbour-1985",
+   "name": [
+    "Shekou harbour 1985",
+    "蛇口填海码头"
+   ],
+   "product": 1386,
+   "image": "1758450095.jpg",
+   "page": "showProducts1386.html",
+   "year": 1985,
+   "captionZh": "蛇口填海码头（1985）",
+   "claim": "atlas.photo.szlzp.1386",
+   "mode": "camera",
+   "span": 1800,
+   "fov": 48,
+   "confidence": "medium",
+   "reading": "Over the filled quay, sheds, silos and berthed ships.",
+   "target": [
+    182350,
+    2490800
+   ],
+   "eye": [
+    183100,
+    2490200,
+    260
+   ],
+   "look": [
+    182350,
+    2490800,
+    0
+   ]
+  },
+  {
+   "id": "chiwan-1981",
+   "name": [
+    "Chiwan harbour 1981",
+    "赤湾港初建"
+   ],
+   "product": 1407,
+   "image": "1759151800.jpg",
+   "page": "showProducts1407.html",
+   "year": 1981,
+   "captionZh": "赤湾港初建（1981）",
+   "claim": "atlas.photo.szlzp.1407",
+   "mode": "camera",
+   "span": 2400,
+   "fov": 48,
+   "confidence": "low",
+   "reading": "Across the bay toward the new quay and the hill.",
+   "target": [
+    182300,
+    2491220
+   ],
+   "eye": [
+    180300,
+    2491700,
+    150
+   ],
+   "look": [
+    182300,
+    2491220,
+    0
+   ]
+  },
+  {
+   "id": "shekou-quay-1981",
+   "name": [
+    "Shekou cargo quay",
+    "蛇口货运码头"
+   ],
+   "product": 1393,
+   "image": "1758450026.jpg",
+   "page": "showProducts1393.html",
+   "year": 1981,
+   "captionZh": "蛇口货运码头投入使用（1981）",
+   "claim": "atlas.photo.szlzp.1393",
+   "mode": "camera",
+   "span": 800,
+   "fov": 50,
+   "confidence": "low",
+   "reading": "Cranes and trucks at the quay.",
+   "target": [
+    182400,
+    2490350
+   ],
+   "eye": [
+    182700,
+    2490600,
+    40
+   ],
+   "look": [
+    182400,
+    2490350,
+    5
+   ]
+  },
+  {
+   "id": "sea-world",
+   "name": [
+    "Sea World waterfront",
+    "海上世界"
+   ],
+   "product": 1502,
+   "image": "1759153728.jpg",
+   "page": "showProducts1502.html",
+   "year": "undated",
+   "captionZh": "蛇口海上世界是国内第一次采用大型客轮作旅游基地",
+   "claim": "atlas.photo.szlzp.1502",
+   "mode": "camera",
+   "span": 1200,
+   "fov": 48,
+   "confidence": "medium",
+   "reading": "Along the Shekou waterfront with the Minghua berthed offshore.",
+   "target": [
+    182010,
+    2490120
+   ],
+   "eye": [
+    182300,
+    2490400,
+    90
+   ],
+   "look": [
+    182010,
+    2490120,
+    0
+   ]
+  },
+  {
+   "id": "mawan-1985",
+   "name": [
+    "Mawan port works",
+    "妈湾港动工"
+   ],
+   "product": 1469,
+   "image": "1759159774.jpg",
+   "page": "showProducts1469.html",
+   "year": 1985,
+   "captionZh": "妈湾港正式动工兴建（1985.4.13)",
+   "claim": "atlas.photo.szlzp.1469",
+   "mode": "camera",
+   "span": 1500,
+   "fov": 48,
+   "confidence": "medium",
+   "reading": "Over the new peninsula works and barges.",
+   "target": [
+    178100,
+    2493760
+   ],
+   "eye": [
+    177400,
+    2494100,
+    220
+   ],
+   "look": [
+    178100,
+    2493760,
+    0
+   ]
+  },
+  {
+   "id": "szbay-hotel",
+   "name": [
+    "Shenzhen Bay Hotel park",
+    "深圳湾大酒店游乐场"
+   ],
+   "product": 1503,
+   "image": "1759159957.jpg",
+   "page": "showProducts1503.html",
+   "year": "undated",
+   "captionZh": "深圳湾大酒店游乐场",
+   "claim": "atlas.photo.szlzp.1503",
+   "mode": "camera",
+   "span": 1300,
+   "fov": 48,
+   "confidence": "medium",
+   "reading": "Amusement park on the bay shore; undated but the park opened in 1984.",
+   "target": [
+    189280,
+    2495230
+   ],
+   "eye": [
+    189700,
+    2494900,
+    90
+   ],
+   "look": [
+    189280,
+    2495230,
+    0
+   ]
+  },
+  {
+   "id": "luohu-bridge-1984",
+   "name": [
+    "Luohu bridge 1984",
+    "罗湖桥"
+   ],
+   "product": 966,
+   "image": "1758360819.jpg",
+   "page": "showProducts966.html",
+   "year": 1984,
+   "captionZh": "罗湖桥(1984)",
+   "claim": "atlas.photo.szlzp.966",
+   "mode": "camera",
+   "span": 700,
+   "fov": 50,
+   "confidence": "high",
+   "reading": "Down on the rail bridge and river; the bridge axis is fixed by the rail.",
+   "target": [
+    203120,
+    2494330
+   ],
+   "eye": [
+    203000,
+    2494180,
+    110
+   ],
+   "look": [
+    203120,
+    2494330,
+    0
+   ]
+  },
+  {
+   "id": "wenjindu-1984",
+   "name": [
+    "Wenjindu port 1984",
+    "文锦渡口岸"
+   ],
+   "product": 971,
+   "image": "1758356105.jpg",
+   "page": "showProducts971.html",
+   "year": 1984,
+   "captionZh": "文锦渡口岸(1984)",
+   "claim": "atlas.photo.szlzp.971",
+   "mode": "camera",
+   "span": 1400,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "Aerial over the checkpoint, the river and the border hills.",
+   "target": [
+    203860,
+    2494560
+   ],
+   "eye": [
+    203760,
+    2494120,
+    240
+   ],
+   "look": [
+    203860,
+    2494560,
+    0
+   ]
+  },
+  {
+   "id": "wenjindu-1981",
+   "name": [
+    "Wenjindu crossing 1981",
+    "文锦渡客货口岸"
+   ],
+   "product": 974,
+   "image": "1758359913.jpg",
+   "page": "showProducts974.html",
+   "year": 1981,
+   "captionZh": "文锦渡客货口岸落成通车(1981)",
+   "claim": "atlas.photo.szlzp.974",
+   "mode": "camera",
+   "span": 700,
+   "fov": 50,
+   "confidence": "medium",
+   "reading": "Across the checkpoint buildings with the far hills.",
+   "target": [
+    203880,
+    2494440
+   ],
+   "eye": [
+    203700,
+    2494270,
+    28
+   ],
+   "look": [
+    203880,
+    2494440,
+    5
+   ]
+  },
+  {
+   "id": "shatoujiao-1982",
+   "name": [
+    "Sha Tau Kok 1982",
+    "沙头角远眺"
+   ],
+   "product": 978,
+   "image": "1758359099.jpg",
+   "page": "showProducts978.html",
+   "year": 1982,
+   "captionZh": "沙头角远眺(1982)",
+   "claim": "atlas.photo.szlzp.978",
+   "mode": "camera",
+   "span": 2200,
+   "fov": 48,
+   "confidence": "low",
+   "reading": "Across the fields and bay toward the far shore.",
+   "target": [
+    209600,
+    2495600
+   ],
+   "eye": [
+    208900,
+    2496300,
+    150
+   ],
+   "look": [
+    209600,
+    2495600,
+    0
+   ]
+  },
+  {
+   "id": "dongmen-1979",
+   "name": [
+    "Dongmen street 1979",
+    "东门街景"
+   ],
+   "product": 1507,
+   "image": "1759213778.jpg",
+   "page": "showProducts1507.html",
+   "year": 1979,
+   "captionZh": "东门街景（1979）",
+   "claim": "atlas.photo.szlzp.1507",
+   "mode": "camera",
+   "span": 320,
+   "fov": 52,
+   "confidence": "medium",
+   "reading": "Street level in the old town; the arcade rhythm is the useful comparison.",
+   "target": [
+    203020,
+    2496400
+   ],
+   "eye": [
+    202930,
+    2496330,
+    9
+   ],
+   "look": [
+    203020,
+    2496400,
+    6
+   ]
+  },
+  {
+   "id": "renmin-1980",
+   "name": [
+    "Renmin Road 1980",
+    "人民路"
+   ],
+   "product": 1510,
+   "image": "1759216268.jpg",
+   "page": "showProducts1510.html",
+   "year": 1980,
+   "captionZh": "人民路（1980）",
+   "claim": "atlas.photo.szlzp.1510",
+   "mode": "camera",
+   "span": 400,
+   "fov": 52,
+   "confidence": "medium",
+   "reading": "Street level on the north-south spine of the old town.",
+   "target": [
+    203030,
+    2496280
+   ],
+   "eye": [
+    203030,
+    2496100,
+    8
+   ],
+   "look": [
+    203030,
+    2496280,
+    5
+   ]
+  }
+ ],
+ "roads": [
+  {
+   "id": "huaqiang-north",
+   "name": [
+    "Huaqiang junction approaches",
+    "华强路路口引道"
+   ],
+   "profile": "local",
+   "claims": [
+    "atlas.photo.huaqiang_section.caption_1985",
+    "phase1.map.1982.shangbu_industrial"
+   ],
+   "geometry": [
+    [
+     199847,
+     2495680
+    ],
+    [
+     199853,
+     2495870
+    ],
+    [
+     199841,
+     2496230
+    ],
+    [
+     199818,
+     2496657
+    ],
+    [
+     199780,
+     2497080
+    ],
+    [
+     199742.5,
+     2497408.4
+    ]
+   ]
+  },
+  {
+   "id": "renmin-south",
+   "name": [
+    "Renmin South frontage",
+    "人民南路沿街段"
+   ],
+   "profile": "local",
+   "claims": [
+    "atlas.photo.guomao_renmin.caption_1985",
+    "core_basin.guomao.site"
+   ],
+   "geometry": [
+    [
+     203313,
+     2496380
+    ],
+    [
+     203262,
+     2496210
+    ],
+    [
+     203168,
+     2496086
+    ],
+    [
+     203166,
+     2495930
+    ],
+    [
+     203158,
+     2495746
+    ],
+    [
+     203170,
+     2495709
+    ],
+    [
+     203239,
+     2495314
+    ]
+   ]
+  },
+  {
+   "id": "hongling-approach",
+   "name": [
+    "Hongling works approach",
+    "红岭路施工引道"
+   ],
+   "profile": "works",
+   "claims": [
+    "atlas.photo.hongling_section.caption_1985",
+    "phase1.map.1982.nigang_bagualing_hongling"
+   ],
+   "geometry": [
+    [
+     201953,
+     2495955
+    ],
+    [
+     201974,
+     2496145
+    ],
+    [
+     202048,
+     2496335
+    ],
+    [
+     202250.6,
+     2496457.4
+    ]
+   ]
+  },
+  {
+   "id": "yannan-lane",
+   "name": [
+    "Yannan side-street approach",
+    "燕南路侧街引道"
+   ],
+   "profile": "local",
+   "claims": [
+    "atlas.photo.yannan_section.caption_1985",
+    "phase1.map.1982.shangbu_industrial"
+   ],
+   "geometry": [
+    [
+     200490,
+     2495870
+    ],
+    [
+     200488,
+     2496046
+    ],
+    [
+     200480,
+     2496200
+    ]
+   ]
+  },
+  {
+   "id": "guomao-service",
+   "name": [
+    "Luohu service lane",
+    "罗湖地块服务巷"
+   ],
+   "profile": "service",
+   "claims": [
+    "atlas.photo.guomao_renmin.caption_1985",
+    "phase1.video.1984.aerial_urban_fabric"
+   ],
+   "geometry": [
+    [
+     203165,
+     2495908
+    ],
+    [
+     203327,
+     2495940
+    ],
+    [
+     203470,
+     2495964
+    ],
+    [
+     203559,
+     2495988
+    ]
+   ]
+  },
+  {
+   "id": "shangbu-service",
+   "name": [
+    "Shangbu factory court lane",
+    "上步厂院服务巷"
+   ],
+   "profile": "service",
+   "claims": [
+    "atlas.photo.electronics_section.caption_1983",
+    "phase1.map.1982.shangbu_industrial"
+   ],
+   "geometry": [
+    [
+     199845,
+     2496129
+    ],
+    [
+     200030,
+     2496130
+    ],
+    [
+     200235,
+     2496130
+    ]
+   ]
+  },
+  {
+   "id": "shennan-huangbeiling",
+   "name": [
+    "Eastern Shennan approach",
+    "深南东路东端引道"
+   ],
+   "profile": "arterial",
+   "claims": [
+    "phase1.shennan.east_reach_1983",
+    "atlas.photo.huangbeiling_section.caption_1983"
+   ],
+   "geometry": [
+    [
+     205600,
+     2496500
+    ],
+    [
+     205780,
+     2496531
+    ],
+    [
+     205979,
+     2496544
+    ],
+    [
+     206153,
+     2496559
+    ]
+   ]
+  },
+  {
+   "id": "yanhe-approach",
+   "name": [
+    "Yanhe junction approach",
+    "沿河路路口引道"
+   ],
+   "profile": "local",
+   "claims": [
+    "atlas.photo.huangbeiling_section.caption_1983"
+   ],
+   "geometry": [
+    [
+     206100,
+     2496490
+    ],
+    [
+     206153,
+     2496559
+    ],
+    [
+     206176,
+     2496680
+    ]
+   ]
+  }
+ ]
+}

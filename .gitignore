@@ -7,6 +7,11 @@ data/raw/
 .claude/settings.local.json
 pipeline/.venv/
 apps/*/public/grid/
+apps/snapshot-3d/public/
+apps/snapshot-3d/dist/
 pipeline/__pycache__/
+# Reference-only map scans and generated portable exports stay out of the repository.
+data/Shenzhenxu/
+docs/spikes/scene-review/snapshots/*.html
 .vitest/
 apps/cli/_scratch/

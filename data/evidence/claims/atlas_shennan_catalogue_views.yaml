@@ -412,3 +412,38 @@
   notes: Publisher's caption and year, machine-read from the catalogue page; not a negative date.
   status: sourced
   extracted_by: ai:opencode-shennan-catalogue
+- id: atlas.photo.szlzp.1534
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1534.html; 1759217545.jpg in the atlas intake manifest"
+  quote: 国贸施工现场
+  summary: "The catalogue labels the frame as the Guomao construction site."
+  notes: "No exposure date is given; use as a construction-form comparator only."
+  status: sourced
+  extracted_by: ai:opencode-atlas
+
+- id: atlas.photo.szlzp.1535
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1535.html; 1759215660.jpg in the atlas intake manifest"
+  quote: 建设中的国贸外观
+  summary: "The catalogue labels the frame as the exterior of Guomao under construction."
+  notes: "No exposure date is given. The top already has a crown-like profile; do not use it to set January height or stage."
+  status: sourced
+  extracted_by: ai:opencode-atlas
+
+- id: atlas.photo.szlzp.1500
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1500.html; 1759153106.jpg in the atlas intake manifest"
+  quote: 国贸中心大厦
+  summary: "The catalogue names Guomao; the frame is a comparator for the completed exterior."
+  notes: "No exposure date is given."
+  status: sourced
+  extracted_by: ai:opencode-atlas
+
+- id: atlas.photo.szlzp.1536
+  source: atlas_szlzp_catalogue
+  locator: "showProducts1536.html; 1759217992.jpg in the atlas intake manifest"
+  quote: 国贸大厦
+  summary: "The catalogue names Guomao; the frame is a comparator for the completed exterior."
+  notes: "No exposure date is given."
+  status: sourced
+  extracted_by: ai:opencode-atlas

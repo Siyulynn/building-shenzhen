@@ -1,0 +1,145 @@
+{
+  "image": {
+    "source": "kh9_1980_09_11_a048",
+    "date": "1980-09-11",
+    "cellBox": [363, 365, 412, 398],
+    "metresPerPixel": 2,
+    "width": 2450,
+    "height": 1650
+  },
+  "traces": [
+    {
+      "id": "shenzhen-river-west",
+      "name": ["Shenzhen River · west and bridge reach", "深圳河西段及罗湖桥段"],
+      "kind": "water", "form": "line", "basis": "visible",
+      "points": [[0,1104],[54,1095],[107,1106],[160,1137],[211,1190],[248,1237],[286,1265],[330,1280],[394,1281],[473,1269],[531,1254],[592,1234],[653,1221],[690,1220],[677,1252],[657,1303],[634,1356],[625,1390],[633,1418],[652,1427],[677,1418],[705,1392],[728,1354],[742,1318],[749,1280],[768,1257],[793,1261],[821,1282],[855,1290],[890,1280],[920,1260],[937,1235],[947,1201],[958,1172],[975,1167],[991,1178],[1006,1215],[1010,1270],[1006,1337],[1002,1401],[1000,1460],[1019,1483],[1050,1504],[1107,1530],[1155,1541],[1205,1516],[1251,1501],[1293,1483],[1303,1457],[1304,1408],[1305,1349],[1303,1296],[1315,1271],[1345,1255],[1380,1253],[1420,1265],[1469,1280],[1520,1286],[1571,1290],[1607,1287],[1627,1273],[1625,1258],[1604,1231],[1580,1206],[1574,1182],[1579,1154]]
+    },
+    {
+      "id": "shenzhen-river-east",
+      "name": ["Shenzhen River · eastern reach", "深圳河东段"],
+      "kind": "water", "form": "line", "basis": "interpreted",
+      "points": [[1637,1055],[1680,1031],[1716,1018],[1759,1007],[1794,1005],[1824,1012],[1865,1025],[1901,1022],[1932,1008],[1962,978],[1996,933],[2026,901],[2060,892],[2099,893],[2140,908],[2176,916],[2218,913],[2255,923],[2290,928],[2320,907],[2355,866],[2404,832],[2450,817]]
+    },
+    {
+      "id": "buji-lower",
+      "name": ["Buji River · lower channel", "布吉河下游河道"],
+      "kind": "water", "form": "line", "basis": "visible",
+      "points": [[1010,459],[993,485],[979,517],[957,547],[935,583],[928,620],[927,671],[922,724],[917,787],[913,831],[907,864],[897,906],[880,953],[854,996],[829,1025],[798,1064],[765,1100],[724,1140],[702,1174],[690,1220]]
+    },
+    {
+      "id": "yumin-pond-north",
+      "name": ["Yumin-side pond · north", "渔民村旁水塘（北）"],
+      "kind": "water", "form": "area", "basis": "visible",
+      "points": [[824,1101],[851,1074],[868,1052],[892,1056],[895,1090],[897,1104],[859,1109],[824,1101]]
+    },
+    {
+      "id": "yumin-pond-middle",
+      "name": ["Yumin-side pond · middle", "渔民村旁水塘（中）"],
+      "kind": "water", "form": "area", "basis": "visible",
+      "points": [[820,1110],[854,1116],[897,1108],[898,1153],[884,1164],[843,1170],[826,1156],[820,1110]]
+    },
+    {
+      "id": "yumin-pond-south",
+      "name": ["Yumin-side pond · south", "渔民村旁水塘（南）"],
+      "kind": "water", "form": "area", "basis": "visible",
+      "points": [[749,1186],[782,1180],[822,1170],[828,1201],[818,1220],[771,1230],[747,1220],[743,1203],[749,1186]]
+    },
+    {
+      "id": "caiwuwei-pond",
+      "name": ["Pond west of the lower Buji", "布吉河下游西侧水塘"],
+      "kind": "water", "form": "area", "basis": "visible",
+      "points": [[570,823],[601,805],[634,800],[665,831],[690,860],[678,894],[662,918],[617,908],[591,869],[570,823]]
+    },
+    {
+      "id": "hubei-pond-strip",
+      "name": ["Pond strip west of the Hubei candidate", "湖贝候选位置西侧狭长水塘"],
+      "kind": "water", "form": "area", "basis": "visible",
+      "points": [[1476,343],[1492,341],[1498,364],[1493,405],[1483,443],[1477,478],[1463,517],[1442,521],[1437,494],[1448,444],[1459,401],[1476,343]]
+    },
+    {
+      "id": "rail-main",
+      "name": ["Kowloon–Canton Railway · main alignment", "广九铁路主线"],
+      "kind": "rail", "form": "line", "basis": "visible",
+      "points": [[1018,0],[1006,83],[998,153],[998,224],[1004,310],[1011,394],[1020,456],[1029,542],[1037,628],[1048,717],[1062,798],[1074,867],[1086,955],[1097,1039],[1104,1117],[1115,1200],[1128,1291],[1135,1363],[1144,1450],[1155,1541],[1165,1650]]
+    },
+    {
+      "id": "rail-west-corridor",
+      "name": ["Western rail corridor", "西侧铁路走廊"],
+      "kind": "rail", "form": "line", "basis": "interpreted",
+      "points": [[972,0],[930,66],[884,126],[835,202],[797,273],[782,333],[775,404],[784,469],[802,521],[817,568],[823,604],[835,650],[837,700],[824,749],[814,805],[806,871],[803,944],[803,1004]]
+    },
+    {
+      "id": "town-west-approach",
+      "name": ["Old-town west approach", "深圳墟西侧进路"],
+      "kind": "road", "form": "line", "basis": "visible",
+      "points": [[622,707],[676,673],[734,642],[783,622],[823,604],[864,589],[921,570],[974,552],[1029,542],[1082,549]]
+    },
+    {
+      "id": "market-south-road",
+      "name": ["Bright corridor south and east of the market", "墟南及墟东亮色通道"],
+      "kind": "road", "form": "line", "basis": "interpreted",
+      "points": [[1135,679],[1191,672],[1257,652],[1318,640],[1383,625],[1458,609],[1534,598],[1615,585],[1738,565],[1870,544],[2004,524],[2146,500],[2318,475],[2403,463],[2450,403]]
+    },
+    {
+      "id": "south-transverse-road",
+      "name": ["Southern transverse road", "南侧横向道路"],
+      "kind": "road", "form": "line", "basis": "visible",
+      "points": [[772,835],[825,845],[868,856],[907,864],[959,870],[1015,870],[1074,867],[1143,862],[1211,851],[1288,836],[1361,823],[1450,802]]
+    },
+    {
+      "id": "wenjindu-approach",
+      "name": ["Wenjindu approach · candidate segment", "文锦渡进路候选段"],
+      "kind": "road", "form": "line", "basis": "interpreted",
+      "points": [[1573,901],[1639,935],[1698,954],[1742,976],[1774,990],[1794,1005],[1825,1021],[1861,1023]]
+    },
+    {
+      "id": "fields-yumin-west",
+      "name": ["Cultivated lowland west of the Buji", "布吉河西侧耕作低地"],
+      "kind": "field", "form": "area", "basis": "interpreted",
+      "points": [[77,974],[106,935],[154,932],[174,908],[208,880],[265,870],[312,885],[338,904],[422,896],[487,901],[551,925],[580,955],[604,1007],[636,1052],[661,1124],[691,1161],[647,1195],[587,1210],[521,1233],[459,1249],[388,1260],[337,1261],[298,1244],[249,1196],[207,1142],[156,1116],[97,1100],[64,1073],[77,974]]
+    },
+    {
+      "id": "fields-east-of-rail",
+      "name": ["Field blocks east of the railway", "铁路东侧田块"],
+      "kind": "field", "form": "area", "basis": "interpreted",
+      "points": [[1129,897],[1179,889],[1239,885],[1298,873],[1350,862],[1366,903],[1350,937],[1302,969],[1255,942],[1222,958],[1201,1004],[1187,1028],[1136,1031],[1129,897]]
+    },
+    {
+      "id": "fields-hubei-east",
+      "name": ["Field mosaic east of Hubei", "湖贝东侧田块"],
+      "kind": "field", "form": "area", "basis": "interpreted",
+      "points": [[1651,603],[1790,583],[1930,567],[1951,595],[1940,626],[1963,659],[1980,690],[1953,714],[1872,769],[1792,819],[1735,785],[1675,731],[1644,686],[1651,603]]
+    },
+    {
+      "id": "shenzhenxu-fabric",
+      "name": ["Shenzhenxu · visible built-up cluster", "深圳墟可辨建成群"],
+      "kind": "settlement", "form": "area", "basis": "interpreted",
+      "points": [[1088,552],[1139,516],[1183,460],[1202,408],[1219,363],[1267,362],[1318,369],[1378,410],[1417,461],[1424,501],[1401,547],[1388,584],[1330,607],[1248,637],[1178,645],[1121,626],[1088,552]]
+    },
+    {
+      "id": "xiangxi-fabric",
+      "name": ["Built-up cluster on the southeast approach", "东南进路旁建成群"],
+      "kind": "settlement", "form": "area", "basis": "interpreted",
+      "points": [[1434,751],[1486,727],[1538,708],[1589,734],[1636,781],[1643,833],[1623,872],[1583,907],[1540,892],[1492,855],[1447,824],[1434,751]]
+    }
+  ],
+  "places": [
+    {"id":"market-town","name":["Shenzhenxu","深圳墟"],"kind":"settlement","basis":"likely","at":[1291,529],"claims":["site.shenzhen_market_town.exists_1979"],"note":["Dense street blocks east of the railway identify the market-town area, not its legal limits.","铁路以东的密集街区指示深圳墟的大致范围，并非行政界线。"]},
+    {"id":"theatre","name":["Shenzhen Theatre","深圳戏院"],"kind":"building","basis":"candidate","at":[1127,510],"claims":["phase1.map.dongmen.crossroads_early_reform","phase1.map.shenzhenxu.county_and_street_maps_1977","phase1.shenzhenxu.four_gates_positions"],"note":["Approximate search area west of the old commercial crossroads. No individual roof is identified as the theatre.","旧商业十字街以西的大致查找范围，未确认戏院屋顶。"]},
+    {"id":"county-offices","name":["Bao’an county offices","宝安县机关旧址"],"kind":"building","basis":"candidate","at":[751,597],"claims":["site.county_offices.exists_1979","phase1.map.shenzhenxu.gazetteer_plate_1987"],"note":["Caiwuwei county-seat area on the west approach. Neither a specific office nor the compound boundary is identified.","西侧进路旁的蔡屋围县治片区，未确认具体机关建筑和院界。"]},
+    {"id":"station","name":["Luohu Station and yard","罗湖站及站场"],"kind":"building","basis":"likely","at":[1136,1377],"claims":["site.shenzhen_station.exists_1979"],"note":["The platforms and multiple tracks north of the bridge identify the station area. The station building footprint is unresolved.","桥北站台及多股铁轨指示站场，站房轮廓尚未确认。"]},
+    {"id":"bus-station","name":["Old bus station","旧汽车站"],"kind":"building","basis":"candidate","at":[1370,210],"claims":["phase1.map.shenzhenxu.gazetteer_plate_1987"],"note":["A broad search area north of the market based on the plate’s 汽车站 label. No specific compound has been matched.","据图志「汽车站」标注推定的墟北查找区，未确认具体院落。"]},
+    {"id":"yumin","name":["Yumin village","渔民村"],"kind":"settlement","basis":"candidate","at":[926,1140],"claims":["site.yumin.exists_1979","phase1.map.yumin_river_location"],"note":["Likely location on land beside the pond group near the confluence; not a roof-by-roof assignment.","近汇流处塘群旁的陆地候选位置，未逐栋定位。"]},
+    {"id":"hubei","name":["Hubei old village","湖贝旧村"],"kind":"settlement","basis":"candidate","at":[1539,466],"claims":["site.hubei.exists_1979","phase1.map.shenzhenxu.county_and_street_maps_1977"],"note":["Candidate built-up area east of the elongated pond strip. The old village boundary is unknown.","狭长塘群以东建成区的候选位置，旧村范围未明。"]},
+    {"id":"jiefang","name":["Jiefang Road · old-town reach","解放路旧墟段"],"kind":"road","basis":"candidate","at":[1212,488],"claims":["phase1.map.dongmen.crossroads_early_reform","phase1.shenzhenxu.street_name_equivalences"],"note":["Search area for the east–west market street. Do not equate it with the bright wider corridor south of the market.","旧墟东西向街道的查找区，不等同于墟南较宽的亮色通道。"]},
+    {"id":"renmin","name":["Renmin Road · old-town reach","人民路旧墟段"],"kind":"road","basis":"candidate","at":[1256,457],"claims":["phase1.map.dongmen.crossroads_early_reform","phase1.shenzhenxu.street_name_equivalences"],"note":["Approximate north–south approach to the old crossroads; the junction and line are not confirmed.","旧十字街南北进路的示意位置，未确认准确路口和线位。"]},
+    {"id":"shennan","name":["Shennan Road corridor","深南路走廊"],"kind":"road","basis":"candidate","at":[500,728],"claims":["phase1.shennan.first_paved_segment_west","phase1.shennan.photo.caiwuwei.1981"],"note":["Candidate west-side works corridor. The whole bright cut cannot be assigned to one named section or construction date.","西侧施工走廊候选位置，整条亮色地带不能统一定名或定年。"]},
+    {"id":"luohu-bridge","name":["Luohu rail bridge","罗湖铁路桥"],"kind":"road","basis":"likely","at":[1155,1541],"claims":["site.luohu_crossing.exists_1979","site.kcr_line.exists_1979"],"note":["The main railway crosses the river here. This marks the crossing, not the extent of every passenger facility.","铁路主线在此过河，标注过河点而非各客运设施的范围。"]},
+    {"id":"wenjindu","name":["Wenjindu crossing","文锦渡过河点"],"kind":"road","basis":"candidate","at":[1794,1005],"claims":["site.wenjindu_crossing.exists_1979"],"note":["The western short bridge is one candidate. Nearby crossings prevent a firm identification of the freight crossing from this image alone.","西侧短桥是一个候选点；附近另有过河设施，仅凭影像不能确认货运口岸位置。"]},
+    {"id":"shenzhen-river","name":["Shenzhen River","深圳河"],"kind":"water","basis":"likely","at":[436,1275],"claims":["phase1.map.yumin_river_location"],"note":["Label on the main river’s western meander; lines record visible reaches, not surveyed banks or a tide datum.","标注主河西段弯道；线条表示可辨河段，不是实测岸线或水位基准。"]},
+    {"id":"buji-river","name":["Buji River","布吉河"],"kind":"water","basis":"likely","at":[919,767],"claims":["phase1.map.yumin_river_location","phase1.shenzhenxu.buji_river_cutoff"],"note":["Mark on the channel leading to the Yumin confluence. Upstream continuity and dates of channel works are unresolved.","标注通往渔民村汇流处的河段；上游衔接及整治年代待核。"]},
+    {"id":"yumin-ponds","name":["Yumin-side ponds","渔民村旁塘群"],"kind":"water","basis":"likely","at":[859,1146],"claims":["site.yumin.exists_1979","phase1.map.yumin_river_location"],"note":["Separately visible water cells at the confluence. The pond group is not a village footprint or a complete fishpond inventory.","汇流处可分别辨认的塘格，并非村界或鱼塘总清单。"]},
+    {"id":"luohu-hill","name":["Luohu Hill search area","罗湖山查找区"],"kind":"hill","basis":"context","at":[1247,1393],"claims":["phase1.map.shenzhenxu.gazetteer_plate_1987"],"note":["The pre-SEZ plate places the hill east of the station near the river. This marker is not a confirmed 1980 summit, contour or grading date.","特区前图志将罗湖山标在车站东侧近河处；此点不是已确认的 1980 年山顶、等高线或平整日期。"]},
+    {"id":"huangbeiling-hill","name":["Huangbeiling upland","黄贝岭高地"],"kind":"hill","basis":"candidate","at":[2155,315],"claims":["site.huangbeiling.exists_1979","phase1.map.shenzhenxu.gazetteer_plate_1987"],"note":["Broad upland near the mapped locality. Neither crest height nor slope limits are derived here.","地图地名附近的高地区域，未测定山顶高程或坡地范围。"]}
+  ]
+}

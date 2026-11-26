@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shenzhen · 建筑类型图册</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f0e6;color:#343a33;font:15px/1.45 system-ui,sans-serif}main{max-width:1240px;margin:auto;padding:22px}header{border-top:3px solid #697660}h1{font:600 28px Georgia,serif;margin:.5em 0}p{margin:.5em 0 1em}section{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,295px),1fr));gap:14px}article{border:1px solid #b4b3a2;background:#faf8f0}canvas{width:100%;display:block;aspect-ratio:1.5;background:#e6e4d9}h2,small{margin:8px 12px;display:block}h2{font-size:16px}label{display:inline-flex;align-items:center;gap:.5em;margin:0 1em 1em 0}input{accent-color:#5e6d54}
+</style>
+<main><header><h1>Building types · 建筑类型图册</h1>
+<p>Four procedural families, with a construction stage and an existing walk-up for scale. Each grid square is 10 m. Sample parcels and floor counts are illustrative.<br>
+四类程序化建筑，附施工阶段和既有多层住宅作为比例参照。网格每格 10 米；地块布局与层数均为示意。</p></header>
+<label>Angle · 方位 <input type="range" id="angle" min="-180" max="180" value="25"></label>
+<label><input type="checkbox" id="parcel">Whole parcel · 完整地块</label>
+<section aria-label="Matched-scale models · 同比例模型"></section></main>
+<script type="module" src="./src/kit-review.ts"></script></html>
