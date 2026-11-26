@@ -326,7 +326,8 @@
   name: { zh: 上步, en: Shangbu farmland and villages }
   kind: farmland
   area: 7
-  geometry: { kind: point, lonlat: [114.0789, 22.5504], proxy: osm_shenzhen_places, confidence: 0.2 }
+  # R12: one row south of the OSM point (114.0789, 22.5504), inside the 1979 design map's Shangbu reserve
+  geometry: { kind: point, lonlat: [114.0788, 22.5491], proxy: osm_shenzhen_places, confidence: 0.2 }
   in_start_state: land_use
   placeholder: true
   claims:

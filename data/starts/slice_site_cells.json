@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "register_sha256": "374fb7896940b958cd4352fa3e2390671b447957c7df9aaa90293769180201b8",
+  "register_sha256": "38824fc5c9e6f3f46b265840f88b594ce0c9aa85feb4891d865ff823a1ddde46",
   "grid": {
     "width": 931,
     "height": 686,
@@ -215,11 +215,11 @@
     "site.shangbu_land": {
       "cell": [
         351,
-        372
+        373
       ],
       "landCell": [
         351,
-        372
+        373
       ]
     },
     "site.nantou_old_town": {

@@ -62,26 +62,28 @@
     "context_areas": [
       {"id": "luohu-station-yard", "name": {"en": "Luohu station yard", "zh": "罗湖车站站场"}, "ground_state": "transport_yard", "boxes": [[385, 388, 387, 395]], "claims": ["site.shenzhen_station.exists_1979", "site.luohu_crossing.exists_1979"]},
       {"id": "sungang-yard", "name": {"en": "Sungang freight yard", "zh": "笋岗货场"}, "ground_state": "transport_yard", "boxes": [[383, 354, 385, 358]], "claims": ["phase1.rail.sungang.opened_1962", "phase1.rail.sungang.renamed_1977"]},
-      {"id": "wenjindu-port", "name": {"en": "Wenjindu crossing", "zh": "文锦渡口岸"}, "ground_state": "transport_yard", "boxes": [[398, 384, 401, 387]], "claims": ["site.wenjindu_crossing.exists_1979"]}
+      {"id": "wenjindu-port", "name": {"en": "Wenjindu crossing", "zh": "文锦渡口岸"}, "ground_state": "transport_yard", "boxes": [[399, 380, 402, 383]], "claims": ["site.wenjindu_crossing.exists_1979"]}
     ],
     "zones": [
       {"id": "town", "name": {"en": "Dongmen inherited market", "zh": "东门既有墟市"}, "use": "commercial", "intensity": "standard", "stage": "inherited", "ground_state": "inherited_urban", "boxes": [[383, 368, 392, 378]], "claims": ["site.shenzhen_market_town.exists_1979", "phase1.map.dongmen.crossroads_early_reform"]},
-      {"id": "villages", "name": {"en": "Inherited villages", "zh": "既有村落"}, "use": "residential", "intensity": "low", "stage": "inherited", "ground_state": "inherited_urban", "boxes": [[368, 347, 372, 352], [381, 348, 386, 354], [391, 344, 397, 354], [390, 352, 399, 358], [372, 370, 382, 386], [378, 386, 384, 391], [391, 371, 398, 380], [404, 370, 410, 376]], "claims": ["site.yumin.exists_1979", "site.hubei.exists_1979", "site.huangbeiling.exists_1979", "site.shuibei.exists_1979", "phase1.villages.tianbei_old_pair", "site.nigang.exists_1979", "site.caiwuwei.exists_1979"]},
+      {"id": "county-seat", "name": {"en": "Old county seat (Caiwuwei)", "zh": "宝安旧县城（蔡屋围一带）"}, "use": "residential", "intensity": "standard", "stage": "inherited", "ground_state": "inherited_urban", "land_classes": ["town"], "boxes": [[366, 368, 383, 391]], "claims": ["site.county_offices.exists_1979"]},
+      {"id": "villages", "name": {"en": "Inherited villages", "zh": "既有村落"}, "use": "residential", "intensity": "low", "stage": "inherited", "ground_state": "inherited_urban", "land_classes": ["village"], "boxes": [[344, 343, 419, 398]], "claims": ["site.yumin.exists_1979", "site.hubei.exists_1979", "site.huangbeiling.exists_1979", "site.shuibei.exists_1979", "phase1.villages.tianbei_old_pair", "site.nigang.exists_1979", "site.caiwuwei.exists_1979"]},
+      {"id": "town-fringe", "name": {"en": "Town fringe (school, hospital, rail land)", "zh": "城镇边缘（学校、医院、铁路用地）"}, "use": "residential", "intensity": "standard", "stage": "inherited", "ground_state": "inherited_urban", "land_classes": ["town"], "boxes": [[344, 343, 419, 398]], "claims": ["phase1.map.1977.school_hospital", "phase1.rail.sungang.renamed_1977"]},
       {"id": "shangbu-reserve", "name": {"en": "Shangbu future land", "zh": "上步预留地"}, "use": "reserve", "intensity": "low", "stage": "proposal", "ground_state": "retained_farm", "boxes": [[349, 373, 358, 379], [359, 374, 364, 379]], "claims": ["site.shangbu_land.exists_1979"], "label": [347.5, 371.5]},
-      {"id": "luohu-reserve", "name": {"en": "Luohu future site", "zh": "罗湖预留地"}, "use": "reserve", "intensity": "low", "stage": "proposal", "ground_state": "retained_farm", "boxes": [[386, 379, 393, 386]], "claims": ["phase1.fiscal.luohu.site_servicing_estimate.1980"], "label": [393.5, 384.5]}
+      {"id": "luohu-reserve", "name": {"en": "Luohu lowland (the 1980 site)", "zh": "罗湖低地（1980 年开发地块）"}, "use": "reserve", "intensity": "low", "stage": "proposal", "ground_state": "retained_farm", "boxes": [[386, 379, 393, 386]], "claims": ["phase1.fiscal.luohu.site_servicing_estimate.1980"], "label": [393.5, 384.5]}
     ]
   },
   "visit": {
     "date": "1984-01-24",
     "title": {"en": "January 1984 · urban design map", "zh": "1984 年 1 月 · 城市分区与路网设计图"},
     "note": {"en": "Explicit 1984 built blocks, active earthworks, civic/park grounds and retained farmland.", "zh": "明确区分 1984 年建成街块、在建土方工地、机关公园与保留农田。"},
-    "inherit": ["town", "villages"],
+    "inherit": ["town", "county-seat", "villages", "town-fringe"],
     "context_areas": [
       {"id": "municipal-civic", "name": {"en": "Municipal compound", "zh": "市政府院落"}, "ground_state": "civic_park", "boxes": [[364, 376, 369, 380]], "claims": ["phase1.site.municipal_government.1981_location", "phase1.map.1982.municipal_government_compound", "phase1.photo.1984.municipal_government_form"]},
       {"id": "lizhi-park", "name": {"en": "Lizhi Park", "zh": "荔枝公园"}, "ground_state": "civic_park", "boxes": [[369, 374, 374, 380]], "claims": ["atlas.photo.szlzp.1557", "atlas.photo.szlzp.1558"], "label": [367.2, 372.4]},
       {"id": "luohu-station-yard", "name": {"en": "Luohu station yard", "zh": "罗湖车站站场"}, "ground_state": "transport_yard", "boxes": [[385, 388, 387, 395]], "claims": ["site.shenzhen_station.exists_1979", "site.luohu_crossing.exists_1979", "phase1.map.1982.luohu_station_crossing"]},
       {"id": "sungang-yard", "name": {"en": "Sungang freight yard", "zh": "笋岗货场"}, "ground_state": "transport_yard", "boxes": [[383, 354, 385, 358]], "claims": ["phase1.rail.sungang.opened_1962", "phase1.rail.sungang.renamed_1977"]},
-      {"id": "wenjindu-port", "name": {"en": "Wenjindu port", "zh": "文锦渡口岸"}, "ground_state": "transport_yard", "boxes": [[398, 384, 401, 387]], "claims": ["site.wenjindu_crossing.exists_1979", "atlas.photo.szlzp.971"]}
+      {"id": "wenjindu-port", "name": {"en": "Wenjindu port", "zh": "文锦渡口岸"}, "ground_state": "transport_yard", "boxes": [[399, 380, 402, 383]], "claims": ["site.wenjindu_crossing.exists_1979", "atlas.photo.szlzp.971"]}
     ],
     "zones": [
       {"id": "luohu-works", "name": {"en": "Guomao & Luohu works", "zh": "国贸及罗湖在建核心"}, "use": "commercial", "intensity": "high", "stage": "works", "ground_state": "graded_works", "boxes": [[388, 379, 391, 382]], "claims": ["core_basin.guomao.site", "phase1.guomao.construction_visible_january_visit", "phase1.guomao.standard_floors_started", "atlas.photo.szlzp.1520"], "label": [395.4, 379.0]},
