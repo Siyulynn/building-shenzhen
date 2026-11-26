@@ -69,3 +69,19 @@ imports fell by about 70%. Why:
 - **Footprint.** By 1984 the run services about 50 cells. The design map has about 190 built and 110 graded. Matching
   that footprint would need more crew capacity or cheaper servicing per cell, which are sim parameters, not plan
   levers.
+
+**Plan levers tried** (end-1983 GDP / revenue; old plan ¥43.5M / ¥6.50M; first switch ¥32.1M / ¥4.38M):
+
+| Variant | GDP | Revenue | Note |
+|---|---|---|---|
+| crews 0.5, room ahead 20k or 40k, three road slots, later works zones | 30.1–32.6 | 4.27–4.51 | Servicing is not limited by room, and crews or staging barely move the path. |
+| Luohu core at standard intensity from turn 4 | 36.3 | 5.87 | Against the design: the core is high-rise. |
+| The old plan's 6 Luohu commercial cells | 39.7 | 6.05 | Not design cells. |
+| **The Luohu commercial strip at x 387, beside Jianshe Road** | **39.7** | **5.96** | The design's own intent. |
+
+The lever is early commercial land in Luohu, because customs depends on the trading companies' premises. The design
+map loses its Luohu commercial strip: the generator keeps the design's avenue cells unzoned, and it lays Renmin Road
+(a proxy avenue) at x 387 with the strip at x 386. In the game, x 386 is Jianshe Road, so all 7 strip cells are
+clipped. The fix belongs in the design map: put the strip at x 387 beside the game's Jianshe Road, and move Renmin
+Road or drop it. The historical plan does not lay Renmin Road. With the strip, about 9% of GDP and 8% of revenue are
+still short of the old path.
