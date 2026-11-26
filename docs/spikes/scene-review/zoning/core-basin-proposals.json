@@ -1,0 +1,117 @@
+{
+  "format": 2,
+  "grid": {"crs": "EPSG:32650", "cell_m": 100, "origin_top_left": [164400, 2533900], "box": [344, 343, 419, 398]},
+  "design_role": {
+    "en": "Authoritative 100 m design map for 1979 opening and 24 January 1984. Defines zoning, intensity, road tiers and explicit 1984 ground states so both the 1984 3D atlas and in-game reference plan convert documented urban/works cells off the 1980 KH-9 farmland baseline while preserving retained farmland.",
+    "zh": "1979 年初与 1984 年 1 月 24 日的百米网格基准设计图。统一规定用地分区、开发强度、道路等级与 1984 年地表状态，使 1984 年三维场景与游戏参考规划在已建与施工片区脱离 1980 年 KH-9 农田底图，同时明确保留农田范围。"
+  },
+  "ground_states": {
+    "inherited_urban": {
+      "en": "Pre-1979 county town and villages (retain inherited low-rise fabric)",
+      "zh": "1979 年前既有县城与村落（保留低层肌理）",
+      "convert_1980_fields": false,
+      "atlas_surface": "settlement"
+    },
+    "built_1984": {
+      "en": "Completed or occupied 1980–84 urban blocks (replace 1980 farmland with built urban ground)",
+      "zh": "1980–84 年已建成或投入使用的城市街块（替代 1980 年农田为建成城市地表）",
+      "convert_1980_fields": true,
+      "atlas_surface": "settlement"
+    },
+    "graded_works": {
+      "en": "Active site grading and construction yards ('five connections and one levelling'; replace 1980 farmland with red-ochre graded earth)",
+      "zh": "正在平整及施工的“五通一平”工地（替代 1980 年农田为红褐色平整土方地表）",
+      "convert_1980_fields": true,
+      "atlas_surface": "graded_ground"
+    },
+    "civic_park": {
+      "en": "Documented civic compounds and urban parks (replace 1980 farmland with civic grounds and tree canopy)",
+      "zh": "有据可查的机关院落与城市公园（替代 1980 年农田为院落与绿树林荫）",
+      "convert_1980_fields": true,
+      "atlas_surface": "civic_park"
+    },
+    "transport_yard": {
+      "en": "Railway yards, stations and border port aprons (transport ground, never farmland)",
+      "zh": "铁路站场、车站与口岸场地（交通用地，不作农田）",
+      "convert_1980_fields": true,
+      "atlas_surface": "transport_land"
+    },
+    "retained_farm": {
+      "en": "Preserved 1984 agricultural lowlands and reserve fringes (keep interpreted field cover)",
+      "zh": "1984 年保留农田与外围预留地（保持判读农田覆盖）",
+      "convert_1980_fields": false,
+      "atlas_surface": "field"
+    }
+  },
+  "atlas_profiles": [
+    {"use": "commercial", "intensity": "high", "stage": "proposal", "ground_state": "built_1984", "frontage": "avenue", "storeys": [6, 20], "kits": ["early_highrise", "danwei_slab", "guoshang-proxy"], "game_road": "avenue"},
+    {"use": "commercial", "intensity": "high", "stage": "works", "ground_state": "graded_works", "frontage": "avenue", "storeys": [1, 18], "kits": ["tower_works", "worksite_shed", "guomao"], "game_road": "avenue"},
+    {"use": "commercial", "intensity": "standard", "stage": "inherited", "ground_state": "inherited_urban", "frontage": "lane", "storeys": [2, 3], "kits": ["lingnan_block"], "game_road": "street"},
+    {"use": "commercial", "intensity": "standard", "stage": "proposal", "ground_state": "built_1984", "frontage": "street", "storeys": [3, 6], "kits": ["danwei_slab", "lingnan_block", "worker_dorm"], "game_road": "street"},
+    {"use": "industrial", "intensity": "standard", "stage": "proposal", "ground_state": "built_1984", "frontage": "compound", "storeys": [2, 6], "kits": ["standard_factory", "factory_hall", "worker_dorm"], "game_road": "street"},
+    {"use": "industrial", "intensity": "low", "stage": "works", "ground_state": "graded_works", "frontage": "works", "storeys": [1, 2], "kits": ["worksite_shed"], "game_road": "track"},
+    {"use": "industrial", "intensity": "low", "stage": "proposal", "ground_state": "retained_farm", "frontage": "candidate", "storeys": [0, 1], "kits": ["worksite_shed"], "game_road": "track"},
+    {"use": "residential", "intensity": "standard", "stage": "proposal", "ground_state": "built_1984", "frontage": "court", "storeys": [4, 7], "kits": ["estate_slab", "worker_dorm", "danwei_slab"], "game_road": "street"},
+    {"use": "residential", "intensity": "low", "stage": "inherited", "ground_state": "inherited_urban", "frontage": "village", "storeys": [1, 2], "kits": ["village_row"], "game_road": "track"},
+    {"use": "reserve", "intensity": "low", "stage": "proposal", "ground_state": "retained_farm", "frontage": "none", "storeys": [0, 0], "kits": [], "game_road": "none"}
+  ],
+  "opening": {
+    "date": "1979-01-01",
+    "title": {"en": "1979 opening · baseline design map", "zh": "1979 年初 · 开局基准设计图"},
+    "note": {"en": "Inherited market town, villages, rail/port yards and pre-SEZ reserve land.", "zh": "以既有墟市、村落、站场口岸与设区前预留地为基准。"},
+    "context_areas": [
+      {"id": "luohu-station-yard", "name": {"en": "Luohu station yard", "zh": "罗湖车站站场"}, "ground_state": "transport_yard", "boxes": [[384, 388, 387, 395]], "claims": ["site.shenzhen_station.exists_1979", "site.luohu_crossing.exists_1979"]},
+      {"id": "sungang-yard", "name": {"en": "Sungang freight yard", "zh": "笋岗货场"}, "ground_state": "transport_yard", "boxes": [[382, 353, 386, 359]], "claims": ["phase1.rail.sungang.opened_1962", "phase1.rail.sungang.renamed_1977"]},
+      {"id": "wenjindu-port", "name": {"en": "Wenjindu crossing", "zh": "文锦渡口岸"}, "ground_state": "transport_yard", "boxes": [[398, 384, 401, 387]], "claims": ["site.wenjindu_crossing.exists_1979"]}
+    ],
+    "zones": [
+      {"id": "town", "name": {"en": "Dongmen inherited market", "zh": "东门既有墟市"}, "use": "commercial", "intensity": "standard", "stage": "inherited", "ground_state": "inherited_urban", "boxes": [[383, 368, 392, 378]], "claims": ["site.shenzhen_market_town.exists_1979", "phase1.map.dongmen.crossroads_early_reform"]},
+      {"id": "villages", "name": {"en": "Inherited villages", "zh": "既有村落"}, "use": "residential", "intensity": "low", "stage": "inherited", "ground_state": "inherited_urban", "boxes": [[368, 347, 372, 352], [381, 348, 386, 354], [391, 344, 397, 354], [390, 352, 399, 358], [372, 370, 382, 386], [378, 386, 384, 391], [391, 371, 398, 380], [404, 370, 410, 376]], "claims": ["site.yumin.exists_1979", "site.hubei.exists_1979", "site.huangbeiling.exists_1979", "site.shuibei.exists_1979", "phase1.villages.tianbei_old_pair", "site.nigang.exists_1979", "site.caiwuwei.exists_1979"]},
+      {"id": "shangbu-reserve", "name": {"en": "Shangbu future land", "zh": "上步预留地"}, "use": "reserve", "intensity": "low", "stage": "proposal", "ground_state": "retained_farm", "boxes": [[349, 373, 358, 379], [359, 374, 364, 379]], "claims": ["site.shangbu_land.exists_1979"], "label": [347.5, 371.5]},
+      {"id": "luohu-reserve", "name": {"en": "Luohu future site", "zh": "罗湖预留地"}, "use": "reserve", "intensity": "low", "stage": "proposal", "ground_state": "retained_farm", "boxes": [[386, 379, 393, 386]], "claims": ["phase1.fiscal.luohu.site_servicing_estimate.1980"], "label": [393.5, 384.5]}
+    ]
+  },
+  "visit": {
+    "date": "1984-01-24",
+    "title": {"en": "January 1984 · urban design map", "zh": "1984 年 1 月 · 城市分区与路网设计图"},
+    "note": {"en": "Explicit 1984 built blocks, active earthworks, civic/park grounds and retained farmland.", "zh": "明确区分 1984 年建成街块、在建土方工地、机关公园与保留农田。"},
+    "inherit": ["town", "villages"],
+    "context_areas": [
+      {"id": "municipal-civic", "name": {"en": "Municipal compound", "zh": "市政府院落"}, "ground_state": "civic_park", "boxes": [[364, 376, 369, 380]], "claims": ["phase1.site.municipal_government.1981_location", "phase1.map.1982.municipal_government_compound", "phase1.photo.1984.municipal_government_form"]},
+      {"id": "lizhi-park", "name": {"en": "Lizhi Park", "zh": "荔枝公园"}, "ground_state": "civic_park", "boxes": [[369, 374, 374, 380]], "claims": ["atlas.photo.szlzp.1557", "atlas.photo.szlzp.1558"], "label": [367.2, 372.4]},
+      {"id": "luohu-station-yard", "name": {"en": "Luohu station yard", "zh": "罗湖车站站场"}, "ground_state": "transport_yard", "boxes": [[384, 387, 387, 395]], "claims": ["site.shenzhen_station.exists_1979", "site.luohu_crossing.exists_1979", "phase1.map.1982.luohu_station_crossing"]},
+      {"id": "sungang-yard", "name": {"en": "Sungang freight yard", "zh": "笋岗货场"}, "ground_state": "transport_yard", "boxes": [[382, 353, 386, 359]], "claims": ["phase1.rail.sungang.opened_1962", "phase1.rail.sungang.renamed_1977"]},
+      {"id": "wenjindu-port", "name": {"en": "Wenjindu port", "zh": "文锦渡口岸"}, "ground_state": "transport_yard", "boxes": [[398, 384, 401, 387]], "claims": ["site.wenjindu_crossing.exists_1979", "atlas.photo.szlzp.971"]}
+    ],
+    "zones": [
+      {"id": "luohu-works", "name": {"en": "Guomao & Luohu works", "zh": "国贸及罗湖在建核心"}, "use": "commercial", "intensity": "high", "stage": "works", "ground_state": "graded_works", "boxes": [[388, 379, 391, 382]], "claims": ["core_basin.guomao.site", "phase1.guomao.construction_visible_january_visit", "phase1.guomao.standard_floors_started", "atlas.photo.szlzp.1520"], "label": [395.4, 379.0]},
+      {"id": "luohu-high", "name": {"en": "Luohu commercial core", "zh": "罗湖干道商业核心"}, "use": "commercial", "intensity": "high", "stage": "proposal", "ground_state": "built_1984", "boxes": [[388, 382, 393, 384], [391, 379, 393, 382]], "claims": ["phase1.fiscal.luohu.site_servicing_estimate.1980", "phase1.shennan.east_reach_1983", "core_basin.guoshang.site", "phase1.guoshang.commercial_building_completed", "atlas.photo.szlzp.1554"], "label": [395.2, 382.2]},
+      {"id": "luohu-support", "name": {"en": "Luohu commercial blocks", "zh": "罗湖商业街块"}, "use": "commercial", "intensity": "standard", "stage": "proposal", "ground_state": "built_1984", "boxes": [[386, 379, 387, 386], [393, 380, 396, 383]], "claims": ["phase1.fiscal.luohu.site_servicing_estimate.1980", "phase1.video.1984.aerial_urban_fabric", "atlas.photo.szlzp.1554"]},
+      {"id": "luohu-housing", "name": {"en": "Luohu housing", "zh": "罗湖住宅组团"}, "use": "residential", "intensity": "standard", "stage": "proposal", "ground_state": "built_1984", "boxes": [[388, 384, 395, 388]], "claims": ["phase1.video.1984.aerial_urban_fabric", "atlas.photo.szlzp.1523"], "label": [391.2, 389.6]},
+      {"id": "shangbu-factories", "name": {"en": "Shangbu industrial & electronics", "zh": "上步工业与电子片区"}, "use": "industrial", "intensity": "standard", "stage": "proposal", "ground_state": "built_1984", "boxes": [[349, 375, 354, 380], [355, 375, 364, 380]], "claims": ["phase1.zoning.shangbu.factory_1_completed", "phase1.housing.shangbu_bagualing.completed_industrial_floor.1984", "phase1.zoning.electronics_building.completed", "atlas.photo.electronics_section.caption_1983", "atlas.photo.szlzp.1561"], "label": [346.5, 383.2]},
+      {"id": "shangbu-housing", "name": {"en": "Shangbu housing", "zh": "上步住宅组团"}, "use": "residential", "intensity": "standard", "stage": "proposal", "ground_state": "built_1984", "boxes": [[349, 373, 354, 375], [355, 372, 364, 375]], "claims": ["phase1.map.1982.shangbu_industrial", "atlas.photo.szlzp.1559", "atlas.photo.szlzp.1558"], "label": [364.8, 369.5]},
+      {"id": "shangbu-works", "name": {"en": "Shangbu active works", "zh": "上步平整施工区"}, "use": "industrial", "intensity": "low", "stage": "works", "ground_state": "graded_works", "boxes": [[355, 369, 364, 372]], "claims": ["atlas.photo.szlzp.1561", "atlas.photo.szlzp.1558", "atlas.photo.szlzp.1559"], "label": [355.0, 366.8]},
+      {"id": "shangbu-edge", "name": {"en": "Shangbu reserve", "zh": "上步西北预留地"}, "use": "reserve", "intensity": "low", "stage": "proposal", "ground_state": "retained_farm", "boxes": [[349, 369, 354, 373]], "claims": ["site.shangbu_land.exists_1979"], "label": [345.0, 367.8]},
+      {"id": "bagualing", "name": {"en": "Bagualing earthworks", "zh": "八卦岭土方工地"}, "use": "industrial", "intensity": "low", "stage": "works", "ground_state": "graded_works", "boxes": [[363, 361, 376, 364]], "claims": ["phase1.zoning.bagualing.first_works", "phase1.zoning.bagualing.road_envelope_gazetteer"], "label": [359.0, 359.2]},
+      {"id": "shuibei", "name": {"en": "Shuibei candidate", "zh": "水贝工业候选区"}, "use": "industrial", "intensity": "low", "stage": "proposal", "ground_state": "retained_farm", "boxes": [[395, 348, 399, 353]], "claims": ["phase1.zoning.shuibei.industrial_development_proposal", "phase1.zoning.shuibei.road_envelope_gazetteer"], "label": [400.5, 348.5]},
+      {"id": "hubei-housing", "name": {"en": "Hubei–Huangbeiling housing", "zh": "湖贝—黄贝岭路侧住宅"}, "use": "residential", "intensity": "standard", "stage": "proposal", "ground_state": "built_1984", "boxes": [[398, 372, 406, 375], [408, 371, 414, 374]], "claims": ["atlas.photo.szlzp.1552", "atlas.photo.szlzp.1553"], "label": [400.0, 365.8]},
+      {"id": "huangbeiling-works", "name": {"en": "Huangbeiling roadside works", "zh": "黄贝岭路侧工地"}, "use": "industrial", "intensity": "low", "stage": "works", "ground_state": "graded_works", "boxes": [[405, 375, 417, 378]], "claims": ["atlas.photo.szlzp.1552"], "label": [406.5, 381.4]}
+    ]
+  },
+  "routes": {
+    "inherited": {
+      "street": ["town-west-approach", "town-cross-east-west", "town-cross-north-south"],
+      "stage_b_street": ["jiefang-bend"],
+      "track": ["town-north-frontage", "town-south-frontage", "town-west-link", "hubei-north-link", "east-crossing-approach"]
+    },
+    "january": {
+      "avenue_dated": ["shangbu-east-west-corridor", "market-south-road"],
+      "avenue_photo": ["shennan-huangbeiling", "huaqiang-north", "renmin-south"],
+      "street_core": ["shangbu-southern-link", "south-transverse-road", "east-lowland-link"],
+      "street_stage_b": ["jianshe", "south-east-grid", "wenjin-link", "hubei-link", "dongmen-northeast", "shangbu-grid-south", "shangbu-grid-middle", "shangbu-grid-north", "shangbu-north", "sungang-west", "sungang-east", "hongling-link"],
+      "street_photo": ["hongling-approach", "yannan-lane", "yanhe-approach"],
+      "track_core": ["west-riverbank-lane"],
+      "track_photo": ["guomao-service", "shangbu-service"]
+    }
+  }
+}

@@ -778,7 +778,7 @@ The renderer works at three scales:
   - 2000s glass towers and gated estates.
 
   The generator takes a tracked building record (footprint, floors by use, build year, alterations), or a block stock and its event log, and produces geometry from a kit of parts with era-specific facade textures. Only a handful of **landmarks** and the walkable routes are corrected by hand.
-- **Scale techniques:** instanced and batched meshes, chunking, levels of detail, and impostors for distant buildings.
+- **Scale techniques:** three-scale LOD hierarchy — coarse super-batched citywide masses (LOD0, ≤ 16 draw calls), frustum-culled 3.2 km spatial chunks with simplified instanced kits (LOD1), and streamed close-up tracked blocks with instanced Blender GLB details (LOD2). Full technical specification, UV/grounding rules, and asset budgets live in [docs/design/3d-modelling-protocol.md](docs/design/3d-modelling-protocol.md).
 - **Chinese text:** the fonts are huge, so subset them and use SDF text rendering.
 
 ### 6.6 Repository layout
@@ -925,6 +925,7 @@ Research is a deliverable in its own right and runs alongside all the build phas
   - *This War of Mine* for vignettes;
   - *China: Mao's Legacy* for the authority theme.
 - **Open-source code worth reading** (check their activity and licences):
+  - [External resources reuse plan](docs/design/external-resources-plan.md): what to adopt, where it belongs, and what to test before integrating it.
   - Micropolis, the open-source release of the original SimCity;
   - A/B Street, a traffic simulation built on OpenStreetMap;
   - OpenTTD;
@@ -947,11 +948,11 @@ There are no calendar promises here; each phase ends on **exit criteria**. Hones
   - Nothing in Phase 0 builds 3D, archival tooling or a building serializer.
 
 ### Spike B (after Phase 1, time-boxed to about a week)
-- **The walk:** a short stretch of Yumin Village from tracked building records, shown in an early snapshot and a dense late one.
+- **The walk (remaining human gate):** a short stretch of Yumin Village from tracked building records, shown in an early snapshot and a dense late one.
   - Walk continuously across a tile boundary, down a narrow lane and back out to the citywide view.
   - Measure frame-time spikes and memory.
   - Measure the **authoring hours per finished street**. This tells you whether ten such routes are affordable.
-- **The scale check:** the whole municipality drawn as masses, from block stocks plus a realistic number of tracked buildings. Measure memory, worker message cost and save size.
+- **The scale check (technical pre-check passed, 2026-11-23):** verified on the real 931 × 686 DEM + 100k synthetic building masses + Phase B Blender GLB kits (3.97 MiB SoA RAM, 1.36 MiB gzipped save, 73.2 KiB/turn worker delta, 2.4–2.9 ms median GPU across LOD0/LOD1/LOD2 on integrated Radeon). Details in [docs/design/external-resources-plan.md](docs/design/external-resources-plan.md); engineering contract in [docs/design/3d-modelling-protocol.md](docs/design/3d-modelling-protocol.md).
 - **Exit:** the 3D stack, the size of the tracked tier and a first cost per street are confirmed. Throw the spike code away afterwards, but keep the authoring notes.
 
 ### Phase 1: The ugly playable slice ("Luohu and Shekou, 1979–1984", 2D only)
