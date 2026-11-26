@@ -85,3 +85,17 @@ map loses its Luohu commercial strip: the generator keeps the design's avenue ce
 clipped. The fix belongs in the design map: put the strip at x 387 beside the game's Jianshe Road, and move Renmin
 Road or drop it. The historical plan does not lay Renmin Road. With the strip, about 9% of GDP and 8% of revenue are
 still short of the old path.
+
+**What else the switch dropped.** Compared with the old plan's final state, the design plan builds no school and
+no power station; the old plan had one of each, and 9 substations against 7. Freight demand is met in both.
+
+- **The school.** It is placed beside the first zone of area 1, and the design plan draws no zone there (the town is
+  inherited, and the Shuibei candidate is not drawn). Moving it to Luohu (area 2) works, but its cost pushes
+  `band.1983q4.spending_to_revenue` to 1.23, a fail.
+- **The power station.** It is sited beside the first industrial zone. The Shangbu factories have no free site:
+  their roads are flanked by zone cells or unplayable land. Trying each industrial zone in turn finds one only at
+  Bagualing, from 1982, so the station is still building at the visit. That alone also fails the same band (1.23).
+
+Neither change is committed: the branch keeps the first switch, which passes every band. Both belong to the
+recalibration, together with the Luohu strip: with the strip, customs lifts revenue, which should make room for the
+school and the station under the spending ÷ revenue band.
