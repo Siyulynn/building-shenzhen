@@ -8,3 +8,5 @@ data/raw/
 pipeline/.venv/
 apps/*/public/grid/
 pipeline/__pycache__/
+.vitest/
+apps/cli/_scratch/
