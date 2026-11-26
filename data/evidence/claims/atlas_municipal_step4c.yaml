@@ -1,0 +1,29 @@
+- id: atlas.tiegang.reservoir.exists_by_1979
+  source: atlas_tiegang_reservoir
+  locator: 铁岗水库，正文首段（建设沿革）
+  quote: "1956年冬动工兴建，1957年夏竣工。1979年以前，以农业灌溉为主，之后逐步转变为城镇供水。"
+  summary: The Tiegang reservoir existed by 1979; the entry does not establish its 1979 pool outline.
+  status: sourced
+  extracted_by: ai:atlas-step4c
+- id: atlas.xili.reservoir.original_name_and_existence
+  source: atlas_xili_reservoir
+  locator: 西丽水库，正文首段（名称及建设沿革）
+  quote: "原名西沥水库，1983年易为现名。"
+  notes: "The same paragraph says “1960年3月主体竣工”. The October 1979 comparator is labelled with the older name."
+  summary: The reservoir now called Xili already existed by 1979 and was then named 西沥水库.
+  status: sourced
+  extracted_by: ai:atlas-step4c
+- id: atlas.shiyan.reservoir.exists_by_1979
+  source: atlas_shiyan_reservoir
+  locator: 石岩水库，正文首段（位置及建设沿革）
+  quote: "1958年底动工，1960年4月建成"
+  summary: The Shiyan reservoir existed by 1979; the entry does not establish its 1979 pool outline.
+  status: sourced
+  extracted_by: ai:atlas-step4c
+- id: atlas.shatoujiao.town.exists_by_1979
+  source: atlas_shatoujiao_history
+  locator: 2023-03-08 bilingual article, paragraph beginning 中英街原名
+  quote: "划为两国分别管理的“深圳沙头角镇”（今深圳市盐田区）和“新界沙头角乡”（今香港新界沙头角墟）"
+  summary: The Shatoujiao town existed before 1979. The account does not give its 1980 built extent.
+  status: sourced
+  extracted_by: ai:atlas-step4c
