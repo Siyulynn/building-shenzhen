@@ -84,7 +84,9 @@ async function start(){
   const overlappingNames=el<HTMLInputElement>('overlapping-names');
   const nameDetails=el<HTMLDetailsElement>('building-name-details');
   const photoReview=el<HTMLSelectElement>('photo-review');
-  for(const shot of shennanViews)photoReview.add(new Option(`${shot.name.join(' · ')} (${shot.year})`,shot.id));
+  // The reference photographs are not shipped with the public build; hide the selector there.
+  const photoReviewEnabled=import.meta.env.VITE_PHOTO_REVIEW!=='0';
+  if(photoReviewEnabled)for(const shot of shennanViews)photoReview.add(new Option(`${shot.name.join(' · ')} (${shot.year})`,shot.id));
   let aerial:(typeof shennanViews)[number]|undefined;
   let plan:BasinRenderPlan|undefined, basinScene:BasinScene|undefined, basinKey='', basinTextures:ReturnType<typeof facadeTextures>|undefined;
   let municipalScene:ReturnType<typeof buildMunicipal>|undefined;
@@ -230,7 +232,7 @@ async function start(){
         'Modern relief and shared water references; not a historical grade or shoreline. 现代地形和共用水体参考，不代表历史标高或岸线。':'Modern relief and water. 现代地形及水体。';
     }
     el('municipal-option').hidden=!regional;
-    el('photo-review-option').hidden=!regional||!showStageB;
+    el('photo-review-option').hidden=!photoReviewEnabled||!regional||!showStageB;
     el('clear-focus-option').hidden=!on;
     el('basin-option').hidden=!on;
     const key=regional?'regional:'+date:on?'on:'+clear.join():'off';
@@ -357,7 +359,7 @@ async function start(){
     scene.background=street?streetSky:atlasSky;
     controls.enabled=!street&&!aerial;
     el('zoom-in').hidden=el('zoom-out').hidden=street||!!aerial;
-    el('photo-review-exit').hidden=!aerial;
+    el('photo-review-exit').hidden=!photoReviewEnabled||!aerial;
     el('map-legend').hidden=street||!el('legend-title').textContent;
     tileCutouts.set(active);
     renderer.shadowMap.enabled=showHero||(regional?active.length>0:focus!=='city'&&!kh9.enabled.value);

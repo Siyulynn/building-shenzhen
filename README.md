@@ -13,7 +13,8 @@ The January 1984 atlas renders the core basin from the September 1980 base map, 
 design map and registered claims:
 
 - **Hosted page:** https://siyulynn.github.io/building-shenzhen/ (relief, streets, works and
-  named anchors; the reference photographs stay local)
+  named anchors; the reference photographs stay local, so the public build sets
+  `VITE_PHOTO_REVIEW=0` and hides the photo-viewpoint selector)
 - **Source:** [`apps/snapshot-3d/`](apps/snapshot-3d)
 - **Design maps:** [`docs/spikes/scene-review/zoning/`](docs/spikes/scene-review/zoning)
 - **Plan and findings:** [`docs/spikes/january-1984-street-and-fabric-plan.md`](docs/spikes/january-1984-street-and-fabric-plan.md)
