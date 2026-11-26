@@ -127,6 +127,7 @@ export function renderOverlaySelect(v: View): string {
       ${['industrial', 'residential', 'commercial'].map((k) => `<div><i class="sw" style="background:rgba(${USE_COLOR[k]!.slice(0, 3).join(',')},.7)"></i>${t(S.LAND_USE[k]!)}</div>`).join('')}
       ${v.historical ? `<div><i class="sw" style="border:1px dashed #24476b"></i>${t(S.T.historicalProposal)}</div>
         <div><i class="sw" style="border:1px dashed #5c1f24;background:rgba(196,120,60,.25)"></i>${t(S.T.historicalWorks)}</div>
+        <div><i class="sw" style="border:1px solid #3a5a32;background:rgba(96,150,84,.4)"></i>${t(S.T.historicalReference)}</div>
         <div><i class="sw" style="border:0;border-top:3px solid #24476b"></i>${t(S.T.historicalRoadAvenue)}</div>
         <div><i class="sw" style="border:0;border-top:2px solid #4a6f8f"></i>${t(S.T.historicalRoadStreet)}</div>
         <div><i class="sw" style="border:0;border-top:2px dashed #7a8b70"></i>${t(S.T.historicalRoadTrack)}</div>` : ''}

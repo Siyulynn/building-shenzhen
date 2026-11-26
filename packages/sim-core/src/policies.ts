@@ -9,7 +9,8 @@ import { runsOfCells } from './zones.js';
 import { isFinished, type CardInstance, type GameState, type PlayerAction } from './state.js';
 import { firstOption, type DecisionPolicy } from './step.js';
 import type { TickContent } from './ticks.js';
-import { gateAllows, planWorks, planZones, type MapPlan } from './mapPlan.js';
+import { gateAllows, planWorks, planZones, type DesignZonePlan, type MapPlan } from './mapPlan.js';
+import { DESIGN_PLAN_ZONES } from './designPlan.js';
 
 /** The co-financing card of the prologue's briefing, and the prologue's first-project card (content/slice/events.yaml). */
 export const COFINANCING_CARD = 'event.cofinancing';
@@ -145,15 +146,51 @@ export const AGGRESSIVE_PLAN: MapPlan = Object.freeze<MapPlan>({
   borrow_until_turn: 3, roads_at_once: 3,
 });
 /**
- * The historical plan: the Shangbu template zone (§5.3), reached by a road south from the Guangshen road, with
- * dormitories beside the road and shops in the market town; a third of the crews; a school in the town.
+ * R12 (§5.9): the visit's design-map zones the historical plan draws, in its order, from each turn (a floor; the
+ * gates can push it later). Shangbu's factories and reserve from the start; Luohu's trading blocks and Shangbu's
+ * housing when their gates open; Luohu's housing and core from the third year; the graded works and the Hubei housing
+ * from the fourth. Shuibei, still farmed at the visit, is not drawn. The order and turns are a design note.
+ */
+const HISTORICAL_DESIGN: readonly (readonly [string, number])[] = [
+  ['shangbu-factories', 0], ['shangbu-edge', 0], ['luohu-support', 0], ['shangbu-housing', 0],
+  ['luohu-housing', 8], ['luohu-high', 8],
+  ['shangbu-works', 12], ['bagualing', 12], ['huangbeiling-works', 12], ['hubei-housing', 12], ['luohu-works', 12]];
+const designZones = (list: readonly (readonly [string, number])[]): DesignZonePlan[] => list.map(([id, from_turn]) => {
+  const z = DESIGN_PLAN_ZONES.find((x) => x.id === id);
+  if (!z) throw new Error(`no design zone ${id}`);
+  return { id, use: z.use, intensity: z.intensity, runs: z.runs, from_turn };
+});
+/**
+ * R12 (§5.9): the design map's roads, as orthogonal paths inside the playable areas, off the design zones, so that
+ * each zone the plan draws touches a road (frontage grows inward from a zone's own road-side cells). A design note:
+ * the routes' claims cite the roads, not these cells.
+ * - Shennan Road west to Shangbu, one row north of the design line, which lies outside area 7;
+ * - Shennan East toward Huangbeiling, from the old town's south frontage;
+ * - Huaqiang Road north through Shangbu, to the Sungang road;
+ * - two Luohu streets standing in for the design's proxy grid: north–south beside the east commercial blocks, and
+ *   east from Jianshe Road along the housing's south side;
+ * - the Sungang road to Bagualing, along the free row south of it.
+ * Shennan East fronts the Hubei housing and the Huangbeiling works, so the design's Wenjin link is not built.
+ */
+const DESIGN_ROADS: MapPlan['roads'] = [
+  [[374, 379], [349, 379]],
+  [[388, 377], [396, 377], [396, 376], [399, 376], [399, 375], [406, 375], [406, 374], [412, 374]],
+  [[354, 378], [354, 365]],
+  [[395, 378], [395, 383]],
+  [[387, 388], [394, 388]],
+  [[354, 364], [376, 364], [376, 362], [379, 362]],
+];
+/** R12: Shennan Road and Shennan East are avenues on the design map (dated routes); upgraded once the roads are built. */
+const DESIGN_AVENUES: NonNullable<MapPlan['upgrades']> = [{ path: DESIGN_ROADS[0]!, class: 'avenue' }, { path: DESIGN_ROADS[1]!, class: 'avenue' }];
+/**
+ * The historical plan: R12 (§5.9) the visit's design map, its zones (HISTORICAL_DESIGN) and its roads (DESIGN_ROADS);
+ * a third of the crews; a school in the town.
  */
 export const HISTORICAL_PLAN: MapPlan = Object.freeze<MapPlan>({
-  zones: [{ template: 'precedent.zone.shangbu_industrial' }, { use: 'commercial', area: 2, cells: 6 },   // R10c: Luohu's
-    { use: 'industrial', area: 7, cells: 18 }, { use: 'residential', area: 7, cells: 6 }, { use: 'commercial', area: 1, cells: 4 }],
-  roads: [[[365, 353], [365, 372], [355, 372]], [[355, 373], [355, 376], [349, 376]], [[355, 371], [355, 369], [351, 369]], LUOHU_STREET],
-  upgrades: CORRIDOR_UPGRADES,
-  crew_share: 0.34, room_ahead_m2: 30_000, small_zones_first: true,   // R10c: Luohu's trading street before Shangbu's rest
+  zones: designZones(HISTORICAL_DESIGN),
+  roads: DESIGN_ROADS,
+  upgrades: [...CORRIDOR_UPGRADES!, ...DESIGN_AVENUES],
+  crew_share: 0.34, room_ahead_m2: 30_000, small_zones_first: true,
   credit_share: 0.4,                                                      // R11a: the bank funds about two fifths of the works
   import_quota: { level: 'open', from_turn: 16 },                         // R11: loosen import approval from its turn 16
   utilities: { headroom_jobs: 200, max_sources: 8, import_kw: 1000, import_from_turn: 2, station_turn: 6 }, facilities: [['school', 1]],

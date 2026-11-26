@@ -360,6 +360,7 @@ export const T = {
   historicalRoadTrack: l('1984年小路', '1984 track'),
   historicalProposal: l('建议用地', 'Proposed zone'),
   historicalWorks: l('在建用地', 'Works zone'),
+  historicalReference: l('公园、机关与站场（参考，无效果）', 'Park, civic and yard (reference, no effect)'),
   startRoutes: l('临时道路／铁路', 'Temporary road / rail'),
   areasLegend: l('片区', 'Areas'), focusArea: l('定位', 'Focus'),
   fitPlayable: l('可开发片区', 'Fit playable'), fitAll: l('全境', 'Whole city'),

@@ -69,6 +69,19 @@ def main():
     if not zones:
         raise SystemExit("no proposal zones found")
 
+    # R12: the context areas (civic ground, the park and the yards) are reference areas: drawn, never zoned
+    context_labels = {c["id"]: c.get("label") for c in proposal["visit"].get("context_areas", [])}
+    kinds = {"civic_park": None, "transport_yard": "yard"}
+    context = []
+    for c in visit.get("context_areas", []):
+        kind = kinds.get(c["ground_state"], "other") or ("park" if "park" in c["id"] else "civic")
+        runs = [list(r) for r in c["runs"]]
+        context.append({
+            "id": c["id"], "name": {"zh": c["name"]["zh"], "en": c["name"]["en"]}, "kind": kind,
+            "ground_state": c["ground_state"], "cellCount": sum(x1 - x0 + 1 for _, x0, x1 in runs), "runs": runs,
+            "label": context_labels.get(c["id"]) or centroid(runs), "claims": c.get("claims", []),
+        })
+
     roads = []
     for r in visit["routes"]:
         if r["tier"] not in TIERS:
@@ -90,12 +103,15 @@ def main():
         "grid": grid["grid"],
         "box": grid["grid"]["box"],
         "zones": zones,
+        "context": context,
         "roads": roads,
     }
     OUT.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     write_ts(zones, visit["date"])
     print(f"wrote {OUT.relative_to(ROOT)}: {len(zones)} proposal/works zones, "
           f"{sum(z['cellCount'] for z in zones)} cells, {len(roads)} road paths")
+    for c in context:
+        print(f"{c['id']:20s} reference    {c['kind']:8s} {c['cellCount']:3d}")
     for z in zones:
         print(f"{z['id']:20s} {z['use']:12s} {z['intensity']:8s} {z['stage']:8s} {z['cellCount']:3d}")
 

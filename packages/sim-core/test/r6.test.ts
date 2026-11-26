@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 import {
-  AGGRESSIVE_PLAN, CAUTIOUS_PLAN, HISTORICAL_PLAN, Rng, aggressive, cautious, cellsNearRoad, cellsOfRuns, checkBands,
+  AGGRESSIVE_PLAN, CAUTIOUS_PLAN, DESIGN_PLAN_ZONES, HISTORICAL_PLAN, Rng, aggressive, cautious, cellsNearRoad, cellsOfRuns, checkBands,
   createInitialState, createTickSteps, historical, planZones, playQuarters, plannedRoads, stateAfter,
   type BandRecord, type ClaimInfo, type DecisionPolicy, type GameState, type PlayRecord, type PlayerAction,
 } from '../src/index.js';
@@ -62,9 +62,10 @@ describe('R6: the map-first policies', () => {
     }
   });
 
-  it('the historical plan draws the Shangbu template zone and the road reaches it', () => {
+  it('the historical plan draws the Shangbu design zone and the road reaches it', () => {
     const s = runs.historical.rec.final;
-    const z = s.zones.find((x) => x.template === 'precedent.zone.shangbu_industrial')!;
+    const own = new Set(cellsOfRuns(DESIGN_PLAN_ZONES.find((x) => x.id === 'shangbu-factories')!.runs, s.grid));   // R12
+    const z = s.zones.find((x) => x.use === 'industrial' && cellsOfRuns(x.runs, s.grid).some((c) => own.has(c)))!;
     expect(z).toBeDefined();
     const roads = plannedRoads(s, UNGATED), w = s.grid.width;
     expect(cellsOfRuns(z.runs, s.grid).some((c) => [c - 1, c + 1, c - w, c + w].some((n) => roads.has(n)))).toBe(true);

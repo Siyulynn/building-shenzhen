@@ -149,7 +149,10 @@ describe('R11.2 strategic card clarity', () => {
 describe('R11.2 the 1984 historical plan', () => {
   const hist = historicalPlan(readFileSync('data/starts/slice_historical_zones.json', 'utf8'), 931)!;
   it('copies the proposal and works zones from the resolved design grid', () => {
-    expect(hist.zones).toHaveLength(12);
+    expect(hist.zones.filter((z) => z.stage !== 'reference')).toHaveLength(12);
+    // R12: Lizhi Park, the municipal compound and the three yards are drawn as reference areas
+    expect(hist.zones.filter((z) => z.stage === 'reference').map((z) => [z.id, z.use])).toEqual([
+      ['municipal-civic', 'civic'], ['lizhi-park', 'park'], ['luohu-station-yard', 'yard'], ['sungang-yard', 'yard'], ['wenjindu-port', 'yard']]);
     expect(hist.roads).toHaveLength(41);
     expect(hist.date).toBe('1984-01-24');
     const factories = hist.zones.find((z) => z.id === 'shangbu-factories')!;
@@ -170,9 +173,10 @@ describe('R11.2 the 1984 historical plan', () => {
     expect(html).toContain('1984');
     expect(html).toContain('Shangbu industrial &amp; electronics');   // escaped in the HTML
     expect(html).toContain('Shangbu housing');
+    expect(html).toContain('Lizhi Park');
     expect(html).toContain('1984 plan zones');
     const sc = sceneOf(base, slice, { layer: 'plan_1984', guide: false, historical: hist, selected: null, plan: null });
-    expect(sc.historical).toHaveLength(12);
+    expect(sc.historical).toHaveLength(17);                            // R12: 12 zones and 5 reference areas
     expect(sc.historicalRoads).toHaveLength(41);
     expect(sc.guide).toBeNull();
     expect(base.queue).toHaveLength(0);

@@ -11,7 +11,7 @@ describe('R9 borrow_until_turn (§5.9)', () => {
     const s = atTurn1();
     expect(moneyForProjects(s, params)).toBeLessThan(900_000);              // the first road's cost
     // the Shangbu road, and beside it the Luohu street (roads_at_once 2)
-    expect(roads(HISTORICAL_PLAN).map((a) => a.type === 'build_road' && a.path[0])).toEqual([[365, 353], [387, 384]]);
+    expect(roads(HISTORICAL_PLAN).map((a) => a.type === 'build_road' && a.path[0])).toEqual([[374, 379], [388, 377]]);   // R12: Shennan Road west and Shennan East
     const { borrow_until_turn: _, ...noBorrow } = HISTORICAL_PLAN;
     expect(roads(noBorrow).length).toBe(0);
   });

@@ -8,7 +8,7 @@
 import { contractLive, constructionCreditRoom, liveProject, moneyForProjects } from './fiscal.js';
 import { ROAD_CLASSES, intensityOf, type RoadClass, type SliceParams } from './params.js';
 import { roadClasses } from './freight.js';
-import type { ImportQuota, Intensity, LandUse } from './enums.js';
+import { HIGH_INTENSITY_KEY, type ImportQuota, type Intensity, type LandUse } from './enums.js';
 import type { CellRuns, GameState, PlayerAction, Zone } from './state.js';
 import type { TickContent } from './ticks.js';
 import { liveOrder, spatialViews } from './works.js';
@@ -126,6 +126,7 @@ export function planZones(s: GameState, tick: TickContent, plan: MapPlan, later 
       if (!runs.length) continue;
       const a: PlayerAction & { type: 'create_zone' } = { type: 'create_zone', use: z.use, runs, ...(z.intensity ? { intensity: z.intensity } : {}) };
       if (!gateAllows(s, tick, a)) continue;
+      if (z.intensity === 'high' && (!s.events.unlocked.includes(HIGH_INTENSITY_KEY) || !besideAvenue(s, tick, cellsOfRuns(a.runs, s.grid)))) continue;   // §5.3: waits for its unlock and avenue
       for (const c of cellsOfRuns(a.runs, s.grid)) taken.add(c);
       out.push(a);
       continue;
@@ -152,6 +153,13 @@ export function planZones(s: GameState, tick: TickContent, plan: MapPlan, later 
     out.push(a);
   }
   return out;
+}
+
+/** Whether an avenue cell is 4-adjacent to one of the cells: orders.ts's avenueAt, from the tick's network. */
+function besideAvenue(s: GameState, tick: TickContent, cells: readonly number[]): boolean {
+  if (!tick.network) return false;
+  const k = roadClasses(s, tick.network), w = s.grid.width;
+  return cells.some((c) => [c - w, c + w, ...(c % w ? [c - 1] : []), ...((c + 1) % w ? [c + 1] : [])].some((n) => k.get(n) === 'avenue'));
 }
 
 /** A plan road's cells, expanded from its orthogonal waypoints; undefined if two waypoints are not in line. */

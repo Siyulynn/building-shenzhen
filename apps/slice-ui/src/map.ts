@@ -6,7 +6,7 @@
  */
 import { isFormable, landCoverAt, type GameState, type Slice, type StartSite } from '@sz/sim-core';
 import { bi } from './strings.js';
-import { USE_COLOR, areaAt, areaBox, areaName, playableBox, siteName, sliceBox, type HistoricalRoad, type HistoricalZone } from './views.js';
+import { REFERENCE_COLOR, USE_COLOR, areaAt, areaBox, areaName, playableBox, siteName, sliceBox, type HistoricalRoad, type HistoricalZone } from './views.js';
 
 /** The present-day Shenzhen limit, loaded from data/starts/slice_city_border.json (reference only). */
 export interface CityBorder {
@@ -392,6 +392,23 @@ export class SliceMap {
     ctx.save();
     ctx.lineJoin = 'round';
     for (const zone of zones) {
+      if (zone.stage === 'reference') {                         // R12: park, civic ground and yards; no game effect
+        const c = REFERENCE_COLOR[zone.use] ?? [140, 120, 100];
+        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},.4)`;
+        for (const i of zone.cells) if (playable.has(i)) ctx.fillRect(i % W, Math.floor(i / W), 1, 1);
+        ctx.strokeStyle = `rgba(${c[0] * .6 | 0},${c[1] * .6 | 0},${c[2] * .6 | 0},.85)`;
+        ctx.lineWidth = Math.max(px, .05);
+        ctx.beginPath();
+        for (const i of zone.cells) {
+          if (!playable.has(i)) continue;
+          const x = i % W, y = Math.floor(i / W);
+          if (zone.use === 'park') { ctx.moveTo(x + .5, y + .2); ctx.lineTo(x + .5, y + .8); ctx.moveTo(x + .2, y + .5); ctx.lineTo(x + .8, y + .5); }
+          else if (zone.use === 'yard') { ctx.moveTo(x + .15, y + .85); ctx.lineTo(x + .85, y + .15); }
+          else ctx.rect(x + .2, y + .2, .6, .6);
+        }
+        ctx.stroke();
+        continue;
+      }
       const c = USE_COLOR[zone.use] ?? [140, 120, 100, 180];
       ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${zone.stage === 'works' ? .35 : .45})`;
       for (const i of zone.cells) if (playable.has(i)) ctx.fillRect(i % W, Math.floor(i / W), 1, 1);

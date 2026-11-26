@@ -44,17 +44,31 @@ export interface HistoricalZone {
   cellCount: number; cells: readonly number[]; label: readonly [number, number];
 }
 export interface HistoricalRoad { class: string; points: readonly (readonly [number, number])[] }
+/**
+ * R12: `zones` holds the proposal and works zones, then the reference areas (stage `reference`, use `civic`, `park` or
+ * `yard`): Lizhi Park, the municipal compound and the yards, drawn on the plan though they have no game effect.
+ */
 export interface HistoricalPlan { date: string; zones: readonly HistoricalZone[]; roads: readonly HistoricalRoad[] }
+/** R12: the reference areas' fills on the 1984 plan. */
+export const REFERENCE_COLOR: Readonly<Record<string, readonly [number, number, number]>> = {
+  park: [96, 150, 84], civic: [128, 132, 158], yard: [120, 112, 104],
+};
 /** Parse data/starts/slice_historical_zones.json into cell indices for a grid of `width`. */
 export function historicalPlan(raw: string, width: number): HistoricalPlan | null {
   const data = JSON.parse(raw) as { date?: string; zones?: { id: string; name: L; use: string; intensity: string;
     stage: string; cellCount: number; runs: [number, number, number][]; label: [number, number] }[];
-    roads?: { class: string; points: [number, number][] }[] };
+    roads?: { class: string; points: [number, number][] }[];
+    context?: { id: string; name: L; kind: string; cellCount: number; runs: [number, number, number][]; label: [number, number] }[] };
   if (!data.date || !Array.isArray(data.zones)) return null;
-  return { date: data.date, zones: data.zones.map((z) => ({
+  const cells = (runs: [number, number, number][]) =>
+    runs.flatMap(([y, x0, x1]) => Array.from({ length: x1 - x0 + 1 }, (_, i) => y * width + x0 + i));
+  return { date: data.date, zones: [...data.zones.map((z) => ({
     id: z.id, name: z.name, use: z.use, intensity: z.intensity, stage: z.stage, cellCount: z.cellCount, label: z.label,
-    cells: z.runs.flatMap(([y, x0, x1]) => Array.from({ length: x1 - x0 + 1 }, (_, i) => y * width + x0 + i)),
-  })), roads: data.roads ?? [] };
+    cells: cells(z.runs),
+  })), ...(data.context ?? []).map((c) => ({
+    id: c.id, name: c.name, use: c.kind, intensity: 'standard', stage: 'reference', cellCount: c.cellCount, label: c.label,
+    cells: cells(c.runs),
+  }))], roads: data.roads ?? [] };
 }
 
 /** R11.1: the name the player sees; the register keeps the full historical name and its citation. */

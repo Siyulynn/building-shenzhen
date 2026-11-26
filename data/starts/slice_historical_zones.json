@@ -650,6 +650,235 @@
       ]
     }
   ],
+  "context": [
+    {
+      "id": "municipal-civic",
+      "name": {
+        "zh": "市政府院落",
+        "en": "Municipal compound"
+      },
+      "kind": "civic",
+      "ground_state": "civic_park",
+      "cellCount": 20,
+      "runs": [
+        [
+          376,
+          364,
+          368
+        ],
+        [
+          377,
+          364,
+          368
+        ],
+        [
+          378,
+          364,
+          368
+        ],
+        [
+          379,
+          364,
+          368
+        ]
+      ],
+      "label": [
+        366.5,
+        378.0
+      ],
+      "claims": [
+        "phase1.site.municipal_government.1981_location",
+        "phase1.map.1982.municipal_government_compound",
+        "phase1.photo.1984.municipal_government_form"
+      ]
+    },
+    {
+      "id": "lizhi-park",
+      "name": {
+        "zh": "荔枝公园",
+        "en": "Lizhi Park"
+      },
+      "kind": "park",
+      "ground_state": "civic_park",
+      "cellCount": 24,
+      "runs": [
+        [
+          374,
+          369,
+          373
+        ],
+        [
+          375,
+          369,
+          373
+        ],
+        [
+          376,
+          369,
+          373
+        ],
+        [
+          377,
+          369,
+          372
+        ],
+        [
+          378,
+          369,
+          369
+        ],
+        [
+          378,
+          371,
+          373
+        ],
+        [
+          379,
+          369,
+          369
+        ]
+      ],
+      "label": [
+        367.2,
+        372.4
+      ],
+      "claims": [
+        "atlas.photo.szlzp.1557",
+        "atlas.photo.szlzp.1558"
+      ]
+    },
+    {
+      "id": "luohu-station-yard",
+      "name": {
+        "zh": "罗湖车站站场",
+        "en": "Luohu station yard"
+      },
+      "kind": "yard",
+      "ground_state": "transport_yard",
+      "cellCount": 13,
+      "runs": [
+        [
+          388,
+          385,
+          386
+        ],
+        [
+          389,
+          385,
+          386
+        ],
+        [
+          390,
+          385,
+          386
+        ],
+        [
+          391,
+          386,
+          386
+        ],
+        [
+          392,
+          385,
+          386
+        ],
+        [
+          393,
+          385,
+          386
+        ],
+        [
+          394,
+          385,
+          386
+        ]
+      ],
+      "label": [
+        386.04,
+        391.5
+      ],
+      "claims": [
+        "site.shenzhen_station.exists_1979",
+        "site.luohu_crossing.exists_1979",
+        "phase1.map.1982.luohu_station_crossing"
+      ]
+    },
+    {
+      "id": "sungang-yard",
+      "name": {
+        "zh": "笋岗货场",
+        "en": "Sungang freight yard"
+      },
+      "kind": "yard",
+      "ground_state": "transport_yard",
+      "cellCount": 8,
+      "runs": [
+        [
+          354,
+          383,
+          384
+        ],
+        [
+          355,
+          383,
+          384
+        ],
+        [
+          356,
+          383,
+          384
+        ],
+        [
+          357,
+          383,
+          384
+        ]
+      ],
+      "label": [
+        384.0,
+        356.0
+      ],
+      "claims": [
+        "phase1.rail.sungang.opened_1962",
+        "phase1.rail.sungang.renamed_1977"
+      ]
+    },
+    {
+      "id": "wenjindu-port",
+      "name": {
+        "zh": "文锦渡口岸",
+        "en": "Wenjindu port"
+      },
+      "kind": "yard",
+      "ground_state": "transport_yard",
+      "cellCount": 9,
+      "runs": [
+        [
+          380,
+          399,
+          401
+        ],
+        [
+          381,
+          399,
+          401
+        ],
+        [
+          382,
+          399,
+          401
+        ]
+      ],
+      "label": [
+        400.5,
+        381.5
+      ],
+      "claims": [
+        "site.wenjindu_crossing.exists_1979",
+        "atlas.photo.szlzp.971"
+      ]
+    }
+  ],
   "roads": [
     {
       "id": "town-west-approach",

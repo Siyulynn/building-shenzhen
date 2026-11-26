@@ -13,7 +13,8 @@ their outlines cite claims for the sites, not for the extents.
 | 1979 streets | Done | Jiefang Road, Renmin Road and the old-town west approach join the start network as temporary paths. Proxy streets and tracks stay on the map only. |
 | 1979 map reconciliation | Done | See below. |
 | Main menu, save and load | Done | Title screen (New game, Continue, Load), a Game menu in play (three slots, an autosave at each turn start, export and import as a file). Saves only at a turn start; a save keeps the unsent answers and queued actions, so End turn after a load gives what it would have given. `apps/slice-ui/src/saves.ts`. |
-| Historical run follows the 1984 map | Later | Needs explicit-cell zone plans (spec first) and a recalibration. |
+| 1984 overlay: reference areas | Done | Lizhi Park, the municipal compound and the three yards are drawn on the 1984 plan (`context` in the overlay file), with their own key entry. No game effect. |
+| Historical run follows the 1984 map | In progress | Explicit-cell zone plans (`DesignZonePlan`, §5.9) and the switch are done. All 20 bands pass, but the path fell (see below). Recalibration next. |
 
 ## 1979 reconciliation
 
@@ -49,3 +50,22 @@ reference areas, with the yards, when the overlay and the historical run are ext
 `build/3d-snapshots/jan84-stage-b/make-zoning-maps.py` writes the maps and the resolved grid. It sits in the ignored
 `build/` folder with its atlas inputs, so the maps cannot yet be rebuilt from a clean checkout. R12 changes to it:
 the `transport_yard` shade, and an optional `land_classes` on an inherited zone (which built classes it takes).
+
+## The historical run on the design map
+
+The historical plan now draws the design map's zones on their own cells and lays six roads that touch every zone,
+because frontage grows only from a zone's own road-side cells (`zoneFrontage`). Checked against the game grid, all
+332 design cells are playable and formable. Seven Luohu commercial cells sit on Jianshe Road and are clipped. The
+design's Shennan Road row (y 380) lies outside area 7, so the plan lays the road one row north.
+
+The first switch, before any tuning (end 1983, old plan → design plan): GDP ¥43.5M → ¥32.1M, revenue
+¥6.50M → ¥4.38M, residents 65.8k → 56.7k, firm jobs 17.5k → 11.4k. Debt ÷ revenue rose 0.31 → 0.49 and trade
+imports fell by about 70%. Why:
+
+- **Roads.** They are longer and cost more early: 1980 project spend was ¥1.63M against ¥0.85M.
+- **Luohu commercial.** The trading blocks are small after the road clip (4 cells) and open late, so customs falls.
+- **Servicing.** It goes to the zone with the least room, so each newly drawn zone takes the crews. Shangbu's
+  factories stop at 12 serviced cells while the graded works zones get 18.
+- **Footprint.** By 1984 the run services about 50 cells. The design map has about 190 built and 110 graded. Matching
+  that footprint would need more crew capacity or cheaper servicing per cell, which are sim parameters, not plan
+  levers.

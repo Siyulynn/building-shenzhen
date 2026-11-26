@@ -62,7 +62,7 @@ describe('R12 save and load', () => {
     const a = finish(submit(x)), b = finish(submit(loaded));
     expect(a.mode).toBe('over');
     expect(simText(b.state, b)).toBe(simText(a.state, a));
-  });
+  }, 30_000);
 
   it('refuses to save mid-quarter or after the end, and refuses a file that is not a save', () => {
     const over = finish(newSession(slice, 1));

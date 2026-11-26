@@ -26,8 +26,11 @@ function builtV5(): string {
   placeStructure(s, { kind: 'power_source', cell: 345 * W + 361, attach: 346 * W + 361, capacity: 1000 });
   const save = saveGame(s, rng, slice.content);
   const st = save.body.state as Record<string, unknown> & {
-    zones: { id: number; use: string }[]; structures: { kind: string }[]; actionLog: { action: Record<string, unknown> }[];
+    zones: { id: number; use: string; intensity?: string }[]; structures: { kind: string }[]; actionLog: { action: Record<string, unknown> }[];
   };
+  // version 5 had no intensity (R8b); the R12 historical plan draws its design zones with one
+  for (const q of st.zones) delete q.intensity;
+  for (const e of st.actionLog) if (e.action.type === 'create_zone') delete e.action.intensity;
   delete st.requisitioned; delete st.power; delete st.roadClass; delete (st.history as { freightUnmet?: unknown }).freightUnmet;
   delete (st.history as { electricity?: unknown }).electricity;
   const z = st.zones.find((q) => q.use !== 'industrial')!;

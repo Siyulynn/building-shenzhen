@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  DESIGN_PLAN_ZONES, cellsOfRuns, createInitialState, planZones, plannedRoads,
+  DESIGN_PLAN_ZONES, HISTORICAL_PLAN, cellsOfRuns, createInitialState, planZones, plannedRoads,
   type GameState, type MapPlan, type PlayerAction,
 } from '../src/index.js';
 import { slice, UNGATED } from './fixtures.js';
@@ -50,5 +50,46 @@ describe('R12 design-map zones', () => {
     // high intensity waits for its unlock under the real gates
     const high = zoneOf('luohu-high');
     expect(created(planZones(fresh(), slice.tick, plan([{ id: high.id, use: high.use, intensity: 'high', runs: high.runs }])))).toHaveLength(0);
+  });
+});
+
+describe('R12 the historical plan follows the design map', () => {
+  const s = fresh(), w = s.grid.width;
+  const cellsOf = (path: readonly (readonly [number, number])[]) => {
+    const out: number[] = [];
+    path.forEach(([x, y], i) => {
+      if (i === 0) { out.push(y * w + x); return; }
+      let [px, py] = path[i - 1]!;
+      while (px !== x || py !== y) { px += Math.sign(x - px); py += Math.sign(y - py); out.push(py * w + px); }
+    });
+    return out;
+  };
+  const playable = (c: number) => s.areas.some((a) => a.access === 'playable' && a.cells.includes(c));
+  const designCells = new Set(DESIGN_PLAN_ZONES.flatMap((z) => cellsOfRuns(z.runs, s.grid)));
+  const planRoads = new Set(HISTORICAL_PLAN.roads.flatMap(cellsOf));
+  const network = plannedRoads(s, slice.tick);
+
+  it('lays every plan road on playable cells off the design zones and off the start network', () => {
+    for (const r of HISTORICAL_PLAN.roads) for (const c of cellsOf(r)) {
+      expect(playable(c), `${c % w},${Math.floor(c / w)}`).toBe(true);
+      expect(network.has(c), `${c % w},${Math.floor(c / w)} on the network`).toBe(false);
+    }
+    // the two avenues may cross zones: Shennan West one row north of its line, Shennan East along its line at Huangbeiling
+    const shennanWest = [...cellsOf(HISTORICAL_PLAN.roads[0]!), ...cellsOf(HISTORICAL_PLAN.roads[1]!)];
+    for (const c of planRoads) if (!shennanWest.includes(c)) expect(designCells.has(c), `${c % w},${Math.floor(c / w)}`).toBe(false);
+  });
+
+  it('gives every zone it draws a road beside it', () => {
+    const roads = new Set([...planRoads, ...network]);
+    for (const z of HISTORICAL_PLAN.zones) {
+      if (!('runs' in z) || z.use === 'reserve') continue;
+      const cells = cellsOfRuns(z.runs, s.grid).filter((c) => !roads.has(c));
+      expect(cells.some((c) => [c - w, c + w, c - 1, c + 1].some((n) => roads.has(n))), z.id).toBe(true);
+    }
+  });
+
+  it('draws every design zone but the Shuibei candidate', () => {
+    expect(HISTORICAL_PLAN.zones.map((z) => ('runs' in z ? z.id : '')).sort())
+      .toEqual(DESIGN_PLAN_ZONES.map((z) => z.id).filter((id) => id !== 'shuibei').sort());
   });
 });
