@@ -33,10 +33,11 @@ export interface UiState {
   area: number;                                // the Population drawer's area
   tutorial: boolean;                           // R11.1: the guided opening, session-only
   tutorialStep: number;
+  details: boolean;                            // R11.1: full flyout descriptions; off = one brief line
 }
 export const initialUi = (slice: Slice): UiState => ({
   layer: 'areas', tool: 'select', guide: false, drawer: null, decisions: false, briefing: true, selected: null, area: 1,
-  tutorial: true, tutorialStep: 0,
+  tutorial: true, tutorialStep: 0, details: false,
   opts: { use: 'industrial', planOnly: false, facility: Object.keys(slice.params.works?.facilities ?? {})[0] ?? 'school' },
 });
 /** Everything a screen reads. */
@@ -149,7 +150,7 @@ export function renderStack(v: View): string {
   const { x, slice } = v, s = x.state, t = tx(v.lang);
   const queue = x.mode === 'turn' && x.queue.length ? `<div class="queue"><div class="muted">${t(S.T.queue)}</div>${x.queue.map((_, k) =>
     `<div class="q"><span>${t(actionLabel(s, slice, x.queue, k))}</span><button data-act="dequeue" data-k="${k}" aria-label="${esc(pick(S.T.remove, v.lang))}">✕</button></div>`).join('')}</div>` : '';
-  const cards = s.pendingCards.length, must = unanswered(x).length;
+  const cards = cardStack(s, slice).length, must = unanswered(x).length;
   const error = x.error ? `<div class="err" role="alert">${x.error.what === S.T.error ? '' : `${t(S.T.error)}: `}${t(x.error.what)}${x.error.detail !== undefined ? `: ${diag(x.error.detail)}` : ''}</div>` : '';
   const go = x.mode === 'over' ? '' : `<button class="go" data-act="submit" ${must ? 'disabled' : ''}>${t(x.mode === 'paused' ? S.T.continue : S.T.endQuarter)}</button>`;
   return `${error}${renderReadinessStrip(v)}${queue}
@@ -180,9 +181,9 @@ const GLYPH: Readonly<Record<Tool, string>> = { select: '◎', road: '═', zone
 
 /** R9 (§11.2): the gate a whole tool needs; its zone uses, road classes and tiers are gated inside the flyout. */
 const TOOL_GATE: Partial<Record<Tool, string>> = { power: 'structure.power_substation', station: 'structure.power_station', facility: 'structure.facility' };
-/** A gated choice: greyed, never hidden, its title "Opens with ‹opener›" (§11.2). */
-const lockedButton = (lock: L, lang: Lang, label: string) =>
-  `<span class="off" title="${esc(pick(lock, lang))}"><button disabled aria-disabled="true">${label}</button><small class="opens">${esc(pick(lock, lang))}</small></span>`;
+/** R11.1: a gated choice is simply greyed; the opener is a hover tooltip, not extra copy. */
+const lockedButton = (_lock: L, lang: Lang, label: string) =>
+  `<button disabled aria-disabled="true" title="${esc(pick(S.T.unlockLater, lang))}">${label}</button>`;
 
 export function renderRail(v: View): string {
   const t = tx(v.lang), s = v.x.state;
@@ -190,7 +191,7 @@ export function renderRail(v: View): string {
     const lock = TOOL_GATE[k] ? gateLock(s, v.slice, TOOL_GATE[k]!) : undefined;
     const dis = (BUILD_TOOLS.includes(k) && v.x.mode !== 'turn') || lock ? 'disabled' : '';
     return `<button class="tool${v.ui.tool === k ? ' sel' : ''}${lock ? ' locked' : ''}" data-act="tool" data-tool="${k}" ${dis}
-    ${lock ? `title="${esc(pick(lock, v.lang))}"` : ''}><i>${GLYPH[k]}</i><span>${t(S.TOOL[k]!)}</span>${lock ? `<small>${t(S.T.locked)}</small>` : ''}</button>`;
+    ${lock ? `title="${esc(pick(S.T.unlockLater, v.lang))}"` : ''}><i>${GLYPH[k]}</i><span>${t(S.TOOL[k]!)}</span></button>`;
   }).join('');
 }
 
@@ -198,8 +199,9 @@ export function renderRail(v: View): string {
 function paceRow(v: View): string {
   const t = tx(v.lang), cur = v.ui.opts.pace ?? 'normal', lock = gateLock(v.x.state, v.slice, 'works.priority');
   const steps = ['normal', 'push', 'all_out'].map((k) => k !== 'normal' && lock ? lockedButton(lock, v.lang, t(S.PACE[k]!))
-    : `<button data-act="pace" data-pace="${k}" class="${cur === k ? 'sel' : ''}">${t(S.PACE[k]!)}</button>`).join('');
-  return `<div class="muted">${t(S.T.pace)}</div><div class="opts">${steps}</div><div class="hint">${t(S.T.paceHint)}</div>`;
+    : `<button data-act="pace" data-pace="${k}" class="${cur === k ? 'sel' : ''}" title="${esc(t(S.PACE_BRIEF[k]!))}">${t(S.PACE[k]!)}</button>`).join('');
+  return `<div class="muted">${t(S.T.pace)}</div><div class="opts">${steps}</div>
+    <div class="hint">${t(v.ui.details ? S.T.paceHint : S.PACE_BRIEF[cur]!)}</div>`;
 }
 
 /** The open tool's flyout: what it does, and its choices. */
@@ -207,9 +209,10 @@ export function renderFlyout(v: View): string {
   const t = tx(v.lang), { ui, slice } = v, k = ui.tool;
   let body = `<div class="muted">${t(S.TOOL_HINT[k]!)}</div>`;
   if (BUILD_TOOLS.includes(k)) body += `<div class="hint gesture">${t(S.T.mapGestureHint)}</div>`;
+  body += `<label class="switch"><input type="checkbox" data-ui="details" ${ui.details ? 'checked' : ''}> ${t(S.T.showDetails)}</label>`;
   // R7 (§13 vocabulary): the Form site hint, wherever site formation is ordered
   const formation = `<div class="hint"><b>${t(S.T.siteFormation)}:</b> ${t(S.T.formationHint)}</div>`;
-  if (k === 'service') body += formation + paceRow(v);
+  if (k === 'service') body += (v.ui.details ? formation : `<div class="hint"><b>${t(S.T.siteFormation)}:</b> ${t(S.T.formationBrief)}</div>`) + paceRow(v);
   if (k === 'power') body += paceRow(v);                // a station builds at its own pace (§5.6)
   if (k === 'zone') {
     // R8b (§11.2): public is gone; facilities are placed directly
@@ -224,13 +227,13 @@ export function renderFlyout(v: View): string {
     const tiers = INTENSITIES.map((k) => {
       const lock = gateLock(v.x.state, slice, `zone.intensity.${k}`) ?? (k === 'high' && !highOpen && !slice.tick.gates?.length ? S.T.highLocked : undefined);
       return lock ? lockedButton(lock, v.lang, t(S.INTENSITY[k]!))
-        : `<button data-act="intensity" data-tier="${k}" class="${tier === k ? 'sel' : ''}">${t(S.INTENSITY[k]!)}</button>`;
+        : `<button data-act="intensity" data-tier="${k}" class="${tier === k ? 'sel' : ''}" title="${esc(t(S.INTENSITY_DETAIL[k]!))}">${t(S.INTENSITY[k]!)}</button>`;
     }).join('');
     const guides = (slice.tick.precedents ?? []).filter((p) => p.cells.length);
     body += `<div class="opts">${uses}</div>
       <div class="muted">${t(S.T.intensity)}</div><div class="opts">${tiers}</div>
-      <div class="hint">${t(S.T.intensityHint)}</div>
-      ${ui.opts.planOnly ? '' : formation + paceRow(v)}
+      <div class="hint">${t(ui.details ? S.T.intensityHint : S.INTENSITY_BRIEF[tier]!)}</div>
+      ${ui.opts.planOnly ? '' : (ui.details ? formation : `<div class="hint"><b>${t(S.T.siteFormation)}:</b> ${t(S.T.formationBrief)}</div>`) + paceRow(v)}
       <label><input type="checkbox" data-ui="planOnly" ${ui.opts.planOnly ? 'checked' : ''}> ${t(S.T.planOnly)}</label>
       <label><input type="checkbox" data-ui="guide" ${ui.guide ? 'checked' : ''}> ${t(S.T.showGuide)}</label>
       <div class="hint">${t(S.T.guideReference)}</div>
@@ -243,7 +246,7 @@ export function renderFlyout(v: View): string {
       return lock ? lockedButton(lock, v.lang, t(S.ROAD_CLASS[c]!))
         : `<button data-act="roadClass" data-cls="${c}" class="${cls === c ? 'sel' : ''}">${t(S.ROAD_CLASS[c]!)}</button>`;
     }).join('')}</div>
-      <div class="hint">${t(S.T.roadTierHint)}</div>${paceRow(v)}`;
+      <div class="hint">${t(v.ui.details ? S.T.roadTierHint : S.T.roadTierBrief)}</div>${paceRow(v)}`;
   } else if (k === 'facility') {
     const types = Object.keys(slice.params.works?.facilities ?? {});
     body += `<label>${t(S.T.facilityType)} <select data-ui="facility">${types.map((f) =>
@@ -328,11 +331,11 @@ export function renderBriefing(v: View): string {
 export function renderDecisions(v: View): string {
   const { x, slice } = v, t = tx(v.lang);
   const cards = cardStack(x.state, slice).map((c) => `<div class="card ${c.interrupting ? 'int' : ''}">
-      <h3>${t(c.title)}</h3>
-      <div class="muted">${t(c.interrupting ? S.T.mustAnswer : S.T.optional)}${c.raised ? ` · ${t(S.T.raised)} ${c.raised}` : ''}${c.expires ? ` · ${t(S.T.expires)} ${c.expires}` : ''}</div>
+      <h3>${t(c.title)}${c.count > 1 ? ` ×${c.count}` : ''}</h3>
+      <div class="muted">${t(c.interrupting ? S.T.mustAnswer : S.T.optional)}${c.raised ? ` · ${t(S.T.raised)} ${c.raised}` : ''}${c.expires ? ` · ${t(S.T.expires)} ${c.expires}` : ''}${c.count > 1 ? ` · ${t(S.T.stacked)} ${c.count}` : ''}</div>
       ${c.description ? `<p class="desc">${t(c.description)}</p>` : ''}
       ${c.lines.map((l) => `<div class="line">${t(l.label)}: ${t(l.value)}</div>`).join('')}
-      <div class="opts">${c.options.map((o) => `<div class="opt"><button data-act="choose" data-card="${esc(c.id)}" data-opt="${esc(o.id)}"
+      <div class="opts">${c.options.map((o) => `<div class="opt"><button data-act="choose" data-card="${esc(c.id)}" data-opt="${esc(o.id)}" data-group="${c.count > 1 ? '1' : '0'}"
         class="${x.answers[c.id] === o.id ? 'sel' : ''}">${t(o.label)}</button>${o.badges.length ? `<ul class="badges">${o.badges.map((b) =>
         `<li>${t(b)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div></div>`).join('') || `<div class="muted">${t(S.T.noCards)}</div>`;
   return `${closeBtn(v.lang, 'closeDecisions')}<h2>${t(S.T.pendingDecisions)}</h2><div class="modal-body">${cards}</div>

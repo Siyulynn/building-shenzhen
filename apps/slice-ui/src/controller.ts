@@ -50,6 +50,22 @@ export function choose(x: Session, instance: string, option: string | undefined)
   return { ...rest, answers };
 }
 
+/**
+ * Pick one option for a stacked card: the UI shows one card with a count, and this answers every
+ * identical emergent instance together (R11.1). Toggling the same option clears the group.
+ */
+export function chooseGroup(x: Session, instance: string, option: string): Session {
+  const card = x.state.pendingCards.find((c) => c.id === instance);
+  if (!card) return { ...x, error: err(T.noSuchCard, instance) };
+  if (!card.options.includes(option)) return { ...x, error: err(T.noSuchOption, option) };
+  const group = x.state.pendingCards.filter((c) => c.card === card.card && !c.interrupting && c.options.includes(option));
+  const answers = { ...x.answers };
+  const clear = group.length > 0 && group.every((c) => answers[c.id] === option);
+  for (const c of group) { if (clear) delete answers[c.id]; else answers[c.id] = option; }
+  const { error: _e, ...rest } = x;
+  return { ...rest, answers };
+}
+
 /** Queue a turn action for End turn. Only at a turn's start (§11.1). */
 export function enqueue(x: Session, a: PlayerAction): Session {
   if (x.mode !== 'turn') return { ...x, error: err(T.turnStartOnly) };

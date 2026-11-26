@@ -178,8 +178,8 @@ describe('R7 terms and the parked public zone', () => {
       const html = flyout('zone', lang);
       expect(html).not.toContain('data-use="public"');
       expect(html).toContain('data-use="industrial"');
-      expect(html).toContain(esc(T.formationHint[lang]));         // zone painting orders site formation
-      expect(flyout('zone', lang, true)).not.toContain(esc(T.formationHint[lang]));   // Plan only orders none
+      expect(html).toContain(esc(T.formationBrief[lang]));        // zone painting orders site formation
+      expect(flyout('zone', lang, true)).not.toContain(esc(T.formationBrief[lang]));  // Plan only orders none
     }
   });
 
@@ -187,7 +187,7 @@ describe('R7 terms and the parked public zone', () => {
     for (const lang of LANGS) {
       const html = flyout('service', lang);
       expect(html).toContain(esc(TOOL.service![lang]));
-      expect(html).toContain(esc(T.formationHint[lang]));
+      expect(html).toContain(esc(T.formationBrief[lang]));
     }
     expect(TOOL.service!.en).toBe('Form site');
     expect(T.formationHint.en).toMatch(/water and power connection at the plot edge\. Already included/);

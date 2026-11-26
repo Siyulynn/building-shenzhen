@@ -19,6 +19,8 @@ This revision responds to the R11 playtest. The sim's strategic shape was sound,
 - A faint 100 m grid is drawn over playable land while a build tool is open.
 - Right-drag pans while a build tool is open; left-drag builds. The flyout's gesture line says so.
 - The tool flyout has a max height and its own scroll, so the Plan-only and historical-plan controls are reachable at 980×664.
+- Locked uses, tiers, road classes, pace steps and tools are the same shape and size as the open ones: greyed and disabled, with the tooltip "Unlocks later"; the opener's long text is no longer printed under them.
+- A "Show details" switch in the flyout is off by default. Off, the flyout shows one brief line for the selected intensity, pace, road tier or formation. On, it shows the full explanatory paragraph. The full intensity text is also on each tier's hover title.
 
 ## The historical plan is reference only
 
@@ -29,7 +31,7 @@ This revision responds to the R11 playtest. The sim's strategic shape was sound,
 - The briefing and decisions modals have a scrolling body and a fixed footer; the briefing's "To the map" is always visible, and both have a top-right close control. Their scroll resets when they open.
 - The stat strip's chips are narrower and wrap their long values, so the negative "after commitments" figure is visible at 980 px.
 - The drawer stops above the stat strip; the inspector starts under the measured overlay.
-- The decisions counter now always reads `cards · N to answer`, and a card shows the month it was raised. This distinguishes two identical recurring petitions without merging them.
+- The decisions counter now always reads `cards · N to answer`, and a card shows the month it was raised. Identical emergent cards (for example two village petitions in one quarter) stack into **one card with a count** (`×2`); one choice answers the whole group, and the option badges show the doubled cost or scrutiny.
 - The first-project card's English now reads "Draw the first zone and the first road on the map"; the budget card points at the Budget drawer, not the briefing.
 - The opening "note from the city" is no longer printed. Its county-seal, export-base, one-piece-of-land, grant and canteen beats are woven into old Liang's six dialogue steps (`newsView` filters `news.1979q1.office_note`; the content record stays for its claim).
 - Opening letters are printed as letters (centred letterhead, inset paper, justified body), with no "composed fiction" or evidence labels in the player UI. The land-cover overlay drops "(a lead)", and the inspector shows a site's name without "proxy location" or a claim list.

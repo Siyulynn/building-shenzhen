@@ -20,9 +20,8 @@ describe('R8b the zone intensity', () => {
       expect(html).toContain('data-tier="low"');
       expect(html).toContain('data-tier="standard"');
       expect(html).not.toContain('data-tier="high"');
-      // R9 (§11.2): the tier's gate names the event that opens it
-      const g = slice.tick.gates!.find((q) => q.gate === 'zone.intensity.high')!;
-      expect(html).toContain(esc(S.T.opensWith[lang] + g.opener.name[lang]));
+      // R11.1: a locked tier is greyed and only says it unlocks later
+      expect(html).toContain(esc(S.T.unlockLater[lang]));
       expect(html).not.toContain('data-use="public"');
     }
     const open: Session = { ...x, state: { ...x.state, events: { ...x.state.events, unlocked: [HIGH_INTENSITY_KEY] } } };

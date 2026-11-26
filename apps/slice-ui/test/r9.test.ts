@@ -17,13 +17,12 @@ const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 const opener = (gate: string) => slice.tick.gates!.find((g) => g.gate === gate)!;
 
 describe('R9 locked tools (§11.2)', () => {
-  it('greys a locked tool on the rail with its opener, in both languages, and frees it once its key is set', () => {
+  it('greys a locked tool on the rail with an unlock-later tooltip, in both languages, and frees it once its key is set', () => {
     const x = newSession(slice);
     for (const lang of ['en', 'zh'] as const) {
       const rail = renderRail(view(x, 'select', lang));
-      const g = opener('structure.power_substation');
       expect(rail).toMatch(/class="tool locked" data-act="tool" data-tool="power" disabled/);
-      expect(rail).toContain(esc(S.T.opensWith[lang] + g.opener.name[lang]));
+      expect(rail).toContain(esc(S.T.unlockLater[lang]));
     }
     const open = opened(x, opener('structure.power_substation').requires);
     expect(renderRail(view(open))).not.toMatch(/data-tool="power" disabled/);
@@ -34,11 +33,11 @@ describe('R9 locked tools (§11.2)', () => {
     const x = newSession(slice);
     const zone = renderFlyout(view(x, 'zone'));
     expect(zone).not.toContain('data-use="residential"');
-    expect(zone).toContain(esc(S.T.opensWith.en + opener('zone.residential').opener.name.en));
+    expect(zone).toContain(esc(S.T.unlockLater.en));
     expect(zone).toContain('data-use="industrial"');
     const road = renderFlyout(view(x, 'road'));
     expect(road).not.toContain('data-cls="avenue"');
-    expect(road).toContain(esc(S.T.opensWith.en + opener('road.avenue').opener.name.en));
+    expect(road).toContain(esc(S.T.unlockLater.en));
     expect(road).toContain('data-cls="street"');
   });
 });
@@ -47,12 +46,12 @@ describe('R9 locked Govern controls (§11.2)', () => {
   it('greys the team contract and the power purchase until their keys are set', () => {
     const x = newSession(slice);
     const building = DRAWER_BODY.building(view(x)), economy = DRAWER_BODY.economy(view(x));
-    expect(building).toContain(esc(S.T.opensWith.en + opener('team.contract').opener.name.en));
-    expect(economy).toContain(esc(S.T.opensWith.en + opener('power.buy').opener.name.en));
+    expect(building).toContain(esc(S.T.unlockLater.en));
+    expect(economy).toContain(esc(S.T.unlockLater.en));
     expect(economy).not.toContain('data-act="buyPower"');
     const open = opened(x, opener('team.contract').requires, opener('power.buy').requires);
     expect(DRAWER_BODY.economy(view(open))).toContain('data-act="buyPower"');
-    expect(DRAWER_BODY.building(view(open))).not.toContain(esc(S.T.opensWith.en + opener('team.contract').opener.name.en));
+    expect(DRAWER_BODY.building(view(open))).not.toContain(esc(S.T.unlockLater.en));
   });
 });
 
@@ -62,7 +61,7 @@ describe('R9 the works pace in the flyout and preview (§5.6, §11.2)', () => {
     const lockedHtml = renderFlyout(view(x, 'road'));
     expect(lockedHtml).toContain('data-pace="normal"');
     expect(lockedHtml).not.toContain('data-pace="push"');
-    expect(lockedHtml).toContain(esc(S.T.opensWith.en + opener('works.priority').opener.name.en));
+    expect(lockedHtml).toContain(esc(S.T.unlockLater.en));
     const open = opened(x, opener('works.priority').requires);
     expect(renderFlyout(view(open, 'road'))).toContain('data-pace="all_out"');
   });

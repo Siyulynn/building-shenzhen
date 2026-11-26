@@ -4,7 +4,7 @@
  * sends them to the controller. The UI shows one language, English or Simplified Chinese (?lang=, the stored choice,
  * then English); switching it only re-renders, and place labels stay bilingual in both.
  */
-import { choose, dequeue, enqueue, newSession, submit, type Session } from './controller.js';
+import { choose, chooseGroup, dequeue, enqueue, newSession, submit, type Session } from './controller.js';
 import { isLang, readStoredLang, resolveLang, storeLang, withLang, type Lang } from './lang.js';
 import { loadSlice, readBundled } from './load.js';
 import { SliceMap, type Cell, type CityBorder } from './map.js';
@@ -197,7 +197,11 @@ document.addEventListener('click', (e) => {
       x = applyPlan(x, planGesture(x, ui.opts, { tool: 'zone', from: STARTER_FROM, to: STARTER_TO }));
       break;
     case 'tutorialDone': case 'tutorialSkip': ui.tutorial = false; break;
-    case 'choose': x = choose(x, d.card!, x.answers[d.card!] === d.opt ? undefined : d.opt); break;
+    case 'choose':
+      x = d.group === '1'
+        ? chooseGroup(x, d.card!, d.opt!)
+        : choose(x, d.card!, x.answers[d.card!] === d.opt ? undefined : d.opt);
+      break;
     case 'dequeue': x = dequeue(x, Number(d.k)); break;
     case 'submit': {
       const before = x.turnStart;
@@ -229,6 +233,7 @@ document.addEventListener('change', (e) => {
     case 'facility': ui.opts.facility = t.value; break;
     case 'planOnly': ui.opts.planOnly = t.checked; break;
     case 'guide': ui.guide = t.checked; break;
+    case 'details': ui.details = t.checked; break;
     case 'area': ui.area = Number(t.value); break;
     default: return;
   }

@@ -101,7 +101,24 @@ export const FACILITY: Readonly<Record<string, L>> = { school: l('学校', 'Scho
 /** R8d (§5.12): the road tiers. */
 /** R8b (§5.3): zone intensity tiers. */
 export const INTENSITY: Readonly<Record<string, L>> = { low: l('低', 'Low'), standard: l('标准', 'Standard'), high: l('高', 'High') };
+/** R11.1: one brief line for the selected tier; the long form is in the hover title and the details switch. */
+export const INTENSITY_BRIEF: Readonly<Record<string, L>> = {
+  low: l('低：每平方米楼面最省电，占地最多。', 'Low: least power per m², most land.'),
+  standard: l('标准：造价、土地和用电都居中。', 'Standard: balanced cost, land and power.'),
+  high: l('高：每平方米楼面最省钱，但需要大道。', 'High: least money per m², but needs an avenue.'),
+};
+export const INTENSITY_DETAIL: Readonly<Record<string, L>> = {
+  low: l('低强度：每平方米楼面最省电，但占地最多。', 'Low: the least power per m² of floor, but the most land.'),
+  standard: l('标准强度：造价、用地和用电都居中。', 'Standard: balanced cost, land and power.'),
+  high: l('高强度：每平方米楼面最省钱，但需要大道，用电也更多。', 'High: the least money per m² of floor, but it needs an avenue and more power.'),
+};
 export const ROAD_CLASS: Readonly<Record<string, L>> = { track: l('土路', 'Track'), street: l('街道', 'Street'), avenue: l('大道', 'Avenue') };
+/** R11.1: the selected works pace, one brief line. */
+export const PACE_BRIEF: Readonly<Record<string, L>> = {
+  normal: l('正常：按标准施工力量和单价。', 'Normal: standard crew and cost per unit.'),
+  push: l('加快：进度更快，单位造价更高。', 'Push: faster, more expensive per unit.'),
+  all_out: l('全力：最快，单位造价最高。', 'All-out: fastest, most expensive per unit.'),
+};
 /** A cell's works stage, and the stage of a zoned cell with no works. */
 export const WORK_STAGE: Readonly<Record<string, L>> = {
   zoned: l('已规划，未安排工程', 'Zoned, no works'), planned: l('已安排', 'Planned'),
@@ -302,10 +319,13 @@ export const T = {
   crewsCommitted: l('在用施工力量／总数 · 已承诺未支出', 'Crews in use / total · committed'),
   queuedThisTurn: l('本回合排队的指令', "This turn's queued orders"), oneOffDue: l('本季度到期的一次性支出', 'One-off costs due this quarter'),
   // R9 (§11.2): locked tools, the works pace, the news and the live modifiers
-  opensWith: l('随此开放：', 'Opens with '), locked: l('尚未开放', 'Locked'),
+  opensWith: l('随此开放：', 'Opens with '), locked: l('尚未开放', 'Locked'), unlockLater: l('稍后解锁', 'Unlocks later'),
   pace: l('施工节奏', 'Pace'),
   paceHint: l('加快：同样的工程，每月施工力量做得更多，但每单位花钱更多。只影响尚未完成的部分。',
     "Faster: the same work, more of it done by each month's crew, at more money a unit. Only unworked units are re-priced."),
+  showDetails: l('显示详细说明', 'Show details'),
+  formationBrief: l('清场、平整和地块边的接水接电已包含在内。', 'Clearing, levelling and the plot-edge connections are included.'),
+  roadTierBrief: l('等级越高，造价越高，运力越大。', 'Higher tiers cost more and carry more freight.'),
   monthsSaved: l('节省月数', 'Months saved'), extraYuan: l('额外费用', 'Extra cost'),
   news: l('消息', 'News'), noNews: l('上季度没有新消息。', 'No news since the last quarter.'),
   liveModifiers: l('仍在起作用的影响', 'Effects still in force'), quartersLeft: l('剩余季度', 'quarters left'),
@@ -322,7 +342,7 @@ export const T = {
   mapGestureHint: l('左键拖动建设 · 右键拖动平移 · 滚轮缩放', 'Drag to build · right-drag to pan · scroll to zoom'),
   outsidePlayable: l('不在七个可开发片区之内', 'Outside the seven playable areas'),
   frontageIfZoned: l('划区后可临路', 'Frontage if zoned'), noFrontageNear: l('附近没有临路条件', 'No road frontage nearby'),
-  raised: l('提出', 'Raised'), allAnswered: l('已全部答复', 'all answered'),
+  raised: l('提出', 'Raised'), allAnswered: l('已全部答复', 'all answered'), stacked: l('本季度共', 'This quarter:'),
   readinessTarget: l('序章目标', 'Prologue target'), readinessForecast: l('首批投资卡预计', 'First-wave cards forecast'),
   readinessCards: l('张首批投资卡', 'first-wave cards'),
   weakestPart: l('最弱的一环', 'Weakest part'), startHere: l('先从这里开始', 'Start here'),
@@ -396,7 +416,8 @@ export const BADGE: Readonly<Record<string, L>> = {
 export const TABLES: Readonly<Record<string, Readonly<Record<string, L>>>> = {
   SYSTEM_CARDS, OPTIONS, LOAN_KIND, LAND_USE, LAND_COVER, ENFORCEMENT, IMPORT_QUOTA, PERMIT, PRIORITY, POP_KIND, SECTOR, OBLIGATION, INDICATOR,
   ROLE, TRAIT, RISK, STAGE, WAITING, OVERLAYS, T, RUNG, ORDER_KIND, ORDER_STAGE, STRUCTURE, FACILITY, WORK_STAGE, TOOL,
-  TOOL_HINT, CHIP, CHIP_STAT, CUE, CUE_INPUT, BADGE, PACE, DESK, MODIFIER_TARGET, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
+  TOOL_HINT, CHIP, CHIP_STAT, CUE, CUE_INPUT, BADGE, PACE, DESK, MODIFIER_TARGET,
+  INTENSITY_BRIEF, INTENSITY_DETAIL, PACE_BRIEF, MISC: { ACCEPT_ZONE, ACCEPT_PREMISES, ZONE, NEW_ZONE, AREA },
 };
 
 /** Both names, Chinese first: how a place label reads in either language. */

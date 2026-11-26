@@ -77,6 +77,7 @@ export function optionLabel(s: GameState, slice: Slice, card: string, option: st
 export interface Line { label: L; value: L }
 export interface CardView {
   id: string; card: string; title: L; interrupting: boolean; raised?: string; expires?: string;
+  ids: readonly string[]; count: number;              // R11.1: identical emergent cards stack into one
   description?: L;                                    // R7: an event card's content description
   options: { id: string; label: L; badges: L[] }[];   // badges: R7's derived effect badges, event cards only
   lines: Line[];
@@ -133,13 +134,13 @@ const plus = (l: L, n: number): L => lv(l, `${n >= 0 ? '+' : '−'}${num(Math.ab
 const then = (a: L, b: L): L => ({ zh: `${a.zh}${b.zh}`, en: `${a.en}${b.en}` });
 
 /** One effect's badges, read from params as the effect itself reads them (§11.2, R7); [] adds none. */
-function effectBadge(d: EventDef, e: EventEffect, option: string, slice: Slice): L[] {
+function effectBadge(d: EventDef, e: EventEffect, option: string, slice: Slice, count = 1): L[] {
   const p = slice.params, n = (p.events[d.id] ?? {}) as Record<string, number | undefined>;
   const fc = slice.tick.fiscal, B = S.BADGE;
   switch (e.kind) {
-    case 'cost': return [lv(B.cost!, yuan(n.cost ?? 0))];
-    case 'scrutiny': return [plus(B.scrutiny!, n.scrutiny ?? 0)];
-    case 'standing': return [plus(B.standing!, n.standing ?? 0)];
+    case 'cost': return [lv(B.cost!, yuan((n.cost ?? 0) * count))];
+    case 'scrutiny': return [plus(B.scrutiny!, (n.scrutiny ?? 0) * count)];
+    case 'standing': return [plus(B.standing!, (n.standing ?? 0) * count)];
     case 'commit_choice': {
       const t = fc?.projects.find((x) => x.id === option);
       if (!t) return [];                                     // an option that is not a template commits nothing
@@ -192,20 +193,21 @@ function effectBadge(d: EventDef, e: EventEffect, option: string, slice: Slice):
  * Each option's effect badges (§11.2, R7): derived from the on_answer effects that apply to it, so a badge cannot
  * disagree with what the option does. Effects applied when the event fired are not the option's. Pure.
  */
-export function effectBadges(d: EventDef, slice: Slice, _s?: GameState): Record<string, L[]> {
+export function effectBadges(d: EventDef, slice: Slice, _s?: GameState, count = 1): Record<string, L[]> {
   const out: Record<string, L[]> = {};
   for (const o of d.card?.options ?? []) {
-    const bs = d.onAnswer.filter((e) => e.option === undefined || e.option === o.id).flatMap((e) => effectBadge(d, e, o.id, slice));
+    const bs = d.onAnswer.filter((e) => e.option === undefined || e.option === o.id).flatMap((e) => effectBadge(d, e, o.id, slice, count));
     out[o.id] = bs.length ? bs : [S.BADGE.noEffect!];
   }
   return out;
 }
 
-export function cardView(s: GameState, slice: Slice, c: CardInstance): CardView {
+export function cardView(s: GameState, slice: Slice, c: CardInstance, count = 1, ids: readonly string[] = [c.id]): CardView {
   const ev = slice.tick.events.find((d) => d.id === c.card);
-  const badges = ev ? effectBadges(ev, slice, s) : {};
+  const badges = ev ? effectBadges(ev, slice, s, count) : {};
   return {
     id: c.id, card: c.card, title: cardTitle(slice, c.card) ?? raw(c.card), interrupting: c.interrupting,
+    ids, count,
     ...(c.raisedAt !== undefined ? { raised: formatYM(c.raisedAt) } : {}),
     ...(c.expires !== undefined ? { expires: formatYM(c.expires) } : {}),
     ...(ev?.description ? { description: ev.description } : {}),
@@ -213,9 +215,23 @@ export function cardView(s: GameState, slice: Slice, c: CardInstance): CardView 
     lines: cardLines(s, slice, c),
   };
 }
-/** The stack: interrupting cards first, then the rest in the order raised. */
-export const cardStack = (s: GameState, slice: Slice) =>
-  [...s.pendingCards].sort((a, b) => Number(b.interrupting) - Number(a.interrupting)).map((c) => cardView(s, slice, c));
+
+/**
+ * The stack: interrupting cards first, then the rest in order. Identical emergent cards fired more than
+ * once in a quarter stack into one card with a count; one choice answers the group.
+ */
+export function cardStack(s: GameState, slice: Slice): CardView[] {
+  const sorted = [...s.pendingCards].sort((a, b) => Number(b.interrupting) - Number(a.interrupting));
+  const groups = new Map<string, CardInstance[]>();
+  for (const c of sorted) {
+    const ev = slice.tick.events.find((d) => d.id === c.card);
+    const groupable = !c.interrupting && ev?.family === 'emergent';
+    const key = groupable ? `emergent:${c.card}` : `card:${c.id}`;
+    const list = groups.get(key);
+    if (list) list.push(c); else groups.set(key, [c]);
+  }
+  return [...groups.values()].map(([c, ...rest]) => cardView(s, slice, c!, rest.length + 1, [c!.id, ...rest.map((q) => q.id)]));
+}
 
 // ---- the briefing ----
 

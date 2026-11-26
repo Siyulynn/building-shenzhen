@@ -7,15 +7,15 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { createInitialState, landCoverAt, playableAreaOf, type Slice } from '@sz/sim-core';
 import { loadSlice } from '../src/load.js';
-import { choose, enqueue, newSession } from '../src/controller.js';
+import { choose, chooseGroup, enqueue, newSession } from '../src/controller.js';
 import {
   hoverText, initialUi, renderBriefing, renderDecisions, renderDrawer, renderFlyout, renderInspector, renderOverlaySelect,
   renderReadinessStrip, renderStack, renderTutorial, type View,
 } from '../src/render.js';
-import { inspectorView, playableBox, readinessView } from '../src/views.js';
+import { cardStack, inspectorView, playableBox, readinessView } from '../src/views.js';
 import { STARTER_CELLS, STARTER_FROM, STARTER_TO, tutorialView } from '../src/tutorial.js';
 import { applyPlan, planGesture, queuedBudget } from '../src/tools.js';
-import { T } from '../src/strings.js';
+import { INTENSITY_BRIEF, T } from '../src/strings.js';
 
 const slice: Slice = loadSlice();
 const start = createInitialState(slice.init);
@@ -112,6 +112,36 @@ describe('R11.1 the reference-only historical plan and the wording', () => {
     const html = renderFlyout(view({ tool: 'zone' }));
     expect(html).not.toContain('data-act="zoneGuide"');
     expect(html).toContain(T.guideReference.en);
+  });
+
+  it('keeps locked choices the same size and moves the opener to a tooltip', () => {
+    const html = renderFlyout(view({ tool: 'zone' }));
+    expect(html).toContain(T.unlockLater.en);
+    expect(html).not.toContain(T.opensWith.en);
+    expect(html).not.toContain('class="opens"');
+  });
+
+  it('shows one brief description unless the details switch is on', () => {
+    const brief = renderFlyout(view({ tool: 'zone', details: false }));
+    expect(brief).toContain(INTENSITY_BRIEF.standard.en);
+    expect(brief).not.toContain(T.formationHint.en);
+    const full = renderFlyout(view({ tool: 'zone', details: true }));
+    expect(full).toContain(T.formationHint.en);
+    expect(full).toContain(T.intensityHint.en);
+  });
+
+  it('stacks identical petitions into one card with a count, and answers the group together', () => {
+    const base = newSession(slice), date = base.state.date;
+    const petition = (id: string) => ({
+      id, card: 'event.petition', options: ['compensate', 'noted'], interrupting: false, raisedAt: date, expires: date + 2,
+    });
+    const x = { ...base, state: { ...base.state, pendingCards: [petition('event.petition@1979-02.0'), petition('event.petition@1979-03.1')] } };
+    const group = cardStack(x.state, slice).find((c) => c.card === 'event.petition')!;
+    expect(group.count).toBe(2);
+    expect(renderDecisions({ ...view({}, x), ui: { ...initialUi(slice), decisions: true } })).toContain('×2');
+    const answered = chooseGroup(x, group.id, 'compensate');
+    expect(answered.answers[group.ids[0]!]).toBe('compensate');
+    expect(answered.answers[group.ids[1]!]).toBe('compensate');
   });
 
   it('counts the cards and says how many must still be answered', () => {
